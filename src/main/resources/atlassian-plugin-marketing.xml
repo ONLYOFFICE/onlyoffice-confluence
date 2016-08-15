@@ -1,0 +1,16 @@
+<atlassian-plugin-marketing>
+    <compatibility>
+        <product name="confluence" />
+    </compatibility>
+
+    <logo image="images/144.pmg"/>
+    <banner image="images/banner.jpg"/>
+
+    <highlights>
+        <highlight image="images/ss1.png" cropped="images/ss1c.png"/>
+    </highlights>
+
+    <screenshots>
+        <screenshot image="images/ss2.png"/>
+    </screenshots>
+</atlassian-plugin-marketing>

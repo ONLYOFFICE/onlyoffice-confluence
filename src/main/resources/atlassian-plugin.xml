@@ -1,0 +1,46 @@
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+
+        <param name="plugin-icon">images/16.png</param>
+        <param name="plugin-logo">images/144.png</param>
+        <param name="plugin-banner">images/banner.jpg</param>
+        <param name="vendor-icon">images/16.png</param>
+        <param name="vendor-logo">images/72.png</param>
+    </plugin-info>
+
+    <resource type="i18n" name="i18n" location="onlyoffice-confluence-plugin"/>
+
+    <web-resource key="onlyoffice-confluence-plugin-resources" name="Link for Web Resources rendering">
+        <description>The link used to make the document to be opened in the new browser tab for editing or viewing.</description>
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource type="download" name="onlyoffice-confluence-plugin.js" location="/js/onlyoffice-confluence-plugin.js"/>
+        <context>page</context>
+    </web-resource>
+    <web-item key="onlyoffice-doceditor" name="Link for the attachment editing" section="system.attachment" weight="9">
+        <condition class="onlyoffice.IsOfficeFileAttachment">
+            <param name="forEdit">true</param>
+        </condition>
+        <description>The link and the text for it which is used to open the document which is available for editing.</description>
+        <label key="onlyoffice.connector.editlink"/>
+        <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
+        <styleClass>onlyoffice-doceditor</styleClass>
+    </web-item>
+    <web-item key="onlyoffice-docviewer" name="Link for the attachment viewing" section="system.attachment" weight="10">
+        <condition class="onlyoffice.IsOfficeFileAttachment"/>
+        <description>The link and the text for it which is used to open the document which is available for preview only.</description>
+        <label key="onlyoffice.connector.viewlink"/>
+        <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
+        <styleClass>onlyoffice-doceditor</styleClass>
+    </web-item>
+    <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">
+        <description>The fully functional editor for most known formats of text documents, spreadsheets and presentations used to open these types of documents for editing or preview.</description>
+        <url-pattern>/onlyoffice/doceditor</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeSaveFileHandler" class="onlyoffice.OnlyOfficeSaveFileServlet" name="Save File Handler">
+        <description>The callback URL, used to inform the document storage service about the end of the document editing and return the link to the modified document so that it could be saved correctly.</description>
+        <url-pattern>/onlyoffice/save</url-pattern>
+    </servlet>
+</atlassian-plugin>
