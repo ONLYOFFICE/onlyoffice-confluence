@@ -120,6 +120,7 @@
                         <!-- Ensure plugin is spring powered - see https://extranet.atlassian.com/x/xBS9hQ  -->
                         <Spring-Context>*</Spring-Context>
                     </instructions>
+                    <includeExclude>-com.atlassian.plugin.spring.scanner.annotation.*</includeExclude>
                 </configuration>
             </plugin>
 
