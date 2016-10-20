@@ -5,7 +5,7 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
 
         <param name="plugin-icon">images/16.png</param>
-        <param name="plugin-logo">images/144.png</param>
+        <param name="plugin-logo">images/144.jpg</param>
         <param name="plugin-banner">images/banner.jpg</param>
         <param name="vendor-icon">images/16.png</param>
         <param name="vendor-logo">images/72.png</param>
