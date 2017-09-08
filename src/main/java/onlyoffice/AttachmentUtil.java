@@ -11,6 +11,7 @@ import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
 
@@ -59,8 +60,7 @@ public class AttachmentUtil
 		Attachment oldAttachment = attachment.copy();
 		attachment.setFileSize(size);
 
-		attachment.setLastModifier(user);
-		attachment.setCreator(user);
+		AuthenticatedUserThreadLocal.set(user);
 
 		attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
 	}
