@@ -29,7 +29,7 @@ You will need:
 
 * Atlassian Plugin SDK,
 
-* Compile package
+* Compile package:
 ```bash
 atlas-package
 ```
