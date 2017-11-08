@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>onlyoffice</groupId>
     <artifactId>onlyoffice-confluence-plugin</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <organization>
         <name>Ascensio System SIA</name>
@@ -15,7 +15,7 @@
     </organization>
 
     <name>ONLYOFFICE Confluence plugin</name>
-    <description>ONLYOFFICE™ Confluence plugin enables users to edit office documents from Atlassian Confluence using ONLYOFFICE™ Document Server.</description>
+    <description>ONLYOFFICE Confluence plugin enables users to edit office documents from Atlassian Confluence using ONLYOFFICE Document Server.</description>
     <packaging>atlassian-plugin</packaging>
     <dependencyManagement>
         <dependencies>
