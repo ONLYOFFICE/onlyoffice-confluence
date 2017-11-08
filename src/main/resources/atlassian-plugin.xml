@@ -12,12 +12,12 @@
         <param name="vendor-logo">images/72.png</param>
     </plugin-info>
 
-    <resource type="i18n" name="i18n" location="onlyoffice-confluence-plugin"/>
+    <resource type="i18n" name="i18n" location="lang-resource"/>
 
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Link for Web Resources rendering">
         <description>The link used to make the document to be opened in the new browser tab for editing or viewing.</description>
         <dependency>com.atlassian.auiplugin:ajs</dependency>
-        <resource type="download" name="onlyoffice-confluence-plugin.js" location="/js/onlyoffice-confluence-plugin.js"/>
+        <resource type="download" name="onlyoffice-main.js" location="/js/onlyoffice-main.js"/>
         <context>page</context>
     </web-resource>
 
