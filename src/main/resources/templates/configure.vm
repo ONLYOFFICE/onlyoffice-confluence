@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>ONLYOFFICE</title>
+        <meta name="decorator" content="atl.admin" />
+    </head>
+    <body>
+        <script type="text/javascript" language="javascript">
+            (function (jq) {
+                var url = AJS.contextPath() + "/plugins/servlet/onlyoffice/configure";
+
+                jq(document).ready(function() {
+                    function updateConfig() {
+                        var data = { "apiUrl": jq("#apiUrlField").attr("value") };
+
+                        jq.ajax({
+                            url: url,
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify(data),
+                            processData: false
+                        });
+                    };
+
+                    jq("#onlyofficeConf").submit(function(e) {
+                        e.preventDefault();
+                        updateConfig();
+                    });
+                });
+
+            })(jQuery);
+        </script>
+        <form id="onlyofficeConf" class="aui">
+            <div class="field-group">
+                <label for="name">Document Server</label>
+                <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text">
+            </div>
+
+            <div class="field-group">
+                <input type="submit" value="$i18n.getText("onlyoffice.configuration.save")" class="button">
+            </div>
+        </form>
+    </body>
+</html>

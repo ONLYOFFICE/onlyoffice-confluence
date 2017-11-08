@@ -4,6 +4,7 @@
         <description>${project.description}</description>
         <version>${project.version}</version>
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="configure.url">/plugins/servlet/onlyoffice/configure</param>
 
         <param name="plugin-icon">images/16.png</param>
         <param name="plugin-logo">images/144.png</param>
@@ -11,6 +12,8 @@
         <param name="vendor-icon">images/16.png</param>
         <param name="vendor-logo">images/72.png</param>
     </plugin-info>
+
+    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
 
     <resource type="i18n" name="i18n" location="lang-resource"/>
 
@@ -45,5 +48,9 @@
     <servlet key="OnlyOfficeSaveFileHandler" class="onlyoffice.OnlyOfficeSaveFileServlet" name="Save File Handler">
         <description>The callback URL, used to inform the document storage service about the end of the document editing and return the link to the modified document so that it could be saved correctly.</description>
         <url-pattern>/onlyoffice/save</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeConfigure" class="onlyoffice.OnlyOfficeConfServlet" name="Configuration Page">
+        <description>The configuration page.</description>
+        <url-pattern>/onlyoffice/configure</url-pattern>
     </servlet>
 </atlassian-plugin>

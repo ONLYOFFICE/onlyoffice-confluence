@@ -20,8 +20,26 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+
+import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import javax.inject.Inject;
+
+@Scanned
 public class OnlyOfficeEditorServlet extends HttpServlet
 {
+	@ComponentImport
+	private final PluginSettingsFactory pluginSettingsFactory;
+
+
+	@Inject
+	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory)
+	{
+		this.pluginSettingsFactory = pluginSettingsFactory;
+	}
+
 	private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
 	private static final long serialVersionUID = 1L;
 
@@ -33,6 +51,12 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 	{
 		if (!AuthContext.checkUserAuthorisation(request, response)) {
 			return;
+		}
+
+		PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
+		String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
+		if (apiUrl == null || apiUrl.isEmpty()) {
+			apiUrl = "";
 		}
 
 		ConfigurationManager configurationManager = new ConfigurationManager();
@@ -60,7 +84,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 
 				fileName = AttachmentUtil.getFileName(attachmentId);
 
-				externalUrl = DocumentManager.GetExternalUri(attachmentId, properties.getProperty("files.docservice.url.domain") + properties.getProperty("files.docservice.url.storage"));
+				externalUrl = DocumentManager.GetExternalUri(attachmentId, apiUrl + properties.getProperty("files.docservice.url.storage"));
 
 				if (AttachmentUtil.checkAccess(attachmentId, user, true))
 				{
@@ -82,15 +106,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 		response.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = response.getWriter();
 
-		writer.write(getTemplate(callbackUrl, externalUrl, key, fileName, user, errorMessage));
+		writer.write(getTemplate(apiUrl, callbackUrl, externalUrl, key, fileName, user, errorMessage));
 	}
 
-	private String getTemplate(String callbackUrl, String fileUrl, String key, String fileName, ConfluenceUser user, String errorMessage)
+	private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName, ConfluenceUser user, String errorMessage)
 			throws UnsupportedEncodingException
 	{
 		Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
-		contextMap.put("docserviceApiUrl", properties.getProperty("files.docservice.url.domain") + properties.getProperty("files.docservice.url.api"));
+		contextMap.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
 		contextMap.put("callbackUrl", callbackUrl);
 		contextMap.put("fileUrl", fileUrl);
 		contextMap.put("key", key);
