@@ -132,7 +132,7 @@
             <plugin>
                 <groupId>com.atlassian.plugin</groupId>
                 <artifactId>atlassian-spring-scanner-maven-plugin</artifactId>
-                <version>1.2.6</version>
+                <version>${atlassian.spring.scanner.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -155,11 +155,11 @@
     </build>
 
     <properties>
-        <confluence.version>5.9.4</confluence.version>
-        <confluence.data.version>5.9.4</confluence.data.version>
+        <confluence.version>6.4.3</confluence.version>
+        <confluence.data.version>6.4.3</confluence.data.version>
         <amps.version>6.2.1</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
-        <atlassian.spring.scanner.version>1.2.6</atlassian.spring.scanner.version>
+        <atlassian.spring.scanner.version>1.2.12</atlassian.spring.scanner.version>
         <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
     </properties>
