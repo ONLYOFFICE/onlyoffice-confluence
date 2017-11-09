@@ -14,8 +14,8 @@
         <url>https://www.onlyoffice.com</url>
     </organization>
 
-    <name>ONLYOFFICE Confluence plugin</name>
-    <description>ONLYOFFICE Confluence plugin enables users to edit office documents from Atlassian Confluence using ONLYOFFICE Document Server.</description>
+    <name>ONLYOFFICE Connector for Confluence</name>
+    <description>ONLYOFFICE Connector for Confluence allows you to work on all kinds of office documents within Confluence using ONLYOFFICE Online Editors with the enhanced formatting toolset. View, create and co-edit the documents in real-time.</description>
     <packaging>atlassian-plugin</packaging>
     <dependencyManagement>
         <dependencies>

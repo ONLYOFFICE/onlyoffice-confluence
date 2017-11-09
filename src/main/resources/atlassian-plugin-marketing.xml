@@ -7,10 +7,14 @@
     <banner image="images/banner.jpg"/>
 
     <highlights>
-        <highlight image="images/ss1.png" cropped="images/ss1c.png"/>
+        <highlight image="images/hss1.png" cropped="images/hss1c.png"/>
+        <highlight image="images/hss2.png" cropped="images/hss2c.png"/>
+        <highlight image="images/hss3.png" cropped="images/hss3c.png"/>
     </highlights>
 
     <screenshots>
+        <screenshot image="images/ss1.png"/>
         <screenshot image="images/ss2.png"/>
+        <screenshot image="images/ss3.png"/>
     </screenshots>
 </atlassian-plugin-marketing>
