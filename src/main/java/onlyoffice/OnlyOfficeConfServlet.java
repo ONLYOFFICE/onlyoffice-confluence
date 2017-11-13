@@ -69,7 +69,8 @@ public class OnlyOfficeConfServlet extends HttpServlet
 
 		PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
 		String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
-		if (apiUrl == null || apiUrl.isEmpty()) {
+		if (apiUrl == null || apiUrl.isEmpty())
+		{
 			apiUrl = "";
 		}
 
@@ -114,7 +115,9 @@ public class OnlyOfficeConfServlet extends HttpServlet
 			JSONObject jsonObj = new JSONObject(body);
 
 			apiUrl = jsonObj.getString("apiUrl");
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			ex.printStackTrace(pw);
@@ -135,11 +138,14 @@ public class OnlyOfficeConfServlet extends HttpServlet
 	{
 		Scanner scanner = null;
 		Scanner scannerUseDelimiter = null;
-		try {
+		try
+		{
 			scanner = new Scanner(stream);
 			scannerUseDelimiter = scanner.useDelimiter("\\A");
 			return scanner.hasNext() ? scanner.next() : "";
-		} finally {
+		}
+		finally
+		{
 			scannerUseDelimiter.close();
 			scanner.close();
 		}

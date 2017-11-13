@@ -11,7 +11,8 @@ public class ConfigurationManager
 	{
 		Properties properties = new Properties();
 		InputStream inputStream = getClass().getClassLoader().getResourceAsStream("onlyoffice-config.properties");
-		if (inputStream != null) {
+		if (inputStream != null)
+		{
 			properties.load(inputStream);
 		}
 		return properties;

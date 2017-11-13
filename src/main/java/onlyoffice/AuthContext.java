@@ -18,7 +18,8 @@ public class AuthContext
 	public static boolean checkUserAuthorisation(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		Principal principal = request.getUserPrincipal();
-		if (principal == null) {
+		if (principal == null)
+		{
 			log.error("User is not authenticated");
 			String fullUrl = getLoginUrl(request);
 			response.sendRedirect(fullUrl);

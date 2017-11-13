@@ -49,13 +49,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
-		if (!AuthContext.checkUserAuthorisation(request, response)) {
+		if (!AuthContext.checkUserAuthorisation(request, response))
+		{
 			return;
 		}
 
 		PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
 		String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
-		if (apiUrl == null || apiUrl.isEmpty()) {
+		if (apiUrl == null || apiUrl.isEmpty())
+		{
 			apiUrl = "";
 		}
 
@@ -72,7 +74,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 		String attachmentIdString = request.getParameter("attachmentId");
 		Long attachmentId;
 
-		try {
+		try
+		{
 			attachmentId = Long.parseLong(attachmentIdString);
 			log.info("attachmentId " + attachmentId);
 
@@ -90,11 +93,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 				{
 					callbackUrl = DocumentManager.getCallbackUrl(attachmentId);
 				}
-			} else {
+			}
+			else
+			{
 				log.error("access deny");
 				errorMessage = "You don not have enough permission to view the file";
 			}
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			ex.printStackTrace(pw);

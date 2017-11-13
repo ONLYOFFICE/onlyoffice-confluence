@@ -37,7 +37,9 @@ public class DocumentManager
 			Properties properties = configurationManager.GetProperties();
 			String filesizeMax = properties.getProperty("filesize-max");
 			size = Long.parseLong(filesizeMax);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			size = 0;
 		}
 
@@ -53,7 +55,9 @@ public class DocumentManager
 			String exts = properties.getProperty("files.docservice.edited-docs");
 
 			return Arrays.asList(exts.split("\\|"));
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
@@ -67,7 +71,8 @@ public class DocumentManager
 		String key =  getKeyOfFile(attachmentId);
 		String externalUri;
 
-		if (CacheMap.containsKey(key)) {
+		if (CacheMap.containsKey(key))
+		{
 			externalUri = CacheMap.get(key);
 			log.info("externalUri from cache " + externalUri);
 			return externalUri;
@@ -128,7 +133,9 @@ public class DocumentManager
 
 			String base64 = Base64.getEncoder().encodeToString(payload.getBytes("UTF-8"));	
 			return base64;
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			log.error(ex);
 		}
 		return "";

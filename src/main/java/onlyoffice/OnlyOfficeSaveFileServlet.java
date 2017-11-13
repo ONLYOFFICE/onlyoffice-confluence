@@ -109,7 +109,9 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 			}
 
 			return true;
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			ex.printStackTrace(pw);
@@ -117,7 +119,9 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 			log.error(error);
 
 			return false;
-		} finally {
+		}
+		finally
+		{
 			if (connection != null)
 			{
 				connection.disconnect();
@@ -129,11 +133,14 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 	{
 		Scanner scanner = null;
 		Scanner scannerUseDelimiter = null;
-		try {
+		try
+		{
 			scanner = new Scanner(stream);
 			scannerUseDelimiter = scanner.useDelimiter("\\A");
 			return scanner.hasNext() ? scanner.next() : "";
-		} finally {
+		}
+		finally
+		{
 			scannerUseDelimiter.close();
 			scanner.close();
 		}
