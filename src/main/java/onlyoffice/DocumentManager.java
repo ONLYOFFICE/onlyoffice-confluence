@@ -66,27 +66,17 @@ public class DocumentManager
 		}
 	}
 
-	public static String GetExternalUri(Long attachmentId, String documentStorageUrl) throws Exception
+	public static String GetUri(Long attachmentId) throws Exception
 	{
-		String key =  getKeyOfFile(attachmentId);
-		String externalUri;
+		SettingsManager settingsManager = (SettingsManager) ContainerManager.getComponent("settingsManager");
+		String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
 
-		if (CacheMap.containsKey(key))
-		{
-			externalUri = CacheMap.get(key);
-			log.info("externalUri from cache " + externalUri);
-			return externalUri;
-		}
+		String hash = CreateHash(Long.toString(attachmentId));
 
-		InputStream inputStream = AttachmentUtil.getAttachmentData(attachmentId);
-		String contentType = AttachmentUtil.getMediaType(attachmentId);
+		String callbackUrl = baseUrl + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
+		log.info("callbackUrl " + callbackUrl);
 
-		externalUri = ServiceConverter.GetExternalUri(inputStream, inputStream.available(), contentType, key, documentStorageUrl);
-
-		CacheMap.put(key, externalUri);
-		log.info("externalUri " + externalUri);
-
-		return externalUri;
+		return callbackUrl;
 	}
 
 	public static String getKeyOfFile(Long attachmentId)

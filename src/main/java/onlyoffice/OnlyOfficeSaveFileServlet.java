@@ -2,6 +2,7 @@ package onlyoffice;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
@@ -26,6 +27,32 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
+
+	@Override
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
+	{
+		String vkey = request.getParameter("vkey");
+		log.info("vkey = " + vkey);
+		String attachmentIdString = DocumentManager.ReadHash(vkey);
+
+		Long attachmentId = Long.parseLong(attachmentIdString);
+		log.info("attachmentId " + attachmentId);
+
+		String contentType = AttachmentUtil.getMediaType(attachmentId);
+		response.setContentType(contentType);
+
+		InputStream inputStream = AttachmentUtil.getAttachmentData(attachmentId);
+		response.setContentLength(inputStream.available());
+
+		byte[] buffer = new byte[10240];
+
+		OutputStream output = response.getOutputStream();
+		for (int length = 0; (length = inputStream.read(buffer)) > 0;)
+		{
+			output.write(buffer, 0, length);
+		}
+	}
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response)

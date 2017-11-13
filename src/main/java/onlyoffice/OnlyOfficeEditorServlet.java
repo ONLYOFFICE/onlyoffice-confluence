@@ -87,7 +87,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 
 				fileName = AttachmentUtil.getFileName(attachmentId);
 
-				externalUrl = DocumentManager.GetExternalUri(attachmentId, apiUrl + properties.getProperty("files.docservice.url.storage"));
+				externalUrl = DocumentManager.GetUri(attachmentId);
 
 				if (AttachmentUtil.checkAccess(attachmentId, user, true))
 				{
