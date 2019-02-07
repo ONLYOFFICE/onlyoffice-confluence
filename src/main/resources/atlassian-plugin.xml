@@ -13,8 +13,6 @@
         <param name="vendor-logo">images/72.png</param>
     </plugin-info>
 
-    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
-
     <resource type="i18n" name="i18n" location="lang-resource"/>
 
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Link for Web Resources rendering">
