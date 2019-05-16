@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Scanner;
 
 import javax.servlet.ServletException;
@@ -21,12 +22,32 @@ import org.json.JSONArray;
 
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 
+import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import javax.inject.Inject;
+
+@Scanned
 public class OnlyOfficeSaveFileServlet extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
+
+	@ComponentImport
+	private final PluginSettingsFactory pluginSettingsFactory;
+	private final PluginSettings settings;
+	private final JwtManager jwtManager;
+
+	@Inject
+	public OnlyOfficeSaveFileServlet(PluginSettingsFactory pluginSettingsFactory)
+	{
+		this.pluginSettingsFactory = pluginSettingsFactory;
+		settings = pluginSettingsFactory.createGlobalSettings();
+		this.jwtManager = new JwtManager(pluginSettingsFactory);
+	}
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -64,7 +85,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 		log.info("vkey = " + vkey);
 		String attachmentIdString = DocumentManager.ReadHash(vkey);
 
-		boolean result = processData(attachmentIdString, request.getInputStream());
+		boolean result = processData(attachmentIdString, request);
 		String error = "1";
 		if (result)
 		{
@@ -76,10 +97,11 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 		log.info("error = " + error);
 	}
 
-	private boolean processData(String attachmentIdString, InputStream requestStream)
+	private boolean processData(String attachmentIdString, HttpServletRequest request)
 			throws IOException
 	{
 		log.info("attachmentId = " + attachmentIdString);
+		InputStream requestStream = request.getInputStream();
 		if (attachmentIdString.isEmpty())
 		{
 			return false;
@@ -98,6 +120,30 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 			}
 
 			JSONObject jsonObj = new JSONObject(body);
+
+			if (jwtManager.jwtEnabled()) {
+                String token = jsonObj.optString("token");
+                Boolean inBody = true;
+
+                if (token == null || token == "") {
+                    String jwth = (String) settings.get("onlyoffice.jwtHeader");
+                    String header = (String) request.getHeader(jwth == null || jwth.isEmpty() ? "Authorization" : jwth);
+                    token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
+                    inBody = false;
+                }
+
+                if (token == null || token == "") {
+                    throw new SecurityException("Try save without JWT");
+                }
+
+                if (!jwtManager.verify(token)) {
+                    throw new SecurityException("Try save with wrong JWT");
+                }
+
+                if (inBody) {
+                    jsonObj = new JSONObject(new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), "UTF-8"));
+                }
+			}
 
 			long status = jsonObj.getLong("status");
 			log.info("status = " + status);

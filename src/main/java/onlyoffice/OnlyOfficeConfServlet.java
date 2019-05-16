@@ -69,23 +69,26 @@ public class OnlyOfficeConfServlet extends HttpServlet
 
 		PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
 		String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
-		if (apiUrl == null || apiUrl.isEmpty())
-		{
-			apiUrl = "";
-		}
+		String jwtSecret = (String) pluginSettings.get("onlyoffice.jwtSecret");
+		String jwtHeader = (String) pluginSettings.get("onlyoffice.jwtHeader");
+		if (apiUrl == null || apiUrl.isEmpty()) { apiUrl = ""; }
+		if (jwtSecret == null || jwtSecret.isEmpty()) { jwtSecret = ""; }
+		if (jwtHeader == null || jwtHeader.isEmpty()) { jwtHeader = ""; }
 
 		response.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = response.getWriter();
 
-		writer.write(getTemplate(apiUrl));
+		writer.write(getTemplate(apiUrl, jwtSecret, jwtHeader));
 	}
 	
-	private String getTemplate(String apiUrl)
+	private String getTemplate(String apiUrl, String jwtSecret, String jwtHeader)
 			throws UnsupportedEncodingException
 	{
 		Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
 		contextMap.put("docserviceApiUrl", apiUrl);
+		contextMap.put("docserviceJwtSecret", jwtSecret);
+		contextMap.put("docserviceJwtHeader", jwtHeader);
 
 		return VelocityUtils.getRenderedTemplate("templates/configure.vm", contextMap);
 	}
@@ -110,6 +113,8 @@ public class OnlyOfficeConfServlet extends HttpServlet
 		}
 
 		String apiUrl;
+		String jwtSecret;
+		String jwtHeader;
 		try
 		{
 			JSONObject jsonObj = new JSONObject(body);
@@ -118,6 +123,8 @@ public class OnlyOfficeConfServlet extends HttpServlet
 			if (!apiUrl.endsWith("/")) {
 				apiUrl += "/";
 			}
+			jwtSecret = jsonObj.getString("jwtSecret");
+			jwtHeader = jsonObj.getString("jwtHeader");
 		}
 		catch (Exception ex)
 		{
@@ -133,6 +140,8 @@ public class OnlyOfficeConfServlet extends HttpServlet
 
 		PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
 		pluginSettings.put("onlyoffice.apiUrl", apiUrl);
+		pluginSettings.put("onlyoffice.jwtSecret", jwtSecret);
+		pluginSettings.put("onlyoffice.jwtHeader", jwtHeader);
 
 		return;
 	}

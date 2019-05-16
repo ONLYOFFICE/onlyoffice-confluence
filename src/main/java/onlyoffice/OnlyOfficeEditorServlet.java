@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -36,10 +38,13 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 	@ComponentImport
 	private final LocaleManager localeManager;
 
+	private final JwtManager jwtManager;
+
 	@Inject
-	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory)
+	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager)
 	{
 		this.pluginSettingsFactory = pluginSettingsFactory;
+		this.jwtManager = new JwtManager(pluginSettingsFactory);
 		this.localeManager = localeManager;
 	}
 
@@ -122,21 +127,37 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 	private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName, ConfluenceUser user, String errorMessage)
 			throws UnsupportedEncodingException
 	{
-		Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+		Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
+		Map<String, String> config = new HashMap<String, String>();
 
-		contextMap.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
-		contextMap.put("callbackUrl", callbackUrl);
-		contextMap.put("fileUrl", fileUrl);
-		contextMap.put("key", key);
-		contextMap.put("fileName", fileName);
-		contextMap.put("errorMessage", errorMessage);
-		contextMap.put("lang", localeManager.getLocale(user).toLanguageTag());
+		config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
+		config.put("callbackUrl", callbackUrl);
+		config.put("fileUrl", fileUrl);
+		config.put("key", key);
+		config.put("fileName", fileName);
+		config.put("errorMessage", errorMessage);
+		config.put("lang", localeManager.getLocale(user).toLanguageTag());
+
 		if (user != null)
 		{
-			contextMap.put("userId", user.getName());
-			contextMap.put("userName", user.getFullName());
+			config.put("userId", user.getName());
+			config.put("userName", user.getFullName());
 		}
 
-		return VelocityUtils.getRenderedTemplate("templates/editor.vm", contextMap);
+		if (jwtManager.jwtEnabled()) {
+			JSONObject responseJson = new JSONObject(config);
+			try {
+				config.put("token", jwtManager.createToken(responseJson));
+			} catch (Exception ex) {
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				ex.printStackTrace(pw);
+				String error = ex.toString() + "\n" + sw.toString();
+				log.error(error);
+			}
+		}
+
+		defaults.putAll(config);
+		return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
 	}
 }
