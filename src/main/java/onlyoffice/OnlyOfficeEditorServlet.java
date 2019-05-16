@@ -16,6 +16,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
@@ -32,12 +33,14 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 {
 	@ComponentImport
 	private final PluginSettingsFactory pluginSettingsFactory;
-
+	@ComponentImport
+	private final LocaleManager localeManager;
 
 	@Inject
 	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory)
 	{
 		this.pluginSettingsFactory = pluginSettingsFactory;
+		this.localeManager = localeManager;
 	}
 
 	private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
@@ -127,6 +130,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 		contextMap.put("key", key);
 		contextMap.put("fileName", fileName);
 		contextMap.put("errorMessage", errorMessage);
+		contextMap.put("lang", localeManager.getLocale(user).toLanguageTag());
 		if (user != null)
 		{
 			contextMap.put("userId", user.getName());

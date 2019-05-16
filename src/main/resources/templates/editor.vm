@@ -81,6 +81,7 @@
 
 		            var editorConfig = {
 			          	callbackUrl: callbackUrl,
+			          	lang: "${lang}"
 			        };
 
 					var userId = "${userId}";
