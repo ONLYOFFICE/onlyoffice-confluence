@@ -30,6 +30,11 @@ import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
+/*
+    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
 @Scanned
 public class OnlyOfficeEditorServlet extends HttpServlet
 {

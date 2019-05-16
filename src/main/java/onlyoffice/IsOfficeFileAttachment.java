@@ -9,6 +9,11 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
 
+/*
+    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
 public class IsOfficeFileAttachment implements Condition
 {
     private boolean forEdit;
