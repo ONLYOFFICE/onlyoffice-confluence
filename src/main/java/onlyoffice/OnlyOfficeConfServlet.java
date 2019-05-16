@@ -115,6 +115,9 @@ public class OnlyOfficeConfServlet extends HttpServlet
 			JSONObject jsonObj = new JSONObject(body);
 
 			apiUrl = jsonObj.getString("apiUrl");
+			if (!apiUrl.endsWith("/")) {
+				apiUrl += "/";
+			}
 		}
 		catch (Exception ex)
 		{
