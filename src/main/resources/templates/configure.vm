@@ -13,8 +13,7 @@
                     function updateConfig() {
                         var data = {
                             "apiUrl": jq("#apiUrlField").attr("value"),
-                            "jwtSecret": jq("#jwtSecretField").attr("value"),
-                            "jwtHeader": jq("#jwtHeaderField").attr("value")
+                            "jwtSecret": jq("#jwtSecretField").attr("value")
                         };
 
                         jq.ajax({
@@ -42,10 +41,6 @@
             <div class="field-group">
                 <label for="jwtSecretField">JWT Secret</label>
                 <input type="text" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text">
-            </div>
-            <div class="field-group">
-                <label for="jwtHeaderField">JWT Header</label>
-                <input type="text" id="jwtHeaderField" value="${docserviceJwtHeader}" name="jwtHeaderField" class="text">
             </div>
 
             <div class="field-group">
