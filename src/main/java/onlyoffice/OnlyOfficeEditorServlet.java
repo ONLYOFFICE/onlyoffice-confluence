@@ -135,17 +135,18 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 		Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
 		Map<String, String> config = new HashMap<String, String>();
 
+		String docTitle = fileName.trim();
+		String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+
 		config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
 		config.put("errorMessage", errorMessage);
+		config.put("docTitle", docTitle);
 
 		JSONObject responseJson = new JSONObject();
 		JSONObject documentObject = new JSONObject();
 		JSONObject editorConfigObject = new JSONObject();
 		JSONObject userObject = new JSONObject();
 		JSONObject permObject = new JSONObject();
-
-		String docTitle = fileName.trim();
-		String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
 
 		try {
 			responseJson.put("type", "desktop");
