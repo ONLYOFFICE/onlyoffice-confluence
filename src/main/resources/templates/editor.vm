@@ -49,51 +49,12 @@
 
             var connectEditor = function () {
 				if (typeof DocsAPI === "undefined") {
-					alert("ONLYOFFICE™ is not available. Please contact us at support@onlyoffice.com");
+					alert("ONLYOFFICE is not available. Please contact us at support@onlyoffice.com");
 					return;
 				}
 
-            	var key = "${key}";
-				var documentTypeConfig = "text";
-				var url = "${fileUrl}".replace(/&amp;/g, "&");
-
-            	if (key && url) {
-					var fileTitle = "${fileName}".trim();
-					var posExt = fileTitle.lastIndexOf(".");
-					var fileType = 0 <= posExt ? fileTitle.substring(posExt + 1).trim().toLowerCase() : "";
-					if (fileType == "xlsx") {
-						documentTypeConfig = "spreadsheet";
-					} else if (fileType == "pptx") {
-						documentTypeConfig = "presentation";
-					}
-
-		            var callbackUrl = "${callbackUrl}";
-
-		            var documentConfig = {
-			            fileType: fileType,
-			            title: fileTitle,
-			            url: url,
-			            key: key,
-			            permissions: {
-			            	edit: !!callbackUrl,
-			            },
-			        };
-
-		            var editorConfig = {
-			          	callbackUrl: callbackUrl,
-			          	lang: "${lang}"
-			        };
-
-					var userId = "${userId}";
-					if (!!userId) {
-						editorConfig.user = {
-							id: userId,
-							firstname: "${userName}",
-							name: "${userName}",
-						};
-					}
-
-					var eventsConfig = {
+				var json = '${jsonAsHtml}';
+				var config = {
 						"onReady": function(){
 							var errorMessage = "${errorMessage}";
 							if (errorMessage) {
@@ -101,28 +62,10 @@
 							}
 						},
 	        		};
-            	}
 
-				var config = {
-		        	width: "100%",
-		            height: "100%",
-		            type: "desktop",
-		            documentType: documentTypeConfig,
-		            document: documentConfig,
-		            editorConfig: editorConfig,
-		            events: {
-		            	"onReady": function(){
-							var errorMessage = "${errorMessage}";
-							if (errorMessage) {
-								docEditor.showMessage("ONLYOFFICE", errorMessage, "error");
-							}
-						},
-					}
-	            };
-
-				#if ($token)
-					config.token = "${token}";
-				#end
+				if (json) {
+					Object.assign(config, JSON.parse(json));
+				}
 
 		        docEditor = new DocsAPI.DocEditor("iframeEditor", config);
 	        };
