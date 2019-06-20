@@ -145,8 +145,12 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
                     throw new SecurityException("Try save with wrong JWT");
                 }
 
+                JSONObject bodyFromToken = new JSONObject(new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), "UTF-8"));
+
                 if (inBody) {
-                    jsonObj = new JSONObject(new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), "UTF-8"));
+				    jsonObj = bodyFromToken;
+                } else {
+				    jsonObj = bodyFromToken.getJSONObject("payload");
                 }
 			}
 
