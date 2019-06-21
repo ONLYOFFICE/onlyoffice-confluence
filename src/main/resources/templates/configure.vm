@@ -10,6 +10,19 @@
                 var url = AJS.contextPath() + "/plugins/servlet/onlyoffice/configure";
 
                 jq(document).ready(function() {
+                    var msgBox = jq("#onlyofficeMsg");
+                    var submitBtn = jq("#onlyofficeSubmitBtn");
+                    var lastMsg;
+
+                    var messages = {
+                        success: "$i18n.getText('onlyoffice.configuration.success')",
+                        mixedcontent: "$i18n.getText('onlyoffice.configuration.mixedcontent')",
+                        jsonparse: "$i18n.getText('onlyoffice.configuration.jsonparse')",
+                        docservunreachable: "$i18n.getText('onlyoffice.configuration.docservunreachable')",
+                        docservcommand: "$i18n.getText('onlyoffice.configuration.docservcommand')",
+                        jwterror: "$i18n.getText('onlyoffice.configuration.jwterror')"
+                    };
+
                     function updateConfig() {
                         var data = {
                             "apiUrl": jq("#apiUrlField").attr("value"),
@@ -21,11 +34,41 @@
                             type: "POST",
                             contentType: "application/json",
                             data: JSON.stringify(data),
-                            processData: false
+                            processData: false,
+                            success: function (response) { onResponse(response, data); },
+                            error: function (response) { onResponse(response, data); }
                         });
                     };
 
+                    function onResponse(response, data) {
+                        submitBtn.attr("disabled", false);
+                        if (response) {
+                            var json = JSON.parse(response);
+                            var msg;
+                            var error = true;
+
+                            if (json.success) {
+                                if (window.location.protocol == "https:" && data.apiUrl.startsWith("http:")) {
+                                    msg = "mixedcontent"
+                                } else {
+                                    msg = "success";
+                                    error = false;
+                                }
+                            } else {
+                                msg = json.message;
+                            }
+
+                            if (lastMsg) lastMsg.remove();
+                            if (error) {
+                                lastMsg = AJS.messages.error(msgBox, { body: messages[msg] });
+                            } else {
+                                lastMsg = AJS.messages.success(msgBox, { body: messages[msg] });
+                            }
+                        }
+                    };
+
                     jq("#onlyofficeConf").submit(function(e) {
+                        submitBtn.attr("disabled", true);
                         e.preventDefault();
                         updateConfig();
                     });
@@ -33,6 +76,7 @@
 
             })(jQuery);
         </script>
+        <div id="onlyofficeMsg"></div>
         <form id="onlyofficeConf" class="aui">
             <div class="field-group">
                 <label for="apiUrlField">Document Server</label>
@@ -44,7 +88,7 @@
             </div>
 
             <div class="field-group">
-                <input type="submit" value="$i18n.getText("onlyoffice.configuration.save")" class="button">
+                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText("onlyoffice.configuration.save")" class="button">
             </div>
         </form>
     </body>
