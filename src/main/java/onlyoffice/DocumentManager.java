@@ -22,6 +22,11 @@ import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.spring.container.ContainerManager;
 
+/*
+    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
 public class DocumentManager
 {
 	private static final Logger log = LogManager.getLogger("onlyoffice.DocumentManager");
