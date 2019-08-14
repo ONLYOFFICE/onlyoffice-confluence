@@ -170,7 +170,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 			if (user != null) {
 				editorConfigObject.put("user", userObject);
 				userObject.put("id", user.getName());
-				userObject.put("firstname", user.getFullName());
 				userObject.put("name", user.getFullName());
 			}
 
