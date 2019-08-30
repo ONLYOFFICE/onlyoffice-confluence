@@ -90,26 +90,31 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 		log.info("vkey = " + vkey);
 		String attachmentIdString = DocumentManager.ReadHash(vkey);
 
-		boolean result = processData(attachmentIdString, request);
-		String error = "1";
-		if (result)
-		{
-			error = "0";
+		String error = "";
+		try {
+			processData(attachmentIdString, request);
+		} catch (Exception e) {
+			error = e.getMessage();
 		}
 
 		PrintWriter writer = response.getWriter();
-		writer.write("{\"error\":" + error + "}");
+		if (error.isEmpty()) {
+			writer.write("{\"error\":0}");
+		} else {
+			writer.write("{\"error\":1,\"message\":\"" + error + "\"}");
+		}
+
 		log.info("error = " + error);
 	}
 
-	private boolean processData(String attachmentIdString, HttpServletRequest request)
-			throws IOException
+	private void processData(String attachmentIdString, HttpServletRequest request)
+			throws Exception
 	{
 		log.info("attachmentId = " + attachmentIdString);
 		InputStream requestStream = request.getInputStream();
 		if (attachmentIdString.isEmpty())
 		{
-			return false;
+			throw new IllegalArgumentException("attachmentId is empty");
 		}
 
 		HttpURLConnection connection = null;
@@ -121,7 +126,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 			log.info("body = " + body);
 			if (body.isEmpty())
 			{
-				return false;
+				throw new IllegalArgumentException("requestBody is empty");
 			}
 
 			JSONObject jsonObj = new JSONObject(body);
@@ -189,8 +194,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 
 				AttachmentUtil.saveAttachment(attachmentId, stream, size, user);
 			}
-
-			return true;
 		}
 		catch (Exception ex)
 		{
@@ -200,7 +203,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 			String error = ex.toString() + "\n" + sw.toString();
 			log.error(error);
 
-			return false;
+			throw ex;
 		}
 		finally
 		{
