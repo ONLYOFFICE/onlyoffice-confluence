@@ -101,6 +101,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 		if (error.isEmpty()) {
 			writer.write("{\"error\":0}");
 		} else {
+			response.setStatus(500);
 			writer.write("{\"error\":1,\"message\":\"" + error + "\"}");
 		}
 
