@@ -48,11 +48,11 @@ The ONLYOFFICE integration follows the API documented here https://api.onlyoffic
 * Confluence makes a request to OnlyOfficeEditorServlet (URL of the form: `/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id`).
 * Confluence sends document to ONLYOFFICE Document storage service and receive a temporary link.
 * Confluence prepares a JSON object with the following properties:
-  * **fileUrl**: the temporary link that ONLYOFFICE Document Server uses to download the document,
+  * **url**: the temporary link that ONLYOFFICE Document Server uses to download the document,
   * **callbackUrl**: the URL that ONLYOFFICE Document Server informs about status of the document editing,
   * **docserviceApiUrl**: the URL that the client needs to reply to ONLYOFFICE Document Server (provided by the files.docservice.url.api property),
   * **key**: the UUID to instruct ONLYOFFICE Document Server whether to download the document again or not,
-  * **fileName**: the document Title (name).
+  * **title**: the document Title (name).
 * Confluence takes this object and constructs a page from a freemarker template, filling in all of those values so that the client browser can load up the editor.
 * The client browser makes a request for the javascript library from ONLYOFFICE Document Server and sends ONLYOFFICE Document Server the docEditor configuration with the above properties.
 * Then ONLYOFFICE Document Server downloads the document from Document storage and the user begins editing.
