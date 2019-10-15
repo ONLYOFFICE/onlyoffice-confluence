@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>onlyoffice</groupId>
     <artifactId>onlyoffice-confluence-plugin</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 
     <organization>
         <name>Ascensio System SIA</name>
@@ -155,8 +155,8 @@
     </build>
 
     <properties>
-        <confluence.version>6.15.6</confluence.version>
-        <confluence.data.version>6.15.6</confluence.data.version>
+        <confluence.version>7.0.3</confluence.version>
+        <confluence.data.version>7.0.3</confluence.data.version>
         <amps.version>6.3.21</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
         <atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
