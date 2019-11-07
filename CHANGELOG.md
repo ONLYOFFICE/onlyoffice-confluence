@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.1.0
+## Added
+- DE, IT, ES, RU, FR translations
+
 ## 2.0.0
 ## Added
 - jwt support
