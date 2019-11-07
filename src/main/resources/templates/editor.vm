@@ -55,7 +55,7 @@
 
 				var json = '${jsonAsHtml}';
 				var config = {
-						"onReady": function(){
+						"onAppReady": function(){
 							var errorMessage = "${errorMessage}";
 							if (errorMessage) {
 								docEditor.showMessage("ONLYOFFICE", errorMessage, "error");
