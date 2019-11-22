@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
@@ -41,15 +42,20 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 	@ComponentImport
 	private final PluginSettingsFactory pluginSettingsFactory;
 	@ComponentImport
+	private final SettingsManager settingsManager;
+	@ComponentImport
 	private final LocaleManager localeManager;
 
 	private final JwtManager jwtManager;
+	private final UrlManager urlManager;
 
 	@Inject
-	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager)
+	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager, SettingsManager settingsManager)
 	{
 		this.pluginSettingsFactory = pluginSettingsFactory;
+		this.settingsManager = settingsManager;
 		this.jwtManager = new JwtManager(pluginSettingsFactory);
+		this.urlManager = new UrlManager(settingsManager);
 		this.localeManager = localeManager;
 	}
 
@@ -100,11 +106,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 
 				fileName = AttachmentUtil.getFileName(attachmentId);
 
-				externalUrl = DocumentManager.GetUri(attachmentId);
+				externalUrl = urlManager.GetUri(attachmentId);
 
 				if (AttachmentUtil.checkAccess(attachmentId, user, true))
 				{
-					callbackUrl = DocumentManager.getCallbackUrl(attachmentId);
+					callbackUrl = urlManager.getCallbackUrl(attachmentId);
 				}
 			}
 			else
