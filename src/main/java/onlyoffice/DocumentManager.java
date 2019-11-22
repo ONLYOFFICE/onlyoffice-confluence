@@ -31,8 +31,7 @@ public class DocumentManager
 {
 	private static final Logger log = LogManager.getLogger("onlyoffice.DocumentManager");
 	private static final Map<String, String> CacheMap = new HashMap<String, String>();
-	private static final String callbackServler = "/plugins/servlet/onlyoffice/save";
-	
+
 	public static long GetMaxFileSize()
 	{
 		long size;
@@ -71,19 +70,6 @@ public class DocumentManager
 		}
 	}
 
-	public static String GetUri(Long attachmentId) throws Exception
-	{
-		SettingsManager settingsManager = (SettingsManager) ContainerManager.getComponent("settingsManager");
-		String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
-
-		String hash = CreateHash(Long.toString(attachmentId));
-
-		String callbackUrl = baseUrl + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
-		log.info("callbackUrl " + callbackUrl);
-
-		return callbackUrl;
-	}
-
 	public static String getKeyOfFile(Long attachmentId)
 	{
 		String hashCode = AttachmentUtil.getHashCode(attachmentId);
@@ -101,19 +87,6 @@ public class DocumentManager
 		key = key.substring(0, Math.min(key.length(), 20));
 		log.info("key = " + key);
 		return key;
-	}
-
-	public static String getCallbackUrl(Long attachmentId)
-	{
-		SettingsManager settingsManager = (SettingsManager) ContainerManager.getComponent("settingsManager");
-		String baseUrl = settingsManager.getGlobalSettings().getBaseUrl();
-
-		String hash = CreateHash(Long.toString(attachmentId));
-
-		String callbackUrl = baseUrl + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
-		log.info("callbackUrl " + callbackUrl);
-
-		return callbackUrl;
 	}
 
 	public static String CreateHash(String str)

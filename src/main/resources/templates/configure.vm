@@ -26,6 +26,8 @@
                     function updateConfig() {
                         var data = {
                             "apiUrl": jq("#apiUrlField").attr("value"),
+                            "docInnerUrl": jq("#docInnerUrlField").attr("value"),
+                            "confUrl": jq("#confUrlField").attr("value"),
                             "jwtSecret": jq("#jwtSecretField").attr("value")
                         };
 
@@ -72,23 +74,36 @@
                         e.preventDefault();
                         updateConfig();
                     });
+
+                    AJS.$(".onlyoffice-tooltip").tooltip();
                 });
 
             })(jQuery);
         </script>
         <div id="onlyofficeMsg"></div>
-        <form id="onlyofficeConf" class="aui">
+        <form id="onlyofficeConf" class="aui top-label">
+            <h3>$i18n.getText('onlyoffice.configuration.doc-section')</h3>
             <div class="field-group">
-                <label for="apiUrlField">Document Server</label>
-                <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text">
+                <label for="apiUrlField">$i18n.getText('onlyoffice.configuration.doc-url')</label>
+                <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-tooltip')">
             </div>
             <div class="field-group">
-                <label for="jwtSecretField">JWT Secret</label>
+                <label for="jwtSecretField">$i18n.getText('onlyoffice.configuration.jwt-secret')</label>
                 <input type="text" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text">
             </div>
 
+            <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
             <div class="field-group">
-                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText("onlyoffice.configuration.save")" class="button">
+                <label for="confUrlField">$i18n.getText('onlyoffice.configuration.conf-url')</label>
+                <input type="text" id="confUrlField" value="${docserviceConfUrl}" name="confUrlField" class="text">
+            </div>
+            <div class="field-group">
+                <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
+                <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner-tooltip')">
+            </div>
+
+            <div class="field-group">
+                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.save')" class="button">
             </div>
         </form>
     </body>

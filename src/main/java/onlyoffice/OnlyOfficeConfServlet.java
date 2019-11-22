@@ -85,25 +85,31 @@ public class OnlyOfficeConfServlet extends HttpServlet
 
 		PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
 		String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
+		String docInnerUrl = (String) pluginSettings.get("onlyoffice.docInnerUrl");
+		String confUrl = (String) pluginSettings.get("onlyoffice.confUrl");
 		String jwtSecret = (String) pluginSettings.get("onlyoffice.jwtSecret");
 		if (apiUrl == null || apiUrl.isEmpty()) { apiUrl = ""; }
+		if (docInnerUrl == null || docInnerUrl.isEmpty()) { docInnerUrl = ""; }
+		if (confUrl == null || confUrl.isEmpty()) { confUrl = ""; }
 		if (jwtSecret == null || jwtSecret.isEmpty()) { jwtSecret = ""; }
 
 		response.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = response.getWriter();
 
-		writer.write(getTemplate(apiUrl, jwtSecret));
-	}
-	
-	private String getTemplate(String apiUrl, String jwtSecret)
-			throws UnsupportedEncodingException
-	{
 		Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
 		contextMap.put("docserviceApiUrl", apiUrl);
+		contextMap.put("docserviceInnerUrl", docInnerUrl);
+		contextMap.put("docserviceConfUrl", confUrl);
 		contextMap.put("docserviceJwtSecret", jwtSecret);
 
-		return VelocityUtils.getRenderedTemplate("templates/configure.vm", contextMap);
+		writer.write(getTemplate(contextMap));
+	}
+
+	private String getTemplate(Map<String, Object> map)
+			throws UnsupportedEncodingException
+	{
+		return VelocityUtils.getRenderedTemplate("templates/configure.vm", map);
 	}
 
 
@@ -126,15 +132,17 @@ public class OnlyOfficeConfServlet extends HttpServlet
 		}
 
 		String apiUrl;
+		String docInnerUrl;
+		String confUrl;
 		String jwtSecret;
 		try
 		{
 			JSONObject jsonObj = new JSONObject(body);
 
-			apiUrl = jsonObj.getString("apiUrl");
-			if (!apiUrl.endsWith("/")) {
-				apiUrl += "/";
-			}
+			apiUrl = AppendSlash(jsonObj.getString("apiUrl"));
+			docInnerUrl = AppendSlash(jsonObj.getString("docInnerUrl"));
+			confUrl = AppendSlash(jsonObj.getString("confUrl"));
+
 			jwtSecret = jsonObj.getString("jwtSecret");
 		}
 		catch (Exception ex)
@@ -152,6 +160,8 @@ public class OnlyOfficeConfServlet extends HttpServlet
 
 		PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
 		pluginSettings.put("onlyoffice.apiUrl", apiUrl);
+		pluginSettings.put("onlyoffice.docInnerUrl", docInnerUrl);
+		pluginSettings.put("onlyoffice.confUrl", confUrl);
 		pluginSettings.put("onlyoffice.jwtSecret", jwtSecret);
 
 		log.debug("Checking docserv url");
@@ -162,7 +172,7 @@ public class OnlyOfficeConfServlet extends HttpServlet
 
 		try {
 			log.debug("Checking docserv commandservice");
-			if (!CheckDocServCommandService(apiUrl, pluginSettings)) {
+			if (!CheckDocServCommandService(docInnerUrl, pluginSettings)) {
 				response.getWriter().write("{\"success\": false, \"message\": \"docservcommand\"}");
 				return;
 			}
@@ -172,6 +182,12 @@ public class OnlyOfficeConfServlet extends HttpServlet
 		}
 
 		response.getWriter().write("{\"success\": true}");
+	}
+
+	private String AppendSlash(String str)
+	{
+		if (str == null || str.isEmpty() || str.endsWith("/")) return str;
+		return str + "/";
 	}
 
 	private String getBody(InputStream stream)
