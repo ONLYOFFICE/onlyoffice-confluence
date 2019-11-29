@@ -1,0 +1,92 @@
+$webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indicator")
+
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>ONLYOFFICE</title>
+    <meta name="decorator" content="atl.popup" />
+</head>
+
+<body>
+    <div class="aui-dialog" id="attachment-onlyoffice-convert"
+        style="position:relative;height:200px;margin-top:200px;left:50%;width:600px;margin-left:-300px;">
+        <div class="dialog-components">
+            <h2 class="dialog-title">ONLYOFFICE</h2>
+            <div class="dialog-page-body">
+                <div class="dialog-panel-body" style="height: 86px;">
+                    <div id="attachment-onlyoffice-convert-message">$i18n.getText('onlyoffice.connector.convertmessage',
+                        ${oldName}, ${newName})</div>
+                    <br>
+                    <div id="attachment-onlyoffice-convert-progress-bar" class="aui-progress-indicator">
+                        <span class="aui-progress-indicator-value"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-button-panel">
+                <button disabled="" class="aui-button aui-button-primary">ОК</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" language="javascript">
+        (function (jq) {
+            var url = AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId=${attachmentId}&oldExt=${oldExt}&newExt=${newExt}&newName=${newName}";
+            var editorUrl = AJS.contextPath() + "/plugins/servlet/onlyoffice/doceditor?attachmentId=";
+
+            jq(document).ready(function () {
+                var page = jq("#attachment-onlyoffice-convert");
+                var progress = jq("#attachment-onlyoffice-convert-progress-bar");
+                var thumb = progress.children();
+                var msg = jq("#attachment-onlyoffice-convert-message");
+                var btn = page.children("button.aui-button-primary");
+
+                function poll() {
+                    jq.ajax({
+                        url: url,
+                        type: "POST",
+                        cache: false,
+                        success: function (data) { onResponse(data); },
+                        error: function (data) { onError(data.status); }
+                    });
+                };
+
+                function onError(error) {
+                    thumb.css("background", "#de350b");
+                    msg.text("$i18n.getText('onlyoffice.connector.converterror') " + error);
+                    btn.removeAttr("disabled");
+                }
+
+                function onResponse(data) {
+                    if (data.error) {
+                        onError(data.error);
+                        return;
+                    }
+
+                    if (data.percent != null) {
+                        var perc = data.percent / 100;
+                        if (perc > 0) {
+                            AJS.progressBars.update(progress, perc);
+                        }
+                    }
+
+                    if (!data.endConvert) {
+                        setTimeout(poll, 1000);
+                    } else {
+                        window.location = editorUrl + data.attachmentId;
+                    }
+                };
+
+                btn.click(function () {
+                    window.close();
+                });
+
+                AJS.progressBars.update(progress, 0.1);
+                poll();
+            });
+        })(jQuery);
+    </script>
+</body>
+
+</html>
