@@ -35,170 +35,160 @@ import javax.inject.Inject;
     http://www.onlyoffice.com
 */
 
-public class OnlyOfficeEditorServlet extends HttpServlet
-{
-	@ComponentImport
-	private final PluginSettingsFactory pluginSettingsFactory;
-	@ComponentImport
-	private final SettingsManager settingsManager;
-	@ComponentImport
-	private final LocaleManager localeManager;
+public class OnlyOfficeEditorServlet extends HttpServlet {
+    @ComponentImport
+    private final PluginSettingsFactory pluginSettingsFactory;
+    @ComponentImport
+    private final SettingsManager settingsManager;
+    @ComponentImport
+    private final LocaleManager localeManager;
 
-	private final JwtManager jwtManager;
-	private final UrlManager urlManager;
+    private final JwtManager jwtManager;
+    private final UrlManager urlManager;
 
-	@Inject
-	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager, SettingsManager settingsManager, UrlManager urlManager, JwtManager jwtManager)
-	{
-		this.pluginSettingsFactory = pluginSettingsFactory;
-		this.settingsManager = settingsManager;
-		this.jwtManager = jwtManager;
-		this.urlManager = urlManager;
-		this.localeManager = localeManager;
-	}
+    @Inject
+    public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager,
+            SettingsManager settingsManager, UrlManager urlManager, JwtManager jwtManager) {
+        this.pluginSettingsFactory = pluginSettingsFactory;
+        this.settingsManager = settingsManager;
+        this.jwtManager = jwtManager;
+        this.urlManager = urlManager;
+        this.localeManager = localeManager;
+    }
 
-	private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
-	private static final long serialVersionUID = 1L;
+    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
+    private static final long serialVersionUID = 1L;
 
-	private Properties properties;
+    private Properties properties;
 
-	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException
-	{
-		if (!AuthContext.checkUserAuthorisation(request, response))
-		{
-			return;
-		}
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!AuthContext.checkUserAuthorisation(request, response)) {
+            return;
+        }
 
-		PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
-		String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
-		if (apiUrl == null || apiUrl.isEmpty())
-		{
-			apiUrl = "";
-		}
+        PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
+        String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
+        if (apiUrl == null || apiUrl.isEmpty()) {
+            apiUrl = "";
+        }
 
-		ConfigurationManager configurationManager = new ConfigurationManager();
-		properties = configurationManager.GetProperties();
+        ConfigurationManager configurationManager = new ConfigurationManager();
+        properties = configurationManager.GetProperties();
 
-		String callbackUrl = "";
-		String externalUrl = "";
-		String key = "";
-		String fileName = "";
-		String errorMessage = "";
-		ConfluenceUser user = null;
+        String callbackUrl = "";
+        String externalUrl = "";
+        String key = "";
+        String fileName = "";
+        String errorMessage = "";
+        ConfluenceUser user = null;
 
-		String attachmentIdString = request.getParameter("attachmentId");
-		Long attachmentId;
+        String attachmentIdString = request.getParameter("attachmentId");
+        Long attachmentId;
 
-		try
-		{
-			attachmentId = Long.parseLong(attachmentIdString);
-			log.info("attachmentId " + attachmentId);
+        try {
+            attachmentId = Long.parseLong(attachmentIdString);
+            log.info("attachmentId " + attachmentId);
 
-			user = AuthenticatedUserThreadLocal.get();
-			log.info("user " + user);
-			if (AttachmentUtil.checkAccess(attachmentId, user, false))
-			{
-				key = DocumentManager.getKeyOfFile(attachmentId);
+            user = AuthenticatedUserThreadLocal.get();
+            log.info("user " + user);
+            if (AttachmentUtil.checkAccess(attachmentId, user, false)) {
+                key = DocumentManager.getKeyOfFile(attachmentId);
 
-				fileName = AttachmentUtil.getFileName(attachmentId);
+                fileName = AttachmentUtil.getFileName(attachmentId);
 
-				externalUrl = urlManager.GetUri(attachmentId);
+                externalUrl = urlManager.GetUri(attachmentId);
 
-				if (AttachmentUtil.checkAccess(attachmentId, user, true))
-				{
-					callbackUrl = urlManager.getCallbackUrl(attachmentId);
-				}
-			}
-			else
-			{
-				log.error("access deny");
-				errorMessage = "You don not have enough permission to view the file";
-			}
-		}
-		catch (Exception ex)
-		{
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			ex.printStackTrace(pw);
-			String error = ex.toString() + "\n" + sw.toString();
-			log.error(error);
-			errorMessage = ex.toString();
-		}
+                if (AttachmentUtil.checkAccess(attachmentId, user, true)) {
+                    callbackUrl = urlManager.getCallbackUrl(attachmentId);
+                }
+            } else {
+                log.error("access deny");
+                errorMessage = "You don not have enough permission to view the file";
+            }
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            String error = ex.toString() + "\n" + sw.toString();
+            log.error(error);
+            errorMessage = ex.toString();
+        }
 
-		response.setContentType("text/html;charset=UTF-8");
-		PrintWriter writer = response.getWriter();
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter writer = response.getWriter();
 
-		writer.write(getTemplate(apiUrl, callbackUrl, externalUrl, key, fileName, user, errorMessage));
-	}
+        writer.write(getTemplate(apiUrl, callbackUrl, externalUrl, key, fileName, user, errorMessage));
+    }
 
-	private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName, ConfluenceUser user, String errorMessage)
-			throws UnsupportedEncodingException
-	{
-		Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
-		Map<String, String> config = new HashMap<String, String>();
+    private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
+            ConfluenceUser user, String errorMessage) throws UnsupportedEncodingException {
+        Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
+        Map<String, String> config = new HashMap<String, String>();
 
-		String docTitle = fileName.trim();
-		String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+        String docTitle = fileName.trim();
+        String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
 
-		config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
-		config.put("errorMessage", errorMessage);
-		config.put("docTitle", docTitle);
+        config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
+        config.put("errorMessage", errorMessage);
+        config.put("docTitle", docTitle);
 
-		JSONObject responseJson = new JSONObject();
-		JSONObject documentObject = new JSONObject();
-		JSONObject editorConfigObject = new JSONObject();
-		JSONObject userObject = new JSONObject();
-		JSONObject permObject = new JSONObject();
+        JSONObject responseJson = new JSONObject();
+        JSONObject documentObject = new JSONObject();
+        JSONObject editorConfigObject = new JSONObject();
+        JSONObject userObject = new JSONObject();
+        JSONObject permObject = new JSONObject();
 
-		try {
-			responseJson.put("type", "desktop");
-			responseJson.put("width", "100%");
-			responseJson.put("height", "100%");
-			responseJson.put("documentType", getDocType(docExt));
+        try {
+            responseJson.put("type", "desktop");
+            responseJson.put("width", "100%");
+            responseJson.put("height", "100%");
+            responseJson.put("documentType", getDocType(docExt));
 
-			responseJson.put("document", documentObject);
-			documentObject.put("title", docTitle);
-			documentObject.put("url", fileUrl);
-			documentObject.put("fileType", docExt);
-			documentObject.put("key", key);
-			documentObject.put("permissions", permObject);
-			permObject.put("edit", callbackUrl != null && !callbackUrl.isEmpty());
+            responseJson.put("document", documentObject);
+            documentObject.put("title", docTitle);
+            documentObject.put("url", fileUrl);
+            documentObject.put("fileType", docExt);
+            documentObject.put("key", key);
+            documentObject.put("permissions", permObject);
+            permObject.put("edit", callbackUrl != null && !callbackUrl.isEmpty());
 
-			responseJson.put("editorConfig", editorConfigObject);
-			editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
-			editorConfigObject.put("mode", "edit");
-			editorConfigObject.put("callbackUrl", callbackUrl);
+            responseJson.put("editorConfig", editorConfigObject);
+            editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
+            editorConfigObject.put("mode", "edit");
+            editorConfigObject.put("callbackUrl", callbackUrl);
 
-			if (user != null) {
-				editorConfigObject.put("user", userObject);
-				userObject.put("id", user.getName());
-				userObject.put("name", user.getFullName());
-			}
+            if (user != null) {
+                editorConfigObject.put("user", userObject);
+                userObject.put("id", user.getName());
+                userObject.put("name", user.getFullName());
+            }
 
-			if (jwtManager.jwtEnabled()) {
-				responseJson.put("token", jwtManager.createToken(responseJson));
-			}
+            if (jwtManager.jwtEnabled()) {
+                responseJson.put("token", jwtManager.createToken(responseJson));
+            }
 
-			// AsHtml at the end disables automatic html encoding
-			config.put("jsonAsHtml", responseJson.toString());
-		} catch (Exception ex) {
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			ex.printStackTrace(pw);
-			String error = ex.toString() + "\n" + sw.toString();
-			log.error(error);
-		}
+            // AsHtml at the end disables automatic html encoding
+            config.put("jsonAsHtml", responseJson.toString());
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            String error = ex.toString() + "\n" + sw.toString();
+            log.error(error);
+        }
 
-		defaults.putAll(config);
-		return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
-	}
+        defaults.putAll(config);
+        return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
+    }
 
-	private String getDocType(String ext) {
-        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps".indexOf(ext) != -1) return "text";
-        if (".xls.xlsx.xlsm.xlt.xltx.xltm.ods.fods.ots.csv".indexOf(ext) != -1) return "spreadsheet";
-        if (".pps.ppsx.ppsm.ppt.pptx.pptm.pot.potx.potm.odp.fodp.otp".indexOf(ext) != -1) return "presentation";
+    private String getDocType(String ext) {
+        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps".indexOf(ext) != -1)
+            return "text";
+        if (".xls.xlsx.xlsm.xlt.xltx.xltm.ods.fods.ots.csv".indexOf(ext) != -1)
+            return "spreadsheet";
+        if (".pps.ppsx.ppsm.ppt.pptx.pptm.pot.potx.potm.odp.fodp.otp".indexOf(ext) != -1)
+            return "presentation";
         return null;
     }
 }

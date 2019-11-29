@@ -34,104 +34,92 @@ import javax.inject.Inject;
     http://www.onlyoffice.com
 */
 
-public class OnlyOfficeSaveFileServlet extends HttpServlet
-{
-	private static final long serialVersionUID = 1L;
-	private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
+public class OnlyOfficeSaveFileServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
-	@ComponentImport
-	private final PluginSettingsFactory pluginSettingsFactory;
+    @ComponentImport
+    private final PluginSettingsFactory pluginSettingsFactory;
 
-	private final JwtManager jwtManager;
-	private final PluginSettings settings;
+    private final JwtManager jwtManager;
+    private final PluginSettings settings;
 
-	@Inject
-	public OnlyOfficeSaveFileServlet(PluginSettingsFactory pluginSettingsFactory, JwtManager jwtManager)
-	{
-		this.pluginSettingsFactory = pluginSettingsFactory;
-		settings = pluginSettingsFactory.createGlobalSettings();
-		this.jwtManager = jwtManager;
-	}
+    @Inject
+    public OnlyOfficeSaveFileServlet(PluginSettingsFactory pluginSettingsFactory, JwtManager jwtManager) {
+        this.pluginSettingsFactory = pluginSettingsFactory;
+        settings = pluginSettingsFactory.createGlobalSettings();
+        this.jwtManager = jwtManager;
+    }
 
-	@Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException
-	{
-		String vkey = request.getParameter("vkey");
-		log.info("vkey = " + vkey);
-		String attachmentIdString = DocumentManager.ReadHash(vkey);
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String vkey = request.getParameter("vkey");
+        log.info("vkey = " + vkey);
+        String attachmentIdString = DocumentManager.ReadHash(vkey);
 
-		Long attachmentId = Long.parseLong(attachmentIdString);
-		log.info("attachmentId " + attachmentId);
+        Long attachmentId = Long.parseLong(attachmentIdString);
+        log.info("attachmentId " + attachmentId);
 
-		String contentType = AttachmentUtil.getMediaType(attachmentId);
-		response.setContentType(contentType);
+        String contentType = AttachmentUtil.getMediaType(attachmentId);
+        response.setContentType(contentType);
 
-		InputStream inputStream = AttachmentUtil.getAttachmentData(attachmentId);
-		response.setContentLength(inputStream.available());
+        InputStream inputStream = AttachmentUtil.getAttachmentData(attachmentId);
+        response.setContentLength(inputStream.available());
 
-		byte[] buffer = new byte[10240];
+        byte[] buffer = new byte[10240];
 
-		OutputStream output = response.getOutputStream();
-		for (int length = 0; (length = inputStream.read(buffer)) > 0;)
-		{
-			output.write(buffer, 0, length);
-		}
-	}
+        OutputStream output = response.getOutputStream();
+        for (int length = 0; (length = inputStream.read(buffer)) > 0;) {
+            output.write(buffer, 0, length);
+        }
+    }
 
-	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException
-	{
-		response.setContentType("text/plain; charset=utf-8");
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/plain; charset=utf-8");
 
-		String vkey = request.getParameter("vkey");
-		log.info("vkey = " + vkey);
-		String attachmentIdString = DocumentManager.ReadHash(vkey);
+        String vkey = request.getParameter("vkey");
+        log.info("vkey = " + vkey);
+        String attachmentIdString = DocumentManager.ReadHash(vkey);
 
-		String error = "";
-		try {
-			processData(attachmentIdString, request);
-		} catch (Exception e) {
-			error = e.getMessage();
-		}
+        String error = "";
+        try {
+            processData(attachmentIdString, request);
+        } catch (Exception e) {
+            error = e.getMessage();
+        }
 
-		PrintWriter writer = response.getWriter();
-		if (error.isEmpty()) {
-			writer.write("{\"error\":0}");
-		} else {
-			response.setStatus(500);
-			writer.write("{\"error\":1,\"message\":\"" + error + "\"}");
-		}
+        PrintWriter writer = response.getWriter();
+        if (error.isEmpty()) {
+            writer.write("{\"error\":0}");
+        } else {
+            response.setStatus(500);
+            writer.write("{\"error\":1,\"message\":\"" + error + "\"}");
+        }
 
-		log.info("error = " + error);
-	}
+        log.info("error = " + error);
+    }
 
-	private void processData(String attachmentIdString, HttpServletRequest request)
-			throws Exception
-	{
-		log.info("attachmentId = " + attachmentIdString);
-		InputStream requestStream = request.getInputStream();
-		if (attachmentIdString.isEmpty())
-		{
-			throw new IllegalArgumentException("attachmentId is empty");
-		}
+    private void processData(String attachmentIdString, HttpServletRequest request) throws Exception {
+        log.info("attachmentId = " + attachmentIdString);
+        InputStream requestStream = request.getInputStream();
+        if (attachmentIdString.isEmpty()) {
+            throw new IllegalArgumentException("attachmentId is empty");
+        }
 
-		HttpURLConnection connection = null;
-		try
-		{
-			Long attachmentId = Long.parseLong(attachmentIdString);
+        HttpURLConnection connection = null;
+        try {
+            Long attachmentId = Long.parseLong(attachmentIdString);
 
-			String body = getBody(requestStream);
-			log.info("body = " + body);
-			if (body.isEmpty())
-			{
-				throw new IllegalArgumentException("requestBody is empty");
-			}
+            String body = getBody(requestStream);
+            log.info("body = " + body);
+            if (body.isEmpty()) {
+                throw new IllegalArgumentException("requestBody is empty");
+            }
 
-			JSONObject jsonObj = new JSONObject(body);
+            JSONObject jsonObj = new JSONObject(body);
 
-			if (jwtManager.jwtEnabled()) {
+            if (jwtManager.jwtEnabled()) {
                 String token = jsonObj.optString("token");
                 Boolean inBody = true;
 
@@ -150,84 +138,73 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
                     throw new SecurityException("Try save with wrong JWT");
                 }
 
-                JSONObject bodyFromToken = new JSONObject(new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), "UTF-8"));
+                JSONObject bodyFromToken = new JSONObject(
+                        new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), "UTF-8"));
 
                 if (inBody) {
-				    jsonObj = bodyFromToken;
+                    jsonObj = bodyFromToken;
                 } else {
-				    jsonObj = bodyFromToken.getJSONObject("payload");
+                    jsonObj = bodyFromToken.getJSONObject("payload");
                 }
-			}
+            }
 
-			long status = jsonObj.getLong("status");
-			log.info("status = " + status);
+            long status = jsonObj.getLong("status");
+            log.info("status = " + status);
 
-			// MustSave, Corrupted
-			if (status == 2 || status == 3)
-			{
-				ConfluenceUser user = null;
-				JSONArray users = jsonObj.getJSONArray("users");
-				if (users.length() > 0)
-				{ 
-					String userName = users.getString(0);
+            // MustSave, Corrupted
+            if (status == 2 || status == 3) {
+                ConfluenceUser user = null;
+                JSONArray users = jsonObj.getJSONArray("users");
+                if (users.length() > 0) {
+                    String userName = users.getString(0);
 
-					UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-					user = userAccessor.getUserByName(userName);
-					log.info("user = " + user);
-				}
+                    UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+                    user = userAccessor.getUserByName(userName);
+                    log.info("user = " + user);
+                }
 
-				if (user == null || !AttachmentUtil.checkAccess(attachmentId, user, true))
-				{
-					throw new SecurityException("Try save without access: " + user);
-				}
+                if (user == null || !AttachmentUtil.checkAccess(attachmentId, user, true)) {
+                    throw new SecurityException("Try save without access: " + user);
+                }
 
-				String downloadUrl = jsonObj.getString("url");
-				log.info("downloadUri = " + downloadUrl);
+                String downloadUrl = jsonObj.getString("url");
+                log.info("downloadUri = " + downloadUrl);
 
-				URL url = new URL(downloadUrl);
+                URL url = new URL(downloadUrl);
 
-				connection = (HttpURLConnection) url.openConnection();
-				int size = connection.getContentLength();
-				log.info("size = " + size);
+                connection = (HttpURLConnection) url.openConnection();
+                int size = connection.getContentLength();
+                log.info("size = " + size);
 
-				InputStream stream = connection.getInputStream();
+                InputStream stream = connection.getInputStream();
 
-				AttachmentUtil.saveAttachment(attachmentId, stream, size, user);
-			}
-		}
-		catch (Exception ex)
-		{
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			ex.printStackTrace(pw);
-			String error = ex.toString() + "\n" + sw.toString();
-			log.error(error);
+                AttachmentUtil.saveAttachment(attachmentId, stream, size, user);
+            }
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            String error = ex.toString() + "\n" + sw.toString();
+            log.error(error);
 
-			throw ex;
-		}
-		finally
-		{
-			if (connection != null)
-			{
-				connection.disconnect();
-			}
-		}
-	}
+            throw ex;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
 
-	private String getBody(InputStream stream)
-	{
-		Scanner scanner = null;
-		Scanner scannerUseDelimiter = null;
-		try
-		{
-			scanner = new Scanner(stream);
-			scannerUseDelimiter = scanner.useDelimiter("\\A");
-			return scanner.hasNext() ? scanner.next() : "";
-		}
-		finally
-		{
-			scannerUseDelimiter.close();
-			scanner.close();
-		}
-	}
+    private String getBody(InputStream stream) {
+        Scanner scanner = null;
+        Scanner scannerUseDelimiter = null;
+        try {
+            scanner = new Scanner(stream);
+            scannerUseDelimiter = scanner.useDelimiter("\\A");
+            return scanner.hasNext() ? scanner.next() : "";
+        } finally {
+            scannerUseDelimiter.close();
+            scanner.close();
+        }
+    }
 }

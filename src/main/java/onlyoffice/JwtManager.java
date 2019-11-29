@@ -2,13 +2,11 @@ package onlyoffice;
 
 import org.json.JSONObject;
 
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import java.util.Base64;
 import java.util.Base64.Encoder;
-import java.util.Properties;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.Mac;
@@ -37,7 +35,8 @@ public class JwtManager {
     }
 
     public Boolean jwtEnabled() {
-        return settings.get("onlyoffice.jwtSecret") != null && !((String)settings.get("onlyoffice.jwtSecret")).isEmpty();
+        return settings.get("onlyoffice.jwtSecret") != null
+                && !((String) settings.get("onlyoffice.jwtSecret")).isEmpty();
     }
 
     public String createToken(JSONObject payload) throws Exception {
@@ -55,7 +54,8 @@ public class JwtManager {
     }
 
     public Boolean verify(String token) {
-        if (!jwtEnabled()) return false;
+        if (!jwtEnabled())
+            return false;
 
         String[] jwt = token.split("\\.");
         if (jwt.length != 3) {
@@ -64,8 +64,9 @@ public class JwtManager {
 
         try {
             String hash = calculateHash(jwt[0], jwt[1]);
-            if (!hash.equals(jwt[2])) return false;
-        } catch(Exception ex) {
+            if (!hash.equals(jwt[2]))
+                return false;
+        } catch (Exception ex) {
             return false;
         }
 
@@ -75,7 +76,8 @@ public class JwtManager {
     private String calculateHash(String header, String payload) throws Exception {
         Mac hasher;
         hasher = getHasher();
-        return Base64.getUrlEncoder().encodeToString(hasher.doFinal((header + "." + payload).getBytes("UTF-8"))).replace("=", "");
+        return Base64.getUrlEncoder().encodeToString(hasher.doFinal((header + "." + payload).getBytes("UTF-8")))
+                .replace("=", "");
     }
 
     private Mac getHasher() throws Exception {
@@ -88,4 +90,3 @@ public class JwtManager {
         return sha256;
     }
 }
-
