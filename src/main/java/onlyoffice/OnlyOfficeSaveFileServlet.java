@@ -26,7 +26,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 
-import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
@@ -35,7 +34,6 @@ import javax.inject.Inject;
     http://www.onlyoffice.com
 */
 
-@Scanned
 public class OnlyOfficeSaveFileServlet extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
@@ -43,15 +41,16 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet
 
 	@ComponentImport
 	private final PluginSettingsFactory pluginSettingsFactory;
-	private final PluginSettings settings;
+
 	private final JwtManager jwtManager;
+	private final PluginSettings settings;
 
 	@Inject
-	public OnlyOfficeSaveFileServlet(PluginSettingsFactory pluginSettingsFactory)
+	public OnlyOfficeSaveFileServlet(PluginSettingsFactory pluginSettingsFactory, JwtManager jwtManager)
 	{
 		this.pluginSettingsFactory = pluginSettingsFactory;
 		settings = pluginSettingsFactory.createGlobalSettings();
-		this.jwtManager = new JwtManager(pluginSettingsFactory);
+		this.jwtManager = jwtManager;
 	}
 
 	@Override

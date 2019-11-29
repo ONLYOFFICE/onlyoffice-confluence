@@ -39,7 +39,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
 
-import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
@@ -48,7 +47,6 @@ import javax.inject.Inject;
     http://www.onlyoffice.com
 */
 
-@Scanned
 public class OnlyOfficeConfServlet extends HttpServlet
 {
 	@ComponentImport
@@ -60,11 +58,11 @@ public class OnlyOfficeConfServlet extends HttpServlet
 
 
 	@Inject
-	public OnlyOfficeConfServlet(UserManager userManager, PluginSettingsFactory pluginSettingsFactory)
+	public OnlyOfficeConfServlet(UserManager userManager, PluginSettingsFactory pluginSettingsFactory, JwtManager jwtManager)
 	{
 		this.userManager = userManager;
 		this.pluginSettingsFactory = pluginSettingsFactory;
-		this.jwtManager = new JwtManager(pluginSettingsFactory);
+		this.jwtManager = jwtManager;
 	}
 
 	private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConfServlet");

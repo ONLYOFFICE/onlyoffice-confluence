@@ -13,20 +13,26 @@ import java.util.Properties;
 import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.Mac;
 
-import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /*
     Copyright (c) Ascensio System SIA 2019. All rights reserved.
     http://www.onlyoffice.com
 */
 
+@Named
 public class JwtManager {
-  
+
+    @ComponentImport
+    private final PluginSettingsFactory pluginSettingsFactory;
+
     private final PluginSettings settings;
 
+    @Inject
     public JwtManager(PluginSettingsFactory pluginSettingsFactory) {
+        this.pluginSettingsFactory = pluginSettingsFactory;
         settings = pluginSettingsFactory.createGlobalSettings();
     }
 

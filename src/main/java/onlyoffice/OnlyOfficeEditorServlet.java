@@ -27,7 +27,6 @@ import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
-import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
@@ -36,7 +35,6 @@ import javax.inject.Inject;
     http://www.onlyoffice.com
 */
 
-@Scanned
 public class OnlyOfficeEditorServlet extends HttpServlet
 {
 	@ComponentImport
@@ -50,12 +48,12 @@ public class OnlyOfficeEditorServlet extends HttpServlet
 	private final UrlManager urlManager;
 
 	@Inject
-	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager, SettingsManager settingsManager)
+	public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager, SettingsManager settingsManager, UrlManager urlManager, JwtManager jwtManager)
 	{
 		this.pluginSettingsFactory = pluginSettingsFactory;
 		this.settingsManager = settingsManager;
-		this.jwtManager = new JwtManager(pluginSettingsFactory);
-		this.urlManager = new UrlManager(settingsManager);
+		this.jwtManager = jwtManager;
+		this.urlManager = urlManager;
 		this.localeManager = localeManager;
 	}
 
