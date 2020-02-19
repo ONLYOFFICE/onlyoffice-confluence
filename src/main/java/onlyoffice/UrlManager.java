@@ -13,6 +13,11 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+/*
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
 @Named
 public class UrlManager {
     private static final Logger log = LogManager.getLogger("onlyoffice.UrlManager");

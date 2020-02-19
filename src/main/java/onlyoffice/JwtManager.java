@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 

@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
 
 /*
-    Copyright (c) Ascensio System SIA 2019. All rights reserved.
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
     http://www.onlyoffice.com
 */
 
