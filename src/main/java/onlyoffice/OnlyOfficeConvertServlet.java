@@ -1,0 +1,160 @@
+package onlyoffice;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.json.JSONObject;
+
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import javax.inject.Inject;
+
+/*
+    Copyright (c) Ascensio System SIA 2020. All rights reserved.
+    http://www.onlyoffice.com
+*/
+
+public class OnlyOfficeConvertServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
+
+    @ComponentImport
+    private final AttachmentManager attachmentManager;
+
+    private final ConvertManager convertManager;
+
+    @Inject
+    public OnlyOfficeConvertServlet(AttachmentManager attachmentManager,
+            JwtManager jwtManager, ConvertManager convertManager, UrlManager urlManager) {
+        this.attachmentManager = attachmentManager;
+        this.convertManager = convertManager;
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!AuthContext.checkUserAuthorisation(request, response)) {
+            return;
+        }
+
+        String attachmentIdString = request.getParameter("attachmentId");
+        Long attachmentId = Long.parseLong(attachmentIdString);
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter writer = response.getWriter();
+
+        Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        String ext = attachment.getFileExtension();
+        String fn = attachment.getFileName();
+        String newExt = convertManager.convertsTo(ext);
+
+        contextMap.put("attachmentId", attachmentIdString);
+        contextMap.put("oldName", fn);
+        contextMap.put("oldExt", ext);
+        contextMap.put("newName", fn.substring(0, fn.length() - ext.length()) + newExt);
+        contextMap.put("newExt", newExt);
+        writer.write(getTemplate(contextMap));
+    }
+
+    private String getTemplate(Map<String, Object> map) throws UnsupportedEncodingException {
+        return VelocityUtils.getRenderedTemplate("templates/convert.vm", map);
+    }
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!AuthContext.checkUserAuthorisation(request, response)) {
+            return;
+        }
+
+        String attachmentIdString = request.getParameter("attachmentId");
+        ConfluenceUser user = null;
+        String errorMessage = null;
+        JSONObject json = null;
+
+        try {
+            Long attachmentId = Long.parseLong(attachmentIdString);
+            log.info("attachmentId " + attachmentId);
+
+            Attachment attachment = attachmentManager.getAttachment(attachmentId);
+
+            user = AuthenticatedUserThreadLocal.get();
+            log.info("user " + user);
+
+            String ext = request.getParameter("oldExt");
+
+            if (AttachmentUtil.checkAccess(attachmentId, user, true)) {
+                if (ConvertManager.isConvertable(ext)) {
+                    json = convertManager.convert(attachmentId, ext);
+
+                    if (json.getBoolean("endConvert")) {
+                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"),
+                                request.getParameter("newExt"), request.getParameter("newName"));
+                        json.put("attachmentId", newAttachmentId);
+                    }
+                } else {
+                    errorMessage = "Files of " + ext + " format cannot be converted";
+                }
+            } else {
+                log.error("access deny");
+                errorMessage = "You don not have enough permission to convert the file";
+            }
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            String error = ex.toString() + "\n" + sw.toString();
+            log.error(error);
+            errorMessage = ex.toString();
+        }
+
+        response.setContentType("application/json");
+        PrintWriter writer = response.getWriter();
+        if (errorMessage != null) {
+            writer.write("{\"error\":\"" + errorMessage + "\"}");
+        } else {
+            writer.write(json.toString());
+        }
+    }
+
+    private Long savefile(Attachment attachment, String fileUrl, String newExt, String newName) throws Exception {
+        log.info("downloadUri = " + fileUrl);
+
+        URL url = new URL(fileUrl);
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        Integer size = connection.getContentLength();
+        log.info("size = " + size);
+
+        Attachment copy = attachment.copyLatestVersion();
+        InputStream stream = connection.getInputStream();
+
+        copy.setContainer(attachment.getContainer());
+        copy.setFileName(newName);
+        copy.setFileSize(size);
+        copy.setMediaType(convertManager.getMimeType(newExt));
+
+        attachmentManager.saveAttachment(copy, null, stream);
+
+        return copy.getLatestVersionId();
+    }
+
+}

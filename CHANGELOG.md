@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.2.0
+## Fixed
+- ANSI encoding issue
+
+## Added
+- Option to convert `odt`, `doc`, `odp`, `ppt`, `ods`, `xls` files to Office OpenXML
+- DE, IT, ES, RU, FR translations for settings page
+
 ## 2.1.0
 ## Added
 - DE, IT, ES, RU, FR translations

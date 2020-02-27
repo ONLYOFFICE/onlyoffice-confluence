@@ -38,6 +38,13 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
+    <web-item key="onlyoffice-docconvert" name="Link for the attachment conversion" section="system.attachment" weight="11">
+        <condition class="onlyoffice.IsOfficeFileConvertAttachment"/>
+        <description>The link and the text for it which is used to convert the document to Office Open XML format</description>
+        <label key="onlyoffice.connector.convertlink"/>
+        <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
+        <styleClass>onlyoffice-doceditor</styleClass>
+    </web-item>
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">
         <description>The fully functional editor for most known formats of text documents, spreadsheets and presentations used to open these types of documents for editing or preview.</description>
@@ -46,6 +53,10 @@
     <servlet key="OnlyOfficeSaveFileHandler" class="onlyoffice.OnlyOfficeSaveFileServlet" name="Save File Handler">
         <description>The callback URL, used to inform the document storage service about the end of the document editing and return the link to the modified document so that it could be saved correctly.</description>
         <url-pattern>/onlyoffice/save</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeConvertHandler" class="onlyoffice.OnlyOfficeConvertServlet" name="Convert Handler">
+        <description>The convert URL, used to make a request to document editing service to convert file to a different format.</description>
+        <url-pattern>/onlyoffice/convert</url-pattern>
     </servlet>
     <servlet key="OnlyOfficeConfigure" class="onlyoffice.OnlyOfficeConfServlet" name="Configuration Page">
         <description>The configuration page.</description>

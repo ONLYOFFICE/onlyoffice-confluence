@@ -1,6 +1,5 @@
 package onlyoffice;
 
-import java.util.List;
 import java.util.Map;
 
 import com.atlassian.confluence.pages.Attachment;
@@ -14,14 +13,8 @@ import com.atlassian.plugin.web.Condition;
     http://www.onlyoffice.com
 */
 
-public class IsOfficeFileAttachment implements Condition {
-    private boolean forEdit;
-
+public class IsOfficeFileConvertAttachment implements Condition {
     public void init(Map<String, String> params) throws PluginParseException {
-        forEdit = false;
-        if (params != null && !params.isEmpty() && params.get("forEdit") != null) {
-            forEdit = !params.get("forEdit").isEmpty();
-        }
     }
 
     public boolean shouldDisplay(Map<String, Object> context) {
@@ -29,28 +22,18 @@ public class IsOfficeFileAttachment implements Condition {
         if (attachment == null) {
             return false;
         }
-        if (!isXExtension(attachment.getFileExtension())) {
-            return false;
-        }
+        String ext = attachment.getFileExtension();
         if (attachment.getFileSize() > DocumentManager.GetMaxFileSize()) {
             return false;
         }
 
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean accessEdit = AttachmentUtil.checkAccess(attachment, user, true);
-        boolean accessView = AttachmentUtil.checkAccess(attachment, user, false);
-        if (!forEdit && (!accessView || accessEdit)) {
-            return false;
-        }
-        if (forEdit && !accessEdit) {
+
+        if (!accessEdit || !ConvertManager.isConvertable(ext)) {
             return false;
         }
 
         return true;
-    }
-
-    private boolean isXExtension(String fileExtension) {
-        List<String> exts = DocumentManager.GetEditedExts();
-        return exts.contains(fileExtension);
     }
 }
