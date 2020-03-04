@@ -32,7 +32,7 @@ Community Edition vs Integration Edition comparison can be found [here](#onlyoff
 Upload the compiled ***target/onlyoffice-confluence-plugin.jar*** to Confluence on the `Manage add-ons` page.
 The latest compiled package files are available [here](https://github.com/onlyoffice/onlyoffice-confluence/releases).
 
-## Configuring Confluence CONLYOFFICE integration plugin
+## Configuring Confluence ONLYOFFICE integration plugin
 
 Find the uploaded ***ONLYOFFICE Confluence plugin*** on the `Manage add-ons` page. Click `Configure` and enter the name of the server with the ONLYOFFICE Document Server installed:
 ```
@@ -100,6 +100,7 @@ The table below will help you make the right choice.
 | Tabbed interface                       | + | + |
 | White Label                            | - | - |
 | Integrated test example (node.js)     | - | + |
+| Mobile web editors                    | - | + |
 | **Plugins & Macros** | **Community Edition** | **Integration Edition** |
 | Plugins                           | + | + |
 | Macros                            | + | + |
@@ -113,11 +114,13 @@ The table below will help you make the right choice.
 | **Document Editor features** | **Community Edition** | **Integration Edition** |
 | Font and paragraph formatting   | + | + |
 | Object insertion                | + | + |
-| Content control                 | + | + |
+| Adding Content control          | - | + | 
+| Editing Content control         | + | + | 
 | Layout tools                    | + | + |
 | Table of contents               | + | + |
 | Navigation panel                | + | + |
 | Mail Merge                      | + | + |
+| Comparing Documents             | - | + |
 | **Spreadsheet Editor features** | **Community Edition** | **Integration Edition** |
 | Font and paragraph formatting   | + | + |
 | Object insertion                | + | + |
