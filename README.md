@@ -118,7 +118,6 @@ The table below will help you make the right choice.
 | Layout tools                    | + | + |
 | Table of contents               | + | + |
 | Navigation panel                | + | + |
-| Mail Merge                      | + | + |
 | Comparing Documents             | - | +* |
 | **Spreadsheet Editor features** | **Community Edition** | **Integration Edition** |
 | Font and paragraph formatting   | + | + |
