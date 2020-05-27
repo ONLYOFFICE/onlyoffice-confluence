@@ -1,6 +1,6 @@
 <atlassian-plugin-marketing>
     <compatibility>
-        <product name="confluence" min="6.0.0" max="7.3.2" />
+        <product name="confluence" min="6.0.0" max="7.6.1" />
     </compatibility>
 
     <logo image="images/144.png"/>
