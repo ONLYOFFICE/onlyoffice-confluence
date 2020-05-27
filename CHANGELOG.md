@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.2.1
+## Changed
+- Updated marketplace version
+
 ## 2.2.0
 ## Fixed
 - ANSI encoding issue
