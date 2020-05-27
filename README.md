@@ -30,7 +30,15 @@ Community Edition vs Integration Edition comparison can be found [here](#onlyoff
 ## Installing Confluence ONLYOFFICE integration plugin
 
 Upload the compiled ***target/onlyoffice-confluence-plugin.jar*** to Confluence on the `Manage add-ons` page.
-The latest compiled package files are available [here](https://github.com/onlyoffice/onlyoffice-confluence/releases).
+
+The latest compiled package files are available [here](https://github.com/onlyoffice/onlyoffice-confluence/releases) and on [Atlassian Marketplace](https://marketplace.atlassian.com/apps/1218214/onlyoffice-connector-for-confluence).
+
+You could also install plugin from Confluence administration panel:
+
+1. Navigate to `Manage add-ons` page.
+2. Click **Find new apps** or **Find new add-ons** on the left panel.
+3. Locate **ONLYOFFICE Connector for Confluence** using search.
+4. Click **Install** to download and install the app.
 
 ## Configuring Confluence ONLYOFFICE integration plugin
 
