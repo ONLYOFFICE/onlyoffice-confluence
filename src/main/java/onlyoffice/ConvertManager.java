@@ -97,10 +97,10 @@ public class ConvertManager {
         body.put("filetype", ext);
         body.put("outputtype", convertsTo(ext));
         body.put("key", DocumentManager.getKeyOfFile(attachmentId));
-        body.put("url", urlManager.GetUri(attachmentId));
+        body.put("url", urlManager.GetFileUri(attachmentId));
 
         StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
-        HttpPost request = new HttpPost(urlManager.getDocEditorUrl()
+        HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
                 + new ConfigurationManager().GetProperties().getProperty("files.docservice.url.convert"));
         request.setEntity(requestEntity);
         request.setHeader("Accept", "application/json");

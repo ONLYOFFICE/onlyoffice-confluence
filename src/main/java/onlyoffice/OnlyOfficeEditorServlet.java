@@ -80,8 +80,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             return;
         }
 
-        PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
-        String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
+        String apiUrl = urlManager.getPublicDocEditorUrl();
         if (apiUrl == null || apiUrl.isEmpty()) {
             apiUrl = "";
         }
@@ -90,7 +89,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         properties = configurationManager.GetProperties();
 
         String callbackUrl = "";
-        String externalUrl = "";
+        String fileUrl = "";
         String key = "";
         String fileName = "";
         String errorMessage = "";
@@ -110,7 +109,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
                 fileName = AttachmentUtil.getFileName(attachmentId);
 
-                externalUrl = urlManager.GetUri(attachmentId);
+                fileUrl = urlManager.GetFileUri(attachmentId);
 
                 if (AttachmentUtil.checkAccess(attachmentId, user, true)) {
                     callbackUrl = urlManager.getCallbackUrl(attachmentId);
@@ -131,7 +130,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
 
-        writer.write(getTemplate(apiUrl, callbackUrl, externalUrl, key, fileName, user, errorMessage));
+        writer.write(getTemplate(apiUrl, callbackUrl, fileUrl, key, fileName, user, errorMessage));
     }
 
     private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
