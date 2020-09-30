@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.3.0
+## Changed
+- Apache license
+- Document Editing Service address is now splitted in two settings: inner address (address that confluence will use to access service) and public address (address that user will use to access editors)
+
 ## 2.2.1
 ## Changed
 - Updated marketplace version
