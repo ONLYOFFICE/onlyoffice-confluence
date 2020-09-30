@@ -164,7 +164,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         try {
             log.debug("Checking docserv commandservice");
-            if (!CheckDocServCommandService(docInnerUrl, pluginSettings)) {
+            if (!CheckDocServCommandService((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl, pluginSettings)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservcommand\"}");
                 return;
             }
