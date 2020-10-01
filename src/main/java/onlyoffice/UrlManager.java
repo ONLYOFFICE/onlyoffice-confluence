@@ -1,3 +1,22 @@
+/**
+ *
+ * (c) Copyright Ascensio System SIA 2020
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+
 package onlyoffice;
 
 import org.apache.log4j.LogManager;
@@ -12,11 +31,6 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-
-/*
-    Copyright (c) Ascensio System SIA 2020. All rights reserved.
-    http://www.onlyoffice.com
-*/
 
 @Named
 public class UrlManager {
@@ -38,20 +52,26 @@ public class UrlManager {
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
     }
 
-    private String getBaseUrl() {
-        return settingsManager.getGlobalSettings().getBaseUrl() + "/";
-    }
-
-    public String getDocEditorUrl() {
+    public String getPublicDocEditorUrl() {
         String url = (String) pluginSettings.get("onlyoffice.apiUrl");
-        return url == null ? "" : url;
+        return (url == null || url.isEmpty()) ? "" : url;
     }
 
-    public String GetUri(Long attachmentId) throws Exception {
+
+    public String getInnerDocEditorUrl() {
+        String url = (String) pluginSettings.get("onlyoffice.docInnerUrl");
+        if (url == null || url.isEmpty()) {
+            return getPublicDocEditorUrl();
+        } else {
+            return url;
+        }
+    }
+
+    public String GetFileUri(Long attachmentId) throws Exception {
         String hash = DocumentManager.CreateHash(Long.toString(attachmentId));
 
-        String callbackUrl = getBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
-        log.info("callbackUrl " + callbackUrl);
+        String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
+        log.info("fileUrl " + callbackUrl);
 
         return callbackUrl;
     }
@@ -59,9 +79,18 @@ public class UrlManager {
     public String getCallbackUrl(Long attachmentId) {
         String hash = DocumentManager.CreateHash(Long.toString(attachmentId));
 
-        String callbackUrl = getBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
+        String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;
+    }
+
+    private String getConfluenceBaseUrl() {
+        String url = (String) pluginSettings.get("onlyoffice.confUrl");
+        if (url == null || url.isEmpty()) {
+            return settingsManager.getGlobalSettings().getBaseUrl() + "/";
+        } else {
+            return url;
+        }
     }
 }

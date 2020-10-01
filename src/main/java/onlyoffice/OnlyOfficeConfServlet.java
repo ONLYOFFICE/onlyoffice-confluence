@@ -1,3 +1,21 @@
+/**
+ *
+ * (c) Copyright Ascensio System SIA 2020
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package onlyoffice;
 
 import java.io.IOException;
@@ -38,11 +56,6 @@ import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
-/*
-    Copyright (c) Ascensio System SIA 2020. All rights reserved.
-    http://www.onlyoffice.com
-*/
-
 public class OnlyOfficeConfServlet extends HttpServlet {
     @ComponentImport
     private final UserManager userManager;
@@ -74,13 +87,13 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
         String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
+        String docInnerUrl = (String) pluginSettings.get("onlyoffice.docInnerUrl");
+		String confUrl = (String) pluginSettings.get("onlyoffice.confUrl");
         String jwtSecret = (String) pluginSettings.get("onlyoffice.jwtSecret");
-        if (apiUrl == null || apiUrl.isEmpty()) {
-            apiUrl = "";
-        }
-        if (jwtSecret == null || jwtSecret.isEmpty()) {
-            jwtSecret = "";
-        }
+        if (apiUrl == null || apiUrl.isEmpty()) { apiUrl = ""; }
+		if (docInnerUrl == null || docInnerUrl.isEmpty()) { docInnerUrl = ""; }
+		if (confUrl == null || confUrl.isEmpty()) { confUrl = ""; }
+		if (jwtSecret == null || jwtSecret.isEmpty()) { jwtSecret = ""; }
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
@@ -88,6 +101,8 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
         contextMap.put("docserviceApiUrl", apiUrl);
+        contextMap.put("docserviceInnerUrl", docInnerUrl);
+		contextMap.put("docserviceConfUrl", confUrl);
         contextMap.put("docserviceJwtSecret", jwtSecret);
 
         writer.write(getTemplate(contextMap));
@@ -112,11 +127,16 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         }
 
         String apiUrl;
+        String docInnerUrl;
+		String confUrl;
         String jwtSecret;
         try {
             JSONObject jsonObj = new JSONObject(body);
 
             apiUrl = AppendSlash(jsonObj.getString("apiUrl"));
+            docInnerUrl = AppendSlash(jsonObj.getString("docInnerUrl"));
+            confUrl = AppendSlash(jsonObj.getString("confUrl"));
+            
             jwtSecret = jsonObj.getString("jwtSecret");
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
@@ -132,6 +152,8 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
         pluginSettings.put("onlyoffice.apiUrl", apiUrl);
+        pluginSettings.put("onlyoffice.docInnerUrl", docInnerUrl);
+		pluginSettings.put("onlyoffice.confUrl", confUrl);
         pluginSettings.put("onlyoffice.jwtSecret", jwtSecret);
 
         log.debug("Checking docserv url");
@@ -142,7 +164,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         try {
             log.debug("Checking docserv commandservice");
-            if (!CheckDocServCommandService(apiUrl, pluginSettings)) {
+            if (!CheckDocServCommandService((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl, pluginSettings)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservcommand\"}");
                 return;
             }

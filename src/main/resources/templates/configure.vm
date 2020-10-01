@@ -1,6 +1,25 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
+
+        <!--
+        *
+        * (c) Copyright Ascensio System SIA 2020
+        *
+        * Licensed under the Apache License, Version 2.0 (the "License");
+        * you may not use this file except in compliance with the License.
+        * You may obtain a copy of the License at
+        *
+        *     http://www.apache.org/licenses/LICENSE-2.0
+        *
+        * Unless required by applicable law or agreed to in writing, software
+        * distributed under the License is distributed on an "AS IS" BASIS,
+        * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        * See the License for the specific language governing permissions and
+        * limitations under the License.
+        *
+        -->
+
         <title>ONLYOFFICE</title>
         <meta name="decorator" content="atl.admin" />
     </head>
@@ -26,6 +45,8 @@
                     function updateConfig() {
                         var data = {
                             "apiUrl": jq("#apiUrlField").attr("value"),
+                            "docInnerUrl": jq("#docInnerUrlField").attr("value"),
+                            "confUrl": jq("#confUrlField").attr("value"),
                             "jwtSecret": jq("#jwtSecretField").attr("value")
                         };
 
@@ -89,6 +110,17 @@
                 <label for="jwtSecretField">$i18n.getText('onlyoffice.configuration.jwt-secret')</label>
                 <input type="text" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text">
             </div>
+
+            <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
+            <div class="field-group">
+                <label for="confUrlField">$i18n.getText('onlyoffice.configuration.conf-url')</label>
+                <input type="text" id="confUrlField" value="${docserviceConfUrl}" name="confUrlField" class="text">
+            </div>
+            <div class="field-group">
+                <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
+                <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner-tooltip')">
+            </div>
+
             <div class="field-group">
                 <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.save')" class="button">
             </div>
