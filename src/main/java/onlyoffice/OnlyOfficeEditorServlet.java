@@ -90,6 +90,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         String callbackUrl = "";
         String fileUrl = "";
+        String gobackUrl = "";
         String key = "";
         String fileName = "";
         String errorMessage = "";
@@ -111,6 +112,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
                 fileUrl = urlManager.GetFileUri(attachmentId);
 
+                gobackUrl = urlManager.getGobackUrl(attachmentId);
+
                 if (AttachmentUtil.checkAccess(attachmentId, user, true)) {
                     callbackUrl = urlManager.getCallbackUrl(attachmentId);
                 }
@@ -130,11 +133,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
 
-        writer.write(getTemplate(apiUrl, callbackUrl, fileUrl, key, fileName, user, errorMessage));
+        writer.write(getTemplate(apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
     }
 
     private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
-            ConfluenceUser user, String errorMessage) throws UnsupportedEncodingException {
+            ConfluenceUser user, String gobackUrl, String errorMessage) throws UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
 
@@ -150,6 +153,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         JSONObject editorConfigObject = new JSONObject();
         JSONObject userObject = new JSONObject();
         JSONObject permObject = new JSONObject();
+        JSONObject customizationObject = new JSONObject();
+        JSONObject gobackObject = new JSONObject();
 
         try {
             responseJson.put("type", "desktop");
@@ -169,6 +174,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
             editorConfigObject.put("mode", "edit");
             editorConfigObject.put("callbackUrl", callbackUrl);
+            editorConfigObject.put("customization", customizationObject);
+
+            customizationObject.put("goback", gobackObject);
+            gobackObject.put("url", gobackUrl);
 
             if (user != null) {
                 editorConfigObject.put("user", userObject);
