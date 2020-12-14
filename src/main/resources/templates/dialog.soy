@@ -1,0 +1,44 @@
+{namespace Confluence.Templates.Onlyoffice}
+
+
+
+/**
+* Renders loading state
+*/
+{template .dialog}
+<ul>
+	<li>
+		<a href="#" class="menuitem">
+			<span class="icon icon-onlyoffice-new-docx"></span>
+			<span class="displayname">Document</span>
+			<form class="filenameform hidden" target="_blank" action="/plugins/servlet/onlyoffice/doceditor">
+				<input id="view-input-docx" name="fileName" class="input-name" type="text" value="Document" autocomplete="off" autocapitalize="off">
+				<input name="ext" value="docx" type="hidden">
+				<input type="submit" value=" " class="icon-confirm">
+			</form>
+		</a>
+	</li>
+	<li>
+		<a href="#" class="menuitem">
+			<span class="icon icon-onlyoffice-new-xlsx"></span>
+			<span class="displayname ">Spreadsheet</span>
+			<form class="filenameform hidden" target="_blank" action="/plugins/servlet/onlyoffice/doceditor">
+				<input id="view-input-xlsx" name="fileName" class="input-name" type="text" value="Spreadsheet" autocomplete="off" autocapitalize="off">
+				<input name="ext" value="xlsx" type="hidden">
+				<input type="submit" value=" " class="icon-confirm">
+			</form>
+		</a>
+	</li>
+	<li>
+		<a href="#" class="menuitem">
+			<span class="icon icon-onlyoffice-new-pptx"></span>
+			<span class="displayname ">Presentation</span>
+			<form class="filenameform hidden" target="_blank" action="/plugins/servlet/onlyoffice/doceditor">
+				<input id="view-input-pptx" name="fileName" class="input-name" type="text" value="Presentation" autocomplete="off" autocapitalize="off">
+				<input name="ext" value="pptx" type="hidden">
+				<input type="submit" value=" " class="icon-confirm">
+			</form>
+		</a>
+	</li>
+</ul>
+{/template}

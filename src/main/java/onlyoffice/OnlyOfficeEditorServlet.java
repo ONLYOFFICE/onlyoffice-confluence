@@ -92,10 +92,19 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String fileUrl = "";
         String key = "";
         String fileName = "";
+        String ext = "";
         String errorMessage = "";
         ConfluenceUser user = null;
 
         String attachmentIdString = request.getParameter("attachmentId");
+        if (attachmentIdString == null){
+            fileName = request.getParameter("fileName");
+            ext = request.getParameter("ext");
+            if (fileName != null && !fileName.equals("") && ext != null && !ext.equals("")) {
+                attachmentIdString = DocumentManager.createDemo(fileName, ext, request);
+            }
+        }
+
         Long attachmentId;
 
         try {

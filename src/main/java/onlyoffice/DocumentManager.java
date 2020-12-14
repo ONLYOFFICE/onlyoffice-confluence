@@ -19,18 +19,23 @@
 package onlyoffice;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Properties;
-
+import java.util.*;
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.pages.PageManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.spring.container.ContainerManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
+import javax.servlet.http.HttpServletRequest;
 
 public class DocumentManager {
     private static final Logger log = LogManager.getLogger("onlyoffice.DocumentManager");
@@ -128,5 +133,38 @@ public class DocumentManager {
             log.error(ex);
         }
         return "";
+    }
+
+    public static String createDemo(String fileName, String ext, HttpServletRequest request) {
+        Attachment attachment = null;
+        try {
+            ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
+            PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
+            PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
+            AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+
+            String referer = request.getHeader("referer");
+            Long padeID = Long.parseLong(referer.substring(referer.indexOf("pageId=") + 7).split("&")[0]);
+
+            fileName = fileName + "." + ext;
+            Date date = Calendar.getInstance().getTime();
+
+            InputStream in = pluginAccessor.getDynamicResourceAsStream("app_data/new." + ext);
+
+            Page page = pageManager.getPage(padeID);
+            attachment = new Attachment(fileName, "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  in.available(), "");
+                attachment.setCreator(confluenceUser);
+                attachment.setCreationDate(date);
+                attachment.setLastModificationDate(date);
+                attachment.setContainer(pageManager.getPage(padeID));
+
+            attachmentManager.saveAttachment(attachment, null, in);
+            page.addAttachment(attachment);
+
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+
+        return String.valueOf(attachment.getContentId()).split("=")[1].replace("}", "");
     }
 }
