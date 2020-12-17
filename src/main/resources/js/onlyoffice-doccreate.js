@@ -1,22 +1,29 @@
 AJS.toInit(function ($) {
     var $webItem = $('#onlyoffice-doccreate');
     var dialogId = "doccreate";
-
-    var width = $webItem.width() <= 98 ? 120 : $webItem.width() + 22;
+    var selectedAjsParams = {
+                url: AJS.contextPath() + "/plugins/servlet/onlyoffice/doceditor"
+            };
 
     var dialog = AJS.InlineDialog($webItem, dialogId,
         function(content, trigger, showPopup) {
-            content.html(Confluence.Templates.Onlyoffice.dialog());
+            content.html(Confluence.Templates.Onlyoffice.dialog(selectedAjsParams));
             showPopup();
             return false;
         },
-       {
-       width: width
-       }
-    );
+        {
+            calculatePositions: function getPosition(popup, targetPosition, mousePosition, opts) {
+                return {
+                    popupCss: {
+                        top: $webItem.offset().top + $webItem.outerHeight() + 4,
+                        right: $(document).width() - $webItem.offset().left - $webItem.outerWidth()
+                    },
+                    arrowCss:{}
+                };
+            }
+        });
 
     $webItem.click(function() {
-     $('#inline-dialog-doccreate .aui-inline-dialog-contents').width(width);
         if($('#inline-dialog-' + dialogId).is(':visible')) {
             dialog.hide();
         }
@@ -29,8 +36,5 @@ AJS.toInit(function ($) {
        $(this).find('.displayname').addClass('hidden');
        $(this).find('.filenameform').removeClass('hidden');
        $(this).addClass('active');
-       if($('#inline-dialog-doccreate .aui-inline-dialog-contents').width() == width){
-            $('#inline-dialog-doccreate .aui-inline-dialog-contents').width(width + 36);
-       }
     });
 });

@@ -4,16 +4,17 @@
 
 /**
 * Renders loading state
+* @param url
 */
 {template .dialog}
 <ul>
 	<li>
 		<a href="#" class="menuitem">
 			<span class="icon icon-onlyoffice-new-docx"></span>
-			<span class="displayname">Document</span>
-			<form class="filenameform hidden" target="_blank" action="/plugins/servlet/onlyoffice/doceditor">
-				<input id="view-input-docx" name="fileName" class="input-name" type="text" value="Document" autocomplete="off" autocapitalize="off">
-				<input name="ext" value="docx" type="hidden">
+			<span class="displayname">{getText('onlyoffice.connector.dialog-create.docx')}</span>
+			<form class="filenameform hidden" target="_blank" action="{$url}">
+				<input id="view-input-docx" name="fileName" class="input-name" type="text" value="{getText('onlyoffice.connector.dialog-create.docx')}" maxlength="216" autocomplete="off" autocapitalize="off">
+				<input value="docx" name="fileExt" type="hidden">
 				<input type="submit" value=" " class="icon-confirm">
 			</form>
 		</a>
@@ -21,10 +22,10 @@
 	<li>
 		<a href="#" class="menuitem">
 			<span class="icon icon-onlyoffice-new-xlsx"></span>
-			<span class="displayname ">Spreadsheet</span>
-			<form class="filenameform hidden" target="_blank" action="/plugins/servlet/onlyoffice/doceditor">
-				<input id="view-input-xlsx" name="fileName" class="input-name" type="text" value="Spreadsheet" autocomplete="off" autocapitalize="off">
-				<input name="ext" value="xlsx" type="hidden">
+			<span class="displayname ">{getText('onlyoffice.connector.dialog-create.xlsx')}</span>
+			<form class="filenameform hidden" target="_blank" action="{$url}">
+				<input id="view-input-xlsx" name="fileName" class="input-name" type="text" value="{getText('onlyoffice.connector.dialog-create.xlsx')}" maxlength="216" autocomplete="off" autocapitalize="off">
+				<input value="xlsx" name="fileExt" type="hidden">
 				<input type="submit" value=" " class="icon-confirm">
 			</form>
 		</a>
@@ -32,10 +33,10 @@
 	<li>
 		<a href="#" class="menuitem">
 			<span class="icon icon-onlyoffice-new-pptx"></span>
-			<span class="displayname ">Presentation</span>
-			<form class="filenameform hidden" target="_blank" action="/plugins/servlet/onlyoffice/doceditor">
-				<input id="view-input-pptx" name="fileName" class="input-name" type="text" value="Presentation" autocomplete="off" autocapitalize="off">
-				<input name="ext" value="pptx" type="hidden">
+			<span class="displayname ">{getText('onlyoffice.connector.dialog-create.pptx')}</span>
+			<form class="filenameform hidden" target="_blank" action="{$url}">
+				<input id="view-input-pptx" name="fileName" class="input-name" type="text" value="{getText('onlyoffice.connector.dialog-create.pptx')}" maxlength="216" autocomplete="off" autocapitalize="off">
+				<input  value="pptx" name="fileExt" type="hidden">
 				<input type="submit" value=" " class="icon-confirm">
 			</form>
 		</a>
