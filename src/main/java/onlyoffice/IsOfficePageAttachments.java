@@ -22,6 +22,8 @@ import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
 import com.opensymphony.webwork.ServletActionContext;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IsOfficePageAttachments implements Condition {
     private String pageAttachments = "viewpageattachments.action";
@@ -32,9 +34,9 @@ public class IsOfficePageAttachments implements Condition {
     @Override
     public boolean shouldDisplay(Map<String, Object> map) {
         String uri = ServletActionContext.getRequest().getServletPath();
-        if (uri.split("/")[uri.split("/").length-1].equals(pageAttachments)){
-            return true;
-        }
-        return false;
+
+        Pattern pattern = Pattern.compile(".*/" + pageAttachments + ".*");
+        Matcher matcher = pattern.matcher(uri);
+        return matcher.matches();
     }
 }
