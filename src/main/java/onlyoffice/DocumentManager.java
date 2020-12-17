@@ -18,12 +18,11 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.security.MessageDigest;
 import java.util.*;
+import com.atlassian.confluence.core.ContentEntityManager;
+import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.pages.Page;
@@ -135,7 +134,32 @@ public class DocumentManager {
         return "";
     }
 
-    public static String createDemo(String fileName, String ext, HttpServletRequest request) {
+    private static String GetCorrectName(String fileName, String fileExt, Long padeID) {
+        ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        ContentEntityObject contentEntityObject = contentEntityManager.getById(padeID);
+
+        List<Attachment> Attachments  =  attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
+        String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]","_");
+        int count = 0;
+        Boolean flag = true;
+
+        while(flag){
+            flag = false;
+            for (Attachment attachment : Attachments){
+                if (attachment.getFileName().equals(name)){
+                    count++;
+                    name = fileName + " (" + count + ")." + fileExt;
+                    flag = true;
+                    break;
+                }
+            }
+        }
+
+        return name;
+    }
+
+    public static String createDemo(String fileName, String fileExt, HttpServletRequest request) {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
@@ -146,10 +170,11 @@ public class DocumentManager {
             String referer = request.getHeader("referer");
             Long padeID = Long.parseLong(referer.substring(referer.indexOf("pageId=") + 7).split("&")[0]);
 
-            fileName = fileName + "." + ext;
             Date date = Calendar.getInstance().getTime();
 
-            InputStream in = pluginAccessor.getDynamicResourceAsStream("app_data/new." + ext);
+            InputStream in = pluginAccessor.getDynamicResourceAsStream("app_data/new." + fileExt);
+
+            fileName = GetCorrectName(fileName, fileExt, padeID);
 
             Page page = pageManager.getPage(padeID);
             attachment = new Attachment(fileName, "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  in.available(), "");
@@ -160,7 +185,6 @@ public class DocumentManager {
 
             attachmentManager.saveAttachment(attachment, null, in);
             page.addAttachment(attachment);
-
         } catch (Exception ex) {
             log.error(ex);
         }
