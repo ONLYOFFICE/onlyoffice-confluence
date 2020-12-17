@@ -37,4 +37,9 @@ AJS.toInit(function ($) {
        $(this).find('.filenameform').removeClass('hidden');
        $(this).addClass('active');
     });
+
+    $(document).on("submit", '.filenameform', function(event){
+            setTimeout(function () { document.location.reload(); }, 1000);
+            return true;
+    });
 });

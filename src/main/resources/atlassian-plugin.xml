@@ -90,8 +90,4 @@
         <description>The configuration page.</description>
         <url-pattern>/onlyoffice/configure</url-pattern>
     </servlet>
-    <servlet key="OnlyOfficeCreate" class="onlyoffice.OnlyOfficeCreateFileServlet" name="Create Page">
-        <description>The configuration page.</description>
-        <url-pattern>/onlyoffice/create</url-pattern>
-    </servlet>
 </atlassian-plugin>
