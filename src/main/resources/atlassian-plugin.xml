@@ -18,6 +18,13 @@
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Link for Web Resources rendering">
         <description>The link used to make the document to be opened in the new browser tab for editing or viewing.</description>
         <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource type="download" name="onlyoffice-main.js" location="/js/onlyoffice-main.js"/>
+        <context>page</context>
+    </web-resource>
+
+    <web-resource key="onlyoffice-confluence-plugin-doccreate" name="Link for Web Resources rendering (create-document)">
+        <description>The link used to make the document to be opened in the new browser tab for editing or viewing.</description>
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
         <transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
@@ -27,23 +34,22 @@
             </transformer>
         </transformation>
         <resource type="download" name="dialog-soy.js" location="/templates/dialog.soy"/>
-        <resource type="download" name="onlyoffice-main.js" location="/js/onlyoffice-main.js"/>
         <resource type="download" name="onlyoffice-doccreate.js" location="/js/onlyoffice-doccreate.js"/>
         <resource type="download" name="images/" location="/images"/>
         <resource type="download" name="onlyoffice-confluence-plugin.css" location="css/onlyoffice-confluence-plugin.css"/>
+        <condition class="onlyoffice.IsOfficePageAttachments"/>
         <context>page</context>
     </web-resource>
 
     <web-item key="onlyoffice-doccreate" name="New Document" section="system.content.button" weight="47">
         <condition class="onlyoffice.IsOfficePageAttachments"/>
         <icon height="16" width="16">
-            <link>/download/resources/${project.groupId}.${project.artifactId}:onlyoffice-confluence-plugin-resources/images/16.svg</link>
+            <link>/download/resources/${project.groupId}.${project.artifactId}:onlyoffice-confluence-plugin-doccreate/images/16.svg</link>
         </icon>
         <label key="onlyoffice.connector.createlink"/>
         <tooltip key="onlyoffice.connector.tooltip.createlink"/>
-        <link linkId="onlyoffice-doccreate"></link>
+        <link linkId="onlyoffice-doccreate" absolute="true"/>
     </web-item>
-
     <web-item key="onlyoffice-doceditor" name="Link for the attachment editing" section="system.attachment" weight="9">
         <condition class="onlyoffice.IsOfficeFileAttachment">
             <param name="forEdit">true</param>
@@ -83,5 +89,9 @@
     <servlet key="OnlyOfficeConfigure" class="onlyoffice.OnlyOfficeConfServlet" name="Configuration Page">
         <description>The configuration page.</description>
         <url-pattern>/onlyoffice/configure</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeCreate" class="onlyoffice.OnlyOfficeCreateFileServlet" name="Create Page">
+        <description>The configuration page.</description>
+        <url-pattern>/onlyoffice/create</url-pattern>
     </servlet>
 </atlassian-plugin>
