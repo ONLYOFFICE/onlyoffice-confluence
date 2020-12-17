@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
@@ -42,7 +43,6 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -92,16 +92,28 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String fileUrl = "";
         String key = "";
         String fileName = "";
-        String ext = "";
+        String fileExt = "";
         String errorMessage = "";
         ConfluenceUser user = null;
 
         String attachmentIdString = request.getParameter("attachmentId");
+
         if (attachmentIdString == null){
-            fileName = request.getParameter("fileName");
-            ext = request.getParameter("ext");
-            if (fileName != null && !fileName.equals("") && ext != null && !ext.equals("")) {
-                attachmentIdString = DocumentManager.createDemo(fileName, ext, request);
+            fileName = request.getParameter("fileName").trim();
+            fileExt = request.getParameter("fileExt").trim();
+            if (fileName != null && !fileName.equals("") && fileExt != null && !fileExt.equals("")) {
+                try {
+                    attachmentIdString = DocumentManager.createDemo(fileName, fileExt, request);
+                    response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentIdString, "UTF-8"));
+                    return;
+                }catch (Exception ex) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    ex.printStackTrace(pw);
+                    String error = ex.toString() + "\n" + sw.toString();
+                    log.error(error);
+                    errorMessage = ex.toString();
+                }
             }
         }
 
