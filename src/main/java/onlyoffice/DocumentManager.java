@@ -134,20 +134,20 @@ public class DocumentManager {
         return "";
     }
 
-    private static String GetCorrectName(String fileName, String fileExt, Long padeID) {
+    private static String GetCorrectName(String fileName, String fileExt, Long pageID) {
         ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
-        ContentEntityObject contentEntityObject = contentEntityManager.getById(padeID);
+        ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
 
         List<Attachment> Attachments  =  attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
         String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]","_");
         int count = 0;
         Boolean flag = true;
 
-        while(flag){
+        while(flag) {
             flag = false;
-            for (Attachment attachment : Attachments){
-                if (attachment.getFileName().equals(name)){
+            for (Attachment attachment : Attachments) {
+                if (attachment.getFileName().equals(name)) {
                     count++;
                     name = fileName + " (" + count + ")." + fileExt;
                     flag = true;
@@ -159,7 +159,7 @@ public class DocumentManager {
         return name;
     }
 
-    public static String createDemo(String fileName, String fileExt, HttpServletRequest request) {
+    public static String createDemo(String fileName, String fileExt, String pageId) {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
@@ -167,21 +167,20 @@ public class DocumentManager {
             PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
 
-            String referer = request.getHeader("referer");
-            Long padeID = Long.parseLong(referer.substring(referer.indexOf("pageId=") + 7).split("&")[0]);
+            Long pageID = Long.parseLong(pageId);
 
             Date date = Calendar.getInstance().getTime();
 
             InputStream in = pluginAccessor.getDynamicResourceAsStream("app_data/new." + fileExt);
 
-            fileName = GetCorrectName(fileName, fileExt, padeID);
+            fileName = GetCorrectName(fileName, fileExt, pageID);
 
-            Page page = pageManager.getPage(padeID);
+            Page page = pageManager.getPage(pageID);
             attachment = new Attachment(fileName, "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  in.available(), "");
                 attachment.setCreator(confluenceUser);
                 attachment.setCreationDate(date);
                 attachment.setLastModificationDate(date);
-                attachment.setContainer(pageManager.getPage(padeID));
+                attachment.setContainer(pageManager.getPage(pageID));
 
             attachmentManager.saveAttachment(attachment, null, in);
             page.addAttachment(attachment);

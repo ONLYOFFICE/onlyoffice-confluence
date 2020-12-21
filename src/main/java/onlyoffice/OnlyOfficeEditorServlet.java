@@ -92,21 +92,21 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String fileUrl = "";
         String key = "";
         String fileName = "";
-        String fileExt = "";
         String errorMessage = "";
         ConfluenceUser user = null;
 
         String attachmentIdString = request.getParameter("attachmentId");
 
-        if (attachmentIdString == null){
-            fileName = request.getParameter("fileName").trim();
-            fileExt = request.getParameter("fileExt").trim();
-            if (fileName != null && !fileName.equals("") && fileExt != null && !fileExt.equals("")) {
+        if (attachmentIdString == null) {
+            fileName = request.getParameter("fileName");
+            String fileExt = request.getParameter("fileExt");
+            String pageID = request.getParameter("pageId");
+            if (fileName != null && !fileName.equals("") && fileExt != null && !fileExt.equals("") && pageID != null && !pageID.equals("")) {
                 try {
-                    attachmentIdString = DocumentManager.createDemo(fileName, fileExt, request);
+                    attachmentIdString = DocumentManager.createDemo(fileName.trim(), fileExt.trim(), pageID.trim());
                     response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentIdString, "UTF-8"));
                     return;
-                }catch (Exception ex) {
+                } catch (Exception ex) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     ex.printStackTrace(pw);
