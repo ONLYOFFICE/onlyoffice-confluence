@@ -1,13 +1,19 @@
-AJS.toInit(function ($){
-    var $webItem = $("#onlyoffice-doccreate");
-    var dialogId = "doccreate";
-    var selectedAjsParams = {
-        pageId: AJS.params.pageId
+AJS.toInit(function ($) {
+    var buttonCreate = $("#onlyoffice-filecreate");
+    var docx = "docx";
+
+    var paramsPage = {
+        pageId: AJS.params.pageId,
+        extensions: {
+            "docx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.docx"),
+            "xlsx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.xlsx"),
+            "pptx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.pptx")
+        }
     };
 
-    var dialog = AJS.InlineDialog($webItem, dialogId,
+    var dialog = AJS.InlineDialog(buttonCreate, "filecreate",
         function(content, trigger, showPopup) {
-            content.html(Confluence.Templates.Onlyoffice.dialog(selectedAjsParams));
+            content.html(Confluence.Templates.Onlyoffice.filecreate(paramsPage));
             showPopup();
             return false;
         },
@@ -15,8 +21,8 @@ AJS.toInit(function ($){
             calculatePositions: function getPosition(popup, targetPosition, mousePosition, opts) {
                 return {
                     popupCss: {
-                        top: $webItem.offset().top + $webItem.outerHeight() + 4,
-                        right: $(document).width() - $webItem.offset().left - $webItem.outerWidth()
+                        top: buttonCreate.offset().top + buttonCreate.outerHeight() + 4,
+                        right: $(document).width() - buttonCreate.offset().left - buttonCreate.outerWidth()
                     },
                     arrowCss:{}
                 };
@@ -24,8 +30,8 @@ AJS.toInit(function ($){
         }
     );
 
-    $webItem.click(function() {
-        if($("#inline-dialog-" + dialogId).is(":visible")) {
+    buttonCreate.click(function() {
+        if($("#inline-dialog-filecreate").is(":visible")) {
             dialog.hide();
         }
     });

@@ -1,0 +1,25 @@
+{namespace Confluence.Templates.Onlyoffice}
+
+/**
+* Renders loading state
+* @param pageId
+* @param extensions
+*/
+{template .filecreate}
+<ul>
+	{foreach $key in keys($extensions)}
+		<li>
+			<a href="#" class="menuitem">
+				<span class="icon icon-onlyoffice-new-{$key}"></span>
+				<span class="displayname">{$extensions[$key]}</span>
+				<form class="filenameform hidden" target="_blank" action="{contextPath()}/plugins/servlet/onlyoffice/doceditor">
+					<input id="view-input-{$key}" name="fileName" class="input-name" type="text" value="{$extensions[$key]}" maxlength="216" autocomplete="off" autocapitalize="off">
+					<input name="fileExt" value="{$key}"  type="hidden">
+					<input name="pageId" value="{$pageId}" type="hidden">
+					<input type="submit" value=" " class="icon-confirm">
+				</form>
+			</a>
+		</li>
+	{/foreach}
+</ul>
+{/template}

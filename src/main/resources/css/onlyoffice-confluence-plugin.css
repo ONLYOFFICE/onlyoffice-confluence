@@ -1,28 +1,28 @@
-#onlyoffice-doccreate img{
+#onlyoffice-filecreate img{
      position: absolute;
      margin-top: 3px;
 }
 
-#inline-dialog-doccreate .aui-inline-dialog-contents{
+#inline-dialog-filecreate .aui-inline-dialog-contents{
     width: auto!important;
     padding: 0;
     display: inline-block;
 }
 
-#arrow-doccreate{
+#arrow-filecreate{
     display: none;
 }
 
-#inline-dialog-doccreate ul{
+#inline-dialog-filecreate ul{
     margin-left: 0;
     padding-left: 0;
 }
 
-#inline-dialog-doccreate li{
+#inline-dialog-filecreate li{
     list-style-type: none;
 }
 
-#inline-dialog-doccreate a{
+#inline-dialog-filecreate a{
     display: block;
     height: 25px;
     padding: 7px 8px;
@@ -30,46 +30,46 @@
     color: #172B4D;
 }
 
-#inline-dialog-doccreate a:hover{
+#inline-dialog-filecreate a:hover{
     background: #EBECF0;
 }
 
-#inline-dialog-doccreate .active{
+#inline-dialog-filecreate .active{
     background: #EBECF0;
 }
 
-#inline-dialog-doccreate .icon{
+#inline-dialog-filecreate .icon{
     display: inline-block;
 }
 
-#inline-dialog-doccreate .icon-onlyoffice-new-docx{
+#inline-dialog-filecreate .icon-onlyoffice-new-docx{
     background-image: url(images/new-docx.svg);
 }
 
-#inline-dialog-doccreate .icon-onlyoffice-new-xlsx{
+#inline-dialog-filecreate .icon-onlyoffice-new-xlsx{
     background-image: url(images/new-xlsx.svg);
 }
 
-#inline-dialog-doccreate .icon-onlyoffice-new-pptx{
+#inline-dialog-filecreate .icon-onlyoffice-new-pptx{
     background-image: url(images/new-pptx.svg);
 }
 
-#inline-dialog-doccreate .displayname{
+#inline-dialog-filecreate .displayname{
     padding-left: 8px;
     margin-top: 3px;
     display: inline-block;
 }
 
-#inline-dialog-doccreate .hidden{
+#inline-dialog-filecreate .hidden{
     display: none;
 }
 
-#inline-dialog-doccreate form{
+#inline-dialog-filecreate form{
     display: inline-block;
     height: 25px;
 }
 
-#inline-dialog-doccreate .filenameform .input-name{
+#inline-dialog-filecreate .filenameform .input-name{
     display: inline-block;
     border: 1px solid #C1C7D0;
     box-sizing: border-box;
@@ -80,7 +80,7 @@
     font-size: 14px;
 }
 
-#inline-dialog-doccreate .icon-confirm{
+#inline-dialog-filecreate .icon-confirm{
     width: 28px;
     height: 100%;
     box-sizing: border-box;
@@ -92,7 +92,7 @@
     font-size: 14px;
 }
 
-#inline-dialog-doccreate .icon-confirm:hover{
+#inline-dialog-filecreate .icon-confirm:hover{
     background-color: #FFFFFF;
     border-radius: 3px;
 }
