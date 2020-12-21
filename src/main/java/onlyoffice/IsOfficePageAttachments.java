@@ -18,9 +18,17 @@
 
 package onlyoffice;
 
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.pages.PageManager;
+import com.atlassian.confluence.security.Permission;
+import com.atlassian.confluence.security.PermissionManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
+import com.atlassian.spring.container.ContainerManager;
 import com.opensymphony.webwork.ServletActionContext;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,15 +36,32 @@ import java.util.regex.Pattern;
 public class IsOfficePageAttachments implements Condition {
     private String pageAttachments = "viewpageattachments.action";
 
-    @Override
-    public void init(Map<String, String> map) throws PluginParseException {}
+    public void init(Map<String, String> map) throws PluginParseException {
 
-    @Override
-    public boolean shouldDisplay(Map<String, Object> map) {
-        String uri = ServletActionContext.getRequest().getServletPath();
+    }
 
-        Pattern pattern = Pattern.compile(".*/" + pageAttachments + ".*");
-        Matcher matcher = pattern.matcher(uri);
-        return matcher.matches();
+    public boolean shouldDisplay(Map<String, Object> context) {
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+
+        PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
+        PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
+
+        HttpServletRequest request = ServletActionContext.getRequest();
+
+        if (request != null){
+            String uri = request.getServletPath();
+            Pattern pattern = Pattern.compile(".*/" + pageAttachments + ".*");
+            Matcher matcher = pattern.matcher(uri);
+
+            String pageId = request.getParameter("pageId");
+            boolean access = false;
+            if (pageId != null){
+                Page page = pageManager.getPage(Long.parseLong(pageId));
+                access = permissionManager.hasPermission(user, Permission.EDIT, page);
+            }
+            return matcher.matches() && access;
+        }else {
+            return false;
+        }
     }
 }
