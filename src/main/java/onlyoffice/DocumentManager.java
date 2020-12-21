@@ -34,7 +34,6 @@ import com.atlassian.spring.container.ContainerManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
-import javax.servlet.http.HttpServletRequest;
 
 public class DocumentManager {
     private static final Logger log = LogManager.getLogger("onlyoffice.DocumentManager");
@@ -188,6 +187,6 @@ public class DocumentManager {
             log.error(ex);
         }
 
-        return String.valueOf(attachment.getContentId()).split("=")[1].replace("}", "");
+        return String.valueOf(attachment.getContentId().asLong());
     }
 }
