@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import java.util.*;
 import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.pages.Page;
@@ -158,11 +159,23 @@ public class DocumentManager {
         return name;
     }
 
+    private static InputStream GetDemoFile(ConfluenceUser user, String fileExt) {
+        LocaleManager localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
+        PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
+
+        String pathToDemoFile = "app_data/" + localeManager.getLocale(user).toString().replace("_", "-");
+
+        if (pluginAccessor.getDynamicResourceAsStream(pathToDemoFile) == null){
+            pathToDemoFile = "app_data/en-US";
+        }
+
+        return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
+    }
+
     public static String createDemo(String fileName, String fileExt, String pageId) {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
-            PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
             PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
 
@@ -170,18 +183,18 @@ public class DocumentManager {
 
             Date date = Calendar.getInstance().getTime();
 
-            InputStream in = pluginAccessor.getDynamicResourceAsStream("app_data/new." + fileExt);
+            InputStream demoFile = GetDemoFile(confluenceUser, fileExt);
 
             fileName = GetCorrectName(fileName, fileExt, pageID);
 
             Page page = pageManager.getPage(pageID);
-            attachment = new Attachment(fileName, ConvertManager.getMimeType(fileExt),  in.available(), "");
+            attachment = new Attachment(fileName, ConvertManager.getMimeType(fileExt),  demoFile.available(), "");
                 attachment.setCreator(confluenceUser);
                 attachment.setCreationDate(date);
                 attachment.setLastModificationDate(date);
                 attachment.setContainer(pageManager.getPage(pageID));
 
-            attachmentManager.saveAttachment(attachment, null, in);
+            attachmentManager.saveAttachment(attachment, null, demoFile);
             page.addAttachment(attachment);
         } catch (Exception ex) {
             log.error(ex);
