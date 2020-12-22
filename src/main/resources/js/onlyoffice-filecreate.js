@@ -31,6 +31,7 @@ AJS.toInit(function ($) {
     );
 
     buttonCreate.click(function() {
+        $('#inline-dialog-filecreate .aui-inline-dialog-contents').css({minWidth: buttonCreate.outerWidth()});
         if($("#inline-dialog-filecreate").is(":visible")) {
             dialog.hide();
         }
