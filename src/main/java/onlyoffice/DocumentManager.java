@@ -175,7 +175,7 @@ public class DocumentManager {
             fileName = GetCorrectName(fileName, fileExt, pageID);
 
             Page page = pageManager.getPage(pageID);
-            attachment = new Attachment(fileName, "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  in.available(), "");
+            attachment = new Attachment(fileName, ConvertManager.getMimeType(fileExt),  in.available(), "");
                 attachment.setCreator(confluenceUser);
                 attachment.setCreationDate(date);
                 attachment.setLastModificationDate(date);
