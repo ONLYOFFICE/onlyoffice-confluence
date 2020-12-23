@@ -31,12 +31,26 @@ import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named
 public class DocumentManager {
+    @ComponentImport
+    private static I18nResolver i18n;
+
+    @Inject
+    public DocumentManager(I18nResolver i18n) {
+        this.i18n = i18n;
+    }
+
     private static final Logger log = LogManager.getLogger("onlyoffice.DocumentManager");
 
     public static long GetMaxFileSize() {
@@ -165,7 +179,7 @@ public class DocumentManager {
 
         String pathToDemoFile = "app_data/" + localeManager.getLocale(user).toString().replace("_", "-");
 
-        if (pluginAccessor.getDynamicResourceAsStream(pathToDemoFile) == null){
+        if (pluginAccessor.getDynamicResourceAsStream(pathToDemoFile) == null) {
             pathToDemoFile = "app_data/en-US";
         }
 
@@ -179,7 +193,9 @@ public class DocumentManager {
             PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
 
-            Long pageID = Long.parseLong(pageId);
+            Long pageID = Long.parseLong(pageId.trim());
+            fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
+            fileName = fileName == null ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
 
             Date date = Calendar.getInstance().getTime();
 
