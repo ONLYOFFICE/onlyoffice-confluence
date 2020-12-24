@@ -226,9 +226,8 @@ public class OnlyOfficeConfServlet extends HttpServlet {
                 payloadBody.put("payload", body);
                 String headerToken = jwtManager.createToken(body);
                 body.put("token", token);
-                String header = (String) settings.get("onlyoffice.jwtheader");
-                request.setHeader(header == null || header.isEmpty() ? "Authorization" : header,
-                        "Bearer " + headerToken);
+                String header = jwtManager.getJwtHeader();
+                request.setHeader(header, "Bearer " + headerToken);
             }
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
