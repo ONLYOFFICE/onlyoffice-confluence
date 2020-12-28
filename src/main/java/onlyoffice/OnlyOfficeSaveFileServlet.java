@@ -40,27 +40,18 @@ import org.json.JSONArray;
 
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
 public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
-    @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
-
     private final JwtManager jwtManager;
-    private final PluginSettings settings;
 
     @Inject
-    public OnlyOfficeSaveFileServlet(PluginSettingsFactory pluginSettingsFactory, JwtManager jwtManager) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        settings = pluginSettingsFactory.createGlobalSettings();
+    public OnlyOfficeSaveFileServlet(JwtManager jwtManager) {
         this.jwtManager = jwtManager;
     }
 
