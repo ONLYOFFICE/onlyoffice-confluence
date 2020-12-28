@@ -111,7 +111,8 @@ public class ConvertManager {
             payloadBody.put("payload", body);
             String headerToken = jwtManager.createToken(body);
             body.put("token", token);
-            request.setHeader("Authorization", "Bearer " + headerToken);
+            String header = jwtManager.getJwtHeader();
+            request.setHeader(header, "Bearer " + headerToken);
         }
 
         log.debug("Sending POST to Docserver: " + body.toString());

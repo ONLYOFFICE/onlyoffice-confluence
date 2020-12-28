@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.config.ApplicationConfiguration;
 import org.json.JSONObject;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -38,13 +39,16 @@ public class JwtManager {
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
+    @ComponentImport
+    private final ApplicationConfiguration applicationConfiguration;
 
     private final PluginSettings settings;
 
     @Inject
-    public JwtManager(PluginSettingsFactory pluginSettingsFactory) {
+    public JwtManager(PluginSettingsFactory pluginSettingsFactory, ApplicationConfiguration applicationConfiguration) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         settings = pluginSettingsFactory.createGlobalSettings();
+        this.applicationConfiguration = applicationConfiguration;
     }
 
     public Boolean jwtEnabled() {
@@ -84,6 +88,11 @@ public class JwtManager {
         }
 
         return true;
+    }
+
+    public String getJwtHeader() {
+        String header = (String) applicationConfiguration.getProperty("onlyoffice.jwt.header");
+        return header == null || header.isEmpty() ? "Authorization" : header;
     }
 
     private String calculateHash(String header, String payload) throws Exception {
