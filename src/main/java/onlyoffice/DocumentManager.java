@@ -186,14 +186,13 @@ public class DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public static String createDemo(String fileName, String fileExt, String pageId) {
+    public static Long createDemo(String fileName, String fileExt, Long pageID) {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
             PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
 
-            Long pageID = Long.parseLong(pageId.trim());
             fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
             fileName = fileName == null ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
 
@@ -216,6 +215,6 @@ public class DocumentManager {
             log.error(ex);
         }
 
-        return String.valueOf(attachment.getContentId().asLong());
+        return attachment.getContentId().asLong();
     }
 }
