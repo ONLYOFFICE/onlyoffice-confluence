@@ -18,7 +18,9 @@
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Link for Web Resources rendering">
         <description>The link used to make the document to be opened in the new browser tab for editing or viewing.</description>
         <dependency>com.atlassian.auiplugin:ajs</dependency>
-        <resource type="download" name="onlyoffice-main.js" location="/js/onlyoffice-main.js"/>
+        <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
+        <resource type="download" name="images/" location="images/"/>
+        <resource type="download" name="onlyoffice-confluence-plugin.css" location="css/onlyoffice-confluence-plugin.css"/>
         <context>page</context>
     </web-resource>
 

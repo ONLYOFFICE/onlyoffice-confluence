@@ -1,3 +1,4 @@
+$webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources")
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -94,6 +95,17 @@
                         updateConfig();
                     });
 
+                    jq("#onlyofficeConf").on("click", ".view-control", function(){
+                        if ($("#jwtSecretField").attr("type") == "password"){
+                            $(this).addClass("view");
+                            $("#jwtSecretField").attr("type", "text");
+                        } else {
+                            $(this).removeClass("view");
+                            $("#jwtSecretField").attr("type", "password");
+                        }
+                        return false;
+                    });
+
                     AJS.$(".onlyoffice-tooltip").tooltip();
                 });
 
@@ -108,8 +120,11 @@
             </div>
             <div class="field-group">
                 <label for="jwtSecretField">$i18n.getText('onlyoffice.configuration.jwt-secret')</label>
-                <input type="text" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text">
-            </div>
+                <div class="secretFiled">
+                    <a href="#" class="view-control"></a>
+                    <input type="password" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text" style="padding-right: 30px;">
+               </div>
+           </div>
 
             <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
             <div class="field-group">
