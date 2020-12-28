@@ -36,7 +36,7 @@
         <resource type="download" name="dialog-filecreate-soy.js" location="/templates/dialog-filecreate.soy"/>
         <resource type="download" name="onlyoffice-filecreate.js" location="/js/onlyoffice-filecreate.js"/>
         <resource type="download" name="images/" location="/images"/>
-        <resource type="download" name="onlyoffice-confluence-plugin.css" location="css/onlyoffice-confluence-plugin.css"/>
+        <resource type="download" name="onlyoffice-confluence-plugin-filecreate.css" location="css/onlyoffice-confluence-plugin-filecreate.css"/>
         <condition class="onlyoffice.IsOfficePageAttachments"/>
         <context>page</context>
     </web-resource>
