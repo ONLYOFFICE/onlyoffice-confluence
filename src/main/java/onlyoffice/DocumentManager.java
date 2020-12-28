@@ -194,7 +194,7 @@ public class DocumentManager {
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
 
             fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
-            fileName = fileName == null ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
+            fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
 
             Date date = Calendar.getInstance().getTime();
 
