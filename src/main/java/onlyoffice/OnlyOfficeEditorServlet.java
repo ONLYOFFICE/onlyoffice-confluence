@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
@@ -42,7 +43,6 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -97,6 +97,27 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         ConfluenceUser user = null;
 
         String attachmentIdString = request.getParameter("attachmentId");
+
+        if (attachmentIdString == null) {
+            fileName = request.getParameter("fileName");
+            String fileExt = request.getParameter("fileExt");
+            String pageID = request.getParameter("pageId");
+            if (pageID != null && !pageID.equals("")) {
+                try {
+                    Long attachmentId = DocumentManager.createDemo(fileName, fileExt, Long.parseLong(pageID));
+                    response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                    return;
+                } catch (Exception ex) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    ex.printStackTrace(pw);
+                    String error = ex.toString() + "\n" + sw.toString();
+                    log.error(error);
+                    errorMessage = ex.toString();
+                }
+            }
+        }
+
         Long attachmentId;
 
         try {

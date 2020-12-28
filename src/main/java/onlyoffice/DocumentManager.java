@@ -18,21 +18,39 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Properties;
-
+import java.util.*;
+import com.atlassian.confluence.core.ContentEntityManager;
+import com.atlassian.confluence.core.ContentEntityObject;
+import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.pages.PageManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.plugin.PluginAccessor;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.message.I18nResolver;
+import com.atlassian.spring.container.ContainerManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named
 public class DocumentManager {
+    @ComponentImport
+    private static I18nResolver i18n;
+
+    @Inject
+    public DocumentManager(I18nResolver i18n) {
+        this.i18n = i18n;
+    }
+
     private static final Logger log = LogManager.getLogger("onlyoffice.DocumentManager");
 
     public static long GetMaxFileSize() {
@@ -128,5 +146,75 @@ public class DocumentManager {
             log.error(ex);
         }
         return "";
+    }
+
+    private static String GetCorrectName(String fileName, String fileExt, Long pageID) {
+        ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
+
+        List<Attachment> Attachments  =  attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
+        String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]","_");
+        int count = 0;
+        Boolean flag = true;
+
+        while(flag) {
+            flag = false;
+            for (Attachment attachment : Attachments) {
+                if (attachment.getFileName().equals(name)) {
+                    count++;
+                    name = fileName + " (" + count + ")." + fileExt;
+                    flag = true;
+                    break;
+                }
+            }
+        }
+
+        return name;
+    }
+
+    private static InputStream GetDemoFile(ConfluenceUser user, String fileExt) {
+        LocaleManager localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
+        PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
+
+        String pathToDemoFile = "app_data/" + localeManager.getLocale(user).toString().replace("_", "-");
+
+        if (pluginAccessor.getDynamicResourceAsStream(pathToDemoFile) == null) {
+            pathToDemoFile = "app_data/en-US";
+        }
+
+        return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
+    }
+
+    public static Long createDemo(String fileName, String fileExt, Long pageID) {
+        Attachment attachment = null;
+        try {
+            ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
+            PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
+            AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+
+            fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
+            fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
+
+            Date date = Calendar.getInstance().getTime();
+
+            InputStream demoFile = GetDemoFile(confluenceUser, fileExt);
+
+            fileName = GetCorrectName(fileName, fileExt, pageID);
+
+            Page page = pageManager.getPage(pageID);
+            attachment = new Attachment(fileName, ConvertManager.getMimeType(fileExt),  demoFile.available(), "");
+                attachment.setCreator(confluenceUser);
+                attachment.setCreationDate(date);
+                attachment.setLastModificationDate(date);
+                attachment.setContainer(pageManager.getPage(pageID));
+
+            attachmentManager.saveAttachment(attachment, null, demoFile);
+            page.addAttachment(attachment);
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+
+        return attachment.getContentId().asLong();
     }
 }

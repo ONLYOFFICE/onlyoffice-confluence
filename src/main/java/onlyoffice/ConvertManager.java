@@ -58,7 +58,7 @@ public class ConvertManager {
         return convertableDict.getOrDefault(trimDot(ext), null);
     }
 
-    public String getMimeType(String ext) {
+    public static String getMimeType(String ext) {
         return mimeTypes.getOrDefault(trimDot(ext), null);
     }
 
