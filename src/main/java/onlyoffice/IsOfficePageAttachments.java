@@ -41,11 +41,6 @@ public class IsOfficePageAttachments implements Condition {
     }
 
     public boolean shouldDisplay(Map<String, Object> context) {
-        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
-
-        PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
-        PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
-
         HttpServletRequest request = ServletActionContext.getRequest();
 
         if (request != null){
@@ -56,6 +51,10 @@ public class IsOfficePageAttachments implements Condition {
             String pageId = request.getParameter("pageId");
             boolean access = false;
             if (pageId != null){
+                ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+                PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
+                PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
+
                 Page page = pageManager.getPage(Long.parseLong(pageId));
                 access = permissionManager.hasPermission(user, Permission.EDIT, page);
             }
