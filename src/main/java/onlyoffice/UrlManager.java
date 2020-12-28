@@ -19,6 +19,9 @@
 
 package onlyoffice;
 
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.spring.container.ContainerManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -83,6 +86,16 @@ public class UrlManager {
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;
+    }
+
+    public String getGobackUrl(Long attachmentId) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        String gobackUrl = getConfluenceBaseUrl().substring(0, getConfluenceBaseUrl().length() - 1) + attachment.getUrlPath().split("\\?")[0];
+
+        log.info("gobackUrl = " + gobackUrl);
+
+        return gobackUrl;
     }
 
     private String getConfluenceBaseUrl() {
