@@ -48,7 +48,8 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                             "apiUrl": jq("#apiUrlField").attr("value"),
                             "docInnerUrl": jq("#docInnerUrlField").attr("value"),
                             "confUrl": jq("#confUrlField").attr("value"),
-                            "jwtSecret": jq("#jwtSecretField").attr("value")
+                            "jwtSecret": jq("#jwtSecretField").attr("value"),
+                            "demo": jq("#onlyofficeDemo").is(':checked')
                         };
 
                         jq.ajax({
@@ -96,15 +97,31 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     });
 
                     jq("#onlyofficeConf").on("click", ".view-control", function(){
-                        if ($("#jwtSecretField").attr("type") == "password"){
-                            $(this).addClass("view");
-                            $("#jwtSecretField").attr("type", "text");
+                        if (jq("#jwtSecretField").attr("type") == "password"){
+                            jq(this).addClass("view");
+                            jq("#jwtSecretField").attr("type", "text");
                         } else {
-                            $(this).removeClass("view");
-                            $("#jwtSecretField").attr("type", "password");
+                            jq(this).removeClass("view");
+                            jq("#jwtSecretField").attr("type", "password");
                         }
                         return false;
                     });
+
+                    var demoToggle = function () {
+                        if (!jq("#onlyofficeDemo").prop("disabled")) {
+                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
+                            if (jq("#onlyofficeDemo").prop("checked")) {
+                                jq(".view-control").css("pointer-events", "none");
+                                jq(".view-control").removeClass("view");
+                                jq("#jwtSecretField").attr("type", "password");
+                            }else{
+                                jq(".view-control").css("pointer-events", "");
+                            }
+                        }
+                    };
+
+                    jq("#onlyofficeDemo").click(demoToggle);
+                    demoToggle();
 
                     AJS.$(".onlyoffice-tooltip").tooltip();
                 });
@@ -114,6 +131,20 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         <div id="onlyofficeMsg"></div>
         <form id="onlyofficeConf" class="aui top-label">
             <h3>$i18n.getText('onlyoffice.configuration.doc-section')</h3>
+            <div class="group">
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="onlyofficeDemo" #if($docserviceDemo) checked="checked" #end
+                                                                                #if(!$docserviceDemoAvailable) disabled="disabled" #end/>
+                    <label for="onlyofficeDemo">Connect to demo ONLYOFFICE Document Server</label>
+
+                    <br/>
+                    #if($docserviceDemoAvailable)
+                        <em>This is a public test server, please do not use it for private sensitive data. The server will be available during a 30-day period.</em>
+                    #else
+                        <em>The 30-day test period is over, you can no longer connect to demo ONLYOFFICE Document Server.</em>
+                    #end
+                </div>
+            </div>
             <div class="field-group">
                 <label for="apiUrlField">$i18n.getText('onlyoffice.configuration.doc-url')</label>
                 <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-tooltip')">
@@ -123,8 +154,8 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <div class="secretFiled">
                     <a href="#" class="view-control"></a>
                     <input type="password" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text" style="padding-right: 30px;">
-               </div>
-           </div>
+                </div>
+            </div>
 
             <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
             <div class="field-group">

@@ -47,23 +47,31 @@ public class UrlManager {
     private final SettingsManager settingsManager;
 
     private final PluginSettings pluginSettings;
+    private final ConfigurationManager configurationManager;
 
     @Inject
-    public UrlManager(PluginSettingsFactory pluginSettingsFactory, SettingsManager settingsManager) {
+    public UrlManager(PluginSettingsFactory pluginSettingsFactory, SettingsManager settingsManager,
+                      ConfigurationManager configurationManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.settingsManager = settingsManager;
+        this.configurationManager = configurationManager;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
     }
 
     public String getPublicDocEditorUrl() {
-        String url = (String) pluginSettings.get("onlyoffice.apiUrl");
+        String url = "";
+        if (configurationManager.demoActive()) {
+            url = configurationManager.getDemo("url");
+        }else {
+            url = (String) pluginSettings.get("onlyoffice.apiUrl");
+        }
         return (url == null || url.isEmpty()) ? "" : url;
     }
 
 
     public String getInnerDocEditorUrl() {
         String url = (String) pluginSettings.get("onlyoffice.docInnerUrl");
-        if (url == null || url.isEmpty()) {
+        if (url == null || url.isEmpty() || configurationManager.demoActive()) {
             return getPublicDocEditorUrl();
         } else {
             return url;

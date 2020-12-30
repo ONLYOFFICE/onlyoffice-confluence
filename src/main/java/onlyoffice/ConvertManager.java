@@ -43,11 +43,13 @@ public class ConvertManager {
 
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
+    private final ConfigurationManager configurationManager;
 
     @Inject
-    public ConvertManager(UrlManager urlManager, JwtManager jwtManager) {
+    public ConvertManager(UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager) {
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
+        this.configurationManager = configurationManager;
     }
 
     public static boolean isConvertable(String ext) {
@@ -101,7 +103,7 @@ public class ConvertManager {
 
         StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
         HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
-                + new ConfigurationManager().GetProperties().getProperty("files.docservice.url.convert"));
+                + configurationManager.GetProperties().getProperty("files.docservice.url.convert"));
         request.setEntity(requestEntity);
         request.setHeader("Accept", "application/json");
 
