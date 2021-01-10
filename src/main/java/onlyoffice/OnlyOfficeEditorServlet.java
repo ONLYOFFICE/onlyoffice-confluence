@@ -133,7 +133,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
                 fileUrl = urlManager.GetFileUri(attachmentId);
 
-                gobackUrl = urlManager.getGobackUrl(attachmentId);
+                gobackUrl = urlManager.getGobackUrl(attachmentId, request);
 
                 if (AttachmentUtil.checkAccess(attachmentId, user, true)) {
                     callbackUrl = urlManager.getCallbackUrl(attachmentId);

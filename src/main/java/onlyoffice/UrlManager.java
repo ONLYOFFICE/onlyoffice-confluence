@@ -34,6 +34,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 
 @Named
 public class UrlManager {
@@ -88,10 +89,18 @@ public class UrlManager {
         return callbackUrl;
     }
 
-    public String getGobackUrl(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
-        Attachment attachment = attachmentManager.getAttachment(attachmentId);
-        String gobackUrl = getConfluenceBaseUrl().substring(0, getConfluenceBaseUrl().length() - 1) + attachment.getUrlPath().split("\\?")[0];
+    public String getGobackUrl(Long attachmentId, HttpServletRequest request) {
+        String gobackUrl = "";
+        String referer = request.getHeader("referer");
+
+        if (referer != null && !referer.equals("")) {
+            gobackUrl = referer;
+        }else {
+            String viewPageAttachments = "pages/viewpageattachments.action?pageId=";
+            AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+            Attachment attachment = attachmentManager.getAttachment(attachmentId);
+            gobackUrl = getConfluenceBaseUrl() + viewPageAttachments + attachment.getContainer().getContentId().asLong();
+        }
 
         log.info("gobackUrl = " + gobackUrl);
 
