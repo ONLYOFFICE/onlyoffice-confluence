@@ -49,7 +49,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                             "docInnerUrl": jq("#docInnerUrlField").attr("value"),
                             "confUrl": jq("#confUrlField").attr("value"),
                             "jwtSecret": jq("#jwtSecretField").attr("value"),
-                            "demo": jq("#onlyofficeDemo").is(':checked')
+                            "demo": jq("#onlyofficeDemo").is(":checked")
                         };
 
                         jq.ajax({
@@ -135,13 +135,13 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="onlyofficeDemo" #if($docserviceDemo) checked="checked" #end
                                                                                 #if(!$docserviceDemoAvailable) disabled="disabled" #end/>
-                    <label for="onlyofficeDemo">Connect to demo ONLYOFFICE Document Server</label>
+                    <label for="onlyofficeDemo">$i18n.getText('onlyoffice.configuration.demo.connect')</label>
 
                     <br/>
                     #if($docserviceDemoAvailable)
-                        <em>This is a public test server, please do not use it for private sensitive data. The server will be available during a 30-day period.</em>
+                        <em>$i18n.getText('onlyoffice.configuration.demo.trial')</em>
                     #else
-                        <em>The 30-day test period is over, you can no longer connect to demo ONLYOFFICE Document Server.</em>
+                        <em>$i18n.getText('onlyoffice.configuration.demo.trial-is-over')</em>
                     #end
                 </div>
             </div>
