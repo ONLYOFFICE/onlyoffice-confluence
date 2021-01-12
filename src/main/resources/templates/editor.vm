@@ -81,7 +81,7 @@
                     "onAppReady": function () {
                         var errorMessage = "${errorMessage}";
                         if (errorMessage) {
-                            docEditor.showMessage("ONLYOFFICE", errorMessage, "error");
+                            docEditor.showMessage(errorMessage);
                         }
                         if (${demo}) {
                             docEditor.showMessage("$i18n.getText('onlyoffice.configuration.demo.message')");
