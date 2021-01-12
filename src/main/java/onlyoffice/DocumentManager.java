@@ -46,9 +46,12 @@ public class DocumentManager {
     @ComponentImport
     private static I18nResolver i18n;
 
+    private static ConfigurationManager configurationManager;
+
     @Inject
-    public DocumentManager(I18nResolver i18n) {
+    public DocumentManager(I18nResolver i18n, ConfigurationManager configurationManager) {
         this.i18n = i18n;
+        this.configurationManager = configurationManager;
     }
 
     private static final Logger log = LogManager.getLogger("onlyoffice.DocumentManager");
@@ -56,7 +59,6 @@ public class DocumentManager {
     public static long GetMaxFileSize() {
         long size;
         try {
-            ConfigurationManager configurationManager = new ConfigurationManager();
             Properties properties = configurationManager.GetProperties();
             String filesizeMax = properties.getProperty("filesize-max");
             size = Long.parseLong(filesizeMax);
@@ -69,7 +71,6 @@ public class DocumentManager {
 
     public static List<String> GetEditedExts() {
         try {
-            ConfigurationManager configurationManager = new ConfigurationManager();
             Properties properties = configurationManager.GetProperties();
             String exts = properties.getProperty("files.docservice.edited-docs");
 
@@ -101,7 +102,6 @@ public class DocumentManager {
 
     public static String CreateHash(String str) {
         try {
-            ConfigurationManager configurationManager = new ConfigurationManager();
             Properties properties = configurationManager.GetProperties();
             String secret = properties.getProperty("files.docservice.secret");
 
@@ -119,7 +119,6 @@ public class DocumentManager {
         try {
             String str = new String(Base64.getDecoder().decode(base64), "UTF-8");
 
-            ConfigurationManager configurationManager = new ConfigurationManager();
             Properties properties = configurationManager.GetProperties();
             String secret = properties.getProperty("files.docservice.secret");
 

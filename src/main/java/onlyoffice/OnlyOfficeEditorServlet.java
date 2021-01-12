@@ -58,15 +58,17 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
     private final JwtManager jwtManager;
     private final UrlManager urlManager;
+    private static ConfigurationManager configurationManager;
 
     @Inject
     public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager,
-            SettingsManager settingsManager, UrlManager urlManager, JwtManager jwtManager) {
+            SettingsManager settingsManager, UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.settingsManager = settingsManager;
         this.jwtManager = jwtManager;
         this.urlManager = urlManager;
         this.localeManager = localeManager;
+        this.configurationManager = configurationManager;
     }
 
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
@@ -85,7 +87,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             apiUrl = "";
         }
 
-        ConfigurationManager configurationManager = new ConfigurationManager();
         properties = configurationManager.GetProperties();
 
         String callbackUrl = "";
@@ -221,6 +222,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         }
 
         defaults.putAll(config);
+        defaults.put("demo", configurationManager.demoActive());
         return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
     }
 
