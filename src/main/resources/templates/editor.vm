@@ -77,11 +77,16 @@
 
             var json = '${jsonAsHtml}';
             var config = {
-                "onAppReady": function () {
-                    var errorMessage = "${errorMessage}";
-                    if (errorMessage) {
-                        docEditor.showMessage("ONLYOFFICE", errorMessage, "error");
-                    }
+                "events" : {
+                    "onAppReady": function () {
+                        var errorMessage = "${errorMessage}";
+                        if (errorMessage) {
+                            docEditor.showMessage("ONLYOFFICE", errorMessage, "error");
+                        }
+                        if (${demo}) {
+                            docEditor.showMessage("$i18n.getText('onlyoffice.configuration.demo.message')");
+                        }
+                    },
                 },
             };
 

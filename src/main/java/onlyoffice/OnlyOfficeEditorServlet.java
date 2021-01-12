@@ -222,6 +222,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         }
 
         defaults.putAll(config);
+        defaults.put("demo", configurationManager.demoActive());
         return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
     }
 
