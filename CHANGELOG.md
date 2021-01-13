@@ -1,5 +1,15 @@
 # Change Log
 
+# 2.4.0
+## Added
+- Ability to create documents
+- Added connection to a demo document server
+- Button to hide/show Secret key
+- Button to open file location
+
+## Changed
+- Moved jwt-header parameter to confluence.cfg.xml file
+
 ## 2.3.0
 ## Changed
 - Apache license
