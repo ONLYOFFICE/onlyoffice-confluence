@@ -20,6 +20,7 @@
     margin-right: 10px;
 }
 #demoCheckbox{
-    display:inline-block;
+    position:absolute;
+    display:inline;
     margin-top: 0;
 }
