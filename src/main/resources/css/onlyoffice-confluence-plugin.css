@@ -15,3 +15,11 @@
 .view-control.view {
     background: url(images/icon_hide.svg) 0 0 no-repeat;
 }
+#onlyofficeSubmitBtn{
+    vertical-align: top;
+    margin-right: 10px;
+}
+#demoCheckbox{
+    display:inline-block;
+    margin-top: 0;
+}
