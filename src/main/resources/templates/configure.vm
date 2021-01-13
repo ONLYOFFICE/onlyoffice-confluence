@@ -109,7 +109,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
                     var demoToggle = function () {
                         if (!jq("#onlyofficeDemo").prop("disabled")) {
-                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
+                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField, #demoCheckbox)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
                             if (jq("#onlyofficeDemo").prop("checked")) {
                                 jq(".view-control").css("pointer-events", "none");
                                 jq(".view-control").removeClass("view");
@@ -131,20 +131,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         <div id="onlyofficeMsg"></div>
         <form id="onlyofficeConf" class="aui top-label">
             <h3>$i18n.getText('onlyoffice.configuration.doc-section')</h3>
-            <div class="group">
-                <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="onlyofficeDemo" #if($docserviceDemo) checked="checked" #end
-                                                                                #if(!$docserviceDemoAvailable) disabled="disabled" #end/>
-                    <label for="onlyofficeDemo">$i18n.getText('onlyoffice.configuration.demo.connect')</label>
-
-                    <br/>
-                    #if($docserviceDemoAvailable)
-                        <em>$i18n.getText('onlyoffice.configuration.demo.trial')</em>
-                    #else
-                        <em>$i18n.getText('onlyoffice.configuration.demo.trial-is-over')</em>
-                    #end
-                </div>
-            </div>
             <div class="field-group">
                 <label for="apiUrlField">$i18n.getText('onlyoffice.configuration.doc-url')</label>
                 <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-tooltip')">
@@ -169,6 +155,17 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
             <div class="field-group">
                 <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.save')" class="button">
+                <div id="demoCheckbox" class="checkbox">
+                    <input type="checkbox" class="checkbox" id="onlyofficeDemo" #if($docserviceDemo) checked="checked" #end
+                                                                                #if(!$docserviceDemoAvailable) disabled="disabled" #end/>
+                    <label for="onlyofficeDemo">$i18n.getText('onlyoffice.configuration.demo.connect')</label>
+
+                    #if($docserviceDemoAvailable)
+                        <div class="description">$i18n.getText('onlyoffice.configuration.demo.trial')</div>
+                    #else
+                        <div class="description">$i18n.getText('onlyoffice.configuration.demo.trial-is-over')</div>
+                    #end
+                </div>
             </div>
         </form>
     </body>
