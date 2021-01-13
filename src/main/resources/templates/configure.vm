@@ -109,7 +109,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
                     var demoToggle = function () {
                         if (!jq("#onlyofficeDemo").prop("disabled")) {
-                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField, #demoCheckbox)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
+                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField, .checkbox)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
                             if (jq("#onlyofficeDemo").prop("checked")) {
                                 jq(".view-control").css("pointer-events", "none");
                                 jq(".view-control").removeClass("view");
