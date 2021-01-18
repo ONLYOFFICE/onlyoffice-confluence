@@ -42,10 +42,10 @@ AJS.toInit(function ($) {
 
     $(document).on("click", ".menuitem", function(event) {
        $(".menuitem").removeClass("active");
-       $(".filenameform label").removeClass("hidden");
-       $(".filenameform input").addClass("hidden");
-       $(this).find(".filenameform label").addClass("hidden");
-       $(this).find(".filenameform input").removeClass("hidden");
+       $(".filename label").removeClass("hidden");
+       $(".filename input").addClass("hidden");
+       $(this).find(".filename label").addClass("hidden");
+       $(this).find(".filename input").removeClass("hidden");
        $(this).addClass("active");
     });
 
