@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.4.1
+## Changed
+- fixed page refresh on creation
+
 # 2.4.0
 ## Added
 - Ability to create documents
