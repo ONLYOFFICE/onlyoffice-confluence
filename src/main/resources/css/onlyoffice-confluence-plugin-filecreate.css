@@ -55,7 +55,7 @@
     background-image: url(images/new-pptx.svg);
 }
 
-#inline-dialog-filecreate .filenameform{
+#inline-dialog-filecreate .filename{
     padding: 0px!important;
 }
 
@@ -79,7 +79,7 @@
     margin: 0px;
 }
 
-#inline-dialog-filecreate .filenameform .input-name{
+#inline-dialog-filecreate .filename .input-name{
       width: 120px;
       display: inline-block;
       margin-left: 5px;
