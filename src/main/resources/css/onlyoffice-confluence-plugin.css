@@ -16,11 +16,5 @@
     background: url(images/icon_hide.svg) 0 0 no-repeat;
 }
 #onlyofficeSubmitBtn{
-    vertical-align: top;
-    margin-right: 10px;
-}
-#demoCheckbox{
-    position:absolute;
-    display:inline;
-    margin-top: 0;
+    margin-top: 19px;
 }

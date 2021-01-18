@@ -109,7 +109,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
                     var demoToggle = function () {
                         if (!jq("#onlyofficeDemo").prop("disabled")) {
-                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField, .checkbox)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
+                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField, #onlyofficeDemo)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
                             if (jq("#onlyofficeDemo").prop("checked")) {
                                 jq(".view-control").css("pointer-events", "none");
                                 jq(".view-control").removeClass("view");
@@ -152,20 +152,23 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
                 <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner-tooltip')">
             </div>
-
             <div class="field-group">
-                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.save')" class="button">
-                <div id="demoCheckbox" class="checkbox">
+                <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="onlyofficeDemo" #if($docserviceDemo) checked="checked" #end
                                                                                 #if(!$docserviceDemoAvailable) disabled="disabled" #end/>
                     <label for="onlyofficeDemo">$i18n.getText('onlyoffice.configuration.demo.connect')</label>
 
+                    <br/>
                     #if($docserviceDemoAvailable)
                         <div class="description">$i18n.getText('onlyoffice.configuration.demo.trial')</div>
                     #else
                         <div class="description">$i18n.getText('onlyoffice.configuration.demo.trial-is-over')</div>
                     #end
                 </div>
+            </div>
+
+            <div class="field-group">
+                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.save')" class="button">
             </div>
         </form>
     </body>
