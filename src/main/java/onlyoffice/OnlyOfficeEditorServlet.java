@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
@@ -42,7 +43,6 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -58,15 +58,17 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
     private final JwtManager jwtManager;
     private final UrlManager urlManager;
+    private static ConfigurationManager configurationManager;
 
     @Inject
     public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager,
-            SettingsManager settingsManager, UrlManager urlManager, JwtManager jwtManager) {
+            SettingsManager settingsManager, UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.settingsManager = settingsManager;
         this.jwtManager = jwtManager;
         this.urlManager = urlManager;
         this.localeManager = localeManager;
+        this.configurationManager = configurationManager;
     }
 
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
@@ -85,17 +87,38 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             apiUrl = "";
         }
 
-        ConfigurationManager configurationManager = new ConfigurationManager();
         properties = configurationManager.GetProperties();
 
         String callbackUrl = "";
         String fileUrl = "";
+        String gobackUrl = "";
         String key = "";
         String fileName = "";
         String errorMessage = "";
         ConfluenceUser user = null;
 
         String attachmentIdString = request.getParameter("attachmentId");
+
+        if (attachmentIdString == null) {
+            fileName = request.getParameter("fileName");
+            String fileExt = request.getParameter("fileExt");
+            String pageID = request.getParameter("pageId");
+            if (pageID != null && !pageID.equals("")) {
+                try {
+                    Long attachmentId = DocumentManager.createDemo(fileName, fileExt, Long.parseLong(pageID));
+                    response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                    return;
+                } catch (Exception ex) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    ex.printStackTrace(pw);
+                    String error = ex.toString() + "\n" + sw.toString();
+                    log.error(error);
+                    errorMessage = ex.toString();
+                }
+            }
+        }
+
         Long attachmentId;
 
         try {
@@ -110,6 +133,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 fileName = AttachmentUtil.getFileName(attachmentId);
 
                 fileUrl = urlManager.GetFileUri(attachmentId);
+
+                gobackUrl = urlManager.getGobackUrl(attachmentId, request);
 
                 if (AttachmentUtil.checkAccess(attachmentId, user, true)) {
                     callbackUrl = urlManager.getCallbackUrl(attachmentId);
@@ -130,11 +155,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
 
-        writer.write(getTemplate(apiUrl, callbackUrl, fileUrl, key, fileName, user, errorMessage));
+        writer.write(getTemplate(apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
     }
 
     private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
-            ConfluenceUser user, String errorMessage) throws UnsupportedEncodingException {
+            ConfluenceUser user, String gobackUrl, String errorMessage) throws UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
 
@@ -150,6 +175,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         JSONObject editorConfigObject = new JSONObject();
         JSONObject userObject = new JSONObject();
         JSONObject permObject = new JSONObject();
+        JSONObject customizationObject = new JSONObject();
+        JSONObject gobackObject = new JSONObject();
 
         try {
             responseJson.put("type", "desktop");
@@ -169,6 +196,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
             editorConfigObject.put("mode", "edit");
             editorConfigObject.put("callbackUrl", callbackUrl);
+            editorConfigObject.put("customization", customizationObject);
+
+            customizationObject.put("goback", gobackObject);
+            gobackObject.put("url", gobackUrl);
 
             if (user != null) {
                 editorConfigObject.put("user", userObject);
@@ -191,6 +222,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         }
 
         defaults.putAll(config);
+        defaults.put("demo", configurationManager.demoActive());
         return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
     }
 

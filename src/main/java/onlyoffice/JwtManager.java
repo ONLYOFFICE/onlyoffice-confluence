@@ -18,11 +18,13 @@
 
 package onlyoffice;
 
+import com.atlassian.config.ApplicationConfiguration;
 import org.json.JSONObject;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 
@@ -38,17 +40,23 @@ public class JwtManager {
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
+    @ComponentImport
+    private final ApplicationConfiguration applicationConfiguration;
 
+    private static ConfigurationManager configurationManager;
     private final PluginSettings settings;
 
     @Inject
-    public JwtManager(PluginSettingsFactory pluginSettingsFactory) {
+    public JwtManager(PluginSettingsFactory pluginSettingsFactory, ApplicationConfiguration applicationConfiguration,
+                      ConfigurationManager configurationManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         settings = pluginSettingsFactory.createGlobalSettings();
+        this.applicationConfiguration = applicationConfiguration;
+        this.configurationManager = configurationManager;
     }
 
     public Boolean jwtEnabled() {
-        return settings.get("onlyoffice.jwtSecret") != null
+        return configurationManager.demoActive() || settings.get("onlyoffice.jwtSecret") != null
                 && !((String) settings.get("onlyoffice.jwtSecret")).isEmpty();
     }
 
@@ -86,6 +94,11 @@ public class JwtManager {
         return true;
     }
 
+    public String getJwtHeader() {
+        String header = configurationManager.demoActive() ? configurationManager.getDemo("header") : (String) applicationConfiguration.getProperty("onlyoffice.jwt.header");
+        return header == null || header.isEmpty() ? "Authorization" : header;
+    }
+
     private String calculateHash(String header, String payload) throws Exception {
         Mac hasher;
         hasher = getHasher();
@@ -94,7 +107,7 @@ public class JwtManager {
     }
 
     private Mac getHasher() throws Exception {
-        String jwts = (String) settings.get("onlyoffice.jwtSecret");
+        String jwts = configurationManager.demoActive() ? configurationManager.getDemo("secret") : (String) settings.get("onlyoffice.jwtSecret");
 
         Mac sha256 = Mac.getInstance("HmacSHA256");
         SecretKeySpec secret_key = new SecretKeySpec(jwts.getBytes("UTF-8"), "HmacSHA256");

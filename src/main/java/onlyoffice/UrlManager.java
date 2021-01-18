@@ -19,6 +19,9 @@
 
 package onlyoffice;
 
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.spring.container.ContainerManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -31,6 +34,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 
 @Named
 public class UrlManager {
@@ -44,23 +48,31 @@ public class UrlManager {
     private final SettingsManager settingsManager;
 
     private final PluginSettings pluginSettings;
+    private final ConfigurationManager configurationManager;
 
     @Inject
-    public UrlManager(PluginSettingsFactory pluginSettingsFactory, SettingsManager settingsManager) {
+    public UrlManager(PluginSettingsFactory pluginSettingsFactory, SettingsManager settingsManager,
+                      ConfigurationManager configurationManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.settingsManager = settingsManager;
+        this.configurationManager = configurationManager;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
     }
 
     public String getPublicDocEditorUrl() {
-        String url = (String) pluginSettings.get("onlyoffice.apiUrl");
+        String url = "";
+        if (configurationManager.demoActive()) {
+            url = configurationManager.getDemo("url");
+        }else {
+            url = (String) pluginSettings.get("onlyoffice.apiUrl");
+        }
         return (url == null || url.isEmpty()) ? "" : url;
     }
 
 
     public String getInnerDocEditorUrl() {
         String url = (String) pluginSettings.get("onlyoffice.docInnerUrl");
-        if (url == null || url.isEmpty()) {
+        if (url == null || url.isEmpty() || configurationManager.demoActive()) {
             return getPublicDocEditorUrl();
         } else {
             return url;
@@ -83,6 +95,24 @@ public class UrlManager {
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;
+    }
+
+    public String getGobackUrl(Long attachmentId, HttpServletRequest request) {
+        String gobackUrl = "";
+        String referer = request.getHeader("referer");
+
+        if (referer != null && !referer.equals("")) {
+            gobackUrl = referer;
+        }else {
+            String viewPageAttachments = "pages/viewpageattachments.action?pageId=";
+            AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+            Attachment attachment = attachmentManager.getAttachment(attachmentId);
+            gobackUrl = getConfluenceBaseUrl() + viewPageAttachments + attachment.getContainer().getContentId().asLong();
+        }
+
+        log.info("gobackUrl = " + gobackUrl);
+
+        return gobackUrl;
     }
 
     private String getConfluenceBaseUrl() {

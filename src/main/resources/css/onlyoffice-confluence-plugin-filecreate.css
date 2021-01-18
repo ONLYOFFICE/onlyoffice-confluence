@@ -1,0 +1,105 @@
+#onlyoffice-filecreate img{
+     position: absolute;
+     margin-top: 3px;
+}
+
+#inline-dialog-filecreate .aui-inline-dialog-contents{
+    width: auto!important;
+    padding: 0;
+    display: inline-block;
+}
+
+#arrow-filecreate{
+    display: none;
+}
+
+#inline-dialog-filecreate ul{
+    margin-left: 0;
+    padding-left: 0;
+}
+
+#inline-dialog-filecreate li{
+    list-style-type: none;
+}
+
+#inline-dialog-filecreate .menuitem{
+    display: block;
+    height: 25px;
+    padding: 7px 8px;
+    text-decoration: none;
+    cursor: pointer;
+    color: #172B4D;
+}
+
+#inline-dialog-filecreate .menuitem:hover{
+    background: #EBECF0;
+}
+
+#inline-dialog-filecreate .active{
+    background: #EBECF0;
+}
+
+#inline-dialog-filecreate .icon{
+    height: 25px;
+}
+
+#inline-dialog-filecreate .icon-onlyoffice-new-docx{
+    background-image: url(images/new-docx.svg);
+}
+
+#inline-dialog-filecreate .icon-onlyoffice-new-xlsx{
+    background-image: url(images/new-xlsx.svg);
+}
+
+#inline-dialog-filecreate .icon-onlyoffice-new-pptx{
+    background-image: url(images/new-pptx.svg);
+}
+
+#inline-dialog-filecreate .filenameform{
+    padding: 0px!important;
+}
+
+#inline-dialog-filecreate .displayname{
+    width: auto;
+    margin-left: 5px;
+    padding-left: 4px;
+    padding-top: 2.5px;
+    text-align: unset;
+    color: #344563;
+}
+
+#inline-dialog-filecreate .hidden{
+    display: none;
+}
+
+#inline-dialog-filecreate form{
+    display: inline-block;
+    vertical-align: top;
+    height: 25px;
+    margin: 0px;
+}
+
+#inline-dialog-filecreate .filenameform .input-name{
+      width: 120px;
+      display: inline-block;
+      margin-left: 5px;
+      height: 25px;
+      padding: 4px 3px;
+}
+
+#inline-dialog-filecreate .icon-confirm{
+    width: 28px;
+    height: 25px;
+    box-sizing: border-box;
+    border: none;
+    cursor: pointer;
+    margin-left: 4px;
+    background: url(images/confirm.svg) center no-repeat;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    font-size: 14px;
+}
+
+#inline-dialog-filecreate .icon-confirm:hover{
+    background-color: #FFFFFF;
+    border-radius: 3px;
+}

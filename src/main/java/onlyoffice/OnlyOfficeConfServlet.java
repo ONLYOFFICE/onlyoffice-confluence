@@ -63,13 +63,15 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     private final PluginSettingsFactory pluginSettingsFactory;
 
     private final JwtManager jwtManager;
+    private final ConfigurationManager configurationManager;
 
     @Inject
     public OnlyOfficeConfServlet(UserManager userManager, PluginSettingsFactory pluginSettingsFactory,
-            JwtManager jwtManager) {
+            JwtManager jwtManager, ConfigurationManager configurationManager) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.jwtManager = jwtManager;
+        this.configurationManager = configurationManager;
     }
 
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConfServlet");
@@ -87,13 +89,16 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
         String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
+        String jwtSecret = (String) pluginSettings.get("onlyoffice.jwtSecret");
         String docInnerUrl = (String) pluginSettings.get("onlyoffice.docInnerUrl");
 		String confUrl = (String) pluginSettings.get("onlyoffice.confUrl");
-        String jwtSecret = (String) pluginSettings.get("onlyoffice.jwtSecret");
+        Boolean demo = configurationManager.demoEnabled();
+        Boolean demoAvailable = configurationManager.demoAvailable(true);
+
         if (apiUrl == null || apiUrl.isEmpty()) { apiUrl = ""; }
+        if (jwtSecret == null || jwtSecret.isEmpty()) { jwtSecret = ""; }
 		if (docInnerUrl == null || docInnerUrl.isEmpty()) { docInnerUrl = ""; }
 		if (confUrl == null || confUrl.isEmpty()) { confUrl = ""; }
-		if (jwtSecret == null || jwtSecret.isEmpty()) { jwtSecret = ""; }
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
@@ -104,6 +109,8 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         contextMap.put("docserviceInnerUrl", docInnerUrl);
 		contextMap.put("docserviceConfUrl", confUrl);
         contextMap.put("docserviceJwtSecret", jwtSecret);
+        contextMap.put("docserviceDemo", demo);
+        contextMap.put("docserviceDemoAvailable", demoAvailable);
 
         writer.write(getTemplate(contextMap));
     }
@@ -130,14 +137,29 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         String docInnerUrl;
 		String confUrl;
         String jwtSecret;
+        Boolean demo;
+        PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
         try {
             JSONObject jsonObj = new JSONObject(body);
 
-            apiUrl = AppendSlash(jsonObj.getString("apiUrl"));
-            docInnerUrl = AppendSlash(jsonObj.getString("docInnerUrl"));
+            demo = jsonObj.getBoolean("demo");
+            configurationManager.selectDemo(demo);
+
+            if (configurationManager.demoActive()) {
+                apiUrl = configurationManager.getDemo("url");
+                docInnerUrl = configurationManager.getDemo("url");
+            }else {
+                apiUrl = AppendSlash(jsonObj.getString("apiUrl"));
+                jwtSecret = jsonObj.getString("jwtSecret");
+                docInnerUrl = AppendSlash(jsonObj.getString("docInnerUrl"));
+                pluginSettings.put("onlyoffice.apiUrl", apiUrl);
+                pluginSettings.put("onlyoffice.jwtSecret", jwtSecret);
+                pluginSettings.put("onlyoffice.docInnerUrl", docInnerUrl);
+            }
+
             confUrl = AppendSlash(jsonObj.getString("confUrl"));
-            
-            jwtSecret = jsonObj.getString("jwtSecret");
+            pluginSettings.put("onlyoffice.confUrl", confUrl);
+
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -150,12 +172,6 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             return;
         }
 
-        PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
-        pluginSettings.put("onlyoffice.apiUrl", apiUrl);
-        pluginSettings.put("onlyoffice.docInnerUrl", docInnerUrl);
-		pluginSettings.put("onlyoffice.confUrl", confUrl);
-        pluginSettings.put("onlyoffice.jwtSecret", jwtSecret);
-
         log.debug("Checking docserv url");
         if (!CheckDocServUrl(apiUrl)) {
             response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
@@ -164,7 +180,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         try {
             log.debug("Checking docserv commandservice");
-            if (!CheckDocServCommandService((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl, pluginSettings)) {
+            if (!CheckDocServCommandService((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservcommand\"}");
                 return;
             }
@@ -211,7 +227,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         return false;
     }
 
-    private Boolean CheckDocServCommandService(String url, PluginSettings settings) throws SecurityException {
+    private Boolean CheckDocServCommandService(String url) throws SecurityException {
         Integer errorCode = -1;
         try {
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -226,9 +242,8 @@ public class OnlyOfficeConfServlet extends HttpServlet {
                 payloadBody.put("payload", body);
                 String headerToken = jwtManager.createToken(body);
                 body.put("token", token);
-                String header = (String) settings.get("onlyoffice.jwtheader");
-                request.setHeader(header == null || header.isEmpty() ? "Authorization" : header,
-                        "Bearer " + headerToken);
+                String header = jwtManager.getJwtHeader();
+                request.setHeader(header, "Bearer " + headerToken);
             }
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);

@@ -40,27 +40,18 @@ import org.json.JSONArray;
 
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
 public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
-    @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
-
     private final JwtManager jwtManager;
-    private final PluginSettings settings;
 
     @Inject
-    public OnlyOfficeSaveFileServlet(PluginSettingsFactory pluginSettingsFactory, JwtManager jwtManager) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        settings = pluginSettingsFactory.createGlobalSettings();
+    public OnlyOfficeSaveFileServlet(JwtManager jwtManager) {
         this.jwtManager = jwtManager;
     }
 
@@ -137,8 +128,8 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 Boolean inBody = true;
 
                 if (token == null || token == "") {
-                    String jwth = (String) settings.get("onlyoffice.jwtHeader");
-                    String header = (String) request.getHeader(jwth == null || jwth.isEmpty() ? "Authorization" : jwth);
+                    String jwth = jwtManager.getJwtHeader();
+                    String header = (String) request.getHeader(jwth);
                     token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
                     inBody = false;
                 }
