@@ -26,7 +26,10 @@ AJS.toInit(function ($) {
                     },
                     arrowCss:{}
                 };
-            }
+            },
+            closeOthers: true,
+            persistent: false
+
         }
     );
 
@@ -39,10 +42,10 @@ AJS.toInit(function ($) {
 
     $(document).on("click", ".menuitem", function(event) {
        $(".menuitem").removeClass("active");
-       $(".displayname").removeClass("hidden");
-       $(".filenameform").addClass("hidden");
-       $(this).find(".displayname").addClass("hidden");
-       $(this).find(".filenameform").removeClass("hidden");
+       $(".filenameform label").removeClass("hidden");
+       $(".filenameform input").addClass("hidden");
+       $(this).find(".filenameform label").addClass("hidden");
+       $(this).find(".filenameform input").removeClass("hidden");
        $(this).addClass("active");
     });
 
