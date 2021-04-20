@@ -54,10 +54,15 @@ You will need:
 
 * Atlassian Plugin SDK,
 
+* Get a submodule:
+  ```bash
+  git submodule update --init --recursive
+  ```
+
 * Compile package:
-```bash
-atlas-package
-```
+  ```bash
+  atlas-package
+  ```
 
 ## How it works
 
