@@ -4,6 +4,8 @@
         <description>${project.description}</description>
         <version>${project.version}</version>
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="atlassian-data-center-status">compatible</param>
+        <param name="atlassian-data-center-compatible">true</param>
         <param name="configure.url">/plugins/servlet/onlyoffice/configure</param>
 
         <param name="plugin-icon">images/16.png</param>
