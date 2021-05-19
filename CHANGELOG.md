@@ -1,5 +1,8 @@
 # Change Log
 
+## Changed
+- compatible with Confluence 7.12
+
 ## 2.4.2
 ## Changed
 - Updated marketplace version
