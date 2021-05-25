@@ -2,6 +2,7 @@
 
 ## Changed
 - compatible with Confluence 7.12
+- improving JWT validation
 
 ## 2.4.2
 ## Changed

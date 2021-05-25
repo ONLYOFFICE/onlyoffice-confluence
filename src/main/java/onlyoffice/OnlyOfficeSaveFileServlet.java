@@ -57,6 +57,20 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (jwtManager.jwtEnabled()) {
+            String jwth = jwtManager.getJwtHeader();
+            String header = request.getHeader(jwth);
+            String token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
+
+            if (token == null || token == "") {
+                throw new SecurityException("Expected JWT");
+            }
+
+            if (!jwtManager.verify(token)) {
+                throw new SecurityException("JWT verification failed");
+            }
+        }
+
         String vkey = request.getParameter("vkey");
         log.info("vkey = " + vkey);
         String attachmentIdString = DocumentManager.ReadHash(vkey);
