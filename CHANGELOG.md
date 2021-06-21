@@ -1,5 +1,8 @@
 # Change Log
 
+## Added
+- compatible with Data Center
+
 ## Changed
 - compatible with Confluence 7.12
 - improving JWT validation
