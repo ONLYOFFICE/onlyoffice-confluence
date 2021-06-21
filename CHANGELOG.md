@@ -1,5 +1,8 @@
 # Change Log
 
+## Added
+- compatible with Data Center
+
 ## 2.4.2
 ## Changed
 - Updated marketplace version
