@@ -17,11 +17,14 @@
  */
 
 
-package onlyoffice;
+package onlyoffice.managers.url;
 
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.spring.container.ContainerManager;
+import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.managers.document.DocumentManagerImpl;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -32,15 +35,18 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 @Named
-public class UrlManager {
-    private static final Logger log = LogManager.getLogger("onlyoffice.UrlManager");
-
-    private static final String callbackServler = "plugins/servlet/onlyoffice/save";
+@RequestScoped
+@Default
+public class UrlManagerImpl implements UrlManager {
+    private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
+    private final String callbackServler = "plugins/servlet/onlyoffice/save";
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -49,13 +55,15 @@ public class UrlManager {
 
     private final PluginSettings pluginSettings;
     private final ConfigurationManager configurationManager;
+    private final DocumentManager documentManager;
 
     @Inject
-    public UrlManager(PluginSettingsFactory pluginSettingsFactory, SettingsManager settingsManager,
-                      ConfigurationManager configurationManager) {
+    public UrlManagerImpl(PluginSettingsFactory pluginSettingsFactory, SettingsManager settingsManager,
+                          ConfigurationManager configurationManager, DocumentManager documentManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.settingsManager = settingsManager;
         this.configurationManager = configurationManager;
+        this.documentManager = documentManager;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
     }
 
@@ -79,8 +87,8 @@ public class UrlManager {
         }
     }
 
-    public String GetFileUri(Long attachmentId) throws Exception {
-        String hash = DocumentManager.CreateHash(Long.toString(attachmentId));
+    public String getFileUri(Long attachmentId) throws Exception {
+        String hash = documentManager.createHash(Long.toString(attachmentId));
 
         String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("fileUrl " + callbackUrl);
@@ -89,7 +97,7 @@ public class UrlManager {
     }
 
     public String getCallbackUrl(Long attachmentId) {
-        String hash = DocumentManager.CreateHash(Long.toString(attachmentId));
+        String hash = documentManager.createHash(Long.toString(attachmentId));
 
         String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("callbackUrl " + callbackUrl);

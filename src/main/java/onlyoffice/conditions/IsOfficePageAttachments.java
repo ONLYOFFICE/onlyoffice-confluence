@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice;
+package onlyoffice.conditions;
 
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.pages.PageManager;

@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.managers.convert.ConvertManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -53,18 +55,22 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     @ComponentImport
     private final AttachmentManager attachmentManager;
 
+    private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
+    private final AuthContext authContext;
 
     @Inject
-    public OnlyOfficeConvertServlet(AttachmentManager attachmentManager,
-            JwtManager jwtManager, ConvertManager convertManager, UrlManager urlManager) {
+    public OnlyOfficeConvertServlet(AttachmentManager attachmentManager, AttachmentUtil attachmentUtil,
+                                    ConvertManager convertManager, AuthContext authContext) {
         this.attachmentManager = attachmentManager;
+        this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
+        this.authContext = authContext;
     }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (!AuthContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
 
@@ -94,7 +100,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (!AuthContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
 
@@ -114,8 +120,8 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
             String ext = request.getParameter("oldExt");
 
-            if (AttachmentUtil.checkAccess(attachmentId, user, true)) {
-                if (ConvertManager.isConvertable(ext)) {
+            if (attachmentUtil.checkAccess(attachmentId, user, true)) {
+                if (convertManager.isConvertable(ext)) {
                     json = convertManager.convert(attachmentId, ext);
 
                     if (json.getBoolean("endConvert")) {

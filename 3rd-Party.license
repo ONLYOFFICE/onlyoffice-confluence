@@ -21,6 +21,10 @@ javax.inject        - The javax.inject API (https://www.apache.org/licenses/LICE
 License:              Apache 2.0
 License File:         javax.inject.license
 
+javax.enterprise.cdi-api - Contexts and Dependency Injection for Java (https://github.com/eclipse-ee4j/cdi/blob/master/LICENSE.txt)
+License:              Apache 2.0
+License File          javax.enterprise.cdi-api
+
 javax.servlet-api   - Java Servlet API (https://opensource.org/licenses/CDDL-1.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 License:              CDDL, GPL 2.0
 License File:         javax.servlet-api.license

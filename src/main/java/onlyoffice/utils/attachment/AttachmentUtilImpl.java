@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice;
+package onlyoffice.utils.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,10 +33,17 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
 
-public class AttachmentUtil {
-    private static final Logger log = LogManager.getLogger("onlyoffice.AttachmentUtil");
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Default;
+import javax.inject.Named;
 
-    public static boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
+@Named
+@SessionScoped
+@Default
+public class AttachmentUtilImpl implements AttachmentUtil {
+    private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
+
+    public boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
         if (user == null) {
             return false;
         }
@@ -47,7 +54,7 @@ public class AttachmentUtil {
         return checkAccess(attachment, user, forEdit);
     }
 
-    public static boolean checkAccess(Attachment attachment, User user, boolean forEdit) {
+    public boolean checkAccess(Attachment attachment, User user, boolean forEdit) {
         if (user == null) {
             return false;
         }
@@ -63,7 +70,7 @@ public class AttachmentUtil {
         return access;
     }
 
-    public static void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
+    public void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
@@ -76,25 +83,25 @@ public class AttachmentUtil {
         attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
     }
 
-    public static InputStream getAttachmentData(Long attachmentId) {
+    public InputStream getAttachmentData(Long attachmentId) {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachmentManager.getAttachmentData(attachment);
     }
 
-    public static String getMediaType(Long attachmentId) {
+    public String getMediaType(Long attachmentId) {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getMediaType();
     }
 
-    public static String getFileName(Long attachmentId) {
+    public String getFileName(Long attachmentId) {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getFileName();
     }
 
-    public static String getHashCode(Long attachmentId) {
+    public String getHashCode(Long attachmentId) {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         int hashCode = attachment.hashCode();

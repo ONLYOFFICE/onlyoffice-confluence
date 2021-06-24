@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice;
+package onlyoffice.conditions;
 
 import java.util.Map;
 
@@ -25,8 +25,26 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
+import onlyoffice.managers.convert.ConvertManager;
+import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
+
+import javax.inject.Inject;
 
 public class IsOfficeFileConvertAttachment implements Condition {
+
+    private final DocumentManager documentManager;
+    private final AttachmentUtil attachmentUtil;
+    private final ConvertManager convertManager;
+
+    @Inject
+    public IsOfficeFileConvertAttachment(DocumentManager documentManager, AttachmentUtil attachmentUtil,
+                                         ConvertManager convertManager) {
+        this.documentManager = documentManager;
+        this.attachmentUtil = attachmentUtil;
+        this.convertManager = convertManager;
+    }
+
     public void init(Map<String, String> params) throws PluginParseException {
     }
 
@@ -36,14 +54,14 @@ public class IsOfficeFileConvertAttachment implements Condition {
             return false;
         }
         String ext = attachment.getFileExtension();
-        if (attachment.getFileSize() > DocumentManager.GetMaxFileSize()) {
+        if (attachment.getFileSize() > documentManager.getMaxFileSize()) {
             return false;
         }
 
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
-        boolean accessEdit = AttachmentUtil.checkAccess(attachment, user, true);
+        boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
 
-        if (!accessEdit || !ConvertManager.isConvertable(ext)) {
+        if (!accessEdit || !convertManager.isConvertable(ext)) {
             return false;
         }
 
