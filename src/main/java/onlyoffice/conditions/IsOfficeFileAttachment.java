@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice;
+package onlyoffice.conditions;
 
 import java.util.List;
 import java.util.Map;
@@ -26,9 +26,21 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
+import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
+
+import javax.inject.Inject;
 
 public class IsOfficeFileAttachment implements Condition {
     private boolean forEdit;
+    private DocumentManager documentManager;
+    private AttachmentUtil attachmentUtil;
+
+    @Inject
+    public IsOfficeFileAttachment(DocumentManager documentManager, AttachmentUtil attachmentUtil) {
+        this.documentManager = documentManager;
+        this.attachmentUtil = attachmentUtil;
+    }
 
     public void init(Map<String, String> params) throws PluginParseException {
         forEdit = false;
@@ -45,13 +57,13 @@ public class IsOfficeFileAttachment implements Condition {
         if (!isXExtension(attachment.getFileExtension())) {
             return false;
         }
-        if (attachment.getFileSize() > DocumentManager.GetMaxFileSize()) {
+        if (attachment.getFileSize() > documentManager.getMaxFileSize()) {
             return false;
         }
 
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
-        boolean accessEdit = AttachmentUtil.checkAccess(attachment, user, true);
-        boolean accessView = AttachmentUtil.checkAccess(attachment, user, false);
+        boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
+        boolean accessView = attachmentUtil.checkAccess(attachment, user, false);
         if (!forEdit && (!accessView || accessEdit)) {
             return false;
         }
@@ -63,7 +75,7 @@ public class IsOfficeFileAttachment implements Condition {
     }
 
     private boolean isXExtension(String fileExtension) {
-        List<String> exts = DocumentManager.GetEditedExts();
+        List<String> exts = documentManager.getEditedExts();
         return exts.contains(fileExtension);
     }
 }

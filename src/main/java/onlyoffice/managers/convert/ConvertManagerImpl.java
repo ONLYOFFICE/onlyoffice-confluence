@@ -16,12 +16,16 @@
  *
  */
 
-package onlyoffice;
+package onlyoffice.managers.convert;
 
 import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
 
+import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.managers.jwt.JwtManager;
+import onlyoffice.managers.url.UrlManager;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -34,38 +38,22 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-public class ConvertManager {
-    private static final Logger log = LogManager.getLogger("onlyoffice.ConvertManager");
+@Default
+public class ConvertManagerImpl implements ConvertManager {
+    private final Logger log = LogManager.getLogger("onlyoffice.managers.convert.ConvertManager");
 
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
     private final ConfigurationManager configurationManager;
-
-    @Inject
-    public ConvertManager(UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager) {
-        this.urlManager = urlManager;
-        this.jwtManager = jwtManager;
-        this.configurationManager = configurationManager;
-    }
-
-    public static boolean isConvertable(String ext) {
-        return convertableDict.containsKey(trimDot(ext));
-    }
-
-    public String convertsTo(String ext) {
-        return convertableDict.getOrDefault(trimDot(ext), null);
-    }
-
-    public static String getMimeType(String ext) {
-        return mimeTypes.getOrDefault(trimDot(ext), null);
-    }
+    private final DocumentManager documentManager;
 
     @SuppressWarnings("serial")
-    public static final Map<String, String> convertableDict = new HashMap<String, String>() {
+    private final Map<String, String> convertableDict = new HashMap<String, String>() {
         {
             put("odt", "docx");
             put("doc", "docx");
@@ -77,7 +65,7 @@ public class ConvertManager {
     };
 
     @SuppressWarnings("serial")
-    public static final Map<String, String> mimeTypes = new HashMap<String, String>() {
+    private final Map<String, String> mimeTypes = new HashMap<String, String>() {
         {
             put("odt", "application/vnd.oasis.opendocument.text");
             put("doc", "application/msword");
@@ -91,6 +79,28 @@ public class ConvertManager {
         }
     };
 
+    @Inject
+    public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager,
+                              ConfigurationManager configurationManager,
+                              DocumentManager documentManager) {
+        this.urlManager = urlManager;
+        this.jwtManager = jwtManager;
+        this.configurationManager = configurationManager;
+        this.documentManager = documentManager;
+    }
+
+    public boolean isConvertable(String ext) {
+        return convertableDict.containsKey(trimDot(ext));
+    }
+
+    public String convertsTo(String ext) {
+        return convertableDict.getOrDefault(trimDot(ext), null);
+    }
+
+    public String getMimeType(String ext) {
+        return mimeTypes.getOrDefault(trimDot(ext), null);
+    }
+
     public JSONObject convert(Long attachmentId, String ext) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         JSONObject body = new JSONObject();
@@ -98,12 +108,12 @@ public class ConvertManager {
         body.put("embeddedfonts", true);
         body.put("filetype", ext);
         body.put("outputtype", convertsTo(ext));
-        body.put("key", DocumentManager.getKeyOfFile(attachmentId));
-        body.put("url", urlManager.GetFileUri(attachmentId));
+        body.put("key", documentManager.getKeyOfFile(attachmentId));
+        body.put("url", urlManager.getFileUri(attachmentId));
 
         StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
         HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
-                + configurationManager.GetProperties().getProperty("files.docservice.url.convert"));
+                + configurationManager.getProperties().getProperty("files.docservice.url.convert"));
         request.setEntity(requestEntity);
         request.setHeader("Accept", "application/json");
 
@@ -144,7 +154,7 @@ public class ConvertManager {
         }
     }
 
-    private static String trimDot(String input) {
+    private String trimDot(String input) {
         return input.startsWith(".") ? input.substring(1) : input;
     }
 }

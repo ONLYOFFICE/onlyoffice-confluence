@@ -16,31 +16,42 @@
  *
  */
 
-package onlyoffice;
+package onlyoffice.managers.configuration;
 
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Named
-public class ConfigurationManager {
+@Default
+public class ConfigurationManagerImpl implements ConfigurationManager {
+    private final Logger log = LogManager.getLogger("onlyoffice.managers.configuration.ConfigurationManager");
+
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
-
     private final PluginSettings pluginSettings;
+
+    private final String configurationPath = "onlyoffice-config.properties";
+    private final String pluginDemoName = "onlyoffice.demo";
+    private final String pluginDemoNameStart = "onlyoffice.demoStart";
     private Map<String, String> demoData;
 
     @Inject
-    public ConfigurationManager(PluginSettingsFactory pluginSettingsFactory) {
+    public ConfigurationManagerImpl(PluginSettingsFactory pluginSettingsFactory) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
 
@@ -51,23 +62,37 @@ public class ConfigurationManager {
         demoData.put("trial", "30");
     }
 
-    public Properties GetProperties() throws IOException {
+    public Properties getProperties() throws IOException {
         Properties properties = new Properties();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("onlyoffice-config.properties");
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(configurationPath);
         if (inputStream != null) {
             properties.load(inputStream);
         }
         return properties;
     }
 
+    public String getProperty(String propertyName){
+        try {
+            Properties properties = getProperties();
+            String property = properties.getProperty(propertyName);
+            return property;
+        } catch (IOException e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            log.error(e.toString() + "\n" + sw.toString());
+            return null;
+        }
+    }
+
     public boolean selectDemo(Boolean demo) {
-        pluginSettings.put("onlyoffice.demo", demo.toString());
+        pluginSettings.put(pluginDemoName, demo.toString());
         if (demo) {
-            String demoStart = (String) pluginSettings.get("onlyoffice.demoStart");
+            String demoStart = (String) pluginSettings.get(pluginDemoNameStart);
             if (demoStart == null || demoStart.isEmpty()) {
                 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 Date date = new Date();
-                pluginSettings.put("onlyoffice.demoStart", dateFormat.format(date));
+                pluginSettings.put(pluginDemoNameStart, dateFormat.format(date));
             }
             return true;
         }
@@ -75,15 +100,15 @@ public class ConfigurationManager {
     }
 
     public Boolean demoEnabled() {
-        String demo = (String) pluginSettings.get("onlyoffice.demo");
+        String demo = (String) pluginSettings.get(pluginDemoName);
         if (demo == null || demo.isEmpty()) {
-            demo = "false";
+            return false;
         }
         return Boolean.parseBoolean(demo);
     }
 
     public Boolean demoAvailable(Boolean forActivate) {
-        String demoStart = (String) pluginSettings.get("onlyoffice.demoStart");
+        String demoStart = (String) pluginSettings.get(pluginDemoNameStart);
         if (demoStart != null && !demoStart.isEmpty()) {
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             try {
@@ -110,3 +135,4 @@ public class ConfigurationManager {
         return demoData.get(key);
     }
 }
+
