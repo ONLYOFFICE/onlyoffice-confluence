@@ -38,13 +38,11 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-@SessionScoped
 @Default
 public class ConvertManagerImpl implements ConvertManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.convert.ConvertManager");

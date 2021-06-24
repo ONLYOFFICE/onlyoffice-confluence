@@ -33,12 +33,10 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
 
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Named;
 
 @Named
-@SessionScoped
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");

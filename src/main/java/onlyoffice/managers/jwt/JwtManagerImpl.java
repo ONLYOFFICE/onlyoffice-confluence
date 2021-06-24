@@ -32,13 +32,11 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.Mac;
 
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-@SessionScoped
 @Default
 public class JwtManagerImpl implements JwtManager {
 

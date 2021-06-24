@@ -21,7 +21,6 @@ package onlyoffice;
 import java.io.IOException;
 import java.security.Principal;
 
-import javax.enterprise.context.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,7 +32,6 @@ import com.atlassian.confluence.util.GeneralUtil;
 import javax.inject.Named;
 
 @Named
-@SessionScoped
 public class AuthContext {
     private final Logger log = LogManager.getLogger("onlyoffice.AuthContext");
 

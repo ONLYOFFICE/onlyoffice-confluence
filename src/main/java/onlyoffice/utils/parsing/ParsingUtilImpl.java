@@ -1,13 +1,11 @@
 package onlyoffice.utils.parsing;
 
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Named;
 import java.io.InputStream;
 import java.util.Scanner;
 
 @Named
-@RequestScoped
 @Default
 public class ParsingUtilImpl implements ParsingUtil {
     public String getBody(InputStream stream) {

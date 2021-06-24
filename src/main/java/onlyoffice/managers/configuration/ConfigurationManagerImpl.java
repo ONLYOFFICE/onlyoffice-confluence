@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -38,7 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Named
-@ApplicationScoped
 @Default
 public class ConfigurationManagerImpl implements ConfigurationManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.configuration.ConfigurationManager");
