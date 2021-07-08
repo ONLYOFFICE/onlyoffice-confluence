@@ -128,4 +128,13 @@ public class UrlManagerImpl implements UrlManager {
             return url;
         }
     }
+
+    public String replaceDocEditorURLToInternal(String url) {
+        String innerDocEditorUrl = getInnerDocEditorUrl();
+        String publicDocEditorUrl = getPublicDocEditorUrl();
+        if (!publicDocEditorUrl.equals(innerDocEditorUrl)) {
+            url.replace(publicDocEditorUrl, innerDocEditorUrl);
+        }
+        return url;
+    }
 }
