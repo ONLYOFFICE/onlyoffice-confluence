@@ -133,7 +133,7 @@ public class UrlManagerImpl implements UrlManager {
         String innerDocEditorUrl = getInnerDocEditorUrl();
         String publicDocEditorUrl = getPublicDocEditorUrl();
         if (!publicDocEditorUrl.equals(innerDocEditorUrl)) {
-            url.replace(publicDocEditorUrl, innerDocEditorUrl);
+           url = url.replace(publicDocEditorUrl, innerDocEditorUrl);
         }
         return url;
     }
