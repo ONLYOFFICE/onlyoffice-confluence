@@ -9,4 +9,5 @@ public interface UrlManager extends Serializable {
     public String getFileUri(Long attachmentId) throws Exception;
     public String getCallbackUrl(Long attachmentId);
     public String getGobackUrl(Long attachmentId, HttpServletRequest request);
+    public String replaceDocEditorURLToInternal(String url);
 }

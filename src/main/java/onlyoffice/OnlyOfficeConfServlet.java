@@ -117,6 +117,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         contextMap.put("docserviceJwtSecret", jwtSecret);
         contextMap.put("docserviceDemo", demo);
         contextMap.put("docserviceDemoAvailable", demoAvailable);
+        contextMap.put("pathApiUrl", configurationManager.getProperty("files.docservice.url.api"));
 
         writer.write(getTemplate(contextMap));
     }
@@ -179,7 +180,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         }
 
         log.debug("Checking docserv url");
-        if (!CheckDocServUrl(apiUrl)) {
+        if (!CheckDocServUrl((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl)) {
             response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
             return;
         }

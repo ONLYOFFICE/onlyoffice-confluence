@@ -90,10 +90,50 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                         }
                     };
 
+                    var testDocServiceApi = function () {
+                        var testApiResult = function () {
+                            var result = typeof DocsAPI != "undefined";
+
+                            if (result) {
+                                updateConfig();
+                            } else {
+                                submitBtn.attr("disabled", false);
+                                if (lastMsg) lastMsg.remove();
+                                lastMsg = AJS.messages.error(msgBox, { body: messages["docservunreachable"] });
+                            }
+                        };
+
+                        delete DocsAPI;
+
+                        jq("#scripDocServiceAddress").remove();
+
+                        var js = document.createElement("script");
+                        js.setAttribute("type", "text/javascript");
+                        js.setAttribute("id", "scripDocServiceAddress");
+                        document.getElementsByTagName("head")[0].appendChild(js);
+
+                        var scriptAddress = jq("#scripDocServiceAddress");
+
+                        scriptAddress.on("load", testApiResult).on("error", testApiResult);
+
+                        var docServiceUrlApi = jq("#apiUrlField").val();
+
+                        if (!docServiceUrlApi.endsWith("/")) {
+                            docServiceUrlApi += "/";
+                        }
+                        docServiceUrlApi += "${pathApiUrl}";
+
+                        scriptAddress.attr("src", docServiceUrlApi);
+                    };
+
                     jq("#onlyofficeConf").submit(function(e) {
                         submitBtn.attr("disabled", true);
                         e.preventDefault();
-                        updateConfig();
+                        if (jq("#onlyofficeDemo").is(":checked")) {
+                            updateConfig();
+                        } else {
+                            testDocServiceApi();
+                        }
                     });
 
                     jq("#onlyofficeConf").on("click", ".view-control", function(){

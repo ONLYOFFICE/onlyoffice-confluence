@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
+import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
@@ -56,14 +57,16 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
+    private final UrlManager urlManager;
 
     @Inject
     public OnlyOfficeSaveFileServlet(JwtManager jwtManager, DocumentManager documentManager,
-                                     AttachmentUtil attachmentUtil, ParsingUtil parsingUtil) {
+            AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager) {
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
+        this.urlManager = urlManager;
     }
 
     @Override
@@ -197,6 +200,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 }
 
                 String downloadUrl = jsonObj.getString("url");
+                downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                 log.info("downloadUri = " + downloadUrl);
 
                 URL url = new URL(downloadUrl);
