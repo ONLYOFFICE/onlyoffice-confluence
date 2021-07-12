@@ -71,7 +71,7 @@
 
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
-                alert("ONLYOFFICE is not available. Please contact us at support@onlyoffice.com");
+                alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
                 return;
             }
 
