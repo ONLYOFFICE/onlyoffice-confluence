@@ -14,8 +14,8 @@
         <url>https://www.onlyoffice.com</url>
     </organization>
 
-    <name>ONLYOFFICE Connector for Confluence</name>
-    <description>ONLYOFFICE Connector for Confluence allows you to work on all kinds of office documents within Confluence using ONLYOFFICE Online Editors with the enhanced formatting toolset. View, create and co-edit the documents in real-time.</description>
+    <name>Confluence ONLYOFFICE integration app</name>
+    <description>Confluence ONLYOFFICE integration app allows you to work on all kinds of office documents within Confluence using ONLYOFFICE Online Editors with the enhanced formatting toolset. View, create and co-edit the documents in real-time.</description>
     <packaging>atlassian-plugin</packaging>
     <dependencyManagement>
         <dependencies>
