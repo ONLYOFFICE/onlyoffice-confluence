@@ -106,9 +106,9 @@ public class UrlManagerImpl implements UrlManager {
         String gobackUrl = "";
         String referer = request.getHeader("referer");
 
-        if (referer != null && !referer.equals("")) {
+        if (referer != null && !referer.equals("") && !referer.contains("login.action")) {
             gobackUrl = referer;
-        }else {
+        } else {
             String viewPageAttachments = "pages/viewpageattachments.action?pageId=";
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
             Attachment attachment = attachmentManager.getAttachment(attachmentId);
