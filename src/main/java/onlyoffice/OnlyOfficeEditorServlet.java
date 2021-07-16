@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2020
+ * (c) Copyright Ascensio System SIA 2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.convert.ConvertManager;
+import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.managers.jwt.JwtManager;
+import onlyoffice.managers.url.UrlManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -49,6 +55,11 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
 public class OnlyOfficeEditorServlet extends HttpServlet {
+    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
+    private final long serialVersionUID = 1L;
+
+    private Properties properties;
+
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
     @ComponentImport
@@ -58,27 +69,34 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
     private final JwtManager jwtManager;
     private final UrlManager urlManager;
-    private static ConfigurationManager configurationManager;
+    private final ConfigurationManager configurationManager;
+    private final AuthContext authContext;
+    private final DocumentManager documentManager;
+    private final AttachmentUtil attachmentUtil;
+    private final ConvertManager convertManager;
+
 
     @Inject
     public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager,
-            SettingsManager settingsManager, UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager) {
+                                   SettingsManager settingsManager, UrlManager urlManager,
+                                   JwtManager jwtManager, ConfigurationManager configurationManager,
+                                   AuthContext authContext, DocumentManager documentManager,
+                                   AttachmentUtil attachmentUtil, ConvertManager convertManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
-        this.settingsManager = settingsManager;
-        this.jwtManager = jwtManager;
-        this.urlManager = urlManager;
         this.localeManager = localeManager;
+        this.settingsManager = settingsManager;
+        this.urlManager = urlManager;
+        this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
+        this.authContext = authContext;
+        this.documentManager = documentManager;
+        this.attachmentUtil = attachmentUtil;
+        this.convertManager = convertManager;
     }
-
-    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
-    private static final long serialVersionUID = 1L;
-
-    private Properties properties;
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (!AuthContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
 
@@ -87,7 +105,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             apiUrl = "";
         }
 
-        properties = configurationManager.GetProperties();
+        properties = configurationManager.getProperties();
 
         String callbackUrl = "";
         String fileUrl = "";
@@ -105,7 +123,9 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             String pageID = request.getParameter("pageId");
             if (pageID != null && !pageID.equals("")) {
                 try {
-                    Long attachmentId = DocumentManager.createDemo(fileName, fileExt, Long.parseLong(pageID));
+                    Long attachmentId = documentManager.createDemo(fileName, fileExt,
+                            Long.parseLong(pageID), convertManager.getMimeType(fileExt));
+
                     response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
                     return;
                 } catch (Exception ex) {
@@ -127,16 +147,16 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             user = AuthenticatedUserThreadLocal.get();
             log.info("user " + user);
-            if (AttachmentUtil.checkAccess(attachmentId, user, false)) {
-                key = DocumentManager.getKeyOfFile(attachmentId);
+            if (attachmentUtil.checkAccess(attachmentId, user, false)) {
+                key = documentManager.getKeyOfFile(attachmentId);
 
-                fileName = AttachmentUtil.getFileName(attachmentId);
+                fileName = attachmentUtil.getFileName(attachmentId);
 
-                fileUrl = urlManager.GetFileUri(attachmentId);
+                fileUrl = urlManager.getFileUri(attachmentId);
 
                 gobackUrl = urlManager.getGobackUrl(attachmentId, request);
 
-                if (AttachmentUtil.checkAccess(attachmentId, user, true)) {
+                if (attachmentUtil.checkAccess(attachmentId, user, true)) {
                     callbackUrl = urlManager.getCallbackUrl(attachmentId);
                 }
             } else {
@@ -182,7 +202,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             responseJson.put("type", "desktop");
             responseJson.put("width", "100%");
             responseJson.put("height", "100%");
-            responseJson.put("documentType", getDocType(docExt));
+            responseJson.put("documentType", documentManager.getDocType(docExt));
 
             responseJson.put("document", documentObject);
             documentObject.put("title", docTitle);
@@ -224,15 +244,5 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         defaults.putAll(config);
         defaults.put("demo", configurationManager.demoActive());
         return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
-    }
-
-    private String getDocType(String ext) {
-        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps".indexOf(ext) != -1)
-            return "text";
-        if (".xls.xlsx.xlsm.xlt.xltx.xltm.ods.fods.ots.csv".indexOf(ext) != -1)
-            return "spreadsheet";
-        if (".pps.ppsx.ppsm.ppt.pptx.pptm.pot.potx.potm.odp.fodp.otp".indexOf(ext) != -1)
-            return "presentation";
-        return null;
     }
 }

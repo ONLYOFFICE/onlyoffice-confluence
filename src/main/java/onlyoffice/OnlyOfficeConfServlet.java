@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2020
+ * (c) Copyright Ascensio System SIA 2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,19 @@
 package onlyoffice;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import java.util.Scanner;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.jwt.JwtManager;
+import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -57,6 +58,9 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
 
 public class OnlyOfficeConfServlet extends HttpServlet {
+    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConfServlet");
+    private final long serialVersionUID = 1L;
+
     @ComponentImport
     private final UserManager userManager;
     @ComponentImport
@@ -65,17 +69,19 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     private final JwtManager jwtManager;
     private final ConfigurationManager configurationManager;
 
+    private final ParsingUtil parsingUtil;
+
+
     @Inject
     public OnlyOfficeConfServlet(UserManager userManager, PluginSettingsFactory pluginSettingsFactory,
-            JwtManager jwtManager, ConfigurationManager configurationManager) {
+                                 JwtManager jwtManager, ConfigurationManager configurationManager,
+                                 ParsingUtil parsingUtil) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
+        this.parsingUtil = parsingUtil;
     }
-
-    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConfServlet");
-    private static final long serialVersionUID = 1L;
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -111,6 +117,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         contextMap.put("docserviceJwtSecret", jwtSecret);
         contextMap.put("docserviceDemo", demo);
         contextMap.put("docserviceDemoAvailable", demoAvailable);
+        contextMap.put("pathApiUrl", configurationManager.getProperty("files.docservice.url.api"));
 
         writer.write(getTemplate(contextMap));
     }
@@ -127,7 +134,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             return;
         }
 
-        String body = getBody(request.getInputStream());
+        String body = parsingUtil.getBody(request.getInputStream());
         if (body.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -173,7 +180,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         }
 
         log.debug("Checking docserv url");
-        if (!CheckDocServUrl(apiUrl)) {
+        if (!CheckDocServUrl((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl)) {
             response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
             return;
         }
@@ -196,19 +203,6 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         if (str == null || str.isEmpty() || str.endsWith("/"))
             return str;
         return str + "/";
-    }
-
-    private String getBody(InputStream stream) {
-        Scanner scanner = null;
-        Scanner scannerUseDelimiter = null;
-        try {
-            scanner = new Scanner(stream);
-            scannerUseDelimiter = scanner.useDelimiter("\\A");
-            return scanner.hasNext() ? scanner.next() : "";
-        } finally {
-            scannerUseDelimiter.close();
-            scanner.close();
-        }
     }
 
     private Boolean CheckDocServUrl(String url) {

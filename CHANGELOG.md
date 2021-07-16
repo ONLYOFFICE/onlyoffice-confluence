@@ -1,5 +1,13 @@
 # Change Log
 
+## 3.0.0
+## Added
+- compatible with Data Center
+
+## Changed
+- compatible with Confluence 7.12
+- improving JWT validation
+
 ## 2.4.2
 ## Changed
 - Updated marketplace version

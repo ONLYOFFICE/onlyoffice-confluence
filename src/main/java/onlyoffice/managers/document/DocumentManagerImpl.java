@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2020
+ * (c) Copyright Ascensio System SIA 2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice;
+package onlyoffice.managers.document;
 
 import java.io.*;
 import java.security.MessageDigest;
@@ -34,33 +34,38 @@ import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
+import onlyoffice.managers.configuration.ConfigurationManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
 
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-public class DocumentManager {
-    @ComponentImport
-    private static I18nResolver i18n;
+@Default
+public class DocumentManagerImpl implements DocumentManager {
+    private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
 
-    private static ConfigurationManager configurationManager;
+    @ComponentImport
+    private final I18nResolver i18n;
+    private final ConfigurationManager configurationManager;
+    private final AttachmentUtil attachmentUtil;
 
     @Inject
-    public DocumentManager(I18nResolver i18n, ConfigurationManager configurationManager) {
+    public DocumentManagerImpl(I18nResolver i18n, ConfigurationManager configurationManager,
+                               AttachmentUtil attachmentUtil) {
         this.i18n = i18n;
         this.configurationManager = configurationManager;
+        this.attachmentUtil = attachmentUtil;
     }
 
-    private static final Logger log = LogManager.getLogger("onlyoffice.DocumentManager");
-
-    public static long GetMaxFileSize() {
+    public long getMaxFileSize() {
         long size;
         try {
-            Properties properties = configurationManager.GetProperties();
-            String filesizeMax = properties.getProperty("filesize-max");
+            String filesizeMax = configurationManager.getProperty("filesize-max");
             size = Long.parseLong(filesizeMax);
         } catch (Exception ex) {
             size = 0;
@@ -69,28 +74,19 @@ public class DocumentManager {
         return size > 0 ? size : 5 * 1024 * 1024;
     }
 
-    public static List<String> GetEditedExts() {
-        try {
-            Properties properties = configurationManager.GetProperties();
-            String exts = properties.getProperty("files.docservice.edited-docs");
-
-            return Arrays.asList(exts.split("\\|"));
-        } catch (IOException e) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            log.error(e.toString() + "\n" + sw.toString());
-            return new ArrayList<String>();
-        }
+    public List<String> getEditedExts() {
+        String exts = configurationManager.getProperty("files.docservice.edited-docs");
+        if(exts == null) return new ArrayList<String>();
+        return Arrays.asList(exts.split("\\|"));
     }
 
-    public static String getKeyOfFile(Long attachmentId) {
-        String hashCode = AttachmentUtil.getHashCode(attachmentId);
+    public String getKeyOfFile(Long attachmentId) {
+        String hashCode = attachmentUtil.getHashCode(attachmentId);
 
-        return GenerateRevisionId(hashCode);
+        return generateRevisionId(hashCode);
     }
 
-    private static String GenerateRevisionId(String expectedKey) {
+    private String generateRevisionId(String expectedKey) {
         if (expectedKey.length() > 20) {
             expectedKey = Integer.toString(expectedKey.hashCode());
         }
@@ -100,12 +96,11 @@ public class DocumentManager {
         return key;
     }
 
-    public static String CreateHash(String str) {
+    public String createHash(String str) {
         try {
-            Properties properties = configurationManager.GetProperties();
-            String secret = properties.getProperty("files.docservice.secret");
+            String secret = configurationManager.getProperty("files.docservice.secret");
 
-            String payload = GetHashHex(str + secret) + "?" + str;
+            String payload = getHashHex(str + secret) + "?" + str;
 
             String base64 = Base64.getEncoder().encodeToString(payload.getBytes("UTF-8"));
             return base64;
@@ -115,16 +110,15 @@ public class DocumentManager {
         return "";
     }
 
-    public static String ReadHash(String base64) {
+    public String readHash(String base64) {
         try {
             String str = new String(Base64.getDecoder().decode(base64), "UTF-8");
 
-            Properties properties = configurationManager.GetProperties();
-            String secret = properties.getProperty("files.docservice.secret");
+            String secret = configurationManager.getProperty("files.docservice.secret");
 
             String[] payloadParts = str.split("\\?");
 
-            String payload = GetHashHex(payloadParts[1] + secret);
+            String payload = getHashHex(payloadParts[1] + secret);
             if (payload.equals(payloadParts[0])) {
                 return payloadParts[1];
             }
@@ -134,7 +128,7 @@ public class DocumentManager {
         return "";
     }
 
-    private static String GetHashHex(String str) {
+    private String getHashHex(String str) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] digest = md.digest(str.getBytes());
@@ -147,7 +141,7 @@ public class DocumentManager {
         return "";
     }
 
-    private static String GetCorrectName(String fileName, String fileExt, Long pageID) {
+    private String getCorrectName(String fileName, String fileExt, Long pageID) {
         ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
@@ -172,7 +166,7 @@ public class DocumentManager {
         return name;
     }
 
-    private static InputStream GetDemoFile(ConfluenceUser user, String fileExt) {
+    private InputStream getDemoFile(ConfluenceUser user, String fileExt) {
         LocaleManager localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
         PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
 
@@ -185,7 +179,7 @@ public class DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public static Long createDemo(String fileName, String fileExt, Long pageID) {
+    public Long createDemo(String fileName, String fileExt, Long pageID, String mimeType) {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
@@ -197,16 +191,17 @@ public class DocumentManager {
 
             Date date = Calendar.getInstance().getTime();
 
-            InputStream demoFile = GetDemoFile(confluenceUser, fileExt);
+            InputStream demoFile = getDemoFile(confluenceUser, fileExt);
 
-            fileName = GetCorrectName(fileName, fileExt, pageID);
+            fileName = getCorrectName(fileName, fileExt, pageID);
 
             Page page = pageManager.getPage(pageID);
-            attachment = new Attachment(fileName, ConvertManager.getMimeType(fileExt),  demoFile.available(), "");
-                attachment.setCreator(confluenceUser);
-                attachment.setCreationDate(date);
-                attachment.setLastModificationDate(date);
-                attachment.setContainer(pageManager.getPage(pageID));
+            attachment = new Attachment(fileName, mimeType,  demoFile.available(), "");
+
+            attachment.setCreator(confluenceUser);
+            attachment.setCreationDate(date);
+            attachment.setLastModificationDate(date);
+            attachment.setContainer(pageManager.getPage(pageID));
 
             attachmentManager.saveAttachment(attachment, null, demoFile);
             page.addAttachment(attachment);
@@ -215,5 +210,15 @@ public class DocumentManager {
         }
 
         return attachment.getContentId().asLong();
+    }
+
+    public String getDocType(String ext) {
+        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps".indexOf(ext) != -1)
+            return "text";
+        if (".xls.xlsx.xlsm.xlt.xltx.xltm.ods.fods.ots.csv".indexOf(ext) != -1)
+            return "spreadsheet";
+        if (".pps.ppsx.ppsm.ppt.pptx.pptm.pot.potx.potm.odp.fodp.otp".indexOf(ext) != -1)
+            return "presentation";
+        return null;
     }
 }

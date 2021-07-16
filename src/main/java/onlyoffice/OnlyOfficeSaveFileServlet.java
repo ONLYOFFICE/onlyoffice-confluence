@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2020
+ * (c) Copyright Ascensio System SIA 2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,17 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
-import java.util.Scanner;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.managers.jwt.JwtManager;
+import onlyoffice.managers.url.UrlManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
+import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -49,25 +53,49 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
     private final JwtManager jwtManager;
+    private final DocumentManager documentManager;
+
+    private final AttachmentUtil attachmentUtil;
+    private final ParsingUtil parsingUtil;
+    private final UrlManager urlManager;
 
     @Inject
-    public OnlyOfficeSaveFileServlet(JwtManager jwtManager) {
+    public OnlyOfficeSaveFileServlet(JwtManager jwtManager, DocumentManager documentManager,
+            AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager) {
         this.jwtManager = jwtManager;
+        this.documentManager = documentManager;
+        this.attachmentUtil = attachmentUtil;
+        this.parsingUtil = parsingUtil;
+        this.urlManager = urlManager;
     }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (jwtManager.jwtEnabled()) {
+            String jwth = jwtManager.getJwtHeader();
+            String header = request.getHeader(jwth);
+            String token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
+
+            if (token == null || token == "") {
+                throw new SecurityException("Expected JWT");
+            }
+
+            if (!jwtManager.verify(token)) {
+                throw new SecurityException("JWT verification failed");
+            }
+        }
+
         String vkey = request.getParameter("vkey");
         log.info("vkey = " + vkey);
-        String attachmentIdString = DocumentManager.ReadHash(vkey);
+        String attachmentIdString = documentManager.readHash(vkey);
 
         Long attachmentId = Long.parseLong(attachmentIdString);
         log.info("attachmentId " + attachmentId);
 
-        String contentType = AttachmentUtil.getMediaType(attachmentId);
+        String contentType = attachmentUtil.getMediaType(attachmentId);
         response.setContentType(contentType);
 
-        InputStream inputStream = AttachmentUtil.getAttachmentData(attachmentId);
+        InputStream inputStream = attachmentUtil.getAttachmentData(attachmentId);
         response.setContentLength(inputStream.available());
 
         byte[] buffer = new byte[10240];
@@ -84,7 +112,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
         String vkey = request.getParameter("vkey");
         log.info("vkey = " + vkey);
-        String attachmentIdString = DocumentManager.ReadHash(vkey);
+        String attachmentIdString = documentManager.readHash(vkey);
 
         String error = "";
         try {
@@ -115,7 +143,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         try {
             Long attachmentId = Long.parseLong(attachmentIdString);
 
-            String body = getBody(requestStream);
+            String body = parsingUtil.getBody(requestStream);
             log.info("body = " + body);
             if (body.isEmpty()) {
                 throw new IllegalArgumentException("requestBody is empty");
@@ -167,11 +195,12 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     log.info("user = " + user);
                 }
 
-                if (user == null || !AttachmentUtil.checkAccess(attachmentId, user, true)) {
+                if (user == null || !attachmentUtil.checkAccess(attachmentId, user, true)) {
                     throw new SecurityException("Try save without access: " + user);
                 }
 
                 String downloadUrl = jsonObj.getString("url");
+                downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                 log.info("downloadUri = " + downloadUrl);
 
                 URL url = new URL(downloadUrl);
@@ -182,7 +211,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
                 InputStream stream = connection.getInputStream();
 
-                AttachmentUtil.saveAttachment(attachmentId, stream, size, user);
+                attachmentUtil.saveAttachment(attachmentId, stream, size, user);
             }
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
@@ -196,19 +225,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             if (connection != null) {
                 connection.disconnect();
             }
-        }
-    }
-
-    private String getBody(InputStream stream) {
-        Scanner scanner = null;
-        Scanner scannerUseDelimiter = null;
-        try {
-            scanner = new Scanner(stream);
-            scannerUseDelimiter = scanner.useDelimiter("\\A");
-            return scanner.hasNext() ? scanner.next() : "";
-        } finally {
-            scannerUseDelimiter.close();
-            scanner.close();
         }
     }
 }

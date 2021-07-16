@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2020
+ * (c) Copyright Ascensio System SIA 2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,13 @@ import org.apache.log4j.Logger;
 
 import com.atlassian.confluence.util.GeneralUtil;
 
-public class AuthContext {
-    private static final Logger log = LogManager.getLogger("onlyoffice.AuthContext");
+import javax.inject.Named;
 
-    public static boolean checkUserAuthorisation(HttpServletRequest request, HttpServletResponse response)
+@Named
+public class AuthContext {
+    private final Logger log = LogManager.getLogger("onlyoffice.AuthContext");
+
+    public boolean checkUserAuthorisation(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         Principal principal = request.getUserPrincipal();
         if (principal == null) {
@@ -46,7 +49,7 @@ public class AuthContext {
         return true;
     }
 
-    private static String getLoginUrl(HttpServletRequest request) throws IOException {
+    private String getLoginUrl(HttpServletRequest request) throws IOException {
         StringBuilder stringBuilder = new StringBuilder(request.getContextPath());
         String fullUrl = stringBuilder.append("/login.action?permissionViolation=true&os_destination=")
                 .append("plugins%2Fservlet%2Fonlyoffice%2Fdoceditor").append("?")
