@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -58,15 +59,18 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
+    private final ConfigurationManager configurationManager;
 
     @Inject
     public OnlyOfficeSaveFileServlet(JwtManager jwtManager, DocumentManager documentManager,
-            AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager) {
+            AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager,
+            ConfigurationManager configurationManager) {
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
+        this.configurationManager = configurationManager;
     }
 
     @Override
@@ -139,7 +143,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             throw new IllegalArgumentException("attachmentId is empty");
         }
 
-        HttpURLConnection connection = null;
         try {
             Long attachmentId = Long.parseLong(attachmentIdString);
 
@@ -183,35 +186,40 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             long status = jsonObj.getLong("status");
             log.info("status = " + status);
 
+            ConfluenceUser user = null;
+            JSONArray users = jsonObj.getJSONArray("users");
+            if (users.length() > 0) {
+                String userName = users.getString(0);
+
+                UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+                user = userAccessor.getUserByName(userName);
+                log.info("user = " + user);
+            }
+
+            if (user == null || !attachmentUtil.checkAccess(attachmentId, user, true)) {
+                throw new SecurityException("Try save without access: " + user);
+            }
+
             // MustSave, Corrupted
             if (status == 2 || status == 3) {
-                ConfluenceUser user = null;
-                JSONArray users = jsonObj.getJSONArray("users");
-                if (users.length() > 0) {
-                    String userName = users.getString(0);
-
-                    UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-                    user = userAccessor.getUserByName(userName);
-                    log.info("user = " + user);
-                }
-
-                if (user == null || !attachmentUtil.checkAccess(attachmentId, user, true)) {
-                    throw new SecurityException("Try save without access: " + user);
-                }
-
                 String downloadUrl = jsonObj.getString("url");
                 downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                 log.info("downloadUri = " + downloadUrl);
 
-                URL url = new URL(downloadUrl);
+                saveAttachmentFromUrl(attachmentId, downloadUrl, user);
+            }
 
-                connection = (HttpURLConnection) url.openConnection();
-                int size = connection.getContentLength();
-                log.info("size = " + size);
+            // MustForceSave, CorruptedForceSave
+            if (status == 6 || status == 7) {
+                if (configurationManager.forceSaveEnabled()) {
+                    String downloadUrl = jsonObj.getString("url");
+                    downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
+                    log.info("downloadUri = " + downloadUrl);
 
-                InputStream stream = connection.getInputStream();
-
-                attachmentUtil.saveAttachment(attachmentId, stream, size, user);
+                    saveAttachmentFromUrl(attachmentId, downloadUrl, user);
+                } else {
+                    log.info("Forcesave is disabled, ignoring forcesave request");
+                }
             }
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
@@ -221,6 +229,20 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             log.error(error);
 
             throw ex;
+        }
+    }
+
+    private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user) throws IOException {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(downloadUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            int size = connection.getContentLength();
+            InputStream stream = connection.getInputStream();
+
+            attachmentUtil.saveAttachment(attachmentId, stream, size, user);
+        } catch (Exception e) {
+            throw e;
         } finally {
             if (connection != null) {
                 connection.disconnect();

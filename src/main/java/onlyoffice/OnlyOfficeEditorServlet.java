@@ -218,6 +218,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             editorConfigObject.put("callbackUrl", callbackUrl);
             editorConfigObject.put("customization", customizationObject);
 
+            customizationObject.put("forcesave", configurationManager.forceSaveEnabled());
             customizationObject.put("goback", gobackObject);
             gobackObject.put("url", gobackUrl);
 
