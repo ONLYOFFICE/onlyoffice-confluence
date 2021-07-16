@@ -65,6 +65,7 @@ AJS.toInit(function ($) {
        $(this).find(".filename label").addClass("hidden");
        $(this).find(".filename input").removeClass("hidden");
        $(this).addClass("active");
+       $(this).find(".filename input.input-name").focus();
     });
 
     $(document).on("submit", ".filenameform", function(event) {
