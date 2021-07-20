@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
@@ -58,14 +59,16 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
     private final AuthContext authContext;
+    private final ConfigurationManager configurationManager;
 
     @Inject
     public OnlyOfficeConvertServlet(AttachmentManager attachmentManager, AttachmentUtil attachmentUtil,
-                                    ConvertManager convertManager, AuthContext authContext) {
+            ConvertManager convertManager, AuthContext authContext, ConfigurationManager configurationManager) {
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
         this.authContext = authContext;
+        this.configurationManager = configurationManager;
     }
 
     @Override
@@ -160,6 +163,9 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         URL url = new URL(fileUrl);
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
+        connection.setConnectTimeout(timeout);
+        connection.setReadTimeout(timeout);
         Integer size = connection.getContentLength();
         log.info("size = " + size);
 
