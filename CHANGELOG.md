@@ -1,5 +1,8 @@
 # Change Log
 
+## Added
+- keep intermediate versions when editing (forcesave)
+
 ## 3.0.0
 ## Added
 - compatible with Data Center
