@@ -20,6 +20,7 @@ package onlyoffice.utils.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -108,4 +109,18 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         int version = attachment.getVersion();
         return attachmentId + "_" + version + "_" + hashCode;
     }
+
+    public List<Attachment> getAllVersions (Long attachmentId) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        List<Attachment> attachments = attachmentManager.getAllVersions(attachment);
+        return attachments;
+    }
+
+    public int getVersion (Long attachmentId) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        return attachment.getVersion();
+    }
+
 }

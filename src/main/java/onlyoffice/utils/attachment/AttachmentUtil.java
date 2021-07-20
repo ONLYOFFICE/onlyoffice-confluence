@@ -7,6 +7,7 @@ import com.atlassian.user.User;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.List;
 
 public interface AttachmentUtil extends Serializable {
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit);
@@ -17,4 +18,6 @@ public interface AttachmentUtil extends Serializable {
     public String getMediaType(Long attachmentId);
     public String getFileName(Long attachmentId);
     public String getHashCode(Long attachmentId);
+    public List<Attachment> getAllVersions (Long attachmentId);
+    public int getVersion (Long attachmentId);
 }

@@ -23,15 +23,20 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.inject.Inject;
 
+import com.atlassian.confluence.core.DateFormatter;
+import com.atlassian.confluence.core.FormatSettingsManager;
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.user.ConfluenceUserPreferences;
+import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -44,15 +49,10 @@ import org.json.JSONObject;
 
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import javax.inject.Inject;
 
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
@@ -61,11 +61,9 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private Properties properties;
 
     @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
-    @ComponentImport
-    private final SettingsManager settingsManager;
-    @ComponentImport
     private final LocaleManager localeManager;
+    @ComponentImport
+    private final FormatSettingsManager formatSettingsManager;
 
     private final JwtManager jwtManager;
     private final UrlManager urlManager;
@@ -77,14 +75,12 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
 
     @Inject
-    public OnlyOfficeEditorServlet(PluginSettingsFactory pluginSettingsFactory, LocaleManager localeManager,
-                                   SettingsManager settingsManager, UrlManager urlManager,
-                                   JwtManager jwtManager, ConfigurationManager configurationManager,
-                                   AuthContext authContext, DocumentManager documentManager,
-                                   AttachmentUtil attachmentUtil, ConvertManager convertManager) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
+    public OnlyOfficeEditorServlet(LocaleManager localeManager, FormatSettingsManager formatSettingsManager,
+            UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager,
+            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
+            ConvertManager convertManager) {
         this.localeManager = localeManager;
-        this.settingsManager = settingsManager;
+        this.formatSettingsManager = formatSettingsManager;
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
@@ -139,7 +135,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
         }
 
-        Long attachmentId;
+        Long attachmentId = null;
 
         try {
             attachmentId = Long.parseLong(attachmentIdString);
@@ -175,10 +171,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
 
-        writer.write(getTemplate(apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
+        writer.write(getTemplate(attachmentId, apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
     }
 
-    private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
+    private String getTemplate(Long attachmentId, String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
             ConfluenceUser user, String gobackUrl, String errorMessage) throws UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
@@ -233,6 +229,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             // AsHtml at the end disables automatic html encoding
             config.put("jsonAsHtml", responseJson.toString());
+            config.put("historyAsHtml", getHistory(attachmentId, user).toString());
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -244,5 +241,45 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         defaults.putAll(config);
         defaults.put("demo", configurationManager.demoActive());
         return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
+    }
+
+    private JSONObject getHistory (Long attachmentId, ConfluenceUser confluenceUser) throws Exception {
+        UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+        ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(confluenceUser);
+        DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
+
+        JSONObject history = new JSONObject();
+        JSONObject info = new JSONObject();
+        Map<String, Object> data = new HashMap<>();
+        List<JSONObject> versions = new ArrayList<>();
+
+        List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
+        Collections.reverse(attachments);
+        for (Attachment attachment : attachments) {
+            JSONObject versionInfo = new JSONObject();
+            JSONObject versionData = new JSONObject();
+            JSONObject user = new JSONObject();
+            versionInfo.put("key", documentManager.getKeyOfFile(attachment.getId()));
+            versionInfo.put("version", attachment.getVersion());
+            versionInfo.put("created",  dateFormatter.formatDateTime(attachment.getCreationDate()));
+            versionInfo.put("user", user);
+
+            user.put("id", attachment.getCreator().getName());
+            user.put("name", attachment.getCreator().getFullName());
+
+            versionData.put("key", documentManager.getKeyOfFile(attachment.getId()));
+            versionData.put("version", attachment.getVersion());
+            versionData.put("url", urlManager.getFileUri(attachment.getId()));
+
+            versions.add(versionInfo);
+            data.put(String.valueOf(attachment.getVersion()), versionData);
+        }
+        info.put("currentVersion", attachmentUtil.getVersion(attachmentId));
+        info.put("history", versions);
+
+        history.put("info", info);
+        history.put("data", data);
+
+        return history;
     }
 }

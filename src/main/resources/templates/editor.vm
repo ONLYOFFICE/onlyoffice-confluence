@@ -76,6 +76,8 @@
             }
 
             var json = '${jsonAsHtml}';
+            var history = JSON.parse('${historyAsHtml}');
+
             var config = {
                 "events" : {
                     "onAppReady": function () {
@@ -87,6 +89,18 @@
                             docEditor.showMessage("$i18n.getText('onlyoffice.configuration.demo.message')");
                         }
                     },
+                    "onRequestHistory": function () {
+                        var historyInfo = history.info;
+                        docEditor.refreshHistory(historyInfo);
+                    },
+                    "onRequestHistoryData": function (event) {
+                        var version = event.data;
+                        var historyData = history.data;
+                        docEditor.setHistoryData(historyData[version])
+                    },
+                    "onRequestHistoryClose": function() {
+                        document.location.reload();
+                    }
                 },
             };
 
