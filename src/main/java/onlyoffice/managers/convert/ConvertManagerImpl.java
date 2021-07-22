@@ -64,21 +64,6 @@ public class ConvertManagerImpl implements ConvertManager {
         }
     };
 
-    @SuppressWarnings("serial")
-    private final Map<String, String> mimeTypes = new HashMap<String, String>() {
-        {
-            put("odt", "application/vnd.oasis.opendocument.text");
-            put("doc", "application/msword");
-            put("odp", "application/vnd.oasis.opendocument.presentation");
-            put("ppt", "application/vnd.ms-powerpoint");
-            put("ods", "application/vnd.oasis.opendocument.spreadsheet");
-            put("xls", "application/vnd.ms-excel");
-            put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-            put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
-            put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        }
-    };
-
     @Inject
     public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager,
                               ConfigurationManager configurationManager,
@@ -95,10 +80,6 @@ public class ConvertManagerImpl implements ConvertManager {
 
     public String convertsTo(String ext) {
         return convertableDict.getOrDefault(trimDot(ext), null);
-    }
-
-    public String getMimeType(String ext) {
-        return mimeTypes.getOrDefault(trimDot(ext), null);
     }
 
     public JSONObject convert(Long attachmentId, String ext) throws Exception {
