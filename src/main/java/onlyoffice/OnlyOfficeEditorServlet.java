@@ -271,6 +271,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             versionData.put("version", attachment.getVersion());
             versionData.put("url", urlManager.getFileUri(attachment.getId()));
 
+            if (jwtManager.jwtEnabled())
+            {
+                versionData.put("token", jwtManager.createToken(versionData));
+            }
+
             versions.add(versionInfo);
             data.put(String.valueOf(attachment.getVersion()), versionData);
         }
