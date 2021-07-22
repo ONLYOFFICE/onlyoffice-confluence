@@ -234,7 +234,7 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public boolean isEditable(String fileExtension) {
-        String editableTypes = configurationManager.getProperty("files.docservice.edited-docs");
+        String editableTypes = configurationManager.getProperty("docservice.type.edit");
         if(editableTypes == null) return false;
         List<String> exts = Arrays.asList(editableTypes.split("\\|"));
         return exts.contains(fileExtension);
