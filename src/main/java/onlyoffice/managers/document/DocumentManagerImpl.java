@@ -76,12 +76,6 @@ public class DocumentManagerImpl implements DocumentManager {
         return size > 0 ? size : 5 * 1024 * 1024;
     }
 
-    public List<String> getEditedExts() {
-        String exts = configurationManager.getProperty("files.docservice.edited-docs");
-        if(exts == null) return new ArrayList<String>();
-        return Arrays.asList(exts.split("\\|"));
-    }
-
     public String getKeyOfFile(Long attachmentId) {
         String hashCode = attachmentUtil.getHashCode(attachmentId);
 
@@ -237,5 +231,17 @@ public class DocumentManagerImpl implements DocumentManager {
             log.error(e.getMessage(), e);
         }
         return mimeType;
+    }
+
+    public boolean isEditable(String fileExtension) {
+        String editableTypes = configurationManager.getProperty("files.docservice.edited-docs");
+        if(editableTypes == null) return false;
+        List<String> exts = Arrays.asList(editableTypes.split("\\|"));
+        return exts.contains(fileExtension);
+    }
+
+    public boolean isViewable(String fileExtension) {
+        String docType = getDocType(fileExtension);
+        return docType != null;
     }
 }
