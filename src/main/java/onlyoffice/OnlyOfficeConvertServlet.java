@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
+import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -59,15 +60,18 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
     private final AuthContext authContext;
+    private final DocumentManager documentManager;
     private final ConfigurationManager configurationManager;
 
     @Inject
     public OnlyOfficeConvertServlet(AttachmentManager attachmentManager, AttachmentUtil attachmentUtil,
-            ConvertManager convertManager, AuthContext authContext, ConfigurationManager configurationManager) {
+            ConvertManager convertManager, AuthContext authContext, DocumentManager documentManager,
+            ConfigurationManager configurationManager) {
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
         this.authContext = authContext;
+        this.documentManager = documentManager;
         this.configurationManager = configurationManager;
     }
 
@@ -93,7 +97,6 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         contextMap.put("oldName", fn);
         contextMap.put("oldExt", ext);
         contextMap.put("newName", fn.substring(0, fn.length() - ext.length()) + newExt);
-        contextMap.put("newExt", newExt);
         writer.write(getTemplate(contextMap));
     }
 
@@ -128,8 +131,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                     json = convertManager.convert(attachmentId, ext);
 
                     if (json.getBoolean("endConvert")) {
-                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"),
-                                request.getParameter("newExt"), request.getParameter("newName"));
+                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"), request.getParameter("newName"));
                         json.put("attachmentId", newAttachmentId);
                     }
                 } else {
@@ -157,7 +159,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         }
     }
 
-    private Long savefile(Attachment attachment, String fileUrl, String newExt, String newName) throws Exception {
+    private Long savefile(Attachment attachment, String fileUrl, String newName) throws Exception {
         log.info("downloadUri = " + fileUrl);
 
         URL url = new URL(fileUrl);
@@ -175,7 +177,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         copy.setContainer(attachment.getContainer());
         copy.setFileName(newName);
         copy.setFileSize(size);
-        copy.setMediaType(convertManager.getMimeType(newExt));
+        copy.setMediaType(documentManager.getMimeType(newName));
 
         attachmentManager.saveAttachment(copy, null, stream);
 
