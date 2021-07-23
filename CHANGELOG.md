@@ -1,5 +1,10 @@
 # Change Log
 
+## Added
+- open non-editable formats on views
+- added formats for conversion docm, dot, dotx, epub, htm, html, otp, ots, ott, pot, potm, potx, pps, ppsm, ppsx,
+ pptm, rtf, xlsm, xlt, xltm, xltx
+
 ## 3.0.0
 ## Added
 - compatible with Data Center
