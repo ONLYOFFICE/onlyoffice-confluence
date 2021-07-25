@@ -237,6 +237,11 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         try {
             URL url = new URL(downloadUrl);
             connection = (HttpURLConnection) url.openConnection();
+
+            Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
+            connection.setConnectTimeout(timeout);
+            connection.setReadTimeout(timeout);
+
             int size = connection.getContentLength();
             InputStream stream = connection.getInputStream();
 

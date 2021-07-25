@@ -54,9 +54,6 @@ public class IsOfficeFileAttachment implements Condition {
         if (attachment == null) {
             return false;
         }
-        if (!isXExtension(attachment.getFileExtension())) {
-            return false;
-        }
         if (attachment.getFileSize() > documentManager.getMaxFileSize()) {
             return false;
         }
@@ -64,18 +61,18 @@ public class IsOfficeFileAttachment implements Condition {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
         boolean accessView = attachmentUtil.checkAccess(attachment, user, false);
-        if (!forEdit && (!accessView || accessEdit)) {
-            return false;
-        }
-        if (forEdit && !accessEdit) {
-            return false;
+        String ext = attachment.getFileExtension();
+
+        if (forEdit) {
+            if (accessEdit && documentManager.isEditable(ext)) {
+                return true;
+            }
+        } else {
+            if (accessView && documentManager.isViewable(ext) && !(accessEdit && documentManager.isEditable(ext))) {
+                return true;
+            }
         }
 
-        return true;
-    }
-
-    private boolean isXExtension(String fileExtension) {
-        List<String> exts = documentManager.getEditedExts();
-        return exts.contains(fileExtension);
+        return false;
     }
 }

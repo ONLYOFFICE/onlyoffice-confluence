@@ -19,6 +19,8 @@
 package onlyoffice.managers.document;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
 import com.atlassian.confluence.core.ContentEntityManager;
@@ -72,12 +74,6 @@ public class DocumentManagerImpl implements DocumentManager {
         }
 
         return size > 0 ? size : 5 * 1024 * 1024;
-    }
-
-    public List<String> getEditedExts() {
-        String exts = configurationManager.getProperty("files.docservice.edited-docs");
-        if(exts == null) return new ArrayList<String>();
-        return Arrays.asList(exts.split("\\|"));
     }
 
     public String getKeyOfFile(Long attachmentId) {
@@ -179,7 +175,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public Long createDemo(String fileName, String fileExt, Long pageID, String mimeType) {
+    public Long createDemo(String fileName, String fileExt, Long pageID) {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
@@ -194,9 +190,9 @@ public class DocumentManagerImpl implements DocumentManager {
             InputStream demoFile = getDemoFile(confluenceUser, fileExt);
 
             fileName = getCorrectName(fileName, fileExt, pageID);
+            String mimeType = getMimeType(fileName);
 
-            Page page = pageManager.getPage(pageID);
-            attachment = new Attachment(fileName, mimeType,  demoFile.available(), "");
+            attachment = new Attachment(fileName, mimeType, demoFile.available(), "");
 
             attachment.setCreator(confluenceUser);
             attachment.setCreationDate(date);
@@ -204,6 +200,8 @@ public class DocumentManagerImpl implements DocumentManager {
             attachment.setContainer(pageManager.getPage(pageID));
 
             attachmentManager.saveAttachment(attachment, null, demoFile);
+
+            Page page = pageManager.getPage(pageID);
             page.addAttachment(attachment);
         } catch (Exception ex) {
             log.error(ex);
@@ -213,12 +211,37 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public String getDocType(String ext) {
-        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps".indexOf(ext) != -1)
-            return "text";
-        if (".xls.xlsx.xlsm.xlt.xltx.xltm.ods.fods.ots.csv".indexOf(ext) != -1)
-            return "spreadsheet";
-        if (".pps.ppsx.ppsm.ppt.pptx.pptm.pot.potx.potm.odp.fodp.otp".indexOf(ext) != -1)
-            return "presentation";
+        List<String> wordFormats = Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
+        List<String> cellFormats = Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
+        List<String> slideFormats = Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
+
+        if (wordFormats.contains(ext)) return "text";
+        if (cellFormats.contains(ext)) return "spreadsheet";
+        if (slideFormats.contains(ext)) return "presentation";
+
         return null;
+    }
+
+    public String getMimeType(String name) {
+        Path path = new File(name).toPath();
+        String mimeType = null;
+        try {
+             mimeType = Files.probeContentType(path);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return mimeType;
+    }
+
+    public boolean isEditable(String fileExtension) {
+        String editableTypes = configurationManager.getProperty("docservice.type.edit");
+        if(editableTypes == null) return false;
+        List<String> exts = Arrays.asList(editableTypes.split("\\|"));
+        return exts.contains(fileExtension);
+    }
+
+    public boolean isViewable(String fileExtension) {
+        String docType = getDocType(fileExtension);
+        return docType != null;
     }
 }
