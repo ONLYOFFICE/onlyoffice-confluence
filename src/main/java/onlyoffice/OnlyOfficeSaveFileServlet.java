@@ -40,6 +40,7 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -186,39 +187,36 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             long status = jsonObj.getLong("status");
             log.info("status = " + status);
 
-            ConfluenceUser user = null;
-            JSONArray users = jsonObj.getJSONArray("users");
-            if (users.length() > 0) {
-                String userName = users.getString(0);
-
-                UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-                user = userAccessor.getUserByName(userName);
-                log.info("user = " + user);
-            }
-
-            if (user == null || !attachmentUtil.checkAccess(attachmentId, user, true)) {
-                throw new SecurityException("Try save without access: " + user);
-            }
+            ConfluenceUser user = getConfluenceUserFromJSON(jsonObj);
+            log.info("user = " + user);
 
             // MustSave, Corrupted
             if (status == 2 || status == 3) {
-                String downloadUrl = jsonObj.getString("url");
-                downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
-                log.info("downloadUri = " + downloadUrl);
-
-                saveAttachmentFromUrl(attachmentId, downloadUrl, user);
-            }
-
-            // MustForceSave, CorruptedForceSave
-            if (status == 6 || status == 7) {
-                if (configurationManager.forceSaveEnabled()) {
+                if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
                     String downloadUrl = jsonObj.getString("url");
                     downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                     log.info("downloadUri = " + downloadUrl);
 
                     saveAttachmentFromUrl(attachmentId, downloadUrl, user);
                 } else {
-                    log.info("Forcesave is disabled, ignoring forcesave request");
+                    throw new SecurityException("Try save without access: " + user);
+                }
+            }
+
+            // MustForceSave, CorruptedForceSave
+            if (status == 6 || status == 7) {
+                if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
+                    if (configurationManager.forceSaveEnabled()) {
+                        String downloadUrl = jsonObj.getString("url");
+                        downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
+                        log.info("downloadUri = " + downloadUrl);
+
+                        saveAttachmentFromUrl(attachmentId, downloadUrl, user);
+                    } else {
+                        log.info("Forcesave is disabled, ignoring forcesave request");
+                    }
+                } else {
+                    throw new SecurityException("Try save without access: " + user);
                 }
             }
         } catch (Exception ex) {
@@ -253,5 +251,18 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 connection.disconnect();
             }
         }
+    }
+
+    private ConfluenceUser getConfluenceUserFromJSON (JSONObject jsonObj) throws JSONException {
+        ConfluenceUser confluenceUser = null;
+        if (jsonObj.has("users")) {
+            JSONArray users = jsonObj.getJSONArray("users");
+            if (users.length() > 0) {
+                String userName = users.getString(0);
+                UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+                confluenceUser = userAccessor.getUserByName(userName);
+            }
+        }
+        return confluenceUser;
     }
 }
