@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -58,15 +59,18 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
+    private final ConfigurationManager configurationManager;
 
     @Inject
     public OnlyOfficeSaveFileServlet(JwtManager jwtManager, DocumentManager documentManager,
-            AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager) {
+            AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager,
+            ConfigurationManager configurationManager) {
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
+        this.configurationManager = configurationManager;
     }
 
     @Override
@@ -206,6 +210,9 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 URL url = new URL(downloadUrl);
 
                 connection = (HttpURLConnection) url.openConnection();
+                Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
+                connection.setConnectTimeout(timeout);
+                connection.setReadTimeout(timeout);
                 int size = connection.getContentLength();
                 log.info("size = " + size);
 

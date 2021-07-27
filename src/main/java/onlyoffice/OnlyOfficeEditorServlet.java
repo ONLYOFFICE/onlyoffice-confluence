@@ -119,8 +119,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             String pageID = request.getParameter("pageId");
             if (pageID != null && !pageID.equals("")) {
                 try {
-                    Long attachmentId = documentManager.createDemo(fileName, fileExt,
-                            Long.parseLong(pageID), convertManager.getMimeType(fileExt));
+                    Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageID));
 
                     response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
                     return;
@@ -181,6 +180,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         String docTitle = fileName.trim();
         String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+        boolean canEdit = documentManager.isEditable(docExt);
 
         config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
         config.put("errorMessage", errorMessage);
@@ -206,12 +206,18 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             documentObject.put("fileType", docExt);
             documentObject.put("key", key);
             documentObject.put("permissions", permObject);
-            permObject.put("edit", callbackUrl != null && !callbackUrl.isEmpty());
-
             responseJson.put("editorConfig", editorConfigObject);
+
+            if (canEdit && callbackUrl != null) {
+                permObject.put("edit", true);
+                editorConfigObject.put("mode", "edit");
+                editorConfigObject.put("callbackUrl", callbackUrl);
+            } else {
+                permObject.put("edit", false);
+                editorConfigObject.put("mode", "view");
+            }
+
             editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
-            editorConfigObject.put("mode", "edit");
-            editorConfigObject.put("callbackUrl", callbackUrl);
             editorConfigObject.put("customization", customizationObject);
 
             customizationObject.put("goback", gobackObject);

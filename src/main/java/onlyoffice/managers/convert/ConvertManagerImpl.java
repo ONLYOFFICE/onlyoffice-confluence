@@ -19,6 +19,8 @@
 package onlyoffice.managers.convert;
 
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -28,12 +30,13 @@ import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -52,33 +55,6 @@ public class ConvertManagerImpl implements ConvertManager {
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
 
-    @SuppressWarnings("serial")
-    private final Map<String, String> convertableDict = new HashMap<String, String>() {
-        {
-            put("odt", "docx");
-            put("doc", "docx");
-            put("odp", "pptx");
-            put("ppt", "pptx");
-            put("ods", "xlsx");
-            put("xls", "xlsx");
-        }
-    };
-
-    @SuppressWarnings("serial")
-    private final Map<String, String> mimeTypes = new HashMap<String, String>() {
-        {
-            put("odt", "application/vnd.oasis.opendocument.text");
-            put("doc", "application/msword");
-            put("odp", "application/vnd.oasis.opendocument.presentation");
-            put("ppt", "application/vnd.ms-powerpoint");
-            put("ods", "application/vnd.oasis.opendocument.spreadsheet");
-            put("xls", "application/vnd.ms-excel");
-            put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-            put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
-            put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        }
-    };
-
     @Inject
     public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager,
                               ConfigurationManager configurationManager,
@@ -90,19 +66,28 @@ public class ConvertManagerImpl implements ConvertManager {
     }
 
     public boolean isConvertable(String ext) {
-        return convertableDict.containsKey(trimDot(ext));
+        String convertableTypes = configurationManager.getProperty("docservice.type.convert");
+        if(convertableTypes == null) return false;
+        List<String> exts = Arrays.asList(convertableTypes.split("\\|"));
+        return exts.contains(ext);
     }
 
     public String convertsTo(String ext) {
-        return convertableDict.getOrDefault(trimDot(ext), null);
-    }
-
-    public String getMimeType(String ext) {
-        return mimeTypes.getOrDefault(trimDot(ext), null);
+        String docType = documentManager.getDocType(ext);
+        if (docType != null) {
+            if (docType.equals("text")) return "docx";
+            if (docType.equals("spreadsheet")) return "xlsx";
+            if (docType.equals("presentation")) return "pptx";
+        }
+        return null;
     }
 
     public JSONObject convert(Long attachmentId, String ext) throws Exception {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(timeout)
+                .setSocketTimeout(timeout).build();
+        CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
         JSONObject body = new JSONObject();
         body.put("async", true);
         body.put("embeddedfonts", true);
