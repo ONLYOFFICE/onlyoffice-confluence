@@ -190,6 +190,21 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             ConfluenceUser user = getConfluenceUserFromJSON(jsonObj);
             log.info("user = " + user);
 
+            if (status == 1) {
+                if (jsonObj.has("actions")) {
+                    JSONArray actions = jsonObj.getJSONArray("actions");
+                    if (actions.length() > 0) {
+                        JSONObject action = (JSONObject) actions.get(0);
+                        if (action.getLong("type") == 1) {
+                            if (attachmentUtil.getCollaborativeEditingKey(attachmentId) == null) {
+                                String key = jsonObj.getString("key");
+                                attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
+                            }
+                        }
+                    }
+                }
+            }
+
             // MustSave, Corrupted
             if (status == 2 || status == 3) {
                 if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
@@ -197,10 +212,15 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                     log.info("downloadUri = " + downloadUrl);
 
+                    attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
                     saveAttachmentFromUrl(attachmentId, downloadUrl, user);
                 } else {
                     throw new SecurityException("Try save without access: " + user);
                 }
+            }
+
+            if (status == 4) {
+                attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
             }
 
             // MustForceSave, CorruptedForceSave
@@ -211,7 +231,10 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                         log.info("downloadUri = " + downloadUrl);
 
+                        String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
+                        attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
                         saveAttachmentFromUrl(attachmentId, downloadUrl, user);
+                        attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
                     } else {
                         log.info("Forcesave is disabled, ignoring forcesave request");
                     }
