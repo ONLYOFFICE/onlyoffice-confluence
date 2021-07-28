@@ -14,10 +14,13 @@ public interface AttachmentUtil extends Serializable {
     public boolean checkAccess(Attachment attachment, User user, boolean forEdit);
     public void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException;
+    public void saveChangesAttachment (Long attachmentId, String history, String changesUrl) throws IOException;
     public InputStream getAttachmentData(Long attachmentId);
     public String getMediaType(Long attachmentId);
     public String getFileName(Long attachmentId);
     public String getHashCode(Long attachmentId);
     public List<Attachment> getAllVersions (Long attachmentId);
     public int getVersion (Long attachmentId);
+    public Attachment getAttachmentChanges (Long attachmentId);
+    public Attachment getAttachmentDiff (Long attachmentId);
 }

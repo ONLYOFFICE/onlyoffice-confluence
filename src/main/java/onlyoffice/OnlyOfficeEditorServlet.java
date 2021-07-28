@@ -18,10 +18,7 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -31,14 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.inject.Inject;
 
-import com.atlassian.confluence.core.DateFormatter;
-import com.atlassian.confluence.core.FormatSettingsManager;
-import com.atlassian.confluence.pages.Attachment;
-import com.atlassian.confluence.user.ConfluenceUserPreferences;
-import com.atlassian.confluence.user.UserAccessor;
-import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -62,8 +52,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
     @ComponentImport
     private final LocaleManager localeManager;
-    @ComponentImport
-    private final FormatSettingsManager formatSettingsManager;
 
     private final JwtManager jwtManager;
     private final UrlManager urlManager;
@@ -71,23 +59,19 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
-    private final ConvertManager convertManager;
 
 
     @Inject
-    public OnlyOfficeEditorServlet(LocaleManager localeManager, FormatSettingsManager formatSettingsManager,
-            UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager,
-            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
-            ConvertManager convertManager) {
+    public OnlyOfficeEditorServlet(LocaleManager localeManager, UrlManager urlManager, JwtManager jwtManager,
+            ConfigurationManager configurationManager, AuthContext authContext, DocumentManager documentManager,
+            AttachmentUtil attachmentUtil) {
         this.localeManager = localeManager;
-        this.formatSettingsManager = formatSettingsManager;
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
-        this.convertManager = convertManager;
     }
 
     @Override
@@ -208,7 +192,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             documentObject.put("permissions", permObject);
             responseJson.put("editorConfig", editorConfigObject);
 
-            if (canEdit && callbackUrl != null) {
+            if (canEdit && callbackUrl != null && !callbackUrl.isEmpty()) {
                 permObject.put("edit", true);
                 editorConfigObject.put("mode", "edit");
                 editorConfigObject.put("callbackUrl", callbackUrl);
@@ -235,7 +219,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             // AsHtml at the end disables automatic html encoding
             config.put("jsonAsHtml", responseJson.toString());
-            config.put("historyAsHtml", getHistory(attachmentId, user).toString());
+            config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
+            config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -247,50 +232,5 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         defaults.putAll(config);
         defaults.put("demo", configurationManager.demoActive());
         return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
-    }
-
-    private JSONObject getHistory (Long attachmentId, ConfluenceUser confluenceUser) throws Exception {
-        UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-        ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(confluenceUser);
-        DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
-
-        JSONObject history = new JSONObject();
-        JSONObject info = new JSONObject();
-        Map<String, Object> data = new HashMap<>();
-        List<JSONObject> versions = new ArrayList<>();
-
-        List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
-        Collections.reverse(attachments);
-        for (Attachment attachment : attachments) {
-            JSONObject versionInfo = new JSONObject();
-            JSONObject versionData = new JSONObject();
-            JSONObject user = new JSONObject();
-            versionInfo.put("key", documentManager.getKeyOfFile(attachment.getId()));
-            versionInfo.put("version", attachment.getVersion());
-            versionInfo.put("created",  dateFormatter.formatDateTime(attachment.getCreationDate()));
-            versionInfo.put("user", user);
-
-            user.put("id", attachment.getCreator().getName());
-            user.put("name", attachment.getCreator().getFullName());
-
-            versionData.put("key", documentManager.getKeyOfFile(attachment.getId()));
-            versionData.put("version", attachment.getVersion());
-            versionData.put("url", urlManager.getFileUri(attachment.getId()));
-
-            if (jwtManager.jwtEnabled())
-            {
-                versionData.put("token", jwtManager.createToken(versionData));
-            }
-
-            versions.add(versionInfo);
-            data.put(String.valueOf(attachment.getVersion()), versionData);
-        }
-        info.put("currentVersion", attachmentUtil.getVersion(attachmentId));
-        info.put("history", versions);
-
-        history.put("info", info);
-        history.put("data", data);
-
-        return history;
     }
 }

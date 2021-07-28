@@ -76,7 +76,6 @@
             }
 
             var json = '${jsonAsHtml}';
-            var history = JSON.parse('${historyAsHtml}');
 
             var config = {
                 "events" : {
@@ -90,13 +89,30 @@
                         }
                     },
                     "onRequestHistory": function () {
-                        var historyInfo = history.info;
-                        docEditor.refreshHistory(historyInfo);
+                        var url = "${historyInfoUriAsHtml}";
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("GET", url, false);
+                        xhr.send();
+
+                        if (xhr.status == 200) {
+                            var data = JSON.parse(xhr.responseText);
+                            var historyInfo = data;
+                            docEditor.refreshHistory(historyInfo);
+                        }
                     },
                     "onRequestHistoryData": function (event) {
                         var version = event.data;
-                        var historyData = history.data;
-                        docEditor.setHistoryData(historyData[version])
+
+                        var url = "${historyDataUriAsHtml}" + "&version=" + version;
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("GET", url, false);
+                        xhr.send();
+
+                        if (xhr.status == 200) {
+                            var data = JSON.parse(xhr.responseText);
+                            var historyData = data;
+                            docEditor.setHistoryData(historyData);
+                        }
                     },
                     "onRequestHistoryClose": function() {
                         document.location.reload();
@@ -116,7 +132,6 @@
         } else if (window.attachEvent) {
             window.attachEvent("load", connectEditor);
         }
-
     </script>
 </body>
 

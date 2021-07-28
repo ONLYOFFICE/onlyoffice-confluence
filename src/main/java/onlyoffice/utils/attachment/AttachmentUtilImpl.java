@@ -18,10 +18,19 @@
 
 package onlyoffice.utils.attachment;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.transaction.TransactionCallback;
+import com.atlassian.sal.api.transaction.TransactionTemplate;
+import onlyoffice.managers.configuration.ConfigurationManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -35,12 +44,25 @@ import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
 
 import javax.enterprise.inject.Default;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
+
+
+    @ComponentImport
+    private final TransactionTemplate transactionTemplate;
+
+    private final ConfigurationManager configurationManager;
+
+    @Inject
+    public AttachmentUtilImpl(TransactionTemplate transactionTemplate, ConfigurationManager configurationManager) {
+        this.transactionTemplate = transactionTemplate;
+        this.configurationManager = configurationManager;
+    }
 
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
         if (user == null) {
@@ -82,6 +104,51 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
     }
 
+    public void saveChangesAttachment (Long attachmentId, String history, String changesUrl) throws IOException {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+
+        if (history != null && !history.isEmpty() && changesUrl != null && !changesUrl.isEmpty()) {
+            HttpURLConnection connection = null;
+            try {
+                InputStream changesStream = new ByteArrayInputStream(history.getBytes(StandardCharsets.UTF_8));
+                Attachment changes = new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
+                changes.setContainer(attachment.getContainer());
+
+                URL url = new URL(changesUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
+                connection.setConnectTimeout(timeout);
+                connection.setReadTimeout(timeout);
+                int size = connection.getContentLength();
+                InputStream streamDiff = connection.getInputStream();
+
+                Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", size, "");
+                diff.setContainer(attachment.getContainer());
+
+                attachment.addAttachment(changes);
+                attachment.addAttachment(diff);
+
+                AttachmentDao attDao = attachmentManager.getAttachmentDao();
+                Object result = transactionTemplate.execute(new TransactionCallback() {
+                    @Override
+                    public Object doInTransaction() {
+                        attDao.saveNewAttachment(changes, changesStream);
+                        attDao.saveNewAttachment(diff, streamDiff);
+                        attDao.updateAttachment(attachment);
+                        return null;
+                    }
+                });
+            } catch (Exception e) {
+                    throw e;
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        }
+    }
+
     public InputStream getAttachmentData(Long attachmentId) {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
@@ -113,8 +180,10 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     public List<Attachment> getAllVersions (Long attachmentId) {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
-        List<Attachment> attachments = attachmentManager.getAllVersions(attachment);
-        return attachments;
+        if (attachment != null) {
+            return attachmentManager.getAllVersions(attachment);
+        }
+        return null;
     }
 
     public int getVersion (Long attachmentId) {
@@ -123,4 +192,21 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return attachment.getVersion();
     }
 
+    public Attachment getAttachmentChanges (Long attachmentId) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getAttachmentNamed("onlyoffice-changes.json");
+        }
+        return null;
+    }
+
+    public Attachment getAttachmentDiff (Long attachmentId) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getAttachmentNamed("onlyoffice-diff.zip");
+        }
+        return null;
+    }
 }
