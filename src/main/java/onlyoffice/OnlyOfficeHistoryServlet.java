@@ -238,8 +238,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                 if (versionData != null) {
                     if (jwtManager.jwtEnabled())
                     {
-                        JSONObject versionDataJSON = new JSONObject(versionData);
                         try {
+                            JSONObject versionDataJSON = new JSONObject(gson.toJson(versionData));
                             versionData.setToken(jwtManager.createToken(versionDataJSON));
                         } catch (Exception e) {
                             throw new IOException(e.getMessage());
@@ -248,7 +248,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
                     response.setContentType("application/json");
                     PrintWriter writer = response.getWriter();
-                    log.error(gson.toJson(versionData));
                     writer.write(gson.toJson(versionData));
                 } else {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
