@@ -33,6 +33,7 @@ import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
+import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -60,11 +61,12 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
+    private final ParsingUtil parsingUtil;
 
     @Inject
     public OnlyOfficeHistoryServlet(LocaleManager localeManager, FormatSettingsManager formatSettingsManager,
             AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
-            UrlManager urlManager, JwtManager jwtManager) {
+            UrlManager urlManager, JwtManager jwtManager, ParsingUtil parsingUtil) {
         this.localeManager = localeManager;
         this.formatSettingsManager = formatSettingsManager;
         this.authContext = authContext;
@@ -72,6 +74,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         this.attachmentUtil = attachmentUtil;
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
+        this.parsingUtil = parsingUtil;
     }
 
     @Override
@@ -164,7 +167,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         Attachment changes = attachmentUtil.getAttachmentChanges(attachment.getId());
                         if (changes != null) {
                             InputStream changesSteam = attachmentUtil.getAttachmentData(changes.getId());
-                            String changesString = readInputStreamToString(changesSteam);
+                            String changesString = parsingUtil.getBody(changesSteam);
                             JSONObject changesJSON = null;
                             try {
                                 changesJSON = new JSONObject(changesString);
@@ -357,20 +360,5 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                 this.url = url;
             }
         }
-    }
-
-    private String readInputStreamToString(InputStream inputStream) throws IOException {
-        String output = "";
-        try {
-            Scanner scanner = new Scanner(inputStream);
-            scanner.useDelimiter("\\A");
-            while (scanner.hasNext()) {
-                output += scanner.next();
-            }
-            scanner.close();
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
-        }
-        return output;
     }
 }
