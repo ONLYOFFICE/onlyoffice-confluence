@@ -89,28 +89,25 @@
                         }
                     },
                     "onRequestHistory": function () {
-                        var url = "${historyInfoUriAsHtml}";
+                        var historyInfoUri = "${historyInfoUriAsHtml}";
                         var xhr = new XMLHttpRequest();
-                        xhr.open("GET", url, false);
+                        xhr.open("GET", historyInfoUri, false);
                         xhr.send();
 
                         if (xhr.status == 200) {
-                            var data = JSON.parse(xhr.responseText);
-                            var historyInfo = data;
+                            var historyInfo = JSON.parse(xhr.responseText);
                             docEditor.refreshHistory(historyInfo);
                         }
                     },
                     "onRequestHistoryData": function (event) {
                         var version = event.data;
-
-                        var url = "${historyDataUriAsHtml}" + "&version=" + version;
+                        var historyDataUri = "${historyDataUriAsHtml}";
                         var xhr = new XMLHttpRequest();
-                        xhr.open("GET", url, false);
+                        xhr.open("GET", historyDataUri + "&version=" + version, false);
                         xhr.send();
 
                         if (xhr.status == 200) {
-                            var data = JSON.parse(xhr.responseText);
-                            var historyData = data;
+                            var historyData = JSON.parse(xhr.responseText);
                             docEditor.setHistoryData(historyData);
                         }
                     },
