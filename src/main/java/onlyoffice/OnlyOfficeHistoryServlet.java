@@ -155,6 +155,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                     DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
                     Gson gson = new Gson();
 
+                    Attachment prevVersion = null;
                     Collections.reverse(attachments);
                     List<Version> history = new ArrayList<>();
                     for (Attachment attachment : attachments) {
@@ -166,18 +167,22 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
                         Attachment changes = attachmentUtil.getAttachmentChanges(attachment.getId());
                         if (changes != null) {
-                            InputStream changesSteam = attachmentUtil.getAttachmentData(changes.getId());
-                            String changesString = parsingUtil.getBody(changesSteam);
-                            JSONObject changesJSON = null;
-                            try {
-                                changesJSON = new JSONObject(changesString);
-                                version.setServerVersion(changesJSON.getString("serverVersion"));
-                                version.setChanges(gson.fromJson(changesJSON.getString("changes"), Object.class));
-                            } catch (JSONException e) {
-                                throw new IOException(e.getMessage());
+                            if (prevVersion != null && (attachment.getVersion() - prevVersion.getVersion()) == 1) {
+                                InputStream changesSteam = attachmentUtil.getAttachmentData(changes.getId());
+                                String changesString = parsingUtil.getBody(changesSteam);
+                                JSONObject changesJSON = null;
+                                try {
+                                    changesJSON = new JSONObject(changesString);
+                                    version.setServerVersion(changesJSON.getString("serverVersion"));
+                                    version.setChanges(gson.fromJson(changesJSON.getString("changes"), Object.class));
+                                } catch (JSONException e) {
+                                    throw new IOException(e.getMessage());
+                                }
+                            } else {
+                                attachmentUtil.removeAttachmentChanges(attachment.getId());
                             }
                         }
-
+                        prevVersion = attachment;
                         history.add(version);
                     }
 

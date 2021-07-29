@@ -104,7 +104,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
     }
 
-    public void saveChangesAttachment (Long attachmentId, String history, String changesUrl) throws IOException {
+    public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws IOException {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
@@ -147,6 +147,23 @@ public class AttachmentUtilImpl implements AttachmentUtil {
                 }
             }
         }
+    }
+
+    public void removeAttachmentChanges (Long attachmentId) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+
+        Attachment changes = getAttachmentChanges(attachmentId);
+        Attachment diff = getAttachmentDiff(attachmentId);
+
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                if (changes != null) attDao.removeAttachmentFromServer(changes);
+                if (diff != null) attDao.removeAttachmentFromServer(diff);
+                return null;
+            }
+        });
     }
 
     public InputStream getAttachmentData(Long attachmentId) {

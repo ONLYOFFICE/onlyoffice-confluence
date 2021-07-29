@@ -224,7 +224,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
                 log.info("changesUri = " + downloadUrl);
 
-                attachmentUtil.saveChangesAttachment(attachmentId, history, changesUrl);
+                attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
             }
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
