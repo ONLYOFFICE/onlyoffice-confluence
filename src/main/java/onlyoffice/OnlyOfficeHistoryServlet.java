@@ -143,50 +143,55 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         String attachmentIdString = documentManager.readHash(vkey);
         if (!attachmentIdString.isEmpty()) {
             Long attachmentId = Long.parseLong(attachmentIdString);
-            List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
-            if (attachments != null) {
-                ConfluenceUser user = AuthenticatedUserThreadLocal.get();
-                UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-                ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
-                DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
-                Gson gson = new Gson();
+            ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+            if (attachmentUtil.checkAccess(attachmentId, user, false)) {
+                List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
+                if (attachments != null) {
+                    UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+                    ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
+                    DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
+                    Gson gson = new Gson();
 
-                Collections.reverse(attachments);
-                List<Version> history = new ArrayList<>();
-                for (Attachment attachment : attachments) {
-                    Version version = new Version();
-                    version.setVersion(attachment.getVersion());
-                    version.setKey(documentManager.getKeyOfFile(attachment.getId()));
-                    version.setCreated(dateFormatter.formatDateTime(attachment.getCreationDate()));
-                    version.setUser(attachment.getCreator().getName(), attachment.getCreator().getFullName());
+                    Collections.reverse(attachments);
+                    List<Version> history = new ArrayList<>();
+                    for (Attachment attachment : attachments) {
+                        Version version = new Version();
+                        version.setVersion(attachment.getVersion());
+                        version.setKey(documentManager.getKeyOfFile(attachment.getId()));
+                        version.setCreated(dateFormatter.formatDateTime(attachment.getCreationDate()));
+                        version.setUser(attachment.getCreator().getName(), attachment.getCreator().getFullName());
 
-                    Attachment changes = attachmentUtil.getAttachmentChanges(attachment.getId());
-                    if (changes != null) {
-                        InputStream changesSteam = attachmentUtil.getAttachmentData(changes.getId());
-                        String changesString = readInputStreamToString(changesSteam);
-                        JSONObject changesJSON = null;
-                        try {
-                            changesJSON = new JSONObject(changesString);
-                            version.setServerVersion(changesJSON.getString("serverVersion"));
-                            version.setChanges(gson.fromJson(changesJSON.getString("changes"), Object.class));
-                        } catch (JSONException e) {
-                           throw new IOException(e.getMessage());
+                        Attachment changes = attachmentUtil.getAttachmentChanges(attachment.getId());
+                        if (changes != null) {
+                            InputStream changesSteam = attachmentUtil.getAttachmentData(changes.getId());
+                            String changesString = readInputStreamToString(changesSteam);
+                            JSONObject changesJSON = null;
+                            try {
+                                changesJSON = new JSONObject(changesString);
+                                version.setServerVersion(changesJSON.getString("serverVersion"));
+                                version.setChanges(gson.fromJson(changesJSON.getString("changes"), Object.class));
+                            } catch (JSONException e) {
+                                throw new IOException(e.getMessage());
+                            }
                         }
+
+                        history.add(version);
                     }
 
-                    history.add(version);
+                    Map<String, Object> historyInfo = new HashMap<>();
+
+                    historyInfo.put("currentVersion", attachmentUtil.getVersion(attachmentId));
+                    historyInfo.put("history", history);
+
+                    response.setContentType("application/json");
+                    PrintWriter writer = response.getWriter();
+                    writer.write(gson.toJson(historyInfo));
+                } else {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    return;
                 }
-
-                Map <String, Object> historyInfo = new HashMap<>();
-
-                historyInfo.put("currentVersion", attachmentUtil.getVersion(attachmentId));
-                historyInfo.put("history", history);
-
-                response.setContentType("application/json");
-                PrintWriter writer = response.getWriter();
-                writer.write(gson.toJson(historyInfo));
             } else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
         } else {
@@ -208,53 +213,58 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             Long attachmentId = Long.parseLong(attachmentIdString);
             int version = Integer.parseInt(versionString);
 
-            List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
-            if (attachments != null) {
-                Gson gson = new Gson();
-                VersionData versionData = null;
+            ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+            if (attachmentUtil.checkAccess(attachmentId, user, false)) {
+                List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
+                if (attachments != null) {
+                    Gson gson = new Gson();
+                    VersionData versionData = null;
 
-                Attachment prevVersion = null;
-                Collections.reverse(attachments);
-                for (Attachment attachment : attachments) {
-                    if (attachment.getVersion() == version) {
-                        versionData = new VersionData();
-                        versionData.setVersion(attachment.getVersion());
-                        versionData.setKey(documentManager.getKeyOfFile(attachment.getId()));
-                        versionData.setUrl(urlManager.getFileUri(attachment.getId()));
+                    Attachment prevVersion = null;
+                    Collections.reverse(attachments);
+                    for (Attachment attachment : attachments) {
+                        if (attachment.getVersion() == version) {
+                            versionData = new VersionData();
+                            versionData.setVersion(attachment.getVersion());
+                            versionData.setKey(documentManager.getKeyOfFile(attachment.getId()));
+                            versionData.setUrl(urlManager.getFileUri(attachment.getId()));
 
-                        Attachment diff = attachmentUtil.getAttachmentDiff(attachment.getId());
-                        if (prevVersion != null && diff != null) {
-                            boolean adjacentVersions = (attachment.getVersion() - prevVersion.getVersion()) == 1;
-                            if (adjacentVersions) {
-                                versionData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
-                                versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId()), urlManager.getFileUri(prevVersion.getId()));
+                            Attachment diff = attachmentUtil.getAttachmentDiff(attachment.getId());
+                            if (prevVersion != null && diff != null) {
+                                boolean adjacentVersions = (attachment.getVersion() - prevVersion.getVersion()) == 1;
+                                if (adjacentVersions) {
+                                    versionData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
+                                    versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId()), urlManager.getFileUri(prevVersion.getId()));
+                                }
+                            }
+                            break;
+                        }
+                        prevVersion = attachment;
+                    }
+
+                    if (versionData != null) {
+                        if (jwtManager.jwtEnabled()) {
+                            try {
+                                JSONObject versionDataJSON = new JSONObject(gson.toJson(versionData));
+                                versionData.setToken(jwtManager.createToken(versionDataJSON));
+                            } catch (Exception e) {
+                                throw new IOException(e.getMessage());
                             }
                         }
-                        break;
-                    }
-                    prevVersion = attachment;
-                }
 
-                if (versionData != null) {
-                    if (jwtManager.jwtEnabled())
-                    {
-                        try {
-                            JSONObject versionDataJSON = new JSONObject(gson.toJson(versionData));
-                            versionData.setToken(jwtManager.createToken(versionDataJSON));
-                        } catch (Exception e) {
-                            throw new IOException(e.getMessage());
-                        }
+                        response.setContentType("application/json");
+                        PrintWriter writer = response.getWriter();
+                        writer.write(gson.toJson(versionData));
+                    } else {
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        return;
                     }
-
-                    response.setContentType("application/json");
-                    PrintWriter writer = response.getWriter();
-                    writer.write(gson.toJson(versionData));
                 } else {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                     return;
                 }
             } else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
         } else {
