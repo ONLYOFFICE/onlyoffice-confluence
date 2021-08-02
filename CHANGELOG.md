@@ -2,8 +2,9 @@
 
 ## Added
 - open non-editable formats on views
-- added formats for conversion docm, dot, dotx, epub, htm, html, otp, ots, ott, pot, potm, potx, pps, ppsm, ppsx,
+- formats for conversion docm, dot, dotx, epub, htm, html, otp, ots, ott, pot, potm, potx, pps, ppsm, ppsx,
  pptm, rtf, xlsm, xlt, xltm, xltx
+- detecting mobile browser
 
 ## 3.0.0
 ## Added

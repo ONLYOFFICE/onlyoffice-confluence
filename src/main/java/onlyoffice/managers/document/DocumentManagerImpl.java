@@ -23,6 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
+import java.util.regex.Pattern;
+
 import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -50,6 +52,7 @@ import javax.inject.Named;
 @Default
 public class DocumentManagerImpl implements DocumentManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
+    private final String userAgentMobile = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
 
     @ComponentImport
     private final I18nResolver i18n;
@@ -231,6 +234,15 @@ public class DocumentManagerImpl implements DocumentManager {
             log.error(e.getMessage(), e);
         }
         return mimeType;
+    }
+
+    public String getEditorType (String userAgent) {
+        Pattern pattern = Pattern.compile(userAgentMobile, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+        if (userAgent != null && pattern.matcher(userAgent).find()) {
+            return "mobile";
+        } else {
+            return "desktop";
+        }
     }
 
     public boolean isEditable(String fileExtension) {
