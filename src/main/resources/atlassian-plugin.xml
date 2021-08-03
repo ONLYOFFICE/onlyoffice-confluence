@@ -17,17 +17,18 @@
 
     <resource type="i18n" name="i18n" location="lang-resource"/>
 
-    <web-resource key="onlyoffice-confluence-plugin-resources" name="Link for Web Resources rendering">
-        <description>The link used to make the document to be opened in the new browser tab for editing or viewing.</description>
-        <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
-        <resource type="download" name="images/" location="images/"/>
-        <resource type="download" name="onlyoffice-confluence-plugin.css" location="css/onlyoffice-confluence-plugin.css"/>
         <context>page</context>
     </web-resource>
 
-    <web-resource key="onlyoffice-confluence-plugin-resources-filecreate" name="Link for Web Resources rendering (file-create)">
-        <description>The link used to make the document to be created and opened in the new browser tab for editing.</description>
+    <web-resource key="onlyoffice-confluence-plugin-resources-configure" name="Web Resources container for configuration page">
+        <resource type="download" name="configure.css" location="css/configure.css"/>
+        <resource type="download" name="icon_view.svg" location="images/icon_view.svg"/>
+        <resource type="download" name="icon_hide.svg" location="images/icon_hide.svg"/>
+    </web-resource>
+
+    <web-resource key="onlyoffice-confluence-plugin-resources-filecreate" name="Web Resources container for file creation dialog">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -37,10 +38,14 @@
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
             </transformer>
         </transformation>
-        <resource type="download" name="dialog-filecreate-soy.js" location="/templates/dialog-filecreate.soy"/>
-        <resource type="download" name="onlyoffice-filecreate.js" location="/js/onlyoffice-filecreate.js"/>
-        <resource type="download" name="images/" location="/images"/>
-        <resource type="download" name="onlyoffice-confluence-plugin-filecreate.css" location="css/onlyoffice-confluence-plugin-filecreate.css"/>
+        <resource type="download" name="dialog-filecreate-soy.js" location="templates/dialog-filecreate.soy"/>
+        <resource type="download" name="dialog-filecreate.js" location="js/dialog-filecreate.js"/>
+        <resource type="download" name="dialog-filecreate.css" location="css/dialog-filecreate.css"/>
+        <resource type="download" name="new-docx.svg" location="images/new-docx.svg"/>
+        <resource type="download" name="new-xlsx.svg" location="images/new-xlsx.svg"/>
+        <resource type="download" name="new-pptx.svg" location="images/new-pptx.svg"/>
+        <resource type="download" name="confirm.svg" location="images/confirm.svg"/>
+        <resource type="download" name="16.svg" location="images/16.svg"/>
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <context>page</context>
     </web-resource>
@@ -48,7 +53,7 @@
     <web-item key="onlyoffice-filecreate" name="New Document" section="system.content.button" weight="47">
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <icon height="16" width="16">
-            <link>/download/resources/${project.groupId}.${project.artifactId}:onlyoffice-confluence-plugin-resources-filecreate/images/16.svg</link>
+            <link>/download/resources/${project.groupId}.${project.artifactId}:onlyoffice-confluence-plugin-resources-filecreate/16.svg</link>
         </icon>
         <label key="onlyoffice.connector.createlink"/>
         <tooltip key="onlyoffice.connector.tooltip.createlink"/>
