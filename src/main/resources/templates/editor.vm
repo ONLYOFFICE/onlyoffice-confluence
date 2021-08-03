@@ -1,3 +1,5 @@
+$webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor")
+
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -28,35 +30,7 @@
     <title>${docTitle} - ONLYOFFICE</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 
-    <style type="text/css">
-        html {
-            height: 100%;
-            width: 100%;
-        }
-
-        body {
-            background: #fff;
-            color: #333;
-            font-family: Arial, Tahoma, sans-serif;
-            font-size: 12px;
-            font-weight: normal;
-            height: 100%;
-            margin: 0;
-            overflow-y: hidden;
-            padding: 0;
-            text-decoration: none;
-        }
-
-        .form {
-            height: 100%;
-        }
-
-        div {
-            margin: 0;
-            padding: 0;
-        }
-    </style>
-
+    #standardHeader()
 </head>
 
 <body>

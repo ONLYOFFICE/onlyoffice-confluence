@@ -50,6 +50,10 @@
         <context>page</context>
     </web-resource>
 
+    <web-resource key="onlyoffice-confluence-plugin-resources-editor" name="Web Resources container for editor page">
+        <resource type="download" name="editor.css" location="css/editor.css"/>
+    </web-resource>
+
     <web-item key="onlyoffice-filecreate" name="New Document" section="system.content.button" weight="47">
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <icon height="16" width="16">
