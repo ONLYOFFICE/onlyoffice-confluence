@@ -21,6 +21,11 @@ package onlyoffice.utils.attachment;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.atlassian.confluence.content.ContentProperties;
+import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.transaction.TransactionCallback;
+import com.atlassian.sal.api.transaction.TransactionTemplate;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -34,12 +39,20 @@ import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
 
 import javax.enterprise.inject.Default;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
+    @ComponentImport
+    private final TransactionTemplate transactionTemplate;
+
+    @Inject
+    public AttachmentUtilImpl(TransactionTemplate transactionTemplate) {
+        this.transactionTemplate = transactionTemplate;
+    }
 
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
         if (user == null) {
@@ -107,5 +120,31 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         int version = attachment.getVersion();
         return attachmentId + "_" + version + "_" + hashCode;
+    }
+
+    public String getCollaborativeEditingKey (Long attachmentId) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        ContentProperties contentProperties = attachment.getProperties();
+        return contentProperties.getStringProperty("onlyoffice-collaborative-editor-key");
+    }
+
+    public void setCollaborativeEditingKey (Long attachmentId, String key) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Attachment attachment = attDao.getById(attachmentId);
+        if (key == null || key.isEmpty()) {
+            attachment.getProperties().removeProperty("onlyoffice-collaborative-editor-key");
+        } else {
+            attachment.getProperties().setStringProperty("onlyoffice-collaborative-editor-key", key);
+        }
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction()
+            {
+                attDao.updateAttachment(attachment);
+                return null;
+            }
+        });
     }
 }

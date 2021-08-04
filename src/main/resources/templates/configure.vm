@@ -49,6 +49,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                             "docInnerUrl": jq("#docInnerUrlField").attr("value"),
                             "confUrl": jq("#confUrlField").attr("value"),
                             "jwtSecret": jq("#jwtSecretField").attr("value"),
+                            "forceSave": jq("#forceSave").is(":checked"),
                             "demo": jq("#onlyofficeDemo").is(":checked")
                         };
 
@@ -149,7 +150,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
                     var demoToggle = function () {
                         if (!jq("#onlyofficeDemo").prop("disabled")) {
-                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField, #onlyofficeDemo)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
+                            jq("#apiUrlField, #jwtSecretField, #docInnerUrlField").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
                             if (jq("#onlyofficeDemo").prop("checked")) {
                                 jq(".view-control").css("pointer-events", "none");
                                 jq(".view-control").removeClass("view");
@@ -191,6 +192,13 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             <div class="field-group">
                 <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
                 <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner-tooltip')">
+            </div>
+            <div class="field-group">
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="forceSave" #if($forceSave) checked="checked" #end />
+                    <label for="forceSave">$i18n.getText('onlyoffice.configuration.force-save')</label>
+                    <div class="description">$i18n.getText('onlyoffice.configuration.force-save.description')</div>
+                </div>
             </div>
             <div class="field-group">
                 <div class="checkbox">
