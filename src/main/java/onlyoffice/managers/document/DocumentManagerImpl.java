@@ -77,9 +77,13 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public String getKeyOfFile(Long attachmentId) {
-        String hashCode = attachmentUtil.getHashCode(attachmentId);
+        String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
+        if (key == null) {
+            String hashCode = attachmentUtil.getHashCode(attachmentId);
+            key = generateRevisionId(hashCode);
+        }
 
-        return generateRevisionId(hashCode);
+        return key;
     }
 
     private String generateRevisionId(String expectedKey) {

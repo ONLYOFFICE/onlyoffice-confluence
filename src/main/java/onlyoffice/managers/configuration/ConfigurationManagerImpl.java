@@ -85,6 +85,14 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         }
     }
 
+    public boolean forceSaveEnabled() {
+        String forceSave = (String) pluginSettings.get("onlyoffice.forceSave");
+        if (forceSave == null || forceSave.isEmpty()) {
+            return false;
+        }
+        return Boolean.parseBoolean(forceSave);
+    }
+
     public boolean selectDemo(Boolean demo) {
         pluginSettings.put(pluginDemoName, demo.toString());
         if (demo) {

@@ -26,6 +26,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import com.atlassian.confluence.content.ContentProperties;
 import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.transaction.TransactionCallback;
@@ -51,7 +52,6 @@ import javax.inject.Named;
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
-
 
     @ComponentImport
     private final TransactionTemplate transactionTemplate;
@@ -192,6 +192,32 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         int version = attachment.getVersion();
         return attachmentId + "_" + version + "_" + hashCode;
+    }
+
+    public String getCollaborativeEditingKey (Long attachmentId) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        ContentProperties contentProperties = attachment.getProperties();
+        return contentProperties.getStringProperty("onlyoffice-collaborative-editor-key");
+    }
+
+    public void setCollaborativeEditingKey (Long attachmentId, String key) {
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Attachment attachment = attDao.getById(attachmentId);
+        if (key == null || key.isEmpty()) {
+            attachment.getProperties().removeProperty("onlyoffice-collaborative-editor-key");
+        } else {
+            attachment.getProperties().setStringProperty("onlyoffice-collaborative-editor-key", key);
+        }
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction()
+            {
+                attDao.updateAttachment(attachment);
+                return null;
+            }
+        });
     }
 
     public List<Attachment> getAllVersions (Long attachmentId) {
