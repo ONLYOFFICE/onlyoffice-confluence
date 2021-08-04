@@ -98,6 +98,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         String jwtSecret = (String) pluginSettings.get("onlyoffice.jwtSecret");
         String docInnerUrl = (String) pluginSettings.get("onlyoffice.docInnerUrl");
 		String confUrl = (String) pluginSettings.get("onlyoffice.confUrl");
+        Boolean forceSave = configurationManager.forceSaveEnabled();
         Boolean demo = configurationManager.demoEnabled();
         Boolean demoAvailable = configurationManager.demoAvailable(true);
 
@@ -115,6 +116,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         contextMap.put("docserviceInnerUrl", docInnerUrl);
 		contextMap.put("docserviceConfUrl", confUrl);
         contextMap.put("docserviceJwtSecret", jwtSecret);
+        contextMap.put("forceSave", forceSave);
         contextMap.put("docserviceDemo", demo);
         contextMap.put("docserviceDemoAvailable", demoAvailable);
         contextMap.put("pathApiUrl", configurationManager.getProperty("files.docservice.url.api"));
@@ -144,6 +146,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         String docInnerUrl;
 		String confUrl;
         String jwtSecret;
+        Boolean forceSave;
         Boolean demo;
         PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
         try {
@@ -165,7 +168,9 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             }
 
             confUrl = AppendSlash(jsonObj.getString("confUrl"));
+            forceSave = jsonObj.getBoolean("forceSave");
             pluginSettings.put("onlyoffice.confUrl", confUrl);
+            pluginSettings.put("onlyoffice.forceSave", forceSave.toString());
 
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
