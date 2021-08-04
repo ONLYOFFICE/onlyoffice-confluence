@@ -52,6 +52,9 @@
 
     <web-resource key="onlyoffice-confluence-plugin-resources-editor" name="Web Resources container for editor page">
         <resource type="download" name="editor.css" location="css/editor.css"/>
+        <resource type="download" name="text.ico" location="images/text.ico"/>
+        <resource type="download" name="spreadsheet.ico" location="images/spreadsheet.ico"/>
+        <resource type="download" name="presentation.ico" location="images/presentation.ico"/>
     </web-resource>
 
     <web-item key="onlyoffice-filecreate" name="New Document" section="system.content.button" weight="47">
