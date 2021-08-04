@@ -40,6 +40,7 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -143,7 +144,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             throw new IllegalArgumentException("attachmentId is empty");
         }
 
-        HttpURLConnection connection = null;
         try {
             Long attachmentId = Long.parseLong(attachmentIdString);
 
@@ -187,38 +187,72 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             long status = jsonObj.getLong("status");
             log.info("status = " + status);
 
+            ConfluenceUser user = getConfluenceUserFromJSON(jsonObj);
+            log.info("user = " + user);
+
+            if (status == 1) {
+                if (jsonObj.has("actions")) {
+                    JSONArray actions = jsonObj.getJSONArray("actions");
+                    if (actions.length() > 0) {
+                        JSONObject action = (JSONObject) actions.get(0);
+                        if (action.getLong("type") == 1) {
+                            if (attachmentUtil.getCollaborativeEditingKey(attachmentId) == null) {
+                                String key = jsonObj.getString("key");
+                                attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
+                            }
+                        }
+                    }
+                }
+            }
+
             // MustSave, Corrupted
             if (status == 2 || status == 3) {
-                ConfluenceUser user = null;
-                JSONArray users = jsonObj.getJSONArray("users");
-                if (users.length() > 0) {
-                    String userName = users.getString(0);
+                if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
+                    String downloadUrl = jsonObj.getString("url");
+                    downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
+                    log.info("downloadUri = " + downloadUrl);
 
-                    UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-                    user = userAccessor.getUserByName(userName);
-                    log.info("user = " + user);
-                }
+                    attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
+                    saveAttachmentFromUrl(attachmentId, downloadUrl, user);
 
-                if (user == null || !attachmentUtil.checkAccess(attachmentId, user, true)) {
+                    String history = jsonObj.getString("history");
+                    String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
+                    log.info("changesUri = " + downloadUrl);
+
+                    attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
+                } else {
                     throw new SecurityException("Try save without access: " + user);
                 }
+            }
 
-                String downloadUrl = jsonObj.getString("url");
-                downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
-                log.info("downloadUri = " + downloadUrl);
+            if (status == 4) {
+                attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
+            }
 
-                URL url = new URL(downloadUrl);
+            // MustForceSave, CorruptedForceSave
+            if (status == 6 || status == 7) {
+                if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
+                    if (configurationManager.forceSaveEnabled()) {
+                        String downloadUrl = jsonObj.getString("url");
+                        downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
+                        log.info("downloadUri = " + downloadUrl);
 
-                connection = (HttpURLConnection) url.openConnection();
-                Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
-                connection.setConnectTimeout(timeout);
-                connection.setReadTimeout(timeout);
-                int size = connection.getContentLength();
-                log.info("size = " + size);
+                        String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
+                        attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
+                        saveAttachmentFromUrl(attachmentId, downloadUrl, user);
+                        attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
 
-                InputStream stream = connection.getInputStream();
+                        String history = jsonObj.getString("history");
+                        String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
+                        log.info("changesUri = " + downloadUrl);
 
-                attachmentUtil.saveAttachment(attachmentId, stream, size, user);
+                        attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
+                    } else {
+                        log.info("Forcesave is disabled, ignoring forcesave request");
+                    }
+                } else {
+                    throw new SecurityException("Try save without access: " + user);
+                }
             }
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
@@ -228,10 +262,42 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             log.error(error);
 
             throw ex;
+        }
+    }
+
+    private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user) throws IOException {
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(downloadUrl);
+            connection = (HttpURLConnection) url.openConnection();
+
+            Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
+            connection.setConnectTimeout(timeout);
+            connection.setReadTimeout(timeout);
+
+            int size = connection.getContentLength();
+            InputStream stream = connection.getInputStream();
+
+            attachmentUtil.saveAttachment(attachmentId, stream, size, user);
+        } catch (Exception e) {
+            throw e;
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
         }
+    }
+
+    private ConfluenceUser getConfluenceUserFromJSON (JSONObject jsonObj) throws JSONException {
+        ConfluenceUser confluenceUser = null;
+        if (jsonObj.has("users")) {
+            JSONArray users = jsonObj.getJSONArray("users");
+            if (users.length() > 0) {
+                String userName = users.getString(0);
+                UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+                confluenceUser = userAccessor.getUserByName(userName);
+            }
+        }
+        return confluenceUser;
     }
 }

@@ -69,6 +69,45 @@
 
         var docEditor;
 
+        var onAppReady = function () {
+            var errorMessage = "${errorMessage}";
+            if (errorMessage) {
+                docEditor.showMessage(errorMessage);
+            }
+            if (${demo}) {
+                docEditor.showMessage("$i18n.getText('onlyoffice.configuration.demo.message')");
+            }
+        };
+
+        var onRequestHistory = function () {
+            var historyInfoUri = "${historyInfoUriAsHtml}";
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", historyInfoUri, false);
+            xhr.send();
+
+            if (xhr.status == 200) {
+                var historyInfo = JSON.parse(xhr.responseText);
+                docEditor.refreshHistory(historyInfo);
+            }
+        };
+
+        var onRequestHistoryData = function (event) {
+            var version = event.data;
+            var historyDataUri = "${historyDataUriAsHtml}";
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", historyDataUri + "&version=" + version, false);
+            xhr.send();
+
+            if (xhr.status == 200) {
+                var historyData = JSON.parse(xhr.responseText);
+                docEditor.setHistoryData(historyData);
+            }
+        };
+
+        var onRequestHistoryClose = function() {
+            document.location.reload();
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
@@ -76,17 +115,13 @@
             }
 
             var json = '${jsonAsHtml}';
+
             var config = {
                 "events" : {
-                    "onAppReady": function () {
-                        var errorMessage = "${errorMessage}";
-                        if (errorMessage) {
-                            docEditor.showMessage(errorMessage);
-                        }
-                        if (${demo}) {
-                            docEditor.showMessage("$i18n.getText('onlyoffice.configuration.demo.message')");
-                        }
-                    },
+                    "onAppReady": onAppReady,
+                    "onRequestHistory": onRequestHistory,
+                    "onRequestHistoryData": onRequestHistoryData,
+                    "onRequestHistoryClose": onRequestHistoryClose,
                 },
             };
 
@@ -102,7 +137,6 @@
         } else if (window.attachEvent) {
             window.attachEvent("load", connectEditor);
         }
-
     </script>
 </body>
 

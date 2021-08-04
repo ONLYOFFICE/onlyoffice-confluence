@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
     private final String callbackServler = "plugins/servlet/onlyoffice/save";
+    private final String historyServlet = "plugins/servlet/onlyoffice/history";
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -84,13 +85,34 @@ public class UrlManagerImpl implements UrlManager {
         }
     }
 
-    public String getFileUri(Long attachmentId) throws Exception {
+    public String getFileUri(Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
         String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("fileUrl " + callbackUrl);
 
         return callbackUrl;
+    }
+
+    public String getAttachmentDiffUri(Long attachmentId) {
+        String hash = documentManager.createHash(Long.toString(attachmentId));
+        String diffAttachmentUrl = getConfluenceBaseUrl() + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return diffAttachmentUrl;
+    }
+
+    public String getHistoryInfoUri(Long attachmentId) {
+        String hash = documentManager.createHash(Long.toString(attachmentId));
+        String historyInfoUri = getConfluenceBaseUrl() + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return historyInfoUri;
+    }
+
+    public String getHistoryDataUri(Long attachmentId) {
+        String hash = documentManager.createHash(Long.toString(attachmentId));
+        String historyDataUri = getConfluenceBaseUrl() + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return historyDataUri;
     }
 
     public String getCallbackUrl(Long attachmentId) {
