@@ -214,6 +214,12 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
                     attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
                     saveAttachmentFromUrl(attachmentId, downloadUrl, user);
+
+                    String history = jsonObj.getString("history");
+                    String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
+                    log.info("changesUri = " + downloadUrl);
+
+                    attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
                 } else {
                     throw new SecurityException("Try save without access: " + user);
                 }
@@ -235,6 +241,12 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
                         saveAttachmentFromUrl(attachmentId, downloadUrl, user);
                         attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
+
+                        String history = jsonObj.getString("history");
+                        String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
+                        log.info("changesUri = " + downloadUrl);
+
+                        attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
                     } else {
                         log.info("Forcesave is disabled, ignoring forcesave request");
                     }

@@ -94,4 +94,8 @@
         <description>The configuration page.</description>
         <url-pattern>/onlyoffice/configure</url-pattern>
     </servlet>
+    <servlet key="OnlyOfficeHistory" class="onlyoffice.OnlyOfficeHistoryServlet" name="History Handler">
+        <description>The history URL, to get history data.</description>
+        <url-pattern>/onlyoffice/history</url-pattern>
+    </servlet>
 </atlassian-plugin>
