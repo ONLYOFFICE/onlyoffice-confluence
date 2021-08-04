@@ -87,6 +87,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         properties = configurationManager.getProperties();
 
+        String type = "";
         String callbackUrl = "";
         String fileUrl = "";
         String gobackUrl = "";
@@ -127,6 +128,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             user = AuthenticatedUserThreadLocal.get();
             log.info("user " + user);
             if (attachmentUtil.checkAccess(attachmentId, user, false)) {
+                type = documentManager.getEditorType(request.getHeader("USER-AGENT"));
+
                 key = documentManager.getKeyOfFile(attachmentId);
 
                 fileName = attachmentUtil.getFileName(attachmentId);
@@ -154,10 +157,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
 
-        writer.write(getTemplate(attachmentId, apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
+        writer.write(getTemplate(attachmentId, type, apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
     }
 
-    private String getTemplate(Long attachmentId, String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
+    private String getTemplate(Long attachmentId, String type, String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
             ConfluenceUser user, String gobackUrl, String errorMessage) throws UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
@@ -179,7 +182,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         JSONObject gobackObject = new JSONObject();
 
         try {
-            responseJson.put("type", "desktop");
+            responseJson.put("type", type);
             responseJson.put("width", "100%");
             responseJson.put("height", "100%");
             responseJson.put("documentType", documentManager.getDocType(docExt));

@@ -9,6 +9,7 @@ public interface DocumentManager extends Serializable {
     public String readHash(String base64);
     public Long createDemo(String fileName, String fileExt, Long pageID);
     public String getDocType(String ext);
+    public String getEditorType (String userAgent);
     public String getMimeType(String name);
     public boolean isEditable(String fileExtension);
     public boolean isViewable(String fileExtension);
