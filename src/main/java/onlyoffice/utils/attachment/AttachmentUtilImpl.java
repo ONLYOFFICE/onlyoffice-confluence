@@ -54,12 +54,16 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
 
     @ComponentImport
+    private final AttachmentManager attachmentManager;
+    @ComponentImport
     private final TransactionTemplate transactionTemplate;
 
     private final ConfigurationManager configurationManager;
 
     @Inject
-    public AttachmentUtilImpl(TransactionTemplate transactionTemplate, ConfigurationManager configurationManager) {
+    public AttachmentUtilImpl(AttachmentManager attachmentManager, TransactionTemplate transactionTemplate,
+            ConfigurationManager configurationManager) {
+        this.attachmentManager = attachmentManager;
         this.transactionTemplate = transactionTemplate;
         this.configurationManager = configurationManager;
     }
@@ -69,7 +73,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
             return false;
         }
 
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         return checkAccess(attachment, user, forEdit);
@@ -93,7 +96,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
     public void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         Attachment oldAttachment = attachment.copy();
@@ -105,7 +107,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws IOException {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         if (history != null && !history.isEmpty() && changesUrl != null && !changesUrl.isEmpty()) {
@@ -150,8 +151,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public void removeAttachmentChanges (Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
-
         Attachment changes = getAttachmentChanges(attachmentId);
         Attachment diff = getAttachmentDiff(attachmentId);
 
@@ -167,25 +166,21 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public InputStream getAttachmentData(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachmentManager.getAttachmentData(attachment);
     }
 
     public String getMediaType(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getMediaType();
     }
 
     public String getFileName(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getFileName();
     }
 
     public String getHashCode(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         int hashCode = attachment.hashCode();
         log.info("hashCode = " + hashCode);
@@ -195,14 +190,12 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public String getCollaborativeEditingKey (Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         ContentProperties contentProperties = attachment.getProperties();
         return contentProperties.getStringProperty("onlyoffice-collaborative-editor-key");
     }
 
     public void setCollaborativeEditingKey (Long attachmentId, String key) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         AttachmentDao attDao = attachmentManager.getAttachmentDao();
         Attachment attachment = attDao.getById(attachmentId);
         if (key == null || key.isEmpty()) {
@@ -221,7 +214,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public List<Attachment> getAllVersions (Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachmentManager.getAllVersions(attachment);
@@ -230,13 +222,11 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public int getVersion (Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getVersion();
     }
 
     public Attachment getAttachmentChanges (Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachment.getAttachmentNamed("onlyoffice-changes.json");
@@ -245,7 +235,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public Attachment getAttachmentDiff (Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachment.getAttachmentNamed("onlyoffice-diff.zip");
