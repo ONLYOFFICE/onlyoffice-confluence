@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.inject.Inject;
 
+import com.atlassian.plugin.webresource.WebResourceUrlProvider;
+import com.atlassian.plugin.webresource.UrlMode;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
@@ -52,6 +54,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
     @ComponentImport
     private final LocaleManager localeManager;
+    @ComponentImport
+    private final WebResourceUrlProvider webResourceUrlProvider;
 
     private final JwtManager jwtManager;
     private final UrlManager urlManager;
@@ -62,10 +66,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
 
     @Inject
-    public OnlyOfficeEditorServlet(LocaleManager localeManager, UrlManager urlManager, JwtManager jwtManager,
-            ConfigurationManager configurationManager, AuthContext authContext, DocumentManager documentManager,
-            AttachmentUtil attachmentUtil) {
+    public OnlyOfficeEditorServlet(LocaleManager localeManager, WebResourceUrlProvider webResourceUrlProvider,
+            UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager,
+            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil) {
         this.localeManager = localeManager;
+        this.webResourceUrlProvider = webResourceUrlProvider;
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
@@ -168,10 +173,16 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String docTitle = fileName.trim();
         String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
         boolean canEdit = documentManager.isEditable(docExt);
+        String documentType = documentManager.getDocType(docExt);
 
         config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
         config.put("errorMessage", errorMessage);
         config.put("docTitle", docTitle);
+        config.put("favicon", webResourceUrlProvider.getStaticPluginResourceUrl(
+                "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
+                documentType +".ico",
+                UrlMode.ABSOLUTE)
+        );
 
         JSONObject responseJson = new JSONObject();
         JSONObject documentObject = new JSONObject();
@@ -185,7 +196,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             responseJson.put("type", type);
             responseJson.put("width", "100%");
             responseJson.put("height", "100%");
-            responseJson.put("documentType", documentManager.getDocType(docExt));
+            responseJson.put("documentType", documentType);
 
             responseJson.put("document", documentObject);
             documentObject.put("title", docTitle);

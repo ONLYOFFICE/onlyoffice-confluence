@@ -8,6 +8,7 @@
 - keep intermediate versions when editing (forcesave)
 - version history with highlighting changes
 - detecting mobile browser
+- change favicon in editor by document type
 
 ## 3.0.0
 ## Added

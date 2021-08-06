@@ -16,23 +16,29 @@
  *
  */
 
- .secretFiled {
-    position: inherit;
-    max-width: 250px;
+html {
+    height: 100%;
     width: 100%;
 }
-.view-control {
-    position: absolute;
-    display: block;
-    margin-top: 5px;
-    right: 6px;
-    width: 20px;
-    height: 20px;
-    background: url(images/icon_view.svg) 0 0 no-repeat;
+
+body {
+    background: #fff;
+    color: #333;
+    font-family: Arial, Tahoma, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    height: 100%;
+    margin: 0;
+    overflow-y: hidden;
+    padding: 0;
+    text-decoration: none;
 }
-.view-control.view {
-    background: url(images/icon_hide.svg) 0 0 no-repeat;
+
+.form {
+    height: 100%;
 }
-#onlyofficeSubmitBtn{
-    margin-top: 19px;
+
+div {
+    margin: 0;
+    padding: 0;
 }
