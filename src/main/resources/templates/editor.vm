@@ -121,6 +121,30 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             });
         };
 
+        var onRequestCompareFile = function(event) {
+            AJS.Editor.ImageDialog.insertImageDialog(function(a) {
+                var selectItems = a.selectItems;
+                var attachments = new Array();
+                selectItems.forEach((selectItem) => {
+                    attachments.push(selectItem.attributes.id);
+                });
+
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "${fileProviderUriAsHtml}", false);
+                xhr.send(JSON.stringify({
+                    attachments: attachments
+                }));
+
+                if (xhr.status == 200) {
+                    var dataCompareFiles = JSON.parse(xhr.responseText);
+
+                    dataCompareFiles.forEach((dataCompareFile) => {
+                        docEditor.setRevisedFile(dataCompareFile);
+                    });
+                }
+            });
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
@@ -136,6 +160,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestHistoryData": onRequestHistoryData,
                     "onRequestHistoryClose": onRequestHistoryClose,
                     "onRequestInsertImage": onRequestInsertImage,
+                    "onRequestCompareFile": onRequestCompareFile,
                 },
             };
 

@@ -73,7 +73,6 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
 
         try {
             JSONObject bodyJson = new JSONObject(body);
-            String command = bodyJson.getString("command");
             JSONArray attachments = bodyJson.getJSONArray("attachments");
 
             List<Object> responseJson = new ArrayList<>();
@@ -88,7 +87,9 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
                     String fileName = attachmentUtil.getFileName(attachmentId);
                     String fileType = fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
 
-                    data.put("command", command);
+                    if (bodyJson.has("command")) {
+                        data.put("command", bodyJson.getString("command"));
+                    }
                     data.put("fileType", fileType);
                     data.put("url", urlManager.getFileUri(attachmentId));
                     if (jwtManager.jwtEnabled()) {
