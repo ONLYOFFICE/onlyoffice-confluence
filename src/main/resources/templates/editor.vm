@@ -145,6 +145,30 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             });
         };
 
+        var onRequestMailMergeRecipients = function(event) {
+            AJS.Editor.ImageDialog.insertImageDialog(function(a) {
+                var selectItems = a.selectItems;
+                var attachments = new Array();
+                selectItems.forEach((selectItem) => {
+                    attachments.push(selectItem.attributes.id);
+                });
+
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "${fileProviderUriAsHtml}", false);
+                xhr.send(JSON.stringify({
+                    attachments: attachments
+                }));
+
+                if (xhr.status == 200) {
+                    var dataMailMergeRecipients = JSON.parse(xhr.responseText);
+
+                    dataMailMergeRecipients.forEach((dataMailMerge) => {
+                        docEditor.setMailMergeRecipients(dataMailMerge);
+                    });
+                }
+            });
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
@@ -161,6 +185,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestHistoryClose": onRequestHistoryClose,
                     "onRequestInsertImage": onRequestInsertImage,
                     "onRequestCompareFile": onRequestCompareFile,
+                    "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
                 },
             };
 
