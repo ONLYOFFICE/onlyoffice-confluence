@@ -112,4 +112,8 @@
         <description>The history URL, to get history data.</description>
         <url-pattern>/onlyoffice/history</url-pattern>
     </servlet>
+    <servlet key="OnlyOfficeFileProvider" class="onlyoffice.OnlyOfficeFileProviderServlet" name="File Provider Handler">
+        <description>The File Provider URL, to get link to download file.</description>
+        <url-pattern>/onlyoffice/file-provider</url-pattern>
+    </servlet>
 </atlassian-plugin>

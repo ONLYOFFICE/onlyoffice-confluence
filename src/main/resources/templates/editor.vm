@@ -90,13 +90,34 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         };
 
         var onRequestInsertImage = function(event) {
-            AJS.Editor.ImageDialog.insertImageDialog(function(a){
-            var mapI = JSON.parse('${imageMapAsHtml}');
-                var selectItems = a.selectItems;
-                console.log(a);
-                selectItems.forEach((selectItem) => {
+            AJS.Editor.ImageDialog.insertImageDialog(function(a) {
+                if (a.url) {
+                    docEditor.insertImage({
+                        "c": event.data.c,
+                        "url": a.url
+                    });
+                } else {
+                    var selectItems = a.selectItems;
+                    var attachments = new Array();
+                    selectItems.forEach((selectItem) => {
+                        attachments.push(selectItem.attributes.id);
+                    });
 
-                });
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "${fileProviderUriAsHtml}", false);
+                    xhr.send(JSON.stringify({
+                        command: event.data.c,
+                        attachments: attachments
+                    }));
+
+                    if (xhr.status == 200) {
+                        var dataInsertImages = JSON.parse(xhr.responseText);
+
+                        dataInsertImages.forEach((dataInsertImage) => {
+                            docEditor.insertImage(dataInsertImage);
+                        });
+                    }
+                }
             });
         };
 
