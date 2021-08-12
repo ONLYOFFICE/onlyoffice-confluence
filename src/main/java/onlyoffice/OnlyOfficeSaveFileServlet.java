@@ -75,43 +75,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (jwtManager.jwtEnabled()) {
-            String jwth = jwtManager.getJwtHeader();
-            String header = request.getHeader(jwth);
-            String token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
-
-            if (token == null || token == "") {
-                throw new SecurityException("Expected JWT");
-            }
-
-            if (!jwtManager.verify(token)) {
-                throw new SecurityException("JWT verification failed");
-            }
-        }
-
-        String vkey = request.getParameter("vkey");
-        log.info("vkey = " + vkey);
-        String attachmentIdString = documentManager.readHash(vkey);
-
-        Long attachmentId = Long.parseLong(attachmentIdString);
-        log.info("attachmentId " + attachmentId);
-
-        String contentType = attachmentUtil.getMediaType(attachmentId);
-        response.setContentType(contentType);
-
-        InputStream inputStream = attachmentUtil.getAttachmentData(attachmentId);
-        response.setContentLength(inputStream.available());
-
-        byte[] buffer = new byte[10240];
-
-        OutputStream output = response.getOutputStream();
-        for (int length = 0; (length = inputStream.read(buffer)) > 0;) {
-            output.write(buffer, 0, length);
-        }
-    }
-
-    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain; charset=utf-8");
 
