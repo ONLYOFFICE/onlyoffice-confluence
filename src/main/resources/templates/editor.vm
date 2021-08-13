@@ -174,40 +174,75 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
         var onRequestSaveAs = function (event) {
             var title = event.data.title.substring(0, event.data.title.lastIndexOf("."));
+            var ext = event.data.title.split(".").pop();
             var url = event.data.url;
 
-            $("#move-page-dialog").remove();
+            var showError = function (message) {
+                $("#move-page-dialog").find("form.aui").after(
+                    '<div id="move-errors" class="warning">' +
+                        '<div class="aui-message aui-message-error error">' +
+                            message +
+                        '</div>' +
+                    '</div>'
+                );
+            };
+
+            var moveHandler = function () {
+                $("#move-page-dialog").find("#move-errors").remove();
+                $("#move-page-dialog").find(".error").remove();
+
+                var title = $("#file-name-input").val();
+                var pageNode = $("#move-page-dialog").find(".highlighted").parent().attr("id");
+                var check = true;
+
+                if (!title) {
+                    $("#file-name-input").after(
+                        '<div id="file-name-error" class="error">' +
+                            '$i18n.getText('fileName.required')' +
+                        '</div>'
+                    );
+                    errors = false;
+                }
+                if (!pageNode) {
+                    $("#chosenSpaceKey").after(
+                        '<div id="space-key-error" class="error">' +
+                            '$i18n.getText('no.page.specified')' +
+                        '</div>'
+                    );
+                    errors = false;
+                }
+
+                if (check) {
+                    var pageId = pageNode.substring(5, pageNode.length);
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "${saveAsUriAsHtml}", false);
+                    xhr.send(JSON.stringify({
+                        url: url,
+                        title: title,
+                        ext: ext,
+                        pageId: pageId,
+                    }));
+
+                    if (xhr.status == 200) {
+                        $("#move-page-dialog").remove();
+                        $(".aui-blanket").remove();
+                    } else if (xhr.status == 403) {
+                        showError("$i18n.getText('operation.forbidden.message')");
+                    } else {
+                        showError("$i18n.getText('dialog.error.unknown.title')");
+                    }
+                }
+            };
 
             var paramsDialog = {
                 title: "$i18n.getText('onlyoffice.editor.dialog.save-as.title')",
-                buttonName: "$i18n.getText('onlyoffice.editor.dialog.save-as.save-button')",
+                buttonName: "$i18n.getText('editor.save.page')",
                 openedPanel: "$i18n.getText('move.page.dialog.browse.title')",
-                moveHandler: function () {
-                     $("#move-page-dialog").find(".error").remove();
-
-                     var fileName = $("#file-name-input").val();
-                     var page = $("#move-page-dialog").find(".highlighted").parent().attr("id");
-
-                     var errors = false;
-
-                     if (!fileName) {
-                         $("#file-name-input").after('<div id="file-name-error" class="error">$i18n.getText('onlyoffice.editor.dialog.save-as.error.file-name')</div>');
-                         errors = true;
-                     }
-                     if (!page) {
-                         $("#chosenSpaceKey").after('<div id="space-key-error" class="error">$i18n.getText('onlyoffice.editor.dialog.save-as.error.space-key')</div>');
-                         errors = true;
-                     }
-
-                     if (!errors) {
-                         $("#move-page-dialog").remove();
-                         $(".aui-blanket").remove();
-                     }
-                },
+                moveHandler: moveHandler,
             };
 
-            console.log(AJS.Confluence.Templates.MovePage);
-
+            $("#move-page-dialog").remove();
             AJS.Confluence.MovePageDialog(paramsDialog);
             var dialog = $("#move-page-dialog");
 
@@ -216,7 +251,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     dialog.find("form.aui").prepend($(
                         '<div class="field-group">' +
                               '<label for="file-name-input">' +
-                                    '$i18n.getText("onlyoffice.editor.dialog.save-as.file-name")' +
+                                    '$i18n.getText('file.name'):' +
                                     '<span class="aui-icon icon-required">required</span>' +
                               '</label>' +
                               '<input class="text" value="' + title + '" type="text" id="file-name-input" name="text-input">' +

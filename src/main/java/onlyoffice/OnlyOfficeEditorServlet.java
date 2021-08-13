@@ -241,6 +241,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
             config.put("fileProviderUriAsHtml", urlManager.getFileProviderUri());
+            config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
