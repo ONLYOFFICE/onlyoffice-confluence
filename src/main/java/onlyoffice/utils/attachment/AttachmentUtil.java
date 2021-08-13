@@ -26,6 +26,7 @@ public interface AttachmentUtil extends Serializable {
     public int getVersion (Long attachmentId);
     public Attachment getAttachmentChanges (Long attachmentId);
     public Attachment getAttachmentDiff (Long attachmentId);
+    public String getAttachmentPageTitle (Long attachmentId);
     public Long getAttachmentPageId (Long attachmentId);
     public String getAttachmentSpaceName (Long attachmentId);
     public String getAttachmentSpaceKey (Long attachmentId);

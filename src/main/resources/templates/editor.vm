@@ -38,6 +38,9 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     <meta name="ajs-page-id" content="${pageId}">
     <meta name="ajs-latest-page-id" content="${pageId}">
     <meta name="ajs-space-key" content="${spaceKey}">
+    <meta name="ajs-parent-page-id" content="${pageId}">
+    <meta name="ajs-original-parent-page" content="${pageTitle}">
+    <meta name="ajs-from-page-title" content="${pageTitle}">
 </head>
 
 <body>
@@ -169,6 +172,67 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             });
         };
 
+        var onRequestSaveAs = function (event) {
+            var title = event.data.title.substring(0, event.data.title.lastIndexOf("."));
+            var url = event.data.url;
+
+            $("#move-page-dialog").remove();
+
+            var paramsDialog = {
+                title: "$i18n.getText('onlyoffice.editor.dialog.save-as.title')",
+                buttonName: "$i18n.getText('onlyoffice.editor.dialog.save-as.save-button')",
+                openedPanel: "$i18n.getText('move.page.dialog.browse.title')",
+                moveHandler: function () {
+                     $("#move-page-dialog").find(".error").remove();
+
+                     var fileName = $("#file-name-input").val();
+                     var page = $("#move-page-dialog").find(".highlighted").parent().attr("id");
+
+                     var errors = false;
+
+                     if (!fileName) {
+                         $("#file-name-input").after('<div id="file-name-error" class="error">$i18n.getText('onlyoffice.editor.dialog.save-as.error.file-name')</div>');
+                         errors = true;
+                     }
+                     if (!page) {
+                         $("#chosenSpaceKey").after('<div id="space-key-error" class="error">$i18n.getText('onlyoffice.editor.dialog.save-as.error.space-key')</div>');
+                         errors = true;
+                     }
+
+                     if (!errors) {
+                         $("#move-page-dialog").remove();
+                         $(".aui-blanket").remove();
+                     }
+                },
+            };
+
+            console.log(AJS.Confluence.Templates.MovePage);
+
+            AJS.Confluence.MovePageDialog(paramsDialog);
+            var dialog = $("#move-page-dialog");
+
+            dialog.find(".tree").on("DOMNodeInserted", function() {
+                if (dialog.find("form.aui").length != 0 && dialog.find("#file-name-input").length == 0) {
+                    dialog.find("form.aui").prepend($(
+                        '<div class="field-group">' +
+                              '<label for="file-name-input">' +
+                                    '$i18n.getText("onlyoffice.editor.dialog.save-as.file-name")' +
+                                    '<span class="aui-icon icon-required">required</span>' +
+                              '</label>' +
+                              '<input class="text" value="' + title + '" type="text" id="file-name-input" name="text-input">' +
+                        '</div>'
+                    ));
+                }
+                if (dialog.find(".root-node").length != 0 && !dialog.find(".root-node").hasClass("disabled")) {
+                    dialog.find(".root-node").addClass("disabled");
+                }
+            });
+
+            dialog.find(".item-button:not(#browse-panel-id)").parent().remove();
+            dialog.find(".dialog-panel-body:not(.browse-panel)").remove();
+            dialog.find("#reorderRequirement").hide();
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
@@ -186,6 +250,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestInsertImage": onRequestInsertImage,
                     "onRequestCompareFile": onRequestCompareFile,
                     "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
+                    "onRequestSaveAs": onRequestSaveAs,
                 },
             };
 
