@@ -89,7 +89,7 @@ public class UrlManagerImpl implements UrlManager {
     public String getFileUri(Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
-        String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
+        String callbackUrl = getFileProviderUri() + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("fileUrl " + callbackUrl);
 
         return callbackUrl;

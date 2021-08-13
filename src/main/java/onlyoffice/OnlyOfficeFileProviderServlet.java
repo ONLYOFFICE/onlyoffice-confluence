@@ -21,6 +21,7 @@ package onlyoffice;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.google.gson.Gson;
+import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
@@ -49,14 +50,53 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
+    private final DocumentManager documentManager;
 
     @Inject
     public OnlyOfficeFileProviderServlet(ParsingUtil parsingUtil, AttachmentUtil attachmentUtil, JwtManager jwtManager,
-            UrlManager urlManager) {
+            UrlManager urlManager, DocumentManager documentManager) {
         this.parsingUtil = parsingUtil;
         this.attachmentUtil = attachmentUtil;
         this.jwtManager = jwtManager;
         this.urlManager = urlManager;
+        this.documentManager = documentManager;
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (jwtManager.jwtEnabled()) {
+            String jwth = jwtManager.getJwtHeader();
+            String header = request.getHeader(jwth);
+            String token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
+
+            if (token == null || token == "") {
+                throw new SecurityException("Expected JWT");
+            }
+
+            if (!jwtManager.verify(token)) {
+                throw new SecurityException("JWT verification failed");
+            }
+        }
+
+        String vkey = request.getParameter("vkey");
+        log.info("vkey = " + vkey);
+        String attachmentIdString = documentManager.readHash(vkey);
+
+        Long attachmentId = Long.parseLong(attachmentIdString);
+        log.info("attachmentId " + attachmentId);
+
+        String contentType = attachmentUtil.getMediaType(attachmentId);
+        response.setContentType(contentType);
+
+        InputStream inputStream = attachmentUtil.getAttachmentData(attachmentId);
+        response.setContentLength(inputStream.available());
+
+        byte[] buffer = new byte[10240];
+
+        OutputStream output = response.getOutputStream();
+        for (int length = 0; (length = inputStream.read(buffer)) > 0;) {
+            output.write(buffer, 0, length);
+        }
     }
 
     @Override
