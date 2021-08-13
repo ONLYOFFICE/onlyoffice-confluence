@@ -44,6 +44,11 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 </head>
 
 <body>
+    <div id="aui-flag-container">
+        <div data-aui-flag-stack="quickreload" class="aui-flag-stack">
+            <div class="aui-flag qr-flag aui-flag-stack-top-item" aria-live="polite" open="open" aria-hidden="false"></div>
+        </div>
+    </div>
     <div class="form">
         <div id="iframeEditor"></div>
     </div>
@@ -227,6 +232,13 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     if (xhr.status == 200) {
                         $("#move-page-dialog").remove();
                         $(".aui-blanket").remove();
+
+                        var fileName = title + "." + ext;
+                        var message = "$i18n.getText('onlyoffice.editor.dialog.save-as.message.success')".replace("$", fileName);
+                        AJS.messages.success(".aui-flag-stack-top-item", {
+                            body: message,
+                            fadeout: true
+                        });
                     } else if (xhr.status == 403) {
                         showError("$i18n.getText('operation.forbidden.message')");
                     } else {
