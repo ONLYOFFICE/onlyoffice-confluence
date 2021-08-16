@@ -122,10 +122,16 @@ public class UrlManagerImpl implements UrlManager {
         return fileProviderUri;
     }
 
+    public String getSaveAsUri() {
+        String saveAsUri = getConfluenceBaseUrl() + callbackServler + "?type=create";
+
+        return saveAsUri;
+    }
+
     public String getCallbackUrl(Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
-        String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
+        String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?type=track&vkey=" + GeneralUtil.urlEncode(hash);
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;

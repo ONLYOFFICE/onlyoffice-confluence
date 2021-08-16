@@ -12,6 +12,7 @@ import java.util.List;
 public interface AttachmentUtil extends Serializable {
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit);
     public boolean checkAccess(Attachment attachment, User user, boolean forEdit);
+    public boolean checkAccessCreate(User user, Long pageId);
     public void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException;
     public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws IOException;
@@ -30,4 +31,5 @@ public interface AttachmentUtil extends Serializable {
     public Long getAttachmentPageId (Long attachmentId);
     public String getAttachmentSpaceName (Long attachmentId);
     public String getAttachmentSpaceKey (Long attachmentId);
+    public Attachment createNewAttachment (String title, String mimeType, InputStream file, int size, Long pageId, ConfluenceUser user) throws IOException;
 }
