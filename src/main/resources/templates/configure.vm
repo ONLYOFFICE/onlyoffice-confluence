@@ -50,7 +50,12 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                             "confUrl": jq("#confUrlField").attr("value"),
                             "jwtSecret": jq("#jwtSecretField").attr("value"),
                             "forceSave": jq("#forceSave").is(":checked"),
-                            "demo": jq("#onlyofficeDemo").is(":checked")
+                            "demo": jq("#onlyofficeDemo").is(":checked"),
+                            "chat": jq("#chat").is(":checked"),
+                            "compactHeader": jq("#compactHeader").is(":checked"),
+                            "feedback": jq("#feedback").is(":checked"),
+                            "helpMenu": jq("#helpMenu").is(":checked"),
+                            "toolbarNoTabs": jq("#toolbarNoTabs").is(":checked"),
                         };
 
                         jq.ajax({
@@ -212,6 +217,39 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     #else
                         <div class="description">$i18n.getText('onlyoffice.configuration.demo.trial-is-over')</div>
                     #end
+                </div>
+            </div>
+
+            <p>$i18n.getText('onlyoffice.configuration.interface.label')</p>
+
+            <div class="field-group">
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="chat" #if($chat) checked="checked" #end />
+                    <label for="chat">$i18n.getText('onlyoffice.configuration.interface.chat')</label>
+                </div>
+            </div>
+            <div class="field-group">
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="compactHeader" #if($compactHeader) checked="checked" #end />
+                    <label for="compactHeader">$i18n.getText('onlyoffice.configuration.interface.compactHeader')</label>
+                </div>
+            </div>
+            <div class="field-group">
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="feedback" #if($feedback) checked="checked" #end />
+                    <label for="feedback">$i18n.getText('onlyoffice.configuration.interface.feedback')</label>
+                </div>
+            </div>
+            <div class="field-group">
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="helpMenu" #if($helpMenu) checked="checked" #end />
+                    <label for="helpMenu">$i18n.getText('onlyoffice.configuration.interface.helpMenu')</label>
+                </div>
+            </div>
+            <div class="field-group">
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="toolbarNoTabs" #if($toolbarNoTabs) checked="checked" #end />
+                    <label for="toolbarNoTabs">$i18n.getText('onlyoffice.configuration.interface.toolbarNoTabs')</label>
                 </div>
             </div>
 
