@@ -55,9 +55,9 @@
         <dependency>com.atlassian.confluence.plugins.drag-and-drop:editor-drop-handler</dependency>
         <dependency>confluence.web.resources:page-move-resources</dependency>
         <resource type="download" name="editor.css" location="css/editor.css"/>
-        <resource type="download" name="text.ico" location="images/text.ico"/>
-        <resource type="download" name="spreadsheet.ico" location="images/spreadsheet.ico"/>
-        <resource type="download" name="presentation.ico" location="images/presentation.ico"/>
+        <resource type="download" name="word.ico" location="images/word.ico"/>
+        <resource type="download" name="cell.ico" location="images/cell.ico"/>
+        <resource type="download" name="slide.ico" location="images/slide.ico"/>
     </web-resource>
 
     <web-item key="onlyoffice-filecreate" name="New Document" section="system.content.button" weight="47">
