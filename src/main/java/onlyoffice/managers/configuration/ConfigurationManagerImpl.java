@@ -27,10 +27,7 @@ import org.apache.log4j.Logger;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -149,6 +146,27 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
             return defaultValue;
         }
         return Boolean.parseBoolean(setting);
+    }
+
+    public Map<String, Boolean> getCustomizableEditingTypes () {
+        Map<String, Boolean> customizableEditingTypes = new HashMap<>();
+        List<String> editingTypes = null;
+
+        String editingTypesString = (String) pluginSettings.get("onlyoffice.editingTypes");
+
+        if (editingTypesString != null && !editingTypesString.isEmpty()) {
+            editingTypes = Arrays.asList(editingTypesString.substring(1, editingTypesString.length() - 1).replace("\"", "").split(","));
+        } else {
+            editingTypes = Arrays.asList("csv", "txt");
+        }
+
+        List<String> availableTypes = Arrays.asList(getProperty("docservice.type.edit.customizable").split("\\|"));
+
+        for (String type : availableTypes) {
+            customizableEditingTypes.put(type, editingTypes.contains(type));
+        }
+
+        return customizableEditingTypes;
     }
 }
 

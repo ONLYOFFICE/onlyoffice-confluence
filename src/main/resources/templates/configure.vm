@@ -44,6 +44,11 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     };
 
                     function updateConfig() {
+                        var editingTypes = new Array();
+                        jq(".editing-types").each(function () {
+                            if ($(this).is(":checked")) editingTypes.push($(this).attr("id"));
+                        });
+
                         var data = {
                             "apiUrl": jq("#apiUrlField").attr("value"),
                             "docInnerUrl": jq("#docInnerUrlField").attr("value"),
@@ -56,6 +61,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                             "feedback": jq("#feedback").is(":checked"),
                             "helpMenu": jq("#helpMenu").is(":checked"),
                             "toolbarNoTabs": jq("#toolbarNoTabs").is(":checked"),
+                            "editingTypes": editingTypes
                         };
 
                         jq.ajax({
@@ -198,6 +204,18 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
                 <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner-tooltip')">
             </div>
+
+            <p>$i18n.getText('onlyoffice.configuration.editing-types.label')</p>
+
+            <div class="field-group">
+                #foreach($type in $defaultCustomizableEditingTypes.keySet())
+                    <div class="checkbox inline">
+                        <input type="checkbox" class="checkbox editing-types" id="${type}" #if($defaultCustomizableEditingTypes.get($type)) checked="checked" #end />
+                        <label for="${type}">${type}</label>
+                    </div>
+                #end
+            </div>
+
             <div class="field-group">
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="forceSave" #if($forceSave) checked="checked" #end />
