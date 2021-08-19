@@ -8,4 +8,5 @@ public interface ConvertManager extends Serializable {
     public boolean isConvertable(String ext);
     public String convertsTo(String ext);
     public JSONObject convert(Long attachmentId, String ext) throws Exception;
+    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, boolean async) throws Exception;
 }
