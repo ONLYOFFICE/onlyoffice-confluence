@@ -236,10 +236,15 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public boolean isEditable(String fileExtension) {
-        String editableTypes = configurationManager.getProperty("docservice.type.edit");
-        if(editableTypes == null) return false;
-        List<String> exts = Arrays.asList(editableTypes.split("\\|"));
-        return exts.contains(fileExtension);
+        List<String> editingTypes = configurationManager.getDefaultEditingTypes();
+
+        Map<String, Boolean> customizableEditingTypes = configurationManager.getCustomizableEditingTypes();
+
+        for (Map.Entry<String, Boolean> customizableEditingType : customizableEditingTypes.entrySet()) {
+            if (customizableEditingType.getValue()) editingTypes.add(customizableEditingType.getKey());
+        }
+
+        return editingTypes.contains(fileExtension);
     }
 
     public boolean isViewable(String fileExtension) {
