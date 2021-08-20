@@ -12,6 +12,7 @@
 - insert image
 - creating documents from editor
 - ability to get links to bookmarks in document
+- opening for editing not OOXML
 
 ## 3.0.0
 ## Added
