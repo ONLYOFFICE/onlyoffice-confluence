@@ -239,7 +239,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
     private Boolean CheckDocServUrl(String url) {
         try {
-            CloseableHttpClient httpClient = HttpClients.createDefault();
+            CloseableHttpClient httpClient = configurationManager.getHttpClient();
             HttpGet request = new HttpGet(url + "healthcheck");
             CloseableHttpResponse response = httpClient.execute(request);
 
@@ -256,7 +256,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     private Boolean CheckDocServCommandService(String url) throws SecurityException {
         Integer errorCode = -1;
         try {
-            CloseableHttpClient httpClient = HttpClients.createDefault();
+            CloseableHttpClient httpClient = configurationManager.getHttpClient();
             JSONObject body = new JSONObject();
             body.put("c", "version");
 
