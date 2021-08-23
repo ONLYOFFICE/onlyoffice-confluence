@@ -23,8 +23,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -36,6 +34,12 @@ import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -162,26 +166,31 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private Long savefile(Attachment attachment, String fileUrl, String newName) throws Exception {
         log.info("downloadUri = " + fileUrl);
 
-        URL url = new URL(fileUrl);
+        CloseableHttpClient httpClient = configurationManager.getHttpClient();
+        HttpGet request = new HttpGet(fileUrl);
 
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
-        connection.setConnectTimeout(timeout);
-        connection.setReadTimeout(timeout);
-        Integer size = connection.getContentLength();
-        log.info("size = " + size);
+        CloseableHttpResponse response = httpClient.execute(request);
 
-        Attachment copy = attachment.copyLatestVersion();
-        InputStream stream = connection.getInputStream();
+        int status = response.getStatusLine().getStatusCode();
+        HttpEntity entity = response.getEntity();
 
-        copy.setContainer(attachment.getContainer());
-        copy.setFileName(newName);
-        copy.setFileSize(size);
-        copy.setMediaType(documentManager.getMimeType(newName));
+        if (status == HttpStatus.SC_OK) {
+            InputStream stream = entity.getContent();
+            Long size = entity.getContentLength();
 
-        attachmentManager.saveAttachment(copy, null, stream);
+            Attachment copy = attachment.copyLatestVersion();
 
-        return copy.getLatestVersionId();
+            copy.setContainer(attachment.getContainer());
+            copy.setFileName(newName);
+            copy.setFileSize(size);
+            copy.setMediaType(documentManager.getMimeType(newName));
+
+            attachmentManager.saveAttachment(copy, null, stream);
+
+            return copy.getLatestVersionId();
+        } else {
+            throw new HttpException("Document Server returned code " + status);
+        }
     }
 
 }

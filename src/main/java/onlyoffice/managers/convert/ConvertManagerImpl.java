@@ -21,8 +21,6 @@ package onlyoffice.managers.convert;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -30,13 +28,11 @@ import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -89,11 +85,7 @@ public class ConvertManagerImpl implements ConvertManager {
     }
 
     public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, boolean async) throws Exception {
-        Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
-        RequestConfig config = RequestConfig.custom()
-                .setConnectTimeout(timeout)
-                .setSocketTimeout(timeout).build();
-        CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
+        CloseableHttpClient httpClient = configurationManager.getHttpClient();
         JSONObject body = new JSONObject();
         body.put("async", async);
         body.put("embeddedfonts", true);
