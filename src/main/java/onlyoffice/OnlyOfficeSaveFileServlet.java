@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Base64;
 import java.util.List;
 
@@ -40,6 +38,12 @@ import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -136,7 +140,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
         InputStream requestStream = request.getInputStream();
         String body = parsingUtil.getBody(requestStream);
-        HttpURLConnection connection = null;
 
         try {
             JSONObject bodyJson = new JSONObject(body);
@@ -157,26 +160,28 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 return;
             }
 
-            URL url = new URL(downloadUrl);
-            connection = (HttpURLConnection) url.openConnection();
+            CloseableHttpClient httpClient = configurationManager.getHttpClient();
+            HttpGet httpGet = new HttpGet(downloadUrl);
 
-            Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
-            connection.setConnectTimeout(timeout);
-            connection.setReadTimeout(timeout);
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
 
-            int size = connection.getContentLength();
-            InputStream stream = connection.getInputStream();
+            int status = httpResponse.getStatusLine().getStatusCode();
+            HttpEntity entity = httpResponse.getEntity();
 
-            String fileName = documentManager.getCorrectName(title, ext, pageId);
-            String mimeType = documentManager.getMimeType(fileName);
+            if (status == HttpStatus.SC_OK) {
+                InputStream stream = entity.getContent();
+                Long size = entity.getContentLength();
+                log.info("size = " + size);
 
-            attachmentUtil.createNewAttachment(fileName, mimeType, stream, size, pageId, user);
+                String fileName = documentManager.getCorrectName(title, ext, pageId);
+                String mimeType = documentManager.getMimeType(fileName);
+
+                attachmentUtil.createNewAttachment(fileName, mimeType, stream, size.intValue(), pageId, user);
+            } else {
+                throw new HttpException("Document Server returned code " + status);
+            }
         } catch (Exception e) {
             throw new IOException(e.getMessage());
-        }  finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
         }
     }
 
@@ -309,34 +314,30 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     }
 
     private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user) throws Exception {
-        HttpURLConnection connection = null;
-        try {
-            List<String> defaultEditingTypes = configurationManager.getDefaultEditingTypes();;
+        List<String> defaultEditingTypes = configurationManager.getDefaultEditingTypes();;
 
-            String attachmentExt = attachmentUtil.getFileExt(attachmentId);
-            String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
-            if (!defaultEditingTypes.contains(attachmentExt)) {
-                JSONObject response = convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, false);
-                downloadUrl = response.getString("fileUrl");
-            }
+        String attachmentExt = attachmentUtil.getFileExt(attachmentId);
+        String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
+        if (!defaultEditingTypes.contains(attachmentExt)) {
+            JSONObject response = convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, false);
+            downloadUrl = response.getString("fileUrl");
+        }
 
-            URL url = new URL(downloadUrl);
-            connection = (HttpURLConnection) url.openConnection();
+        CloseableHttpClient httpClient = configurationManager.getHttpClient();
+        HttpGet request = new HttpGet(downloadUrl);
 
-            Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
-            connection.setConnectTimeout(timeout);
-            connection.setReadTimeout(timeout);
+        CloseableHttpResponse response = httpClient.execute(request);
 
-            int size = connection.getContentLength();
-            InputStream stream = connection.getInputStream();
+        int status = response.getStatusLine().getStatusCode();
+        HttpEntity entity = response.getEntity();
 
-            attachmentUtil.saveAttachment(attachmentId, stream, size, user);
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+        if (status == HttpStatus.SC_OK) {
+            InputStream stream = entity.getContent();
+            Long size = entity.getContentLength();
+
+            attachmentUtil.saveAttachment(attachmentId, stream, size.intValue(), user);
+        } else {
+            throw new HttpException("Document Server returned code " + status);
         }
     }
 

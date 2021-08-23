@@ -21,8 +21,6 @@ package onlyoffice.utils.attachment;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,7 +34,12 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.document.DocumentManager;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -127,23 +130,25 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
     }
 
-    public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws IOException {
+    public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws Exception {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         if (history != null && !history.isEmpty() && changesUrl != null && !changesUrl.isEmpty()) {
-            HttpURLConnection connection = null;
-            try {
-                InputStream changesStream = new ByteArrayInputStream(history.getBytes(StandardCharsets.UTF_8));
-                Attachment changes = new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
-                changes.setContainer(attachment.getContainer());
+            InputStream changesStream = new ByteArrayInputStream(history.getBytes(StandardCharsets.UTF_8));
+            Attachment changes = new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
+            changes.setContainer(attachment.getContainer());
 
-                URL url = new URL(changesUrl);
-                connection = (HttpURLConnection) url.openConnection();
-                Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
-                connection.setConnectTimeout(timeout);
-                connection.setReadTimeout(timeout);
-                int size = connection.getContentLength();
-                InputStream streamDiff = connection.getInputStream();
+            CloseableHttpClient httpClient = configurationManager.getHttpClient();
+            HttpGet request = new HttpGet(changesUrl);
+
+            CloseableHttpResponse response = httpClient.execute(request);
+
+            int status = response.getStatusLine().getStatusCode();
+            HttpEntity entity = response.getEntity();
+
+            if (status == HttpStatus.SC_OK) {
+                InputStream streamDiff = entity.getContent();
+                Long size = entity.getContentLength();
 
                 Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", size, "");
                 diff.setContainer(attachment.getContainer());
@@ -161,12 +166,8 @@ public class AttachmentUtilImpl implements AttachmentUtil {
                         return null;
                     }
                 });
-            } catch (Exception e) {
-                    throw e;
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+            } else {
+                throw new HttpException("Docserver returned code " + status);
             }
         }
     }

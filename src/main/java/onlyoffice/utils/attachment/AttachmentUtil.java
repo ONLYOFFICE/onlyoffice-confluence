@@ -15,7 +15,7 @@ public interface AttachmentUtil extends Serializable {
     public boolean checkAccessCreate(User user, Long pageId);
     public void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException;
-    public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws IOException;
+    public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws Exception;
     public void removeAttachmentChanges (Long attachmentId);
     public InputStream getAttachmentData(Long attachmentId);
     public String getMediaType(Long attachmentId);
