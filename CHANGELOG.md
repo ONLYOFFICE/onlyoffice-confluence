@@ -9,7 +9,8 @@
 - version history with highlighting changes
 - detecting mobile browser
 - change favicon in editor by document type
-- insert image
+- insert image from storage
+- compare file from storage
 
 ## 3.0.0
 ## Added
