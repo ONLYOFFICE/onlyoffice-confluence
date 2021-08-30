@@ -43,7 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 @Default
 public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
-    private final String callbackServler = "plugins/servlet/onlyoffice/save";
+    private final String callbackServlet = "plugins/servlet/onlyoffice/save";
     private final String historyServlet = "plugins/servlet/onlyoffice/history";
     private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
 
@@ -125,7 +125,7 @@ public class UrlManagerImpl implements UrlManager {
     public String getCallbackUrl(Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
-        String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
+        String callbackUrl = getConfluenceBaseUrl() + callbackServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;
