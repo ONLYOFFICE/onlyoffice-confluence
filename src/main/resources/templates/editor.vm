@@ -113,9 +113,12 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     if (xhr.status == 200) {
                         var dataInsertImages = JSON.parse(xhr.responseText);
 
-                        dataInsertImages.forEach((dataInsertImage) => {
-                            docEditor.insertImage(dataInsertImage);
-                        });
+                        // bug https://bugzilla.onlyoffice.com/show_bug.cgi?id=50683
+                        // dataInsertImages.forEach((dataInsertImage) => {
+                        //    docEditor.insertImage(dataInsertImage);
+                        // });
+
+                        docEditor.insertImage(dataInsertImages.pop());
                     }
                 }
             });
