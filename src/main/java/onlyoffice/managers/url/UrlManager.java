@@ -10,6 +10,7 @@ public interface UrlManager extends Serializable {
     public String getAttachmentDiffUri(Long attachmentId);
     public String getHistoryInfoUri(Long attachmentId);
     public String getHistoryDataUri(Long attachmentId);
+    public String getFileProviderUri();
     public String getCallbackUrl(Long attachmentId);
     public String getGobackUrl(Long attachmentId, HttpServletRequest request);
     public String replaceDocEditorURLToInternal(String url);

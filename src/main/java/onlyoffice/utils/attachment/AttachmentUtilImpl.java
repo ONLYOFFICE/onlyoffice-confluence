@@ -241,4 +241,28 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         }
         return null;
     }
+
+    public Long getAttachmentPageId (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getContainer().getId();
+        }
+        return null;
+    }
+
+    public String getAttachmentSpaceName (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getSpace().getName();
+        }
+        return null;
+    }
+
+    public String getAttachmentSpaceKey (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getSpace().getKey();
+        }
+        return null;
+    }
 }

@@ -1,4 +1,5 @@
 $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor")
+#requireResourcesForContext("viewattachments")
 
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -33,6 +34,10 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
     <link rel="shortcut icon" href="${favicon}">
     <link rel="icon" type="image/x-icon" href="${favicon}">
+    <meta name="ajs-space-name" content="${spaceName}">
+    <meta name="ajs-page-id" content="${pageId}">
+    <meta name="ajs-latest-page-id" content="${pageId}">
+    <meta name="ajs-space-key" content="${spaceKey}">
 </head>
 
 <body>
@@ -84,6 +89,41 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             document.location.reload();
         };
 
+        var onRequestInsertImage = function(event) {
+            AJS.Editor.ImageDialog.insertImageDialog(function(a) {
+                if (a.url) {
+                    docEditor.insertImage({
+                        "c": event.data.c,
+                        "url": a.url
+                    });
+                } else {
+                    var selectItems = a.selectItems;
+                    var attachments = new Array();
+                    selectItems.forEach((selectItem) => {
+                        attachments.push(selectItem.attributes.id);
+                    });
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "${fileProviderUriAsHtml}", false);
+                    xhr.send(JSON.stringify({
+                        command: event.data.c,
+                        attachments: attachments
+                    }));
+
+                    if (xhr.status == 200) {
+                        var dataInsertImages = JSON.parse(xhr.responseText);
+
+                        // bug https://bugzilla.onlyoffice.com/show_bug.cgi?id=50683
+                        // dataInsertImages.forEach((dataInsertImage) => {
+                        //    docEditor.insertImage(dataInsertImage);
+                        // });
+
+                        docEditor.insertImage(dataInsertImages.pop());
+                    }
+                }
+            });
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
@@ -98,6 +138,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestHistory": onRequestHistory,
                     "onRequestHistoryData": onRequestHistoryData,
                     "onRequestHistoryClose": onRequestHistoryClose,
+                    "onRequestInsertImage": onRequestInsertImage,
                 },
             };
 

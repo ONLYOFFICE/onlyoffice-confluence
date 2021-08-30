@@ -45,6 +45,7 @@ public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
     private final String callbackServler = "plugins/servlet/onlyoffice/save";
     private final String historyServlet = "plugins/servlet/onlyoffice/history";
+    private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -113,6 +114,12 @@ public class UrlManagerImpl implements UrlManager {
         String historyDataUri = getConfluenceBaseUrl() + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
 
         return historyDataUri;
+    }
+
+    public String getFileProviderUri() {
+        String fileProviderUri = getConfluenceBaseUrl() + fileProviderServlet;
+
+        return fileProviderUri;
     }
 
     public String getCallbackUrl(Long attachmentId) {

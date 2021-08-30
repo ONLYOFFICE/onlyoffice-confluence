@@ -51,6 +51,8 @@
     </web-resource>
 
     <web-resource key="onlyoffice-confluence-plugin-resources-editor" name="Web Resources container for editor page">
+        <dependency>com.atlassian.confluence.editor:page-editor-js</dependency>
+        <dependency>com.atlassian.confluence.plugins.drag-and-drop:editor-drop-handler</dependency>
         <resource type="download" name="editor.css" location="css/editor.css"/>
         <resource type="download" name="text.ico" location="images/text.ico"/>
         <resource type="download" name="spreadsheet.ico" location="images/spreadsheet.ico"/>
@@ -109,5 +111,9 @@
     <servlet key="OnlyOfficeHistory" class="onlyoffice.OnlyOfficeHistoryServlet" name="History Handler">
         <description>The history URL, to get history data.</description>
         <url-pattern>/onlyoffice/history</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeFileProvider" class="onlyoffice.OnlyOfficeFileProviderServlet" name="File Provider Handler">
+        <description>The File Provider URL, to get link to download file.</description>
+        <url-pattern>/onlyoffice/file-provider</url-pattern>
     </servlet>
 </atlassian-plugin>
