@@ -57,6 +57,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     <script type="text/javascript" language="javascript">
 
         var docEditor;
+        var defaultPanelComponent = new Array();
 
         var onAppReady = function () {
             var errorMessage = "${errorMessage}";
@@ -97,11 +98,26 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             document.location.reload();
         };
 
-        var onRequestInsertImage = function(event) {
+        var insertDialog = function (docEditorEvent, windowFromUrl, command = null) {
+            if (defaultPanelComponent.length == 0) {
+                AJS.Editor.ImageDialog.panelComponent.forEach((component) => {
+                    defaultPanelComponent.push(component);
+                });
+            } else {
+                AJS.Editor.ImageDialog.panelComponent = new Array();
+                defaultPanelComponent.forEach((component) => {
+                    AJS.Editor.ImageDialog.panelComponent.push(component);
+                });
+            }
+
+            if (!windowFromUrl) {
+                AJS.Editor.ImageDialog.panelComponent.splice(1, 1);
+            }
+
             AJS.Editor.ImageDialog.insertImageDialog(function(a) {
-                if (a.url) {
-                    docEditor.insertImage({
-                        "c": event.data.c,
+                if (a.url && windowFromUrl) {
+                    docEditorEvent({
+                        "c": command,
                         "url": a.url
                     });
                 } else {
@@ -114,67 +130,34 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     var xhr = new XMLHttpRequest();
                     xhr.open("POST", "${fileProviderUriAsHtml}", false);
                     xhr.send(JSON.stringify({
-                        command: event.data.c,
+                        command: command,
                         attachments: attachments
                     }));
 
                     if (xhr.status == 200) {
-                        var dataInsertImages = JSON.parse(xhr.responseText);
+                        var dataAttachments = JSON.parse(xhr.responseText);
 
-                        dataInsertImages.forEach((dataInsertImage) => {
-                            docEditor.insertImage(dataInsertImage);
-                        });
+                        // bug https://bugzilla.onlyoffice.com/show_bug.cgi?id=50683
+                        // dataAttachments.forEach((dataAttachment) => {
+                        //    docEditorEvent(dataAttachment);
+                        // });
+
+                        docEditorEvent(dataAttachments.pop());
                     }
                 }
             });
         };
 
-        var onRequestCompareFile = function(event) {
-            AJS.Editor.ImageDialog.insertImageDialog(function(a) {
-                var selectItems = a.selectItems;
-                var attachments = new Array();
-                selectItems.forEach((selectItem) => {
-                    attachments.push(selectItem.attributes.id);
-                });
+        var onRequestInsertImage = function(event) {
+            insertDialog(docEditor.insertImage, true, event.data.c);
+        };
 
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "${fileProviderUriAsHtml}", false);
-                xhr.send(JSON.stringify({
-                    attachments: attachments
-                }));
-
-                if (xhr.status == 200) {
-                    var dataCompareFiles = JSON.parse(xhr.responseText);
-
-                    dataCompareFiles.forEach((dataCompareFile) => {
-                        docEditor.setRevisedFile(dataCompareFile);
-                    });
-                }
-            });
+        var onRequestCompareFile = function() {
+            insertDialog(docEditor.setRevisedFile, false);
         };
 
         var onRequestMailMergeRecipients = function(event) {
-            AJS.Editor.ImageDialog.insertImageDialog(function(a) {
-                var selectItems = a.selectItems;
-                var attachments = new Array();
-                selectItems.forEach((selectItem) => {
-                    attachments.push(selectItem.attributes.id);
-                });
-
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "${fileProviderUriAsHtml}", false);
-                xhr.send(JSON.stringify({
-                    attachments: attachments
-                }));
-
-                if (xhr.status == 200) {
-                    var dataMailMergeRecipients = JSON.parse(xhr.responseText);
-
-                    dataMailMergeRecipients.forEach((dataMailMerge) => {
-                        docEditor.setMailMergeRecipients(dataMailMerge);
-                    });
-                }
-            });
+            insertDialog(docEditor.setMailMergeRecipients, false);
         };
 
         var onRequestSaveAs = function (event) {
