@@ -11,6 +11,7 @@
 - change favicon in editor by document type
 - insert image from storage
 - compare file from storage
+- mail merge from storage
 
 ## 3.0.0
 ## Added

@@ -148,6 +148,10 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             insertDialog(docEditor.setRevisedFile, false);
         };
 
+        var onRequestMailMergeRecipients = function(event) {
+            insertDialog(docEditor.setMailMergeRecipients, false);
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
@@ -164,6 +168,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestHistoryClose": onRequestHistoryClose,
                     "onRequestInsertImage": onRequestInsertImage,
                     "onRequestCompareFile": onRequestCompareFile,
+                    "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
                 },
             };
 
