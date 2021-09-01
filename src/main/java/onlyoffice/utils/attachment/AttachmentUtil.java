@@ -12,8 +12,9 @@ import java.util.List;
 public interface AttachmentUtil extends Serializable {
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit);
     public boolean checkAccess(Attachment attachment, User user, boolean forEdit);
-    public void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
+    public void saveAttachmentAsNewVersion(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException;
+    public void updateAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user);
     public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws IOException;
     public void removeAttachmentChanges (Long attachmentId);
     public InputStream getAttachmentData(Long attachmentId);
@@ -22,6 +23,10 @@ public interface AttachmentUtil extends Serializable {
     public String getHashCode(Long attachmentId);
     public String getCollaborativeEditingKey (Long attachmentId);
     public void setCollaborativeEditingKey (Long attachmentId, String key);
+    public String getProperty (Long attachmentId, String name);
+    public boolean getPropertyAsBoolean (Long attachmentId, String name);
+    public void setProperty (Long attachmentId, String name, String value);
+    public void removeProperty (Long attachmentId, String name);
     public List<Attachment> getAllVersions (Long attachmentId);
     public int getVersion (Long attachmentId);
     public Attachment getAttachmentChanges (Long attachmentId);

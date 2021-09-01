@@ -20,7 +20,6 @@ package onlyoffice;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
@@ -175,12 +174,21 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                     log.info("downloadUri = " + downloadUrl);
 
-                    attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
-                    saveAttachmentFromUrl(attachmentId, downloadUrl, user);
-
                     String history = jsonObj.getString("history");
                     String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
                     log.info("changesUri = " + downloadUrl);
+
+                    Boolean forceSaveVersion = attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
+
+                    attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
+
+                    if (forceSaveVersion) {
+                        saveAttachmentFromUrl(attachmentId, downloadUrl, user, false);
+                        attachmentUtil.removeProperty(attachmentId, "onlyoffice-force-save");
+                        attachmentUtil.removeAttachmentChanges(attachmentId);
+                    } else {
+                        saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
+                    }
 
                     attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
                 } else {
@@ -200,14 +208,25 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                         log.info("downloadUri = " + downloadUrl);
 
-                        String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
-                        attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
-                        saveAttachmentFromUrl(attachmentId, downloadUrl, user);
-                        attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
-
                         String history = jsonObj.getString("history");
                         String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
                         log.info("changesUri = " + downloadUrl);
+
+                        Boolean forceSaveVersion = attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
+
+                        if (forceSaveVersion) {
+                            saveAttachmentFromUrl(attachmentId, downloadUrl, user, false);
+                            attachmentUtil.removeAttachmentChanges(attachmentId);
+                        } else {
+                            String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
+                            attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
+
+                            saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
+                            attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
+                            attachmentUtil.setProperty(attachmentId, "onlyoffice-force-save", "true");
+
+                            attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
+                        }
 
                         attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
                     } else {
@@ -228,7 +247,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user) throws IOException {
+    private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user, boolean newVersion) throws IOException {
         HttpURLConnection connection = null;
         try {
             URL url = new URL(downloadUrl);
@@ -241,7 +260,11 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             int size = connection.getContentLength();
             InputStream stream = connection.getInputStream();
 
-            attachmentUtil.saveAttachment(attachmentId, stream, size, user);
+            if (newVersion) {
+                attachmentUtil.saveAttachmentAsNewVersion(attachmentId, stream, size, user);
+            } else {
+                attachmentUtil.updateAttachment(attachmentId, stream, size, user);
+            }
         } catch (Exception e) {
             throw e;
         } finally {
