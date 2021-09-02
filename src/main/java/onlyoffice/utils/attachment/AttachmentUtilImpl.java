@@ -93,13 +93,14 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
 
-        Permission permission = Permission.VIEW;
         if (forEdit) {
-            permission = Permission.EDIT;
+            boolean create = checkAccessCreate(user, attachment.getContainer().getId());
+            boolean access = permissionManager.hasPermission(user, Permission.EDIT, attachment);
+            return create && access;
+        } else {
+            boolean access = permissionManager.hasPermission(user, Permission.VIEW, attachment);
+            return access;
         }
-
-        boolean access = permissionManager.hasPermission(user, permission, attachment);
-        return access;
     }
 
     public boolean checkAccessCreate(User user, Long pageId) {
