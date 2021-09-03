@@ -267,8 +267,11 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 }
             });
 
+            // Removing navigation buttons to other panels MovePageDialog
             dialog.find(".item-button:not(#browse-panel-id)").parent().remove();
+            // Removing unused panels MovePageDialog
             dialog.find(".dialog-panel-body:not(.browse-panel)").remove();
+            // Removing checkbox reorder
             dialog.find("#reorderRequirement").hide();
         };
 
