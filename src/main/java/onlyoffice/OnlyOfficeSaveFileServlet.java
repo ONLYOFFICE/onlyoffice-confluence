@@ -158,6 +158,10 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     if (actions.length() > 0) {
                         JSONObject action = (JSONObject) actions.get(0);
                         if (action.getLong("type") == 1) {
+                            if (user == null || attachmentUtil.checkAccess(attachmentId, user, true)) {
+                                throw new SecurityException("Access denied. User " + user +" don't have the appropriate permissions to edit this document.");
+                            }
+
                             if (attachmentUtil.getCollaborativeEditingKey(attachmentId) == null) {
                                 String key = jsonObj.getString("key");
                                 attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
