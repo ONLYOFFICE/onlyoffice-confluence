@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import com.atlassian.plugin.webresource.UrlMode;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -63,12 +64,14 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
+    private final ConvertManager convertManager;
 
 
     @Inject
     public OnlyOfficeEditorServlet(LocaleManager localeManager, WebResourceUrlProvider webResourceUrlProvider,
             UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager,
-            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil) {
+            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
+            ConvertManager convertManager) {
         this.localeManager = localeManager;
         this.webResourceUrlProvider = webResourceUrlProvider;
         this.urlManager = urlManager;
@@ -77,6 +80,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
+        this.convertManager = convertManager;
     }
 
     @Override
@@ -215,7 +219,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
 
             if (attachmentUtil.checkAccessCreate(user, pageId)) {
-                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, docExt));
+                String createNewExt = convertManager.convertsTo(docExt);
+                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, createNewExt));
             }
 
             editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
