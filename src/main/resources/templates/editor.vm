@@ -189,7 +189,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                             '$i18n.getText('fileName.required')' +
                         '</div>'
                     );
-                    errors = false;
+                    check = false;
                 }
                 if (!pageNode) {
                     $("#chosenSpaceKey").after(
@@ -197,7 +197,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                             '$i18n.getText('no.page.specified')' +
                         '</div>'
                     );
-                    errors = false;
+                    check = false;
                 }
 
                 if (check) {
