@@ -209,10 +209,13 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 permObject.put("edit", true);
                 editorConfigObject.put("mode", "edit");
                 editorConfigObject.put("callbackUrl", callbackUrl);
-                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, docExt));
             } else {
                 permObject.put("edit", false);
                 editorConfigObject.put("mode", "view");
+            }
+
+            if (attachmentUtil.checkAccessCreate(user, pageId)) {
+                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, docExt));
             }
 
             editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
