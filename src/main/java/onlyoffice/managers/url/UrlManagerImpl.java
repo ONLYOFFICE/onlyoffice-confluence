@@ -131,7 +131,7 @@ public class UrlManagerImpl implements UrlManager {
     public String getCallbackUrl(Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
-        String callbackUrl = getConfluenceBaseUrl() + callbackServlet + "?type=track&vkey=" + GeneralUtil.urlEncode(hash);
+        String callbackUrl = getConfluenceBaseUrl() + callbackServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;
