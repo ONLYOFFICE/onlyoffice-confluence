@@ -235,11 +235,13 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             // AsHtml at the end disables automatic html encoding
             config.put("jsonAsHtml", responseJson.toString());
             config.put("pageId", attachmentUtil.getAttachmentPageId(attachmentId).toString());
+            config.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
             config.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
             config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
             config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
-            config.put("fileProviderUriAsHtml", urlManager.getFileProviderUri());
+            config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
+            config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
