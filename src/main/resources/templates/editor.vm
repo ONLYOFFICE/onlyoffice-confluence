@@ -128,7 +128,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     });
 
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "${fileProviderUriAsHtml}", false);
+                    xhr.open("POST", "${attachmentDataAsHtml}", false);
                     xhr.send(JSON.stringify({
                         command: command,
                         attachments: attachments

@@ -90,10 +90,10 @@ public class UrlManagerImpl implements UrlManager {
     public String getFileUri(Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
-        String callbackUrl = getFileProviderUri() + "?vkey=" + GeneralUtil.urlEncode(hash);
-        log.info("fileUrl " + callbackUrl);
+        String fileUri = getConfluenceBaseUrl() + fileProviderServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
+        log.info("fileUrl " + fileUri);
 
-        return callbackUrl;
+        return fileUri;
     }
 
     public String getAttachmentDiffUri(Long attachmentId) {
@@ -117,14 +117,14 @@ public class UrlManagerImpl implements UrlManager {
         return historyDataUri;
     }
 
-    public String getFileProviderUri() {
-        String fileProviderUri = getConfluenceBaseUrl() + fileProviderServlet;
+    public String getAttachmentDataUri() {
+        String attachmentDataUri = getConfluenceBaseUrl() + APIServlet + "?type=attachment-data";
 
-        return fileProviderUri;
+        return attachmentDataUri;
     }
 
     public String getSaveAsUri() {
-        String saveAsUri = getConfluenceBaseUrl() + APIServlet + "?type=create";
+        String saveAsUri = getConfluenceBaseUrl() + APIServlet + "?type=save-as";
 
         return saveAsUri;
     }

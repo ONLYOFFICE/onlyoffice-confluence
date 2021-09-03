@@ -240,7 +240,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
             config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
-            config.put("fileProviderUriAsHtml", urlManager.getFileProviderUri());
+            config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
             config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
