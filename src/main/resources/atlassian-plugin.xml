@@ -117,4 +117,8 @@
         <description>The File Provider URL, to get link to download file.</description>
         <url-pattern>/onlyoffice/file-provider</url-pattern>
     </servlet>
+    <servlet key="OnlyOfficeAPI" class="onlyoffice.OnlyOfficeAPIServlet" name="ONLYOFFICE API Handler">
+        <description>ONLYOFFICE API Handler.</description>
+        <url-pattern>/onlyoffice/api</url-pattern>
+    </servlet>
 </atlassian-plugin>
