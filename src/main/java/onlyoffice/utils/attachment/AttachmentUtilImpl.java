@@ -24,14 +24,19 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import com.atlassian.confluence.content.ContentProperties;
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.document.DocumentManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -57,15 +62,18 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     private final AttachmentManager attachmentManager;
     @ComponentImport
     private final TransactionTemplate transactionTemplate;
+    @ComponentImport
+    private final PageManager pageManager;
 
     private final ConfigurationManager configurationManager;
 
     @Inject
     public AttachmentUtilImpl(AttachmentManager attachmentManager, TransactionTemplate transactionTemplate,
-            ConfigurationManager configurationManager) {
+            ConfigurationManager configurationManager, PageManager pageManager) {
         this.attachmentManager = attachmentManager;
         this.transactionTemplate = transactionTemplate;
         this.configurationManager = configurationManager;
+        this.pageManager = pageManager;
     }
 
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
@@ -91,6 +99,19 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         }
 
         boolean access = permissionManager.hasPermission(user, permission, attachment);
+        return access;
+    }
+
+    public boolean checkAccessCreate(User user, Long pageId) {
+        if (user == null) {
+            return false;
+        }
+
+        PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
+
+        Page page = pageManager.getPage(pageId);
+        boolean access = permissionManager.hasCreatePermission(user, page, Attachment.class);
+
         return access;
     }
 
@@ -242,6 +263,14 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
+    public String getAttachmentPageTitle (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getContainer().getTitle();
+        }
+        return null;
+    }
+
     public Long getAttachmentPageId (Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
@@ -265,4 +294,23 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         }
         return null;
     }
+
+    public Attachment createNewAttachment (String fileName, String mimeType, InputStream file, int size, Long pageId, ConfluenceUser user) throws IOException {
+        Date date = Calendar.getInstance().getTime();
+
+        Attachment attachment = new Attachment(fileName, mimeType, size, "");
+
+        attachment.setCreator(user);
+        attachment.setCreationDate(date);
+        attachment.setLastModificationDate(date);
+        attachment.setContainer(pageManager.getPage(pageId));
+
+        attachmentManager.saveAttachment(attachment, null, file);
+
+        Page page = pageManager.getPage(pageId);
+        page.addAttachment(attachment);
+
+        return attachment;
+    }
+
 }

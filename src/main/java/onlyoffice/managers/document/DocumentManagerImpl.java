@@ -144,7 +144,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    private String getCorrectName(String fileName, String fileExt, Long pageID) {
+    public String getCorrectName(String fileName, String fileExt, Long pageID) {
         ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
@@ -186,30 +186,16 @@ public class DocumentManagerImpl implements DocumentManager {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
-            PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
-            AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
 
             fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
             fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
-
-            Date date = Calendar.getInstance().getTime();
 
             InputStream demoFile = getDemoFile(confluenceUser, fileExt);
 
             fileName = getCorrectName(fileName, fileExt, pageID);
             String mimeType = getMimeType(fileName);
 
-            attachment = new Attachment(fileName, mimeType, demoFile.available(), "");
-
-            attachment.setCreator(confluenceUser);
-            attachment.setCreationDate(date);
-            attachment.setLastModificationDate(date);
-            attachment.setContainer(pageManager.getPage(pageID));
-
-            attachmentManager.saveAttachment(attachment, null, demoFile);
-
-            Page page = pageManager.getPage(pageID);
-            page.addAttachment(attachment);
+            attachment = attachmentUtil.createNewAttachment(fileName, mimeType, demoFile, demoFile.available(), pageID, confluenceUser);
         } catch (Exception ex) {
             log.error(ex);
         }
