@@ -106,21 +106,19 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         if (attachmentIdString == null) {
             fileName = request.getParameter("fileName");
             String fileExt = request.getParameter("fileExt");
-            String pageID = request.getParameter("pageId");
-            if (pageID != null && !pageID.equals("")) {
-                try {
-                    Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageID));
+            String pageId = request.getParameter("pageId");
+            if (pageId != null && !pageId.equals("")) {
+                user = AuthenticatedUserThreadLocal.get();
 
-                    response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                if (!attachmentUtil.checkAccessCreate(user, Long.parseLong(pageId))) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
                     return;
-                } catch (Exception ex) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    ex.printStackTrace(pw);
-                    String error = ex.toString() + "\n" + sw.toString();
-                    log.error(error);
-                    errorMessage = ex.toString();
                 }
+
+                Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageId), user);
+
+                response.sendRedirect(request.getContextPath() + "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                return;
             }
         }
 
@@ -242,7 +240,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
             config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
-            config.put("fileProviderUriAsHtml", urlManager.getFileProviderUri());
+            config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
             config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
