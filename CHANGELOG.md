@@ -2,6 +2,7 @@
 
 
 ## Added
+- ability to get links to bookmarks in document
 - creating documents from editor
 - "save as" attachment on page from editor
 - open non-editable formats on views

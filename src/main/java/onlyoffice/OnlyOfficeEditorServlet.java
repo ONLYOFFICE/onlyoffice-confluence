@@ -106,6 +106,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         ConfluenceUser user = null;
 
         String attachmentIdString = request.getParameter("attachmentId");
+        String actionData = request.getParameter("actionData");
 
         if (attachmentIdString == null) {
             fileName = request.getParameter("fileName");
@@ -164,11 +165,12 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
 
-        writer.write(getTemplate(attachmentId, type, apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
+        writer.write(getTemplate(attachmentId, type, apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl,
+                actionData, errorMessage));
     }
 
     private String getTemplate(Long attachmentId, String type, String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
-            ConfluenceUser user, String gobackUrl, String errorMessage) throws UnsupportedEncodingException {
+            ConfluenceUser user, String gobackUrl, String actionData, String errorMessage) throws UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
 
@@ -216,6 +218,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             } else {
                 permObject.put("edit", false);
                 editorConfigObject.put("mode", "view");
+            }
+
+            if (actionData != null && !actionData.isEmpty()) {
+                editorConfigObject.put("actionLink", new JSONObject(actionData));
             }
 
             if (attachmentUtil.checkAccessCreate(user, pageId)) {
