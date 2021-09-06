@@ -200,9 +200,9 @@ public class DocumentManagerImpl implements DocumentManager {
         List<String> cellFormats = Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
         List<String> slideFormats = Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
 
-        if (wordFormats.contains(ext)) return "text";
-        if (cellFormats.contains(ext)) return "spreadsheet";
-        if (slideFormats.contains(ext)) return "presentation";
+        if (wordFormats.contains(ext)) return "word";
+        if (cellFormats.contains(ext)) return "cell";
+        if (slideFormats.contains(ext)) return "slide";
 
         return null;
     }

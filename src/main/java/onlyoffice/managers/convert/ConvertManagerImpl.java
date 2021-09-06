@@ -75,9 +75,9 @@ public class ConvertManagerImpl implements ConvertManager {
     public String convertsTo(String ext) {
         String docType = documentManager.getDocType(ext);
         if (docType != null) {
-            if (docType.equals("text")) return "docx";
-            if (docType.equals("spreadsheet")) return "xlsx";
-            if (docType.equals("presentation")) return "pptx";
+            if (docType.equals("word")) return "docx";
+            if (docType.equals("cell")) return "xlsx";
+            if (docType.equals("slide")) return "pptx";
         }
         return null;
     }
