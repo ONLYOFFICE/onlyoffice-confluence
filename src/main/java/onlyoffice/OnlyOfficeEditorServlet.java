@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import com.atlassian.plugin.webresource.UrlMode;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -63,12 +64,14 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
+    private final ConvertManager convertManager;
 
 
     @Inject
     public OnlyOfficeEditorServlet(LocaleManager localeManager, WebResourceUrlProvider webResourceUrlProvider,
             UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager,
-            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil) {
+            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
+            ConvertManager convertManager) {
         this.localeManager = localeManager;
         this.webResourceUrlProvider = webResourceUrlProvider;
         this.urlManager = urlManager;
@@ -77,6 +80,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
+        this.convertManager = convertManager;
     }
 
     @Override
@@ -107,21 +111,19 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         if (attachmentIdString == null) {
             fileName = request.getParameter("fileName");
             String fileExt = request.getParameter("fileExt");
-            String pageID = request.getParameter("pageId");
-            if (pageID != null && !pageID.equals("")) {
-                try {
-                    Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageID));
+            String pageId = request.getParameter("pageId");
+            if (pageId != null && !pageId.equals("")) {
+                user = AuthenticatedUserThreadLocal.get();
 
-                    response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                if (!attachmentUtil.checkAccessCreate(user, Long.parseLong(pageId))) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
                     return;
-                } catch (Exception ex) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    ex.printStackTrace(pw);
-                    String error = ex.toString() + "\n" + sw.toString();
-                    log.error(error);
-                    errorMessage = ex.toString();
                 }
+
+                Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageId), user);
+
+                response.sendRedirect(request.getContextPath() + "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                return;
             }
         }
 
@@ -213,7 +215,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 permObject.put("edit", true);
                 editorConfigObject.put("mode", "edit");
                 editorConfigObject.put("callbackUrl", callbackUrl);
-                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, docExt));
             } else {
                 permObject.put("edit", false);
                 editorConfigObject.put("mode", "view");
@@ -221,6 +222,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             if (actionData != null && !actionData.isEmpty()) {
                 editorConfigObject.put("actionLink", new JSONObject(actionData));
+            }
+
+            if (attachmentUtil.checkAccessCreate(user, pageId)) {
+                String createNewExt = convertManager.convertsTo(docExt);
+                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, createNewExt));
             }
 
             editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
@@ -253,7 +259,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
             config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
-            config.put("fileProviderUriAsHtml", urlManager.getFileProviderUri());
+            config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
             config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
