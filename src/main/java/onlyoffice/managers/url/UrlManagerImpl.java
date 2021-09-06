@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 @Default
 public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
+    private final String docEditorServlet = "plugins/servlet/onlyoffice/doceditor";
     private final String callbackServlet = "plugins/servlet/onlyoffice/save";
     private final String historyServlet = "plugins/servlet/onlyoffice/history";
     private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
@@ -154,6 +155,10 @@ public class UrlManagerImpl implements UrlManager {
         log.info("gobackUrl = " + gobackUrl);
 
         return gobackUrl;
+    }
+
+    public String getCreateUri(Long pageId, String ext) {
+        return getConfluenceBaseUrl() + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + ext;
     }
 
     private String getConfluenceBaseUrl() {

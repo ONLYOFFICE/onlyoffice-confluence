@@ -2,6 +2,7 @@
 
 
 ## Added
+- creating documents from editor
 - "save as" attachment on page from editor
 - open non-editable formats on views
 - formats for conversion docm, dot, dotx, epub, htm, html, otp, ots, ott, pot, potm, potx, pps, ppsm, ppsx,

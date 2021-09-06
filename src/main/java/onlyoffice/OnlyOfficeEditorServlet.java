@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import com.atlassian.plugin.webresource.UrlMode;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -63,12 +64,14 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
+    private final ConvertManager convertManager;
 
 
     @Inject
     public OnlyOfficeEditorServlet(LocaleManager localeManager, WebResourceUrlProvider webResourceUrlProvider,
             UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager,
-            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil) {
+            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
+            ConvertManager convertManager) {
         this.localeManager = localeManager;
         this.webResourceUrlProvider = webResourceUrlProvider;
         this.urlManager = urlManager;
@@ -77,6 +80,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
+        this.convertManager = convertManager;
     }
 
     @Override
@@ -172,6 +176,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
         boolean canEdit = documentManager.isEditable(docExt);
         String documentType = documentManager.getDocType(docExt);
+        Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
 
         config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
         config.put("errorMessage", errorMessage);
@@ -213,6 +218,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 editorConfigObject.put("mode", "view");
             }
 
+            if (attachmentUtil.checkAccessCreate(user, pageId)) {
+                String createNewExt = convertManager.convertsTo(docExt);
+                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, createNewExt));
+            }
+
             editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
             editorConfigObject.put("customization", customizationObject);
 
@@ -232,7 +242,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             // AsHtml at the end disables automatic html encoding
             config.put("jsonAsHtml", responseJson.toString());
-            config.put("pageId", attachmentUtil.getAttachmentPageId(attachmentId).toString());
+            config.put("pageId", pageId.toString());
             config.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
             config.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
             config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
