@@ -2,6 +2,9 @@
 
 
 ## Added
+- ability to get links to bookmarks in document
+- creating documents from editor
+- "save as" attachment on page from editor
 - open non-editable formats on views
 - formats for conversion docm, dot, dotx, epub, htm, html, otp, ots, ott, pot, potm, potx, pps, ppsm, ppsx,
  pptm, rtf, xlsm, xlt, xltm, xltx
@@ -9,9 +12,9 @@
 - version history with highlighting changes
 - detecting mobile browser
 - change favicon in editor by document type
-- insert image
-- creating documents from editor
-- ability to get links to bookmarks in document
+- insert image from storage
+- compare file from storage
+- mail merge from storage
 
 ## 3.0.0
 ## Added
