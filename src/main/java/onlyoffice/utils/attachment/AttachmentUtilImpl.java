@@ -93,13 +93,14 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
 
-        Permission permission = Permission.VIEW;
         if (forEdit) {
-            permission = Permission.EDIT;
+            boolean create = checkAccessCreate(user, attachment.getContainer().getId());
+            boolean access = permissionManager.hasPermission(user, Permission.EDIT, attachment);
+            return create && access;
+        } else {
+            boolean access = permissionManager.hasPermission(user, Permission.VIEW, attachment);
+            return access;
         }
-
-        boolean access = permissionManager.hasPermission(user, permission, attachment);
-        return access;
     }
 
     public boolean checkAccessCreate(User user, Long pageId) {
@@ -115,7 +116,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return access;
     }
 
-    public void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
+    public void saveAttachmentAsNewVersion(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
@@ -125,6 +126,25 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         AuthenticatedUserThreadLocal.set(user);
 
         attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
+    }
+
+    public void updateAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        Date date = Calendar.getInstance().getTime();
+
+        attachment.setFileSize(size);
+        attachment.setCreator(user);
+        attachment.setCreationDate(date);
+
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                attDao.replaceAttachmentData(attachment, attachmentData);
+                attDao.updateAttachment(attachment);
+                return null;
+            }
+        });
     }
 
     public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws IOException {
@@ -216,23 +236,55 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public String getCollaborativeEditingKey (Long attachmentId) {
-        Attachment attachment = attachmentManager.getAttachment(attachmentId);
-        ContentProperties contentProperties = attachment.getProperties();
-        return contentProperties.getStringProperty("onlyoffice-collaborative-editor-key");
+        return getProperty(attachmentId, "onlyoffice-collaborative-editor-key");
     }
 
     public void setCollaborativeEditingKey (Long attachmentId, String key) {
+        if (key == null || key.isEmpty()) {
+            removeProperty(attachmentId, "onlyoffice-collaborative-editor-key");
+        } else {
+            setProperty(attachmentId, "onlyoffice-collaborative-editor-key", key);
+        }
+    }
+
+    public String getProperty (Long attachmentId, String name) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            ContentProperties contentProperties = attachment.getProperties();
+            return contentProperties.getStringProperty(name);
+        }
+        return null;
+    }
+
+    public boolean getPropertyAsBoolean (Long attachmentId, String name) {
+        String property = getProperty(attachmentId, name);
+        return Boolean.parseBoolean(property);
+    }
+
+    public void setProperty (Long attachmentId, String name, String value) {
         AttachmentDao attDao = attachmentManager.getAttachmentDao();
         Attachment attachment = attDao.getById(attachmentId);
-        if (key == null || key.isEmpty()) {
-            attachment.getProperties().removeProperty("onlyoffice-collaborative-editor-key");
-        } else {
-            attachment.getProperties().setStringProperty("onlyoffice-collaborative-editor-key", key);
-        }
+
+        attachment.getProperties().setStringProperty(name, value);
+
         Object result = transactionTemplate.execute(new TransactionCallback() {
             @Override
-            public Object doInTransaction()
-            {
+            public Object doInTransaction() {
+                attDao.updateAttachment(attachment);
+                return null;
+            }
+        });
+    }
+
+    public void removeProperty (Long attachmentId, String name) {
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Attachment attachment = attDao.getById(attachmentId);
+
+        attachment.getProperties().removeProperty(name);
+
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
                 attDao.updateAttachment(attachment);
                 return null;
             }

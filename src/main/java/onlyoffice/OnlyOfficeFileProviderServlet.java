@@ -18,9 +18,6 @@
 
 package onlyoffice;
 
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
-import com.atlassian.confluence.user.ConfluenceUser;
-import com.google.gson.Gson;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -28,8 +25,6 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -37,10 +32,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -96,56 +87,6 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
         OutputStream output = response.getOutputStream();
         for (int length = 0; (length = inputStream.read(buffer)) > 0;) {
             output.write(buffer, 0, length);
-        }
-    }
-
-    @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
-
-        if (user == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        InputStream requestStream = request.getInputStream();
-        String body = parsingUtil.getBody(requestStream);
-
-        try {
-            JSONObject bodyJson = new JSONObject(body);
-            JSONArray attachments = bodyJson.getJSONArray("attachments");
-
-            List<Object> responseJson = new ArrayList<>();
-            Gson gson = new Gson();
-
-            for (int i = 0; i < attachments.length(); i++) {
-                Long attachmentId = attachments.getLong(i);
-
-                if (attachmentUtil.checkAccess(attachmentId, user, false)) {
-                    Map<String, String> data = new HashMap<>();
-
-                    String fileName = attachmentUtil.getFileName(attachmentId);
-                    String fileType = fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
-
-                    if (bodyJson.has("command")) {
-                        data.put("command", bodyJson.getString("command"));
-                    }
-                    data.put("fileType", fileType);
-                    data.put("url", urlManager.getFileUri(attachmentId));
-                    if (jwtManager.jwtEnabled()) {
-                        JSONObject dataJSON = new JSONObject(gson.toJson(data));
-                        data.put("token", jwtManager.createToken(dataJSON));
-                    }
-
-                    responseJson.add(data);
-                }
-            }
-
-            response.setContentType("application/json");
-            PrintWriter writer = response.getWriter();
-            writer.write(gson.toJson(responseJson));
-        } catch (Exception e) {
-            throw new IOException(e.getMessage());
         }
     }
 }
