@@ -142,5 +142,13 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     public String getDemo(String key) {
         return demoData.get(key);
     }
+
+    public Boolean getBooleanPluginSetting(String key, Boolean defaultValue) {
+        String setting = (String) pluginSettings.get("onlyoffice." + key);
+        if (setting == null || setting.isEmpty()) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(setting);
+    }
 }
 

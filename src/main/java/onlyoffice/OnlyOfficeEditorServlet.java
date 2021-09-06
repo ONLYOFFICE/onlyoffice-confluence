@@ -233,6 +233,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             editorConfigObject.put("customization", customizationObject);
 
             customizationObject.put("forcesave", configurationManager.forceSaveEnabled());
+            customizationObject.put("chat", configurationManager.getBooleanPluginSetting("chat", true));
+            customizationObject.put("compactHeader", configurationManager.getBooleanPluginSetting("compactHeader", false));
+            customizationObject.put("feedback", configurationManager.getBooleanPluginSetting("feedback", false));
+            customizationObject.put("help", configurationManager.getBooleanPluginSetting("helpMenu", true));
+            customizationObject.put("toolbarNoTabs", configurationManager.getBooleanPluginSetting("toolbarNoTabs", false));
             customizationObject.put("goback", gobackObject);
             gobackObject.put("url", gobackUrl);
 

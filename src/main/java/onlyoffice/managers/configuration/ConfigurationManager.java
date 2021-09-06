@@ -13,4 +13,5 @@ public interface ConfigurationManager extends Serializable {
     public Boolean demoAvailable(Boolean forActivate);
     public Boolean demoActive();
     public String getDemo(String key);
+    public Boolean getBooleanPluginSetting(String key, Boolean defaultValue);
 }

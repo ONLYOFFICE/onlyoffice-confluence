@@ -99,6 +99,11 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         String docInnerUrl = (String) pluginSettings.get("onlyoffice.docInnerUrl");
 		String confUrl = (String) pluginSettings.get("onlyoffice.confUrl");
         Boolean forceSave = configurationManager.forceSaveEnabled();
+        Boolean chat = configurationManager.getBooleanPluginSetting("chat", true);
+        Boolean compactHeader = configurationManager.getBooleanPluginSetting("compactHeader", false);
+        Boolean feedback = configurationManager.getBooleanPluginSetting("feedback", false);
+        Boolean helpMenu = configurationManager.getBooleanPluginSetting("helpMenu", true);
+        Boolean toolbarNoTabs = configurationManager.getBooleanPluginSetting("toolbarNoTabs", false);
         Boolean demo = configurationManager.demoEnabled();
         Boolean demoAvailable = configurationManager.demoAvailable(true);
 
@@ -117,6 +122,11 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 		contextMap.put("docserviceConfUrl", confUrl);
         contextMap.put("docserviceJwtSecret", jwtSecret);
         contextMap.put("forceSave", forceSave);
+        contextMap.put("chat", chat);
+        contextMap.put("compactHeader", compactHeader);
+        contextMap.put("feedback", feedback);
+        contextMap.put("helpMenu", helpMenu);
+        contextMap.put("toolbarNoTabs", toolbarNoTabs);
         contextMap.put("docserviceDemo", demo);
         contextMap.put("docserviceDemoAvailable", demoAvailable);
         contextMap.put("pathApiUrl", configurationManager.getProperty("files.docservice.url.api"));
@@ -144,15 +154,12 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         String apiUrl;
         String docInnerUrl;
-		String confUrl;
         String jwtSecret;
-        Boolean forceSave;
-        Boolean demo;
         PluginSettings pluginSettings = pluginSettingsFactory.createGlobalSettings();
         try {
             JSONObject jsonObj = new JSONObject(body);
 
-            demo = jsonObj.getBoolean("demo");
+            Boolean demo = jsonObj.getBoolean("demo");
             configurationManager.selectDemo(demo);
 
             if (configurationManager.demoActive()) {
@@ -167,10 +174,21 @@ public class OnlyOfficeConfServlet extends HttpServlet {
                 pluginSettings.put("onlyoffice.docInnerUrl", docInnerUrl);
             }
 
-            confUrl = AppendSlash(jsonObj.getString("confUrl"));
-            forceSave = jsonObj.getBoolean("forceSave");
+            String confUrl = AppendSlash(jsonObj.getString("confUrl"));
+            Boolean forceSave = jsonObj.getBoolean("forceSave");
+            Boolean chat = jsonObj.getBoolean("chat");
+            Boolean compactHeader = jsonObj.getBoolean("compactHeader");
+            Boolean feedback = jsonObj.getBoolean("feedback");
+            Boolean helpMenu = jsonObj.getBoolean("helpMenu");
+            Boolean toolbarNoTabs = jsonObj.getBoolean("toolbarNoTabs");
+
             pluginSettings.put("onlyoffice.confUrl", confUrl);
             pluginSettings.put("onlyoffice.forceSave", forceSave.toString());
+            pluginSettings.put("onlyoffice.chat", chat.toString());
+            pluginSettings.put("onlyoffice.compactHeader", compactHeader.toString());
+            pluginSettings.put("onlyoffice.feedback", feedback.toString());
+            pluginSettings.put("onlyoffice.helpMenu", helpMenu.toString());
+            pluginSettings.put("onlyoffice.toolbarNoTabs", toolbarNoTabs.toString());
 
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
