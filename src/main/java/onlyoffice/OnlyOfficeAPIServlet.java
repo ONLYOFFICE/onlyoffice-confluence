@@ -27,6 +27,12 @@ import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -40,8 +46,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -103,7 +107,6 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
 
         InputStream requestStream = request.getInputStream();
         String body = parsingUtil.getBody(requestStream);
-        HttpURLConnection connection = null;
 
         try {
             JSONObject bodyJson = new JSONObject(body);
@@ -124,26 +127,28 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 return;
             }
 
-            URL url = new URL(downloadUrl);
-            connection = (HttpURLConnection) url.openConnection();
+            CloseableHttpClient httpClient = configurationManager.getHttpClient();
+            HttpGet httpGet = new HttpGet(downloadUrl);
 
-            Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
-            connection.setConnectTimeout(timeout);
-            connection.setReadTimeout(timeout);
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
 
-            int size = connection.getContentLength();
-            InputStream stream = connection.getInputStream();
+            int status = httpResponse.getStatusLine().getStatusCode();
+            HttpEntity entity = httpResponse.getEntity();
 
-            String fileName = documentManager.getCorrectName(title, ext, pageId);
-            String mimeType = documentManager.getMimeType(fileName);
+            if (status == HttpStatus.SC_OK) {
+                InputStream stream = entity.getContent();
+                Long size = entity.getContentLength();
+                log.info("size = " + size);
 
-            attachmentUtil.createNewAttachment(fileName, mimeType, stream, size, pageId, user);
+                String fileName = documentManager.getCorrectName(title, ext, pageId);
+                String mimeType = documentManager.getMimeType(fileName);
+
+                attachmentUtil.createNewAttachment(fileName, mimeType, stream, size.intValue(), pageId, user);
+            } else {
+                throw new HttpException("Document Server returned code " + status);
+            }
         } catch (Exception e) {
             throw new IOException(e.getMessage());
-        }  finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
         }
     }
 

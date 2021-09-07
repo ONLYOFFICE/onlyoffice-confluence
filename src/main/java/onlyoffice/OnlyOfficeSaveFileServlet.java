@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -278,15 +277,14 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         int status = response.getStatusLine().getStatusCode();
         HttpEntity entity = response.getEntity();
 
-           
         if (status == HttpStatus.SC_OK) {
             InputStream stream = entity.getContent();
             Long size = entity.getContentLength();
 
             if (newVersion) {
-                attachmentUtil.saveAttachmentAsNewVersion(attachmentId, stream, size, user);
+                attachmentUtil.saveAttachmentAsNewVersion(attachmentId, stream, size.intValue(), user);
             } else {
-                attachmentUtil.updateAttachment(attachmentId, stream, size, user);
+                attachmentUtil.updateAttachment(attachmentId, stream, size.intValue(), user);
             }
         } else {
             throw new HttpException("Document Server returned code " + status);
