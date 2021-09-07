@@ -221,6 +221,11 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return attachment.getFileName();
     }
 
+    public String getFileExt(Long attachmentId) {
+        String fileName = getFileName(attachmentId);
+        return fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
+    }
+
     public String getHashCode(Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         int hashCode = attachment.hashCode();

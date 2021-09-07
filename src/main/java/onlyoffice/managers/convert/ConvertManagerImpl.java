@@ -83,18 +83,24 @@ public class ConvertManagerImpl implements ConvertManager {
     }
 
     public JSONObject convert(Long attachmentId, String ext) throws Exception {
+       String url = urlManager.getFileUri(attachmentId);
+       String convertToExt = convertsTo(ext);
+       return convert(attachmentId, ext, convertToExt, url, true);
+    }
+
+    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, boolean async) throws Exception {
         Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(timeout)
                 .setSocketTimeout(timeout).build();
         CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
         JSONObject body = new JSONObject();
-        body.put("async", true);
+        body.put("async", async);
         body.put("embeddedfonts", true);
-        body.put("filetype", ext);
-        body.put("outputtype", convertsTo(ext));
+        body.put("filetype", currentExt);
+        body.put("outputtype", convertToExt);
         body.put("key", documentManager.getKeyOfFile(attachmentId));
-        body.put("url", urlManager.getFileUri(attachmentId));
+        body.put("url", url);
 
         StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
         HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()

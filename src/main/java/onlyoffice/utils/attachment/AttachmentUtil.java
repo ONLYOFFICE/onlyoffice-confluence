@@ -21,6 +21,7 @@ public interface AttachmentUtil extends Serializable {
     public InputStream getAttachmentData(Long attachmentId);
     public String getMediaType(Long attachmentId);
     public String getFileName(Long attachmentId);
+    public String getFileExt(Long attachmentId);
     public String getHashCode(Long attachmentId);
     public String getCollaborativeEditingKey (Long attachmentId);
     public void setCollaborativeEditingKey (Long attachmentId, String key);

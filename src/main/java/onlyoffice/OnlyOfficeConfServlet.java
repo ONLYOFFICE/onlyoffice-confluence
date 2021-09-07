@@ -43,6 +43,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.atlassian.confluence.setup.settings.SettingsManager;
@@ -106,6 +107,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         Boolean toolbarNoTabs = configurationManager.getBooleanPluginSetting("toolbarNoTabs", false);
         Boolean demo = configurationManager.demoEnabled();
         Boolean demoAvailable = configurationManager.demoAvailable(true);
+        Map<String, Boolean> defaultCustomizableEditingTypes = configurationManager.getCustomizableEditingTypes();
 
         if (apiUrl == null || apiUrl.isEmpty()) { apiUrl = ""; }
         if (jwtSecret == null || jwtSecret.isEmpty()) { jwtSecret = ""; }
@@ -130,6 +132,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         contextMap.put("docserviceDemo", demo);
         contextMap.put("docserviceDemoAvailable", demoAvailable);
         contextMap.put("pathApiUrl", configurationManager.getProperty("files.docservice.url.api"));
+        contextMap.put("defaultCustomizableEditingTypes", defaultCustomizableEditingTypes);
 
         writer.write(getTemplate(contextMap));
     }
@@ -181,6 +184,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             Boolean feedback = jsonObj.getBoolean("feedback");
             Boolean helpMenu = jsonObj.getBoolean("helpMenu");
             Boolean toolbarNoTabs = jsonObj.getBoolean("toolbarNoTabs");
+            JSONArray editingTypes = jsonObj.getJSONArray("editingTypes");
 
             pluginSettings.put("onlyoffice.confUrl", confUrl);
             pluginSettings.put("onlyoffice.forceSave", forceSave.toString());
@@ -189,6 +193,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             pluginSettings.put("onlyoffice.feedback", feedback.toString());
             pluginSettings.put("onlyoffice.helpMenu", helpMenu.toString());
             pluginSettings.put("onlyoffice.toolbarNoTabs", toolbarNoTabs.toString());
+            pluginSettings.put("onlyoffice.editingTypes", editingTypes.toString());
 
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();

@@ -16,11 +16,12 @@
  *
  */
 
- .secretFiled {
+.secretFiled {
     position: inherit;
     max-width: 250px;
     width: 100%;
 }
+
 .view-control {
     position: absolute;
     display: block;
@@ -30,9 +31,16 @@
     height: 20px;
     background: url(icon_view.svg) 0 0 no-repeat;
 }
+
 .view-control.view {
     background: url(icon_hide.svg) 0 0 no-repeat;
 }
-#onlyofficeSubmitBtn{
+
+#onlyofficeSubmitBtn {
     margin-top: 19px;
+}
+
+.inline {
+    display: inline-block;
+    margin-right: 20px !important;
 }

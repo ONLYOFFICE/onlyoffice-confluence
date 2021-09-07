@@ -25,13 +25,16 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -60,17 +63,19 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
     private final ConfigurationManager configurationManager;
+    private final ConvertManager convertManager;
 
     @Inject
     public OnlyOfficeSaveFileServlet(JwtManager jwtManager, DocumentManager documentManager,
             AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager,
-            ConfigurationManager configurationManager) {
+            ConfigurationManager configurationManager, ConvertManager convertManager) {
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
         this.configurationManager = configurationManager;
+        this.convertManager = convertManager;
     }
 
     @Override
@@ -251,9 +256,18 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user, boolean newVersion) throws IOException {
+    private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user, boolean newVersion) throws Exception {
         HttpURLConnection connection = null;
         try {
+            List<String> defaultEditingTypes = configurationManager.getDefaultEditingTypes();;
+
+            String attachmentExt = attachmentUtil.getFileExt(attachmentId);
+            String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
+            if (!defaultEditingTypes.contains(attachmentExt)) {
+                JSONObject response = convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, false);
+                downloadUrl = response.getString("fileUrl");
+            }
+
             URL url = new URL(downloadUrl);
             connection = (HttpURLConnection) url.openConnection();
 
