@@ -30,9 +30,6 @@ import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
-import com.atlassian.confluence.pages.Page;
-import com.atlassian.confluence.pages.PageManager;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -182,23 +179,18 @@ public class DocumentManagerImpl implements DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public Long createDemo(String fileName, String fileExt, Long pageID) {
+    public Long createDemo(String fileName, String fileExt, Long pageId, ConfluenceUser user) throws IOException {
         Attachment attachment = null;
-        try {
-            ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
 
-            fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
-            fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
+        fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
+        fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
 
-            InputStream demoFile = getDemoFile(confluenceUser, fileExt);
+        InputStream demoFile = getDemoFile(user, fileExt);
 
-            fileName = getCorrectName(fileName, fileExt, pageID);
-            String mimeType = getMimeType(fileName);
+        fileName = getCorrectName(fileName, fileExt, pageId);
+        String mimeType = getMimeType(fileName);
 
-            attachment = attachmentUtil.createNewAttachment(fileName, mimeType, demoFile, demoFile.available(), pageID, confluenceUser);
-        } catch (Exception ex) {
-            log.error(ex);
-        }
+        attachment = attachmentUtil.createNewAttachment(fileName, mimeType, demoFile, demoFile.available(), pageId, user);
 
         return attachment.getContentId().asLong();
     }
