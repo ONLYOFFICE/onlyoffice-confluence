@@ -269,25 +269,26 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             downloadUrl = response.getString("fileUrl");
         }
 
-        CloseableHttpClient httpClient = configurationManager.getHttpClient();
-        HttpGet request = new HttpGet(downloadUrl);
+        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
+            HttpGet request = new HttpGet(downloadUrl);
 
-        CloseableHttpResponse response = httpClient.execute(request);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int status = response.getStatusLine().getStatusCode();
+                HttpEntity entity = response.getEntity();
 
-        int status = response.getStatusLine().getStatusCode();
-        HttpEntity entity = response.getEntity();
+                if (status == HttpStatus.SC_OK) {
+                    InputStream stream = entity.getContent();
+                    Long size = entity.getContentLength();
 
-        if (status == HttpStatus.SC_OK) {
-            InputStream stream = entity.getContent();
-            Long size = entity.getContentLength();
-
-            if (newVersion) {
-                attachmentUtil.saveAttachmentAsNewVersion(attachmentId, stream, size.intValue(), user);
-            } else {
-                attachmentUtil.updateAttachment(attachmentId, stream, size.intValue(), user);
+                    if (newVersion) {
+                        attachmentUtil.saveAttachmentAsNewVersion(attachmentId, stream, size.intValue(), user);
+                    } else {
+                        attachmentUtil.updateAttachment(attachmentId, stream, size.intValue(), user);
+                    }
+                } else {
+                    throw new HttpException("Document Server returned code " + status);
+                }
             }
-        } else {
-            throw new HttpException("Document Server returned code " + status);
         }
     }
 

@@ -158,36 +158,37 @@ public class AttachmentUtilImpl implements AttachmentUtil {
             Attachment changes = new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
             changes.setContainer(attachment.getContainer());
 
-            CloseableHttpClient httpClient = configurationManager.getHttpClient();
-            HttpGet request = new HttpGet(changesUrl);
+            try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
+                HttpGet request = new HttpGet(changesUrl);
 
-            CloseableHttpResponse response = httpClient.execute(request);
+                try (CloseableHttpResponse response = httpClient.execute(request)) {
+                    int status = response.getStatusLine().getStatusCode();
+                    HttpEntity entity = response.getEntity();
 
-            int status = response.getStatusLine().getStatusCode();
-            HttpEntity entity = response.getEntity();
+                    if (status == HttpStatus.SC_OK) {
+                        InputStream streamDiff = entity.getContent();
+                        Long size = entity.getContentLength();
 
-            if (status == HttpStatus.SC_OK) {
-                InputStream streamDiff = entity.getContent();
-                Long size = entity.getContentLength();
+                        Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", size, "");
+                        diff.setContainer(attachment.getContainer());
 
-                Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", size, "");
-                diff.setContainer(attachment.getContainer());
+                        attachment.addAttachment(changes);
+                        attachment.addAttachment(diff);
 
-                attachment.addAttachment(changes);
-                attachment.addAttachment(diff);
-
-                AttachmentDao attDao = attachmentManager.getAttachmentDao();
-                Object result = transactionTemplate.execute(new TransactionCallback() {
-                    @Override
-                    public Object doInTransaction() {
-                        attDao.saveNewAttachment(changes, changesStream);
-                        attDao.saveNewAttachment(diff, streamDiff);
-                        attDao.updateAttachment(attachment);
-                        return null;
+                        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+                        Object result = transactionTemplate.execute(new TransactionCallback() {
+                            @Override
+                            public Object doInTransaction() {
+                                attDao.saveNewAttachment(changes, changesStream);
+                                attDao.saveNewAttachment(diff, streamDiff);
+                                attDao.updateAttachment(attachment);
+                                return null;
+                            }
+                        });
+                    } else {
+                        throw new HttpException("Docserver returned code " + status);
                     }
-                });
-            } else {
-                throw new HttpException("Docserver returned code " + status);
+                }
             }
         }
     }

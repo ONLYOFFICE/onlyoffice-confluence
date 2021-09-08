@@ -166,30 +166,32 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private Long savefile(Attachment attachment, String fileUrl, String newName) throws Exception {
         log.info("downloadUri = " + fileUrl);
 
-        CloseableHttpClient httpClient = configurationManager.getHttpClient();
-        HttpGet request = new HttpGet(fileUrl);
+        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
+            HttpGet request = new HttpGet(fileUrl);
 
-        CloseableHttpResponse response = httpClient.execute(request);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
 
-        int status = response.getStatusLine().getStatusCode();
-        HttpEntity entity = response.getEntity();
+                int status = response.getStatusLine().getStatusCode();
+                HttpEntity entity = response.getEntity();
 
-        if (status == HttpStatus.SC_OK) {
-            InputStream stream = entity.getContent();
-            Long size = entity.getContentLength();
+                if (status == HttpStatus.SC_OK) {
+                    InputStream stream = entity.getContent();
+                    Long size = entity.getContentLength();
 
-            Attachment copy = attachment.copyLatestVersion();
+                    Attachment copy = attachment.copyLatestVersion();
 
-            copy.setContainer(attachment.getContainer());
-            copy.setFileName(newName);
-            copy.setFileSize(size);
-            copy.setMediaType(documentManager.getMimeType(newName));
+                    copy.setContainer(attachment.getContainer());
+                    copy.setFileName(newName);
+                    copy.setFileSize(size);
+                    copy.setMediaType(documentManager.getMimeType(newName));
 
-            attachmentManager.saveAttachment(copy, null, stream);
+                    attachmentManager.saveAttachment(copy, null, stream);
 
-            return copy.getLatestVersionId();
-        } else {
-            throw new HttpException("Document Server returned code " + status);
+                    return copy.getLatestVersionId();
+                } else {
+                    throw new HttpException("Document Server returned code " + status);
+                }
+            }
         }
     }
 

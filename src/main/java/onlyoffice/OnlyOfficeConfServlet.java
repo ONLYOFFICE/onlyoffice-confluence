@@ -238,14 +238,13 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     }
 
     private Boolean CheckDocServUrl(String url) {
-        try {
-            CloseableHttpClient httpClient = configurationManager.getHttpClient();
+        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             HttpGet request = new HttpGet(url + "healthcheck");
-            CloseableHttpResponse response = httpClient.execute(request);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
 
-            String content = IOUtils.toString(response.getEntity().getContent(), "utf-8").trim();
-            if (content.equalsIgnoreCase("true"))
-                return true;
+                String content = IOUtils.toString(response.getEntity().getContent(), "utf-8").trim();
+                if (content.equalsIgnoreCase("true")) return true;
+            }
         } catch (Exception e) {
             log.debug("/healthcheck error: " + e.getMessage());
         }
@@ -255,8 +254,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
     private Boolean CheckDocServCommandService(String url) throws SecurityException {
         Integer errorCode = -1;
-        try {
-            CloseableHttpClient httpClient = configurationManager.getHttpClient();
+        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
             body.put("c", "version");
 
@@ -277,22 +275,23 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             request.setHeader("Accept", "application/json");
 
             log.debug("Sending POST to Docserver: " + body.toString());
-            CloseableHttpResponse response = httpClient.execute(request);
-            int status = response.getStatusLine().getStatusCode();
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int status = response.getStatusLine().getStatusCode();
 
-            if (status != HttpStatus.SC_OK) {
-                return false;
-            } else {
-                String content = IOUtils.toString(response.getEntity().getContent(), "utf-8");
-                log.debug("/CommandService content: " + content);
-                JSONObject callBackJson = null;
-                callBackJson = new JSONObject(content);
-
-                if (callBackJson.isNull("error")) {
+                if (status != HttpStatus.SC_OK) {
                     return false;
-                }
+                } else {
+                    String content = IOUtils.toString(response.getEntity().getContent(), "utf-8");
+                    log.debug("/CommandService content: " + content);
+                    JSONObject callBackJson = null;
+                    callBackJson = new JSONObject(content);
 
-                errorCode = callBackJson.getInt("error");
+                    if (callBackJson.isNull("error")) {
+                        return false;
+                    }
+
+                    errorCode = callBackJson.getInt("error");
+                }
             }
         } catch (Exception e) {
             log.debug("/CommandService error: " + e.getMessage());

@@ -85,55 +85,58 @@ public class ConvertManagerImpl implements ConvertManager {
     }
 
     public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, boolean async) throws Exception {
-        CloseableHttpClient httpClient = configurationManager.getHttpClient();
-        JSONObject body = new JSONObject();
-        body.put("async", async);
-        body.put("embeddedfonts", true);
-        body.put("filetype", currentExt);
-        body.put("outputtype", convertToExt);
-        body.put("key", documentManager.getKeyOfFile(attachmentId));
-        body.put("url", url);
+        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
+            JSONObject body = new JSONObject();
+            body.put("async", async);
+            body.put("embeddedfonts", true);
+            body.put("filetype", currentExt);
+            body.put("outputtype", convertToExt);
+            body.put("key", documentManager.getKeyOfFile(attachmentId));
+            body.put("url", url);
 
-        StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
-        HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
-                + configurationManager.getProperties().getProperty("files.docservice.url.convert"));
-        request.setEntity(requestEntity);
-        request.setHeader("Accept", "application/json");
+            StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
+            HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
+                    + configurationManager.getProperties().getProperty("files.docservice.url.convert"));
+            request.setEntity(requestEntity);
+            request.setHeader("Accept", "application/json");
 
-        if (jwtManager.jwtEnabled()) {
-            String token = jwtManager.createToken(body);
-            JSONObject payloadBody = new JSONObject();
-            payloadBody.put("payload", body);
-            String headerToken = jwtManager.createToken(body);
-            body.put("token", token);
-            String header = jwtManager.getJwtHeader();
-            request.setHeader(header, "Bearer " + headerToken);
-        }
-
-        log.debug("Sending POST to Docserver: " + body.toString());
-        CloseableHttpResponse response = httpClient.execute(request);
-        int status = response.getStatusLine().getStatusCode();
-
-        if (status != HttpStatus.SC_OK) {
-            throw new HttpException("Docserver returned code " + status);
-        } else {
-            InputStream is = response.getEntity().getContent();
-            String content = "";
-
-            byte[] buffer = new byte[10240];
-            for (int length = 0; (length = is.read(buffer)) > 0;) {
-                content += new String(buffer, 0, length);
+            if (jwtManager.jwtEnabled()) {
+                String token = jwtManager.createToken(body);
+                JSONObject payloadBody = new JSONObject();
+                payloadBody.put("payload", body);
+                String headerToken = jwtManager.createToken(body);
+                body.put("token", token);
+                String header = jwtManager.getJwtHeader();
+                request.setHeader(header, "Bearer " + headerToken);
             }
 
-            log.debug("Docserver returned: " + content);
-            JSONObject callBackJson = null;
-            try {
-                callBackJson = new JSONObject(content);
-            } catch (Exception e) {
-                throw new Exception("Couldn't convert JSON from docserver: " + e.getMessage());
-            }
+            log.debug("Sending POST to Docserver: " + body.toString());
 
-            return callBackJson;
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int status = response.getStatusLine().getStatusCode();
+
+                if (status != HttpStatus.SC_OK) {
+                    throw new HttpException("Docserver returned code " + status);
+                } else {
+                    InputStream is = response.getEntity().getContent();
+                    String content = "";
+
+                    byte[] buffer = new byte[10240];
+                    for (int length = 0; (length = is.read(buffer)) > 0; ) {
+                        content += new String(buffer, 0, length);
+                    }
+
+                    log.debug("Docserver returned: " + content);
+                    JSONObject callBackJson = null;
+                    try {
+                        callBackJson = new JSONObject(content);
+                    } catch (Exception e) {
+                        throw new Exception("Couldn't convert JSON from docserver: " + e.getMessage());
+                    }
+
+                    return callBackJson;
+                }
+            }
         }
     }
 

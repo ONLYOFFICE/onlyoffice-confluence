@@ -125,38 +125,39 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 return;
             }
 
-            CloseableHttpClient httpClient = configurationManager.getHttpClient();
-            HttpGet httpGet = new HttpGet(downloadUrl);
+            try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
+                HttpGet httpGet = new HttpGet(downloadUrl);
 
-            CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+                try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
+                    int status = httpResponse.getStatusLine().getStatusCode();
+                    HttpEntity entity = httpResponse.getEntity();
 
-            int status = httpResponse.getStatusLine().getStatusCode();
-            HttpEntity entity = httpResponse.getEntity();
+                    if (status == HttpStatus.SC_OK) {
+                        InputStream streamResponse = entity.getContent();
 
-            if (status == HttpStatus.SC_OK) {
-                InputStream streamResponse = entity.getContent();
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[1024];
+                        int chunkBytesRead = 0;
 
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int chunkBytesRead = 0;
+                        while ((chunkBytesRead = streamResponse.read(buffer, 0, buffer.length)) != -1) {
+                            byteArrayOutputStream.write(buffer, 0, chunkBytesRead);
+                        }
 
-                while((chunkBytesRead = streamResponse.read(buffer, 0, buffer.length)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, chunkBytesRead);
+                        byte[] bytes = byteArrayOutputStream.toByteArray();
+
+                        int size = bytes.length;
+                        InputStream inputStream = new ByteArrayInputStream(bytes);
+
+                        log.info("size = " + size);
+
+                        String fileName = documentManager.getCorrectName(title, ext, pageId);
+                        String mimeType = documentManager.getMimeType(fileName);
+
+                        attachmentUtil.createNewAttachment(fileName, mimeType, inputStream, size, pageId, user);
+                    } else {
+                        throw new HttpException("Document Server returned code " + status);
+                    }
                 }
-
-                byte[] bytes = byteArrayOutputStream.toByteArray();
-
-                int size = bytes.length;
-                InputStream inputStream = new ByteArrayInputStream(bytes);
-
-                log.error("size = " + size);
-
-                String fileName = documentManager.getCorrectName(title, ext, pageId);
-                String mimeType = documentManager.getMimeType(fileName);
-
-                attachmentUtil.createNewAttachment(fileName, mimeType, inputStream, size, pageId, user);
-            } else {
-                throw new HttpException("Document Server returned code " + status);
             }
         } catch (Exception e) {
             throw new IOException(e.getMessage());
