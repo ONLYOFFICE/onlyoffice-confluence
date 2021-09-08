@@ -43,9 +43,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -136,14 +134,27 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
             HttpEntity entity = httpResponse.getEntity();
 
             if (status == HttpStatus.SC_OK) {
-                InputStream stream = entity.getContent();
-                Long size = entity.getContentLength();
-                log.info("size = " + size);
+                InputStream streamResponse = entity.getContent();
+
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int chunkBytesRead = 0;
+
+                while((chunkBytesRead = streamResponse.read(buffer, 0, buffer.length)) != -1) {
+                    byteArrayOutputStream.write(buffer, 0, chunkBytesRead);
+                }
+
+                byte[] bytes = byteArrayOutputStream.toByteArray();
+
+                int size = bytes.length;
+                InputStream inputStream = new ByteArrayInputStream(bytes);
+
+                log.error("size = " + size);
 
                 String fileName = documentManager.getCorrectName(title, ext, pageId);
                 String mimeType = documentManager.getMimeType(fileName);
 
-                attachmentUtil.createNewAttachment(fileName, mimeType, stream, size.intValue(), pageId, user);
+                attachmentUtil.createNewAttachment(fileName, mimeType, inputStream, size, pageId, user);
             } else {
                 throw new HttpException("Document Server returned code " + status);
             }
