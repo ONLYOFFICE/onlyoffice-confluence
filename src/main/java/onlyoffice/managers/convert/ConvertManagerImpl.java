@@ -19,6 +19,7 @@
 package onlyoffice.managers.convert;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -119,12 +121,7 @@ public class ConvertManagerImpl implements ConvertManager {
                     throw new HttpException("Docserver returned code " + status);
                 } else {
                     InputStream is = response.getEntity().getContent();
-                    String content = "";
-
-                    byte[] buffer = new byte[10240];
-                    for (int length = 0; (length = is.read(buffer)) > 0; ) {
-                        content += new String(buffer, 0, length);
-                    }
+                    String content = IOUtils.toString(is, StandardCharsets.UTF_8);
 
                     log.debug("Docserver returned: " + content);
                     JSONObject callBackJson = null;

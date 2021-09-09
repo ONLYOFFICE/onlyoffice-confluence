@@ -27,6 +27,7 @@ import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
@@ -133,27 +134,15 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                     HttpEntity entity = httpResponse.getEntity();
 
                     if (status == HttpStatus.SC_OK) {
-                        InputStream streamResponse = entity.getContent();
-
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        byte[] buffer = new byte[1024];
-                        int chunkBytesRead = 0;
-
-                        while ((chunkBytesRead = streamResponse.read(buffer, 0, buffer.length)) != -1) {
-                            byteArrayOutputStream.write(buffer, 0, chunkBytesRead);
-                        }
-
-                        byte[] bytes = byteArrayOutputStream.toByteArray();
-
-                        int size = bytes.length;
+                        byte[] bytes = IOUtils.toByteArray(entity.getContent());
                         InputStream inputStream = new ByteArrayInputStream(bytes);
 
-                        log.info("size = " + size);
+                        log.info("size = " + bytes.length);
 
                         String fileName = documentManager.getCorrectName(title, ext, pageId);
                         String mimeType = documentManager.getMimeType(fileName);
 
-                        attachmentUtil.createNewAttachment(fileName, mimeType, inputStream, size, pageId, user);
+                        attachmentUtil.createNewAttachment(fileName, mimeType, inputStream, bytes.length, pageId, user);
                     } else {
                         throw new HttpException("Document Server returned code " + status);
                     }
