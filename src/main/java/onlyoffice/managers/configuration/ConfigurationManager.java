@@ -1,5 +1,7 @@
 package onlyoffice.managers.configuration;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -18,4 +20,5 @@ public interface ConfigurationManager extends Serializable {
     public Boolean getBooleanPluginSetting(String key, Boolean defaultValue);
     public List<String> getDefaultEditingTypes();
     public Map<String, Boolean> getCustomizableEditingTypes();
+    public CloseableHttpClient getHttpClient() throws Exception;
 }

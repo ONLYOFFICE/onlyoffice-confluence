@@ -19,24 +19,22 @@
 package onlyoffice.managers.convert;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -89,59 +87,53 @@ public class ConvertManagerImpl implements ConvertManager {
     }
 
     public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, boolean async) throws Exception {
-        Integer timeout = Integer.parseInt(configurationManager.getProperty("timeout")) * 1000;
-        RequestConfig config = RequestConfig.custom()
-                .setConnectTimeout(timeout)
-                .setSocketTimeout(timeout).build();
-        CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
-        JSONObject body = new JSONObject();
-        body.put("async", async);
-        body.put("embeddedfonts", true);
-        body.put("filetype", currentExt);
-        body.put("outputtype", convertToExt);
-        body.put("key", documentManager.getKeyOfFile(attachmentId));
-        body.put("url", url);
+        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
+            JSONObject body = new JSONObject();
+            body.put("async", async);
+            body.put("embeddedfonts", true);
+            body.put("filetype", currentExt);
+            body.put("outputtype", convertToExt);
+            body.put("key", documentManager.getKeyOfFile(attachmentId));
+            body.put("url", url);
 
-        StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
-        HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
-                + configurationManager.getProperties().getProperty("files.docservice.url.convert"));
-        request.setEntity(requestEntity);
-        request.setHeader("Accept", "application/json");
+            StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
+            HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
+                    + configurationManager.getProperties().getProperty("files.docservice.url.convert"));
+            request.setEntity(requestEntity);
+            request.setHeader("Accept", "application/json");
 
-        if (jwtManager.jwtEnabled()) {
-            String token = jwtManager.createToken(body);
-            JSONObject payloadBody = new JSONObject();
-            payloadBody.put("payload", body);
-            String headerToken = jwtManager.createToken(body);
-            body.put("token", token);
-            String header = jwtManager.getJwtHeader();
-            request.setHeader(header, "Bearer " + headerToken);
-        }
-
-        log.debug("Sending POST to Docserver: " + body.toString());
-        CloseableHttpResponse response = httpClient.execute(request);
-        int status = response.getStatusLine().getStatusCode();
-
-        if (status != HttpStatus.SC_OK) {
-            throw new HttpException("Docserver returned code " + status);
-        } else {
-            InputStream is = response.getEntity().getContent();
-            String content = "";
-
-            byte[] buffer = new byte[10240];
-            for (int length = 0; (length = is.read(buffer)) > 0;) {
-                content += new String(buffer, 0, length);
+            if (jwtManager.jwtEnabled()) {
+                String token = jwtManager.createToken(body);
+                JSONObject payloadBody = new JSONObject();
+                payloadBody.put("payload", body);
+                String headerToken = jwtManager.createToken(body);
+                body.put("token", token);
+                String header = jwtManager.getJwtHeader();
+                request.setHeader(header, "Bearer " + headerToken);
             }
 
-            log.debug("Docserver returned: " + content);
-            JSONObject callBackJson = null;
-            try {
-                callBackJson = new JSONObject(content);
-            } catch (Exception e) {
-                throw new Exception("Couldn't convert JSON from docserver: " + e.getMessage());
-            }
+            log.debug("Sending POST to Docserver: " + body.toString());
 
-            return callBackJson;
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int status = response.getStatusLine().getStatusCode();
+
+                if (status != HttpStatus.SC_OK) {
+                    throw new HttpException("Docserver returned code " + status);
+                } else {
+                    InputStream is = response.getEntity().getContent();
+                    String content = IOUtils.toString(is, StandardCharsets.UTF_8);
+
+                    log.debug("Docserver returned: " + content);
+                    JSONObject callBackJson = null;
+                    try {
+                        callBackJson = new JSONObject(content);
+                    } catch (Exception e) {
+                        throw new Exception("Couldn't convert JSON from docserver: " + e.getMessage());
+                    }
+
+                    return callBackJson;
+                }
+            }
         }
     }
 

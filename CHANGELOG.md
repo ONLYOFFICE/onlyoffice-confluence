@@ -2,6 +2,7 @@
 
 
 ## Added
+- disable certificate verification
 - opening for editing not OOXML
 - editor interface customization
 - document server v6.0 and earlier is no longer supported

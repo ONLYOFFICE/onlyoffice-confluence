@@ -99,6 +99,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         String jwtSecret = (String) pluginSettings.get("onlyoffice.jwtSecret");
         String docInnerUrl = (String) pluginSettings.get("onlyoffice.docInnerUrl");
 		String confUrl = (String) pluginSettings.get("onlyoffice.confUrl");
+        Boolean verifyCertificate = configurationManager.getBooleanPluginSetting("verifyCertificate", false);
         Boolean forceSave = configurationManager.forceSaveEnabled();
         Boolean chat = configurationManager.getBooleanPluginSetting("chat", true);
         Boolean compactHeader = configurationManager.getBooleanPluginSetting("compactHeader", false);
@@ -123,6 +124,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         contextMap.put("docserviceInnerUrl", docInnerUrl);
 		contextMap.put("docserviceConfUrl", confUrl);
         contextMap.put("docserviceJwtSecret", jwtSecret);
+        contextMap.put("verifyCertificate", verifyCertificate);
         contextMap.put("forceSave", forceSave);
         contextMap.put("chat", chat);
         contextMap.put("compactHeader", compactHeader);
@@ -172,9 +174,11 @@ public class OnlyOfficeConfServlet extends HttpServlet {
                 apiUrl = AppendSlash(jsonObj.getString("apiUrl"));
                 jwtSecret = jsonObj.getString("jwtSecret");
                 docInnerUrl = AppendSlash(jsonObj.getString("docInnerUrl"));
+                Boolean verifyCertificate = jsonObj.getBoolean("verifyCertificate");
                 pluginSettings.put("onlyoffice.apiUrl", apiUrl);
                 pluginSettings.put("onlyoffice.jwtSecret", jwtSecret);
                 pluginSettings.put("onlyoffice.docInnerUrl", docInnerUrl);
+                pluginSettings.put("onlyoffice.verifyCertificate", verifyCertificate.toString());
             }
 
             String confUrl = AppendSlash(jsonObj.getString("confUrl"));
@@ -234,14 +238,13 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     }
 
     private Boolean CheckDocServUrl(String url) {
-        try {
-            CloseableHttpClient httpClient = HttpClients.createDefault();
+        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             HttpGet request = new HttpGet(url + "healthcheck");
-            CloseableHttpResponse response = httpClient.execute(request);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
 
-            String content = IOUtils.toString(response.getEntity().getContent(), "utf-8").trim();
-            if (content.equalsIgnoreCase("true"))
-                return true;
+                String content = IOUtils.toString(response.getEntity().getContent(), "utf-8").trim();
+                if (content.equalsIgnoreCase("true")) return true;
+            }
         } catch (Exception e) {
             log.debug("/healthcheck error: " + e.getMessage());
         }
@@ -251,8 +254,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
     private Boolean CheckDocServCommandService(String url) throws SecurityException {
         Integer errorCode = -1;
-        try {
-            CloseableHttpClient httpClient = HttpClients.createDefault();
+        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
             body.put("c", "version");
 
@@ -273,22 +275,23 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             request.setHeader("Accept", "application/json");
 
             log.debug("Sending POST to Docserver: " + body.toString());
-            CloseableHttpResponse response = httpClient.execute(request);
-            int status = response.getStatusLine().getStatusCode();
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int status = response.getStatusLine().getStatusCode();
 
-            if (status != HttpStatus.SC_OK) {
-                return false;
-            } else {
-                String content = IOUtils.toString(response.getEntity().getContent(), "utf-8");
-                log.debug("/CommandService content: " + content);
-                JSONObject callBackJson = null;
-                callBackJson = new JSONObject(content);
-
-                if (callBackJson.isNull("error")) {
+                if (status != HttpStatus.SC_OK) {
                     return false;
-                }
+                } else {
+                    String content = IOUtils.toString(response.getEntity().getContent(), "utf-8");
+                    log.debug("/CommandService content: " + content);
+                    JSONObject callBackJson = null;
+                    callBackJson = new JSONObject(content);
 
-                errorCode = callBackJson.getInt("error");
+                    if (callBackJson.isNull("error")) {
+                        return false;
+                    }
+
+                    errorCode = callBackJson.getInt("error");
+                }
             }
         } catch (Exception e) {
             log.debug("/CommandService error: " + e.getMessage());
