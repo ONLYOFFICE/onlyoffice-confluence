@@ -182,7 +182,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             })(jQuery);
         </script>
         <div id="onlyofficeMsg"></div>
-        <form id="onlyofficeConf" class="aui top-label">
+        <form id="onlyofficeConf" class="aui long-label">
             <h3>$i18n.getText('onlyoffice.configuration.doc-section')</h3>
             <div class="field-group">
                 <label for="apiUrlField">$i18n.getText('onlyoffice.configuration.doc-url')</label>
