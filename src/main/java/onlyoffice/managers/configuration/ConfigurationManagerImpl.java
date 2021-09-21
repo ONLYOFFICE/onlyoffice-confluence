@@ -159,6 +159,14 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return Boolean.parseBoolean(setting);
     }
 
+    public String getStringPluginSetting(String key, String defaultValue) {
+        String setting = (String) pluginSettings.get("onlyoffice." + key);
+        if (setting == null || setting.isEmpty()) {
+            return defaultValue;
+        }
+        return setting;
+    }
+
     public List<String> getDefaultEditingTypes() {
         String editableTypes = getProperty("docservice.type.edit");
         return new ArrayList<>(Arrays.asList(editableTypes.split("\\|")));
