@@ -184,7 +184,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         </script>
         <div id="onlyofficeMsg"></div>
         <form id="onlyofficeConf" class="aui long-label">
-            <h3>$i18n.getText('onlyoffice.configuration.doc-section')</h3>
+            <h3>$i18n.getText('onlyoffice.configuration.section.server')</h3>
             <div class="field-group">
                 <label for="apiUrlField">$i18n.getText('onlyoffice.configuration.doc-url')</label>
                 <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-tooltip')">
@@ -198,35 +198,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <div class="secretFiled">
                     <a href="#" class="view-control"></a>
                     <input type="password" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text" style="padding-right: 30px;">
-                </div>
-            </div>
-
-            <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
-            <div class="field-group">
-                <label for="confUrlField">$i18n.getText('onlyoffice.configuration.conf-url')</label>
-                <input type="text" id="confUrlField" value="${docserviceConfUrl}" name="confUrlField" class="text">
-            </div>
-            <div class="field-group">
-                <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
-                <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner-tooltip')">
-            </div>
-
-            <p>$i18n.getText('onlyoffice.configuration.editing-types.label')</p>
-
-            <div class="field-group">
-                #foreach($type in $defaultCustomizableEditingTypes.keySet())
-                    <div class="checkbox inline">
-                        <input type="checkbox" class="checkbox editing-types" id="${type}" #if($defaultCustomizableEditingTypes.get($type)) checked="checked" #end />
-                        <label for="${type}">${type}</label>
-                    </div>
-                #end
-            </div>
-
-            <div class="field-group">
-                <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="forceSave" #if($forceSave) checked="checked" #end />
-                    <label for="forceSave">$i18n.getText('onlyoffice.configuration.force-save')</label>
-                    <div class="description">$i18n.getText('onlyoffice.configuration.force-save.description')</div>
                 </div>
             </div>
             <div class="field-group">
@@ -244,42 +215,64 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 </div>
             </div>
 
-            <p>$i18n.getText('onlyoffice.configuration.interface.label')</p>
+            <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
+            <div class="field-group">
+                <label for="confUrlField">$i18n.getText('onlyoffice.configuration.conf-url')</label>
+                <input type="text" id="confUrlField" value="${docserviceConfUrl}" name="confUrlField" class="text">
+            </div>
+            <div class="field-group">
+                <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
+                <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner-tooltip')">
+            </div>
+
+            <h3>$i18n.getText('onlyoffice.configuration.section.common')</h3>
 
             <div class="field-group">
+                <label>$i18n.getText('onlyoffice.configuration.editing-types.label')</label>
+                #foreach($type in $defaultCustomizableEditingTypes.keySet())
+                    <div class="checkbox inline">
+                        <input type="checkbox" class="checkbox editing-types" id="${type}" #if($defaultCustomizableEditingTypes.get($type)) checked="checked" #end />
+                        <label for="${type}">${type}</label>
+                    </div>
+                #end
+                <div class="description">$i18n.getText('onlyoffice.configuration.editing-types.description')</div>
+            </div>
+
+            <div class="field-group">
+                <label>$i18n.getText('onlyoffice.configuration.force-save.label')</label>
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="forceSave" #if($forceSave) checked="checked" #end />
+                    <label for="forceSave">$i18n.getText('onlyoffice.configuration.force-save.enable')</label>
+                </div>
+                <div class="description">$i18n.getText('onlyoffice.configuration.force-save.description')</div>
+            </div>
+
+            <div class="field-group">
+                <label>$i18n.getText('onlyoffice.configuration.interface.label')</label>
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="chat" #if($chat) checked="checked" #end />
                     <label for="chat">$i18n.getText('onlyoffice.configuration.interface.chat')</label>
                 </div>
-            </div>
-            <div class="field-group">
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="compactHeader" #if($compactHeader) checked="checked" #end />
                     <label for="compactHeader">$i18n.getText('onlyoffice.configuration.interface.compactHeader')</label>
                 </div>
-            </div>
-            <div class="field-group">
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="feedback" #if($feedback) checked="checked" #end />
                     <label for="feedback">$i18n.getText('onlyoffice.configuration.interface.feedback')</label>
                 </div>
-            </div>
-            <div class="field-group">
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="helpMenu" #if($helpMenu) checked="checked" #end />
                     <label for="helpMenu">$i18n.getText('onlyoffice.configuration.interface.helpMenu')</label>
                 </div>
-            </div>
-            <div class="field-group">
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="toolbarNoTabs" #if($toolbarNoTabs) checked="checked" #end />
                     <label for="toolbarNoTabs">$i18n.getText('onlyoffice.configuration.interface.toolbarNoTabs')</label>
                 </div>
             </div>
 
-            <p>$i18n.getText('onlyoffice.configuration.interface.reviewDisplay')</p>
-
             <div class="field-group">
+                <label>$i18n.getText('onlyoffice.configuration.interface.reviewDisplay')</label>
                 <div class="radio inline">
                     <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_markup" #if($reviewDisplay == "markup") checked="checked" #end />
                     <label for="reviewDisplay_markup">$i18n.getText('onlyoffice.configuration.interface.reviewDisplay.markup')</label>
