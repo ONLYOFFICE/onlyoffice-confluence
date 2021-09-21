@@ -40,7 +40,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -106,6 +105,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         Boolean feedback = configurationManager.getBooleanPluginSetting("feedback", false);
         Boolean helpMenu = configurationManager.getBooleanPluginSetting("helpMenu", true);
         Boolean toolbarNoTabs = configurationManager.getBooleanPluginSetting("toolbarNoTabs", false);
+        String reviewDisplay = configurationManager.getStringPluginSetting("reviewDisplay", "original");
         Boolean demo = configurationManager.demoEnabled();
         Boolean demoAvailable = configurationManager.demoAvailable(true);
         Map<String, Boolean> defaultCustomizableEditingTypes = configurationManager.getCustomizableEditingTypes();
@@ -131,6 +131,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         contextMap.put("feedback", feedback);
         contextMap.put("helpMenu", helpMenu);
         contextMap.put("toolbarNoTabs", toolbarNoTabs);
+        contextMap.put("reviewDisplay", reviewDisplay);
         contextMap.put("docserviceDemo", demo);
         contextMap.put("docserviceDemoAvailable", demoAvailable);
         contextMap.put("pathApiUrl", configurationManager.getProperty("files.docservice.url.api"));
@@ -188,6 +189,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             Boolean feedback = jsonObj.getBoolean("feedback");
             Boolean helpMenu = jsonObj.getBoolean("helpMenu");
             Boolean toolbarNoTabs = jsonObj.getBoolean("toolbarNoTabs");
+            String reviewDisplay = jsonObj.getString("reviewDisplay");
             JSONArray editingTypes = jsonObj.getJSONArray("editingTypes");
 
             pluginSettings.put("onlyoffice.confUrl", confUrl);
@@ -197,6 +199,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             pluginSettings.put("onlyoffice.feedback", feedback.toString());
             pluginSettings.put("onlyoffice.helpMenu", helpMenu.toString());
             pluginSettings.put("onlyoffice.toolbarNoTabs", toolbarNoTabs.toString());
+            pluginSettings.put("onlyoffice.reviewDisplay", reviewDisplay);
             pluginSettings.put("onlyoffice.editingTypes", editingTypes.toString());
 
         } catch (Exception ex) {
