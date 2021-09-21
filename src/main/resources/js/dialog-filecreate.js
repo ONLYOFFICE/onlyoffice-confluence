@@ -23,9 +23,9 @@ AJS.toInit(function ($) {
     var paramsPage = {
         pageId: AJS.params.pageId,
         extensions: {
-            "docx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.docx"),
-            "xlsx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.xlsx"),
-            "pptx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.pptx")
+            "docx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.docx"),
+            "xlsx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.xlsx"),
+            "pptx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.pptx")
         }
     };
 

@@ -65,8 +65,8 @@
         <icon height="16" width="16">
             <link>/download/resources/${project.groupId}.${project.artifactId}:onlyoffice-confluence-plugin-resources-filecreate/16.svg</link>
         </icon>
-        <label key="onlyoffice.connector.createlink"/>
-        <tooltip key="onlyoffice.connector.tooltip.createlink"/>
+        <label key="onlyoffice.editor.createlink"/>
+        <tooltip key="onlyoffice.editor.createlink.tooltip"/>
         <link linkId="onlyoffice-filecreate" absolute="true"/>
     </web-item>
     <web-item key="onlyoffice-doceditor" name="Link for the attachment editing" section="system.attachment" weight="9">
@@ -74,21 +74,21 @@
             <param name="forEdit">true</param>
         </condition>
         <description>The link and the text for it which is used to open the document which is available for editing.</description>
-        <label key="onlyoffice.connector.editlink"/>
+        <label key="onlyoffice.editor.editlink"/>
         <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
     <web-item key="onlyoffice-docviewer" name="Link for the attachment viewing" section="system.attachment" weight="10">
         <condition class="onlyoffice.conditions.IsOfficeFileAttachment"/>
         <description>The link and the text for it which is used to open the document which is available for preview only.</description>
-        <label key="onlyoffice.connector.viewlink"/>
+        <label key="onlyoffice.editor.viewlink"/>
         <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
     <web-item key="onlyoffice-docconvert" name="Link for the attachment conversion" section="system.attachment" weight="11">
         <condition class="onlyoffice.conditions.IsOfficeFileConvertAttachment"/>
         <description>The link and the text for it which is used to convert the document to Office Open XML format</description>
-        <label key="onlyoffice.connector.convertlink"/>
+        <label key="onlyoffice.convert.link"/>
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>

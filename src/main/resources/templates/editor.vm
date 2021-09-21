@@ -65,7 +65,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 docEditor.showMessage(errorMessage);
             }
             if (${demo}) {
-                docEditor.showMessage("$i18n.getText('onlyoffice.configuration.demo.message')");
+                docEditor.showMessage("$i18n.getText('onlyoffice.editor.message.demo')");
             }
         };
 
@@ -298,7 +298,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
-                alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
+                alert("$i18n.getText('onlyoffice.editor.message.docs-api-undefined')");
                 return;
             }
 

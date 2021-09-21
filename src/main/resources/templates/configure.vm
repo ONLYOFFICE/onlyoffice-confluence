@@ -35,12 +35,12 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     var lastMsg;
 
                     var messages = {
-                        success: "$i18n.getText('onlyoffice.configuration.success')",
-                        mixedcontent: "$i18n.getText('onlyoffice.configuration.mixedcontent')",
-                        jsonparse: "$i18n.getText('onlyoffice.configuration.jsonparse')",
-                        docservunreachable: "$i18n.getText('onlyoffice.configuration.docservunreachable')",
-                        docservcommand: "$i18n.getText('onlyoffice.configuration.docservcommand')",
-                        jwterror: "$i18n.getText('onlyoffice.configuration.jwterror')"
+                        success: "$i18n.getText('onlyoffice.configuration.message.success')",
+                        mixedcontent: "$i18n.getText('onlyoffice.configuration.message.error.mixedcontent')",
+                        jsonparse: "$i18n.getText('onlyoffice.configuration.message.error.jsonparse')",
+                        docservunreachable: "$i18n.getText('onlyoffice.configuration.message.error.docservunreachable')",
+                        docservcommand: "$i18n.getText('onlyoffice.configuration.message.error.docservcommand')",
+                        jwterror: "$i18n.getText('onlyoffice.configuration.message.error.jwterror')"
                     };
 
                     function updateConfig() {
@@ -288,7 +288,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             </div>
 
             <div class="field-group">
-                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.save')" class="button">
+                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.button.save')" class="button">
             </div>
         </form>
     </body>

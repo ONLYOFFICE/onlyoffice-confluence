@@ -35,7 +35,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
             <h2 class="dialog-title">ONLYOFFICE</h2>
             <div class="dialog-page-body">
                 <div class="dialog-panel-body" style="height: 86px;">
-                    <div id="attachment-onlyoffice-convert-message">$i18n.getText('onlyoffice.connector.convertmessage',
+                    <div id="attachment-onlyoffice-convert-message">$i18n.getText('onlyoffice.convert.label',
                         ${oldName}, ${newName})</div>
                     <br>
                     <div id="attachment-onlyoffice-convert-progress-bar" class="aui-progress-indicator">
@@ -73,7 +73,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
 
                 function onError(error) {
                     thumb.css("background", "#de350b");
-                    msg.text("$i18n.getText('onlyoffice.connector.converterror') " + error);
+                    msg.text("$i18n.getText('onlyoffice.convert.message.error') " + error);
                     btn.removeAttr("disabled");
                 }
 
