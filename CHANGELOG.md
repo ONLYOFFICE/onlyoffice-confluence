@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.0.1
+## Changed
+- compatible with Confluence 7.13
+
 ## 3.0.0
 ## Added
 - compatible with Data Center
