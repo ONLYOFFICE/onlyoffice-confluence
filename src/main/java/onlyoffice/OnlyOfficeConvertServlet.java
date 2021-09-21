@@ -93,14 +93,15 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         PrintWriter writer = response.getWriter();
 
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        String fileName = attachment.getFileName();
         String ext = attachment.getFileExtension();
-        String fn = attachment.getFileName();
+        String title = fileName.substring(0, fileName.lastIndexOf("."));
         String newExt = convertManager.convertsTo(ext);
+        String newFileName = documentManager.getCorrectName(title, newExt, attachment.getContainer().getId());
 
         contextMap.put("attachmentId", attachmentIdString);
-        contextMap.put("oldName", fn);
-        contextMap.put("oldExt", ext);
-        contextMap.put("newName", fn.substring(0, fn.length() - ext.length()) + newExt);
+        contextMap.put("oldName", fileName);
+        contextMap.put("newName", newFileName);
         writer.write(getTemplate(contextMap));
     }
 
@@ -128,14 +129,18 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             user = AuthenticatedUserThreadLocal.get();
             log.info("user " + user);
 
-            String ext = request.getParameter("oldExt");
+            String fileName = attachment.getFileName();
+            String ext = attachment.getFileExtension();
+            String title = fileName.substring(0, fileName.lastIndexOf("."));
 
             if (attachmentUtil.checkAccess(attachmentId, user, true)) {
                 if (convertManager.isConvertable(ext)) {
-                    json = convertManager.convert(attachmentId, ext);
+                    String convertToExt = convertManager.convertsTo(ext);
+                    json = convertManager.convert(attachmentId, ext, convertToExt);
 
                     if (json.getBoolean("endConvert")) {
-                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"), request.getParameter("newName"));
+                        String newFileName = documentManager.getCorrectName(title, convertToExt, attachment.getContainer().getId());
+                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"), newFileName);
                         json.put("attachmentId", newAttachmentId);
                     }
                 } else {
