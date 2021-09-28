@@ -80,9 +80,8 @@ public class ConvertManagerImpl implements ConvertManager {
         return null;
     }
 
-    public JSONObject convert(Long attachmentId, String ext) throws Exception {
+    public JSONObject convert(Long attachmentId, String ext, String convertToExt) throws Exception {
        String url = urlManager.getFileUri(attachmentId);
-       String convertToExt = convertsTo(ext);
        return convert(attachmentId, ext, convertToExt, url, true);
     }
 
