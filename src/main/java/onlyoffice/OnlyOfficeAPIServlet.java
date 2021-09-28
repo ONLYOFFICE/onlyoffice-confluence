@@ -126,6 +126,8 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 return;
             }
 
+            downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
+
             try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
                 HttpGet httpGet = new HttpGet(downloadUrl);
 
