@@ -62,6 +62,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                             "feedback": jq("#feedback").is(":checked"),
                             "helpMenu": jq("#helpMenu").is(":checked"),
                             "toolbarNoTabs": jq("#toolbarNoTabs").is(":checked"),
+                            "reviewDisplay": jq("input[name='reviewDisplay']:checked").attr("id").replace("reviewDisplay_", ""),
                             "editingTypes": editingTypes
                         };
 
@@ -273,6 +274,23 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="toolbarNoTabs" #if($toolbarNoTabs) checked="checked" #end />
                     <label for="toolbarNoTabs">$i18n.getText('onlyoffice.configuration.interface.toolbarNoTabs')</label>
+                </div>
+            </div>
+
+            <p>$i18n.getText('onlyoffice.configuration.interface.reviewDisplay')</p>
+
+            <div class="field-group">
+                <div class="radio inline">
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_markup" #if($reviewDisplay == "markup") checked="checked" #end />
+                    <label for="reviewDisplay_markup">$i18n.getText('onlyoffice.configuration.interface.reviewDisplay.markup')</label>
+                </div>
+                <div class="radio inline">
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_final" #if($reviewDisplay == "final") checked="checked" #end />
+                    <label for="reviewDisplay_final">$i18n.getText('onlyoffice.configuration.interface.reviewDisplay.final')</label>
+                </div>
+                <div class="radio inline">
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_original" #if($reviewDisplay == "original") checked="checked" #end />
+                    <label for="reviewDisplay_original">$i18n.getText('onlyoffice.configuration.interface.reviewDisplay.original')</label>
                 </div>
             </div>
 
