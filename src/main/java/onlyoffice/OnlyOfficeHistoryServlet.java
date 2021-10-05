@@ -248,13 +248,14 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                     versionData.setVersion(attachment.getVersion());
                     versionData.setKey(documentManager.getKeyOfFile(attachment.getId()));
                     versionData.setUrl(urlManager.getFileUri(attachment.getId()));
+                    versionData.setFileType(attachment.getFileExtension());
 
                     Attachment diff = attachmentUtil.getAttachmentDiff(attachment.getId());
                     if (prevVersion != null && diff != null) {
                         boolean adjacentVersions = (attachment.getVersion() - prevVersion.getVersion()) == 1;
                         if (adjacentVersions) {
                             versionData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
-                            versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId()), urlManager.getFileUri(prevVersion.getId()));
+                            versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId()), urlManager.getFileUri(prevVersion.getId()), prevVersion.getFileExtension());
                         }
                     }
                     break;
@@ -332,6 +333,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         public int version;
         public String key;
         public String url;
+        public String fileType;
         public String changesUrl;
         public Previous previous;
         public String token;
@@ -350,12 +352,16 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             this.url = url;
         }
 
+        public void setFileType(String fileType) {
+            this.fileType = fileType;
+        }
+
         public void setChangesUrl(String changesUrl) {
             this.changesUrl = changesUrl;
         }
 
-        public void setPrevious(String key, String url) {
-            this.previous = new Previous(key, url);
+        public void setPrevious(String key, String url, String fileType) {
+            this.previous = new Previous(key, url, fileType);
         }
 
         public void setToken(String token) { this.token = token; }
@@ -363,10 +369,12 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         public class Previous {
             public String key;
             public String url;
+            public String fileType;
 
-            public Previous(String key, String url) {
+            public Previous(String key, String url, String fileType) {
                 this.key = key;
                 this.url = url;
+                this.fileType = fileType;
             }
         }
     }
