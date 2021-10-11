@@ -6,7 +6,6 @@
 - disable certificate verification
 - opening for editing not OOXML
 - editor interface customization
-- document server v6.0 and earlier is no longer supported
 - ability to get links to bookmarks in document
 - creating documents from editor
 - "save as" attachment on page from editor
@@ -19,6 +18,10 @@
 - insert image from storage
 - compare file from storage
 - mail merge from storage
+
+## Changed
+- document server v6.0 and earlier is no longer supported
+- redesign settings page
 
 ## 3.0.1
 ## Changed
