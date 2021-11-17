@@ -75,7 +75,8 @@ public class IsOfficeFileAttachment implements Condition {
     }
 
     private boolean isXExtension(String fileExtension) {
-        List<String> exts = documentManager.getEditedExts();
-        return exts.contains(fileExtension);
+        List<String> extsEdit = documentManager.getEditedExts();
+        List<String> extsFillForm = documentManager.getFillFormExts();
+        return extsEdit.contains(fileExtension) || extsFillForm.contains(fileExtension);
     }
 }

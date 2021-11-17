@@ -6,6 +6,7 @@ import java.util.List;
 public interface DocumentManager extends Serializable {
     public long getMaxFileSize();
     public List<String> getEditedExts();
+    public List<String> getFillFormExts();
     public String getKeyOfFile(Long attachmentId);
     public String createHash(String str);
     public String readHash(String base64);

@@ -80,6 +80,12 @@ public class DocumentManagerImpl implements DocumentManager {
         return Arrays.asList(exts.split("\\|"));
     }
 
+    public List<String> getFillFormExts() {
+        String exts = configurationManager.getProperty("files.docservice.fill-docs");
+        if(exts == null) return new ArrayList<String>();
+        return Arrays.asList(exts.split("\\|"));
+    }
+
     public String getKeyOfFile(Long attachmentId) {
         String hashCode = attachmentUtil.getHashCode(attachmentId);
 
@@ -213,7 +219,7 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public String getDocType(String ext) {
-        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps.docxf".indexOf(ext) != -1)
+        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps.docxf.oform".indexOf(ext) != -1)
             return "text";
         if (".xls.xlsx.xlsm.xlt.xltx.xltm.ods.fods.ots.csv".indexOf(ext) != -1)
             return "spreadsheet";
