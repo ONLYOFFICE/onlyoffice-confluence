@@ -25,7 +25,8 @@ AJS.toInit(function ($) {
         extensions: {
             "docx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.docx"),
             "xlsx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.xlsx"),
-            "pptx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.pptx")
+            "pptx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.pptx"),
+            "docxf" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.docxf")
         }
     };
 

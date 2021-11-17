@@ -76,6 +76,7 @@ public class ConvertManagerImpl implements ConvertManager {
             put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
             put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
             put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            put("docxf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         }
     };
 

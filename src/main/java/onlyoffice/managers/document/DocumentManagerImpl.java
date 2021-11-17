@@ -186,7 +186,7 @@ public class DocumentManagerImpl implements DocumentManager {
             PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
 
-            fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
+            fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
             fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
 
             Date date = Calendar.getInstance().getTime();
@@ -196,7 +196,7 @@ public class DocumentManagerImpl implements DocumentManager {
             fileName = getCorrectName(fileName, fileExt, pageID);
 
             Page page = pageManager.getPage(pageID);
-            attachment = new Attachment(fileName, mimeType,  demoFile.available(), "");
+            attachment = new Attachment(fileName, mimeType, demoFile.available(), "");
 
             attachment.setCreator(confluenceUser);
             attachment.setCreationDate(date);
