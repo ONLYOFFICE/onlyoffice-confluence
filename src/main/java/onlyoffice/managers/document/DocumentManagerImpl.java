@@ -19,8 +19,11 @@
 package onlyoffice.managers.document;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
+
 import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -147,7 +150,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    private String getCorrectName(String fileName, String fileExt, Long pageID) {
+    public String getCorrectName(String fileName, String fileExt, Long pageID) {
         ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
@@ -226,5 +229,16 @@ public class DocumentManagerImpl implements DocumentManager {
         if (".pps.ppsx.ppsm.ppt.pptx.pptm.pot.potx.potm.odp.fodp.otp".indexOf(ext) != -1)
             return "presentation";
         return null;
+    }
+
+    public String getMimeType(String name) {
+        Path path = new File(name).toPath();
+        String mimeType = null;
+        try {
+            mimeType = Files.probeContentType(path);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return mimeType;
     }
 }

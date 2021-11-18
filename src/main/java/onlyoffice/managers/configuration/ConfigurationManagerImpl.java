@@ -21,6 +21,13 @@ package onlyoffice.managers.configuration;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -31,6 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -133,6 +144,45 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
 
     public String getDemo(String key) {
         return demoData.get(key);
+    }
+
+    public Boolean getBooleanPluginSetting(String key, Boolean defaultValue) {
+        String setting = (String) pluginSettings.get("onlyoffice." + key);
+        if (setting == null || setting.isEmpty()) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(setting);
+    }
+
+    public CloseableHttpClient getHttpClient() throws Exception {
+        Integer timeout = Integer.parseInt(getProperty("timeout")) * 1000;
+        RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout).setSocketTimeout(timeout).build();
+
+        CloseableHttpClient httpClient;
+
+        if (getBooleanPluginSetting("verifyCertificate", false)) {
+            SSLContextBuilder builder = new SSLContextBuilder();
+
+            builder.loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            });
+
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(builder.build(), new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            });
+
+            httpClient = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).setDefaultRequestConfig(config).build();
+        } else {
+            httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
+        }
+
+        return httpClient;
     }
 }
 
