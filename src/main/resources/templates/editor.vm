@@ -1,3 +1,6 @@
+$webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor")
+#requireResourcesForContext("viewattachments")
+
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -28,38 +31,23 @@
     <title>${docTitle} - ONLYOFFICE</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 
-    <style type="text/css">
-        html {
-            height: 100%;
-            width: 100%;
-        }
+    #standardHeader()
 
-        body {
-            background: #fff;
-            color: #333;
-            font-family: Arial, Tahoma, sans-serif;
-            font-size: 12px;
-            font-weight: normal;
-            height: 100%;
-            margin: 0;
-            overflow-y: hidden;
-            padding: 0;
-            text-decoration: none;
-        }
-
-        .form {
-            height: 100%;
-        }
-
-        div {
-            margin: 0;
-            padding: 0;
-        }
-    </style>
-
+    <meta name="ajs-space-name" content="${spaceName}">
+    <meta name="ajs-page-id" content="${pageId}">
+    <meta name="ajs-latest-page-id" content="${pageId}">
+    <meta name="ajs-space-key" content="${spaceKey}">
+    <meta name="ajs-parent-page-id" content="${pageId}">
+    <meta name="ajs-original-parent-page" content="${pageTitle}">
+    <meta name="ajs-from-page-title" content="${pageTitle}">
 </head>
 
 <body>
+    <div id="aui-flag-container">
+        <div data-aui-flag-stack="quickreload" class="aui-flag-stack">
+            <div class="aui-flag qr-flag aui-flag-stack-top-item" aria-live="polite" open="open" aria-hidden="false"></div>
+        </div>
+    </div>
     <div class="form">
         <div id="iframeEditor"></div>
     </div>
@@ -69,6 +57,121 @@
 
         var docEditor;
 
+        var onRequestSaveAs = function (event) {
+            var title = event.data.title.substring(0, event.data.title.lastIndexOf("."));
+            var ext = event.data.title.split(".").pop();
+            var url = event.data.url;
+
+            var showError = function (message) {
+                $("#move-page-dialog").find("form.aui").after(
+                    '<div id="move-errors" class="warning">' +
+                        '<div class="aui-message aui-message-error error">' +
+                            message +
+                        '</div>' +
+                    '</div>'
+                );
+            };
+
+            var moveHandler = function () {
+                $("#move-page-dialog").find("#move-errors").remove();
+                $("#move-page-dialog").find(".error").remove();
+
+                var title = $("#file-name-input").val();
+                var pageNode = $("#move-page-dialog").find(".highlighted").parent().attr("id");
+                var check = true;
+
+                if (!title) {
+                    $("#file-name-input").after(
+                        '<div id="file-name-error" class="error">' +
+                            '$i18n.getText('fileName.required')' +
+                        '</div>'
+                    );
+                    check = false;
+                }
+                if (!pageNode) {
+                    $("#chosenSpaceKey").after(
+                        '<div id="space-key-error" class="error">' +
+                            '$i18n.getText('no.page.specified')' +
+                        '</div>'
+                    );
+                    check = false;
+                }
+
+                if (check) {
+                    var pageId = pageNode.substring(5, pageNode.length);
+                    $(".button-spinner").spin();
+                    $("#move-button").attr("disabled", "disabled");
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "${saveAsUriAsHtml}", true);
+                    xhr.send(JSON.stringify({
+                        url: url,
+                        title: title,
+                        ext: ext,
+                        pageId: pageId,
+                    }));
+
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState != 4) return;
+                        if (xhr.status == 200) {
+                            $("#move-page-dialog").remove();
+                            $(".aui-blanket").remove();
+
+                            var fileName = title + "." + ext;
+                            var message = "$i18n.getText('onlyoffice.editor.dialog.save-as.message.success')".replace("$", fileName);
+                            AJS.messages.success(".aui-flag-stack-top-item", {
+                                body: message,
+                                fadeout: true
+                            });
+                        } else if (xhr.status == 403) {
+                            $(".button-spinner").spinStop();
+                            $("#move-button").removeAttr("disabled");
+                            showError("$i18n.getText('operation.forbidden.message')");
+                        } else {
+                            $(".button-spinner").spinStop();
+                            $("#move-button").removeAttr("disabled");
+                            showError("$i18n.getText('dialog.error.unknown.title')");
+                        }
+                    }
+                }
+            };
+
+            var paramsDialog = {
+                title: "$i18n.getText('onlyoffice.editor.dialog.save-as.title')",
+                buttonName: "$i18n.getText('editor.save.page')",
+                openedPanel: "$i18n.getText('move.page.dialog.browse.title')",
+                moveHandler: moveHandler,
+            };
+
+            $("#move-page-dialog").remove();
+            AJS.Confluence.MovePageDialog(paramsDialog);
+            var dialog = $("#move-page-dialog");
+
+            dialog.find(".tree").on("DOMNodeInserted", function() {
+                if (dialog.find("form.aui").length != 0 && dialog.find("#file-name-input").length == 0) {
+                    dialog.find("form.aui").prepend($(
+                        '<div class="field-group">' +
+                              '<label for="file-name-input">' +
+                                    '$i18n.getText('file.name'):' +
+                                    '<span class="aui-icon icon-required">required</span>' +
+                              '</label>' +
+                              '<input class="text" value="' + title + '" type="text" id="file-name-input" name="text-input">' +
+                        '</div>'
+                    ));
+                }
+                if (dialog.find(".root-node").length != 0 && !dialog.find(".root-node").hasClass("disabled")) {
+                    dialog.find(".root-node").addClass("disabled");
+                }
+            });
+
+            // Removing navigation buttons to other panels MovePageDialog
+            dialog.find(".item-button:not(#browse-panel-id)").parent().remove();
+            // Removing unused panels MovePageDialog
+            dialog.find(".dialog-panel-body:not(.browse-panel)").remove();
+            // Removing checkbox reorder
+            dialog.find("#reorderRequirement").hide();
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
@@ -76,6 +179,7 @@
             }
 
             var json = '${jsonAsHtml}';
+
             var config = {
                 "events" : {
                     "onAppReady": function () {
@@ -87,6 +191,7 @@
                             docEditor.showMessage("$i18n.getText('onlyoffice.configuration.demo.message')");
                         }
                     },
+                    "onRequestSaveAs": onRequestSaveAs,
                 },
             };
 
