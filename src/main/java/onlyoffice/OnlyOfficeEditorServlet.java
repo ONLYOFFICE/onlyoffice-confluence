@@ -121,10 +121,12 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             fileName = request.getParameter("fileName");
             String fileExt = request.getParameter("fileExt");
             String pageID = request.getParameter("pageId");
+            String attachmentTemplateId = request.getParameter("attachmentTemplateId");
+
             if (pageID != null && !pageID.equals("")) {
                 try {
                     Long attachmentId = documentManager.createDemo(fileName, fileExt,
-                            Long.parseLong(pageID), convertManager.getMimeType(fileExt));
+                            Long.parseLong(pageID), convertManager.getMimeType(fileExt), attachmentTemplateId);
 
                     response.sendRedirect( request.getContextPath() +  "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
                     return;

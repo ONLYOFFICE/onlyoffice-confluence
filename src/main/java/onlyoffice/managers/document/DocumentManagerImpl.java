@@ -188,7 +188,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public Long createDemo(String fileName, String fileExt, Long pageID, String mimeType) {
+    public Long createDemo(String fileName, String fileExt, Long pageID, String mimeType, String attachmentTemplateId) {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
@@ -200,19 +200,31 @@ public class DocumentManagerImpl implements DocumentManager {
 
             Date date = Calendar.getInstance().getTime();
 
-            InputStream demoFile = getDemoFile(confluenceUser, fileExt);
+            InputStream inputStream = null;
+
+            if (fileExt.equals("docxf") && attachmentTemplateId != null && !attachmentTemplateId.equals("")) {
+                Long attachmentTemplateIdAsLong = Long.parseLong(attachmentTemplateId);
+
+                if (!attachmentUtil.checkAccess(attachmentTemplateIdAsLong, AuthenticatedUserThreadLocal.get(), false)) {
+                    throw new SecurityException("You don not have enough permission to read the file");
+                }
+
+                inputStream = attachmentUtil.getAttachmentData(attachmentTemplateIdAsLong);
+            } else {
+                inputStream = getDemoFile(confluenceUser, fileExt);
+            }
 
             fileName = getCorrectName(fileName, fileExt, pageID);
 
             Page page = pageManager.getPage(pageID);
-            attachment = new Attachment(fileName, mimeType, demoFile.available(), "");
+            attachment = new Attachment(fileName, mimeType, inputStream.available(), "");
 
             attachment.setCreator(confluenceUser);
             attachment.setCreationDate(date);
             attachment.setLastModificationDate(date);
             attachment.setContainer(pageManager.getPage(pageID));
 
-            attachmentManager.saveAttachment(attachment, null, demoFile);
+            attachmentManager.saveAttachment(attachment, null, inputStream);
             page.addAttachment(attachment);
         } catch (Exception ex) {
             log.error(ex);
@@ -239,6 +251,6 @@ public class DocumentManagerImpl implements DocumentManager {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-        return mimeType;
+        return mimeType != null ? mimeType : "application/octet-stream";
     }
 }
