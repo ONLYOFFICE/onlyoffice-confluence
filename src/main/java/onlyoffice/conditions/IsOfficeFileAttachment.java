@@ -33,6 +33,7 @@ import javax.inject.Inject;
 
 public class IsOfficeFileAttachment implements Condition {
     private boolean forEdit;
+    private boolean form;
     private DocumentManager documentManager;
     private AttachmentUtil attachmentUtil;
 
@@ -44,8 +45,12 @@ public class IsOfficeFileAttachment implements Condition {
 
     public void init(Map<String, String> params) throws PluginParseException {
         forEdit = false;
+        form = false;
         if (params != null && !params.isEmpty() && params.get("forEdit") != null) {
             forEdit = !params.get("forEdit").isEmpty();
+        }
+        if (params != null && !params.isEmpty() && params.get("form") != null) {
+            form = !params.get("form").isEmpty();
         }
     }
 
@@ -54,9 +59,23 @@ public class IsOfficeFileAttachment implements Condition {
         if (attachment == null) {
             return false;
         }
-        if (!isXExtension(attachment.getFileExtension())) {
-            return false;
+
+        if (forEdit) {
+            if (form) {
+                if (!isExtensionFillForm(attachment.getFileExtension())) {
+                    return false;
+                }
+            } else {
+                if (!isExtensionEdit(attachment.getFileExtension())) {
+                    return false;
+                }
+            }
+        } else {
+            if (!isExtensionView(attachment.getFileExtension())) {
+                return false;
+            }
         }
+
         if (attachment.getFileSize() > documentManager.getMaxFileSize()) {
             return false;
         }
@@ -74,9 +93,19 @@ public class IsOfficeFileAttachment implements Condition {
         return true;
     }
 
-    private boolean isXExtension(String fileExtension) {
+    private boolean isExtensionView(String fileExtension) {
         List<String> extsEdit = documentManager.getEditedExts();
         List<String> extsFillForm = documentManager.getFillFormExts();
         return extsEdit.contains(fileExtension) || extsFillForm.contains(fileExtension);
+    }
+
+    private boolean isExtensionEdit(String fileExtension) {
+        List<String> extsEdit = documentManager.getEditedExts();
+        return extsEdit.contains(fileExtension);
+    }
+
+    private boolean isExtensionFillForm(String fileExtension) {
+        List<String> extsFillForm = documentManager.getFillFormExts();
+        return extsFillForm.contains(fileExtension);
     }
 }
