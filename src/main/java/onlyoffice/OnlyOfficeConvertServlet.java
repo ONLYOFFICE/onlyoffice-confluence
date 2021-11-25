@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import onlyoffice.managers.convert.ConvertManager;
+import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -58,14 +59,17 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
     private final AuthContext authContext;
+    private final DocumentManager documentManager;
 
     @Inject
     public OnlyOfficeConvertServlet(AttachmentManager attachmentManager, AttachmentUtil attachmentUtil,
-                                    ConvertManager convertManager, AuthContext authContext) {
+                                    ConvertManager convertManager, AuthContext authContext,
+                                    DocumentManager documentManager) {
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
         this.authContext = authContext;
+        this.documentManager = documentManager;
     }
 
     @Override
@@ -122,7 +126,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
             if (attachmentUtil.checkAccess(attachmentId, user, true)) {
                 if (convertManager.isConvertable(ext)) {
-                    json = convertManager.convert(attachmentId, ext);
+                    json = convertManager.convert(attachmentId, documentManager.getKeyOfFile(attachmentId), ext);
 
                     if (json.getBoolean("endConvert")) {
                         Long newAttachmentId = savefile(attachment, json.getString("fileUrl"),

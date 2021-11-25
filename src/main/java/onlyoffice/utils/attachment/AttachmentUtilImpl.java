@@ -20,12 +20,16 @@ package onlyoffice.utils.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import onlyoffice.managers.configuration.ConfigurationManager;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -51,11 +55,13 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     private final AttachmentManager attachmentManager;
     @ComponentImport
     private final PageManager pageManager;
-
+    private final ConfigurationManager configurationManager;
     @Inject
-    public AttachmentUtilImpl(AttachmentManager attachmentManager, PageManager pageManager) {
+    public AttachmentUtilImpl(AttachmentManager attachmentManager, PageManager pageManager,
+                              ConfigurationManager configurationManager) {
         this.attachmentManager = attachmentManager;
         this.pageManager = pageManager;
+        this.configurationManager = configurationManager;
     }
 
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
@@ -189,5 +195,54 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return attachment;
     }
 
+    public String getAttachmentExt (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        return attachment.getFileExtension();
+    }
+
+    public String createHash(String str) {
+        try {
+            String secret = configurationManager.getProperty("files.docservice.secret");
+
+            String payload = getHashHex(str + secret) + "?" + str;
+
+            String base64 = Base64.getEncoder().encodeToString(payload.getBytes("UTF-8"));
+            return base64;
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+        return "";
+    }
+
+    public String readHash(String base64) {
+        try {
+            String str = new String(Base64.getDecoder().decode(base64), "UTF-8");
+
+            String secret = configurationManager.getProperty("files.docservice.secret");
+
+            String[] payloadParts = str.split("\\?");
+
+            String payload = getHashHex(payloadParts[1] + secret);
+            if (payload.equals(payloadParts[0])) {
+                return payloadParts[1];
+            }
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+        return "";
+    }
+
+    private String getHashHex(String str) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(str.getBytes());
+            String hex = Hex.encodeHexString(digest);
+
+            return hex;
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+        return "";
+    }
 
 }

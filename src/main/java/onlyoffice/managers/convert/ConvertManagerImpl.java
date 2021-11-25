@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import org.apache.http.HttpException;
@@ -50,7 +49,6 @@ public class ConvertManagerImpl implements ConvertManager {
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
     private final ConfigurationManager configurationManager;
-    private final DocumentManager documentManager;
 
     @SuppressWarnings("serial")
     private final Map<String, String> convertableDict = new HashMap<String, String>() {
@@ -81,13 +79,10 @@ public class ConvertManagerImpl implements ConvertManager {
     };
 
     @Inject
-    public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager,
-                              ConfigurationManager configurationManager,
-                              DocumentManager documentManager) {
+    public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager) {
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
-        this.documentManager = documentManager;
     }
 
     public boolean isConvertable(String ext) {
@@ -102,15 +97,28 @@ public class ConvertManagerImpl implements ConvertManager {
         return mimeTypes.getOrDefault(trimDot(ext), null);
     }
 
-    public JSONObject convert(Long attachmentId, String ext) throws Exception {
+    public JSONObject convert(Long attachmentId, String key, String ext) throws Exception {
+        String url = urlManager.getFileUri(attachmentId);
+        String convertToExt = convertsTo(ext);
+
+        return convert(key, ext, convertToExt, url, true);
+    }
+
+    public JSONObject convert(Long attachmentId, String key, String currentExt, String convertToExt, boolean async) throws Exception {
+        String url = urlManager.getFileUri(attachmentId);
+
+        return convert(key, currentExt, convertToExt, url, async);
+    }
+
+    public JSONObject convert(String key, String currentExt, String convertToExt, String url, boolean async) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         JSONObject body = new JSONObject();
-        body.put("async", true);
+        body.put("async", async);
         body.put("embeddedfonts", true);
-        body.put("filetype", ext);
-        body.put("outputtype", convertsTo(ext));
-        body.put("key", documentManager.getKeyOfFile(attachmentId));
-        body.put("url", urlManager.getFileUri(attachmentId));
+        body.put("filetype", currentExt);
+        body.put("outputtype", convertToExt);
+        body.put("key", key);
+        body.put("url", url);
 
         StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
         HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()

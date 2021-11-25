@@ -23,7 +23,7 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -53,15 +53,15 @@ public class UrlManagerImpl implements UrlManager {
 
     private final PluginSettings pluginSettings;
     private final ConfigurationManager configurationManager;
-    private final DocumentManager documentManager;
+    private final AttachmentUtil attachmentUtil;
 
     @Inject
     public UrlManagerImpl(PluginSettingsFactory pluginSettingsFactory, SettingsManager settingsManager,
-                          ConfigurationManager configurationManager, DocumentManager documentManager) {
+                          ConfigurationManager configurationManager, AttachmentUtil attachmentUtil) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.settingsManager = settingsManager;
         this.configurationManager = configurationManager;
-        this.documentManager = documentManager;
+        this.attachmentUtil = attachmentUtil;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
     }
 
@@ -86,7 +86,7 @@ public class UrlManagerImpl implements UrlManager {
     }
 
     public String getFileUri(Long attachmentId) throws Exception {
-        String hash = documentManager.createHash(Long.toString(attachmentId));
+        String hash = attachmentUtil.createHash(Long.toString(attachmentId));
 
         String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("fileUrl " + callbackUrl);
@@ -101,7 +101,7 @@ public class UrlManagerImpl implements UrlManager {
     }
 
     public String getCallbackUrl(Long attachmentId) {
-        String hash = documentManager.createHash(Long.toString(attachmentId));
+        String hash = attachmentUtil.createHash(Long.toString(attachmentId));
 
         String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("callbackUrl " + callbackUrl);
