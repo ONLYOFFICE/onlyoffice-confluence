@@ -33,6 +33,8 @@ import javax.inject.Inject;
 
 public class IsOfficeFileConvertAttachment implements Condition {
 
+    private boolean form;
+
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
@@ -46,6 +48,11 @@ public class IsOfficeFileConvertAttachment implements Condition {
     }
 
     public void init(Map<String, String> params) throws PluginParseException {
+        form = false;
+
+        if (params != null && !params.isEmpty() && params.get("form") != null) {
+            form = !params.get("form").isEmpty();
+        }
     }
 
     public boolean shouldDisplay(Map<String, Object> context) {
@@ -62,6 +69,10 @@ public class IsOfficeFileConvertAttachment implements Condition {
         boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
 
         if (!accessEdit || !convertManager.isConvertable(ext)) {
+            return false;
+        }
+
+        if ((form && !ext.equals("docxf")) || (!form && ext.equals("docxf"))) {
             return false;
         }
 

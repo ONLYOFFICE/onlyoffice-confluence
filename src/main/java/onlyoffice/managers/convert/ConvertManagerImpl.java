@@ -59,6 +59,7 @@ public class ConvertManagerImpl implements ConvertManager {
             put("ppt", "pptx");
             put("ods", "xlsx");
             put("xls", "xlsx");
+            put("docxf", "oform");
         }
     };
 
@@ -75,6 +76,7 @@ public class ConvertManagerImpl implements ConvertManager {
             put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
             put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             put("docxf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            put("oform", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         }
     };
 
