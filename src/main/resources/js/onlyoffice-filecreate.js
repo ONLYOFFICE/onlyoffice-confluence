@@ -111,6 +111,8 @@ AJS.toInit(function ($) {
                 .prependTo(buttonPanel);
 
             dialog.find(".dialog-title").text(AJS.I18n.getText("onlyoffice.editor.dialog.create.form.title"));
+            dialog.find("#upload-attachment").remove();
+            dialog.find(".divider").remove();
             dialog.find(".dialog-tip").text("");
 
             return false;
