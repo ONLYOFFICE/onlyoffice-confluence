@@ -21,6 +21,7 @@ package onlyoffice.managers.document;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.*;
 
 import com.atlassian.confluence.core.ContentEntityManager;
@@ -39,16 +40,10 @@ import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.managers.configuration.ConfigurationManager;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
+import org.apache.commons.codec.binary.Hex;
 
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
@@ -63,15 +58,13 @@ public class DocumentManagerImpl implements DocumentManager {
     private final I18nResolver i18n;
     private final ConfigurationManager configurationManager;
     private final AttachmentUtil attachmentUtil;
-    private final ConvertManager convertManager;
 
     @Inject
     public DocumentManagerImpl(I18nResolver i18n, ConfigurationManager configurationManager,
-                               AttachmentUtil attachmentUtil, ConvertManager convertManager) {
+                               AttachmentUtil attachmentUtil) {
         this.i18n = i18n;
         this.configurationManager = configurationManager;
         this.attachmentUtil = attachmentUtil;
-        this.convertManager = convertManager;
     }
 
     public long getMaxFileSize() {
@@ -114,6 +107,51 @@ public class DocumentManagerImpl implements DocumentManager {
         return key;
     }
 
+    public String createHash(String str) {
+        try {
+            String secret = configurationManager.getProperty("files.docservice.secret");
+
+            String payload = getHashHex(str + secret) + "?" + str;
+
+            String base64 = Base64.getEncoder().encodeToString(payload.getBytes("UTF-8"));
+            return base64;
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+        return "";
+    }
+
+    public String readHash(String base64) {
+        try {
+            String str = new String(Base64.getDecoder().decode(base64), "UTF-8");
+
+            String secret = configurationManager.getProperty("files.docservice.secret");
+
+            String[] payloadParts = str.split("\\?");
+
+            String payload = getHashHex(payloadParts[1] + secret);
+            if (payload.equals(payloadParts[0])) {
+                return payloadParts[1];
+            }
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+        return "";
+    }
+
+    private String getHashHex(String str) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(str.getBytes());
+            String hex = Hex.encodeHexString(digest);
+
+            return hex;
+        } catch (Exception ex) {
+            log.error(ex);
+        }
+        return "";
+    }
+
     public String getCorrectName(String fileName, String fileExt, Long pageID) {
         ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
@@ -152,7 +190,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public Long createDemo(String fileName, String fileExt, Long pageID, String mimeType, String attachmentTemplateId) {
+    public Long createDemo(String fileName, String fileExt, Long pageID, String mimeType) {
         Attachment attachment = null;
         try {
             ConfluenceUser confluenceUser = AuthenticatedUserThreadLocal.get();
@@ -164,60 +202,19 @@ public class DocumentManagerImpl implements DocumentManager {
 
             Date date = Calendar.getInstance().getTime();
 
-            InputStream inputStream = null;
-            long size = 0;
-
-            if (fileExt.equals("docxf") && attachmentTemplateId != null && !attachmentTemplateId.equals("")) {
-                Long attachmentTemplateIdAsLong = Long.parseLong(attachmentTemplateId);
-
-                if (!attachmentUtil.checkAccess(attachmentTemplateIdAsLong, AuthenticatedUserThreadLocal.get(), false)) {
-                    throw new SecurityException("You don not have enough permission to read the file");
-                }
-
-                String attachmentTemplateExt = attachmentUtil.getAttachmentExt(attachmentTemplateIdAsLong);
-
-                if (!attachmentTemplateExt.equals("docx")) {
-                    throw new RuntimeException("Template format does not match docx format");
-                }
-
-                String key = getKeyOfFile(attachmentTemplateIdAsLong);
-
-                JSONObject convertResponse = convertManager.convert(attachmentTemplateIdAsLong, key, attachmentTemplateExt, "docxf", false);
-                String urlToDOCXF = convertResponse.getString("fileUrl");
-
-                try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
-                    HttpGet request = new HttpGet(urlToDOCXF);
-
-                    try (CloseableHttpResponse response = httpClient.execute(request)) {
-
-                        int status = response.getStatusLine().getStatusCode();
-                        HttpEntity entity = response.getEntity();
-
-                        if (status == HttpStatus.SC_OK) {
-                            byte[] bytes = IOUtils.toByteArray(entity.getContent());
-                            inputStream = new ByteArrayInputStream(bytes);
-                            size = bytes.length;
-                        } else {
-                            throw new HttpException("Document Server returned code " + status);
-                        }
-                    }
-                }
-            } else {
-                inputStream = getDemoFile(confluenceUser, fileExt);
-                size = inputStream.available();
-            }
+            InputStream demoFile = getDemoFile(confluenceUser, fileExt);
 
             fileName = getCorrectName(fileName, fileExt, pageID);
 
             Page page = pageManager.getPage(pageID);
-            attachment = new Attachment(fileName, mimeType, size, "");
+            attachment = new Attachment(fileName, mimeType, demoFile.available(), "");
 
             attachment.setCreator(confluenceUser);
             attachment.setCreationDate(date);
             attachment.setLastModificationDate(date);
             attachment.setContainer(pageManager.getPage(pageID));
 
-            attachmentManager.saveAttachment(attachment, null, inputStream);
+            attachmentManager.saveAttachment(attachment, null, demoFile);
             page.addAttachment(attachment);
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);

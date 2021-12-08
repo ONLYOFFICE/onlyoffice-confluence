@@ -23,7 +23,4 @@ public interface AttachmentUtil extends Serializable {
     public String getAttachmentSpaceName (Long attachmentId);
     public String getAttachmentSpaceKey (Long attachmentId);
     public Attachment createNewAttachment (String title, String mimeType, InputStream file, int size, Long pageId, ConfluenceUser user) throws IOException;
-    public String getAttachmentExt (Long attachmentId);
-    public String createHash(String str);
-    public String readHash(String base64);
 }

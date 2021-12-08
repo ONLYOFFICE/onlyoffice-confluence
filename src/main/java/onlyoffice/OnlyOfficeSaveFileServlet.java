@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
@@ -52,15 +53,17 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
     private final JwtManager jwtManager;
+    private final DocumentManager documentManager;
 
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
 
     @Inject
-    public OnlyOfficeSaveFileServlet(JwtManager jwtManager, AttachmentUtil attachmentUtil, ParsingUtil parsingUtil,
-                                     UrlManager urlManager) {
+    public OnlyOfficeSaveFileServlet(JwtManager jwtManager, DocumentManager documentManager,
+            AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager) {
         this.jwtManager = jwtManager;
+        this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
@@ -84,7 +87,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
         String vkey = request.getParameter("vkey");
         log.info("vkey = " + vkey);
-        String attachmentIdString = attachmentUtil.readHash(vkey);
+        String attachmentIdString = documentManager.readHash(vkey);
 
         Long attachmentId = Long.parseLong(attachmentIdString);
         log.info("attachmentId " + attachmentId);
@@ -109,7 +112,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
         String vkey = request.getParameter("vkey");
         log.info("vkey = " + vkey);
-        String attachmentIdString = attachmentUtil.readHash(vkey);
+        String attachmentIdString = documentManager.readHash(vkey);
 
         String error = "";
         try {
