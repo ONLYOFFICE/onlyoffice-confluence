@@ -59,6 +59,7 @@ public class ConvertManagerImpl implements ConvertManager {
             put("ppt", "pptx");
             put("ods", "xlsx");
             put("xls", "xlsx");
+            put("docx", "docxf");
             put("docxf", "oform");
         }
     };
