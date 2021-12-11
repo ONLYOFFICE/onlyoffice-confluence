@@ -158,7 +158,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                         Long newAttachmentId = savefile(attachment, json.getString("fileUrl"),
                                 request.getParameter("newExt"), request.getParameter("newName"), pageId);
                         json.put("attachmentId", newAttachmentId);
-                    } else {
+                    } else if (json.has("error")) {
                         errorMessage = "Unknown conversion error";
                     }
                 } else {
