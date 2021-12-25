@@ -1,12 +1,12 @@
 # Change Log
 
-## 
+## 3.1.0
 ## Added
-- support for new docxf and oform formats
-- create new blank docxf from creation menu
-- create new docxf from docx from creation menu and documents manager
-- create oform from docxf from documents manager
-- "save copy as" from editor
+- support docxf and oform formats
+- create blank docxf from creation menu
+- create docxf from docx from creation menu
+- create oform from docxf from document manager
+- "save as" in editor
 
 ## 3.0.1
 ## Changed
