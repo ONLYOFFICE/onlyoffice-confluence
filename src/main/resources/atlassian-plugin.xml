@@ -44,6 +44,7 @@
         <resource type="download" name="new-docx.svg" location="images/new-docx.svg"/>
         <resource type="download" name="new-xlsx.svg" location="images/new-xlsx.svg"/>
         <resource type="download" name="new-pptx.svg" location="images/new-pptx.svg"/>
+        <resource type="download" name="new-docxf.svg" location="images/new-docxf.svg"/>
         <resource type="download" name="confirm.svg" location="images/confirm.svg"/>
         <resource type="download" name="16.svg" location="images/16.svg"/>
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
@@ -78,6 +79,16 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
+    <web-item key="onlyoffice-docform" name="Link for the attachment fill form" section="system.attachment" weight="9">
+        <condition class="onlyoffice.conditions.IsOfficeFileAttachment">
+            <param name="forEdit">true</param>
+            <param name="form">true</param>
+        </condition>
+        <description>The link and the text for it which is used to open the .oform document to fill in the fields in the form.</description>
+        <label key="onlyoffice.editor.fillFormlink"/>
+        <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
+        <styleClass>onlyoffice-doceditor</styleClass>
+    </web-item>
     <web-item key="onlyoffice-docviewer" name="Link for viewing the attachment" section="system.attachment" weight="10">
         <condition class="onlyoffice.conditions.IsOfficeFileAttachment"/>
         <description>Link and text for this link used to open the document which is available for preview only.</description>
@@ -89,6 +100,15 @@
         <condition class="onlyoffice.conditions.IsOfficeFileConvertAttachment"/>
         <description>Link and text for this link used to convert the document to the Office Open XML format</description>
         <label key="onlyoffice.convert.link"/>
+        <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
+        <styleClass>onlyoffice-doceditor</styleClass>
+    </web-item>
+    <web-item key="onlyoffice-doc-create-form" name="Link for create oform from docxf" section="system.attachment" weight="11">
+        <condition class="onlyoffice.conditions.IsOfficeFileConvertAttachment">
+            <param name="form">true</param>
+        </condition>
+        <description>The link and the text for it which is used to convert the docx to oform</description>
+        <label key="onlyoffice.form.create.link"/>
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>

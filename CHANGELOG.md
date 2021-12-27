@@ -8,7 +8,6 @@
 - editor interface customization
 - ability to get links to bookmarks in document
 - creating documents from editor
-- "save as" attachment on page from editor
 - open non-editable formats on views
 - formats for conversion docm, dot, dotx, epub, htm, html, otp, ots, ott, pot, potm, potx, pps, ppsm, ppsx, pptm, rtf, xlsm, xlt, xltm, xltx
 - keep intermediate versions when editing (forcesave)
@@ -22,6 +21,17 @@
 ## Changed
 - document server v6.0 and earlier is no longer supported
 - redesign settings page
+
+## 3.1.0
+## Added
+- support docxf and oform formats
+- create blank docxf from creation menu
+- create docxf from docx from creation menu
+- create oform from docxf from document manager
+- "save as" in editor
+
+## Changed
+- compatible with Confluence 7.15
 
 ## 3.0.1
 ## Changed

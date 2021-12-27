@@ -182,7 +182,7 @@ public class DocumentManagerImpl implements DocumentManager {
     public Long createDemo(String fileName, String fileExt, Long pageId, ConfluenceUser user) throws IOException {
         Attachment attachment = null;
 
-        fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
+        fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
         fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
 
         InputStream demoFile = getDemoFile(user, fileExt);

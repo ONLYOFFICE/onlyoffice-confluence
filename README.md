@@ -12,7 +12,7 @@ The app allows to:
 
 Supported formats:
 
-* For viewing and editing: DOCX, XLSX, PPTX. 
+* For viewing and editing: DOCX, XLSX, PPTX, DOCXF, OFORM.
 * For conversion to Office Open XML: ODT, DOC, ODP, PPT, ODS, XLS. 
 
 ## Installing ONLYOFFICE Docs

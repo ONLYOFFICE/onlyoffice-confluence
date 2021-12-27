@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import onlyoffice.managers.configuration.ConfigurationManager;
+import com.atlassian.confluence.pages.PageManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
@@ -66,17 +67,19 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final ConfigurationManager configurationManager;
+    private final PageManager pageManager;
 
     @Inject
     public OnlyOfficeConvertServlet(AttachmentManager attachmentManager, AttachmentUtil attachmentUtil,
             ConvertManager convertManager, AuthContext authContext, DocumentManager documentManager,
-            ConfigurationManager configurationManager) {
+            ConfigurationManager configurationManager, PageManager pageManager) {
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.configurationManager = configurationManager;
+        this.pageManager = pageManager;
     }
 
     @Override
@@ -84,6 +87,8 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
+        String pageIdString = request.getParameter("pageId");
+        String newName = request.getParameter("newName");
 
         String attachmentIdString = request.getParameter("attachmentId");
         Long attachmentId = Long.parseLong(attachmentIdString);
@@ -93,15 +98,27 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         PrintWriter writer = response.getWriter();
 
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        Long pageId = attachment.getContainer().getId();
         String fileName = attachment.getFileName();
         String ext = attachment.getFileExtension();
-        String title = fileName.substring(0, fileName.lastIndexOf("."));
         String newExt = convertManager.convertsTo(ext);
-        String newFileName = documentManager.getCorrectName(title, newExt, attachment.getContainer().getId());
+
+        if (pageIdString != null && !pageIdString.isEmpty()) {
+            pageId = Long.parseLong(pageIdString);
+            contextMap.put("pageId", pageId);
+        }
+
+        if (newName != null && !newName.isEmpty()) {
+            newName = documentManager.getCorrectName(newName, newExt, pageId);
+        } else {
+            newName = documentManager.getCorrectName(fileName.substring(0, fileName.lastIndexOf(".")), newExt, pageId);
+        }
 
         contextMap.put("attachmentId", attachmentIdString);
         contextMap.put("oldName", fileName);
-        contextMap.put("newName", newFileName);
+        contextMap.put("newName", newName);
+        contextMap.put("oldExt", ext);
+        contextMap.put("newExt", newExt);
         writer.write(getTemplate(contextMap));
     }
 
@@ -132,16 +149,26 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             String fileName = attachment.getFileName();
             String ext = attachment.getFileExtension();
             String title = fileName.substring(0, fileName.lastIndexOf("."));
+            String pageIdAsString = request.getParameter("pageId");
 
-            if (attachmentUtil.checkAccess(attachmentId, user, true)) {
+            Long pageId = null;
+            if (pageIdAsString != null && !pageIdAsString.isEmpty()) {
+                pageId = Long.parseLong(pageIdAsString);
+            } else {
+                pageId = attachment.getContainer().getId();
+            }
+
+            if (attachmentUtil.checkAccess(attachmentId, user, false) && attachmentUtil.checkAccessCreate(user, pageId)) {
                 if (convertManager.isConvertable(ext)) {
                     String convertToExt = convertManager.convertsTo(ext);
                     json = convertManager.convert(attachmentId, ext, convertToExt);
 
-                    if (json.getBoolean("endConvert")) {
-                        String newFileName = documentManager.getCorrectName(title, convertToExt, attachment.getContainer().getId());
-                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"), newFileName);
+                    if (json.has("endConvert") && json.getBoolean("endConvert")) {
+                        String newFileName = documentManager.getCorrectName(title, convertToExt, pageId);
+                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"), newFileName, pageId);
                         json.put("attachmentId", newAttachmentId);
+                    } else if (json.has("error")) {
+                        errorMessage = "Unknown conversion error";
                     }
                 } else {
                     errorMessage = "Files of " + ext + " format cannot be converted";
@@ -168,7 +195,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         }
     }
 
-    private Long savefile(Attachment attachment, String fileUrl, String newName) throws Exception {
+    private Long savefile(Attachment attachment, String fileUrl, String newName, Long pageId) throws Exception {
         log.info("downloadUri = " + fileUrl);
 
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
@@ -185,7 +212,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
                     Attachment copy = attachment.copyLatestVersion();
 
-                    copy.setContainer(attachment.getContainer());
+                    copy.setContainer(pageManager.getPage(pageId));
                     copy.setFileName(newName);
                     copy.setFileSize(size);
                     copy.setMediaType(documentManager.getMimeType(newName));

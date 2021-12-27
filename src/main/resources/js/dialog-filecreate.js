@@ -25,7 +25,8 @@ AJS.toInit(function ($) {
         extensions: {
             "docx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.docx"),
             "xlsx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.xlsx"),
-            "pptx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.pptx")
+            "pptx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.pptx"),
+            "docxf" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.docxf")
         }
     };
 
@@ -69,6 +70,56 @@ AJS.toInit(function ($) {
     });
 
     $(document).on("submit", ".filenameform", function(event) {
+        if (event.currentTarget.id == "form-docxf") {
+            if (AJS.Editor.ImageDialog.panelComponent.length > 2) AJS.Editor.ImageDialog.panelComponent.splice(1, 1);
+
+            var insertImageDialog = AJS.Editor.ImageDialog.insertImageDialog(function(a) {
+                var fileExt = a.selectItems[0].attributes.fileName.split(".").pop();
+                if (fileExt == "docx") {
+                    window.open("/plugins/servlet/onlyoffice/convert?attachmentId=" + a.selectItems[0].attributes.id +
+                            "&pageId=" + AJS.params.pageId + "&newName=" +  $("#view-input-docxf").attr("value")
+                    )
+                    setTimeout(function () { document.location.reload(); }, 1000);
+                } else {
+                    AJS.flag({
+                        type: "error",
+                        body: AJS.I18n.getText("onlyoffice.editor.dialog.create.form.message.error")
+                    });
+                }
+            });
+
+            var dialog = $("#insert-image-dialog");
+
+            dialog.find(".file-list").on("DOMNodeInserted", function(event) {
+                var fileExt = event.srcElement.dataset.fileName.split(".").pop();
+                if (fileExt != "docx") $(event.srcElement).hide();
+            });
+
+            var buttonPanel = dialog.find(".dialog-button-panel");
+            var insertButton = dialog.find(".button-panel-button.insert")[0];
+
+            $(insertButton).text(AJS.I18n.getText("onlyoffice.editor.dialog.create.form.button.create"));
+
+            $(insertButton).clone()
+                .text(AJS.I18n.getText("onlyoffice.editor.dialog.create.form.button.create-blank"))
+                .removeAttr("disabled")
+                .removeAttr("aria-disabled")
+                .click(function() {
+                    insertImageDialog.dialog.remove();
+                    insertImageDialog.clearSelection();
+                    event.currentTarget.submit()
+                    setTimeout(function () { document.location.reload(); }, 1000);
+                 })
+                .prependTo(buttonPanel);
+
+            dialog.find(".dialog-title").text(AJS.I18n.getText("onlyoffice.editor.dialog.create.form.title"));
+            dialog.find("#upload-attachment").remove();
+            dialog.find(".divider").remove();
+            dialog.find(".dialog-tip").text("");
+
+            return false;
+        }
+
         setTimeout(function () { document.location.reload(); }, 1000);
         return true;
     });
