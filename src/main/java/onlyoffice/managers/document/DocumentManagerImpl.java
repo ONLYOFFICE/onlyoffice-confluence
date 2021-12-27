@@ -215,7 +215,7 @@ public class DocumentManagerImpl implements DocumentManager {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-        return mimeType;
+        return mimeType != null ? mimeType : "application/octet-stream";
     }
 
     public String getEditorType (String userAgent) {
@@ -237,6 +237,11 @@ public class DocumentManagerImpl implements DocumentManager {
         }
 
         return editingTypes.contains(fileExtension);
+    }
+
+    public boolean isFillForm(String fileExtension) {
+        List<String> fillFormTypes = configurationManager.getFillFormTypes();
+        return configurationManager.getFillFormTypes().contains(fileExtension);
     }
 
     public boolean isViewable(String fileExtension) {

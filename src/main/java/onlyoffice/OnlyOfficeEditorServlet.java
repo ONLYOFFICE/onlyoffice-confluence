@@ -176,7 +176,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         String docTitle = fileName.trim();
         String docExt = attachmentUtil.getFileExt(attachmentId);
-        boolean canEdit = documentManager.isEditable(docExt);
+        boolean canEdit = documentManager.isEditable(docExt) || documentManager.isFillForm(docExt);
         String documentType = documentManager.getDocType(docExt);
         Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
 

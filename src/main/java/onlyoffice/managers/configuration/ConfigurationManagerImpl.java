@@ -172,6 +172,11 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return new ArrayList<>(Arrays.asList(editableTypes.split("\\|")));
     }
 
+    public List<String> getFillFormTypes() {
+        String editableTypes = getProperty("docservice.type.fill-form");
+        return new ArrayList<>(Arrays.asList(editableTypes.split("\\|")));
+    }
+
     public Map<String, Boolean> getCustomizableEditingTypes () {
         Map<String, Boolean> customizableEditingTypes = new HashMap<>();
         List<String> editingTypes = null;

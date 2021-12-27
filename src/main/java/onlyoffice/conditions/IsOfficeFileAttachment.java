@@ -69,11 +69,14 @@ public class IsOfficeFileAttachment implements Condition {
         String ext = attachment.getFileExtension();
 
         if (forEdit) {
-            if (accessEdit && documentManager.isEditable(ext)) {
-                return true;
+            if (form) {
+                if (accessEdit && documentManager.isFillForm(ext)) return true;
+            } else {
+                if (accessEdit && documentManager.isEditable(ext)) return true;
             }
         } else {
-            if (accessView && documentManager.isViewable(ext) && !(accessEdit && documentManager.isEditable(ext))) {
+            if (accessView && documentManager.isViewable(ext) &&
+                    !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
                 return true;
             }
         }
