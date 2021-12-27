@@ -18,11 +18,7 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -35,6 +31,7 @@ import com.atlassian.confluence.pages.PageManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
@@ -207,17 +204,17 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                 HttpEntity entity = response.getEntity();
 
                 if (status == HttpStatus.SC_OK) {
-                    InputStream stream = entity.getContent();
-                    Long size = entity.getContentLength();
+                    byte[] bytes = IOUtils.toByteArray(entity.getContent());
+                    InputStream inputStream = new ByteArrayInputStream(bytes);
 
                     Attachment copy = attachment.copyLatestVersion();
 
                     copy.setContainer(pageManager.getPage(pageId));
                     copy.setFileName(newName);
-                    copy.setFileSize(size);
+                    copy.setFileSize(bytes.length);
                     copy.setMediaType(documentManager.getMimeType(newName));
 
-                    attachmentManager.saveAttachment(copy, null, stream);
+                    attachmentManager.saveAttachment(copy, null, inputStream);
 
                     return copy.getLatestVersionId();
                 } else {
