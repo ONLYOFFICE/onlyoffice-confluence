@@ -85,7 +85,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             return;
         }
         String pageIdString = request.getParameter("pageId");
-        String newName = request.getParameter("newName");
+        String newTitle = request.getParameter("newTitle");
 
         String attachmentIdString = request.getParameter("attachmentId");
         Long attachmentId = Long.parseLong(attachmentIdString);
@@ -99,23 +99,23 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         String fileName = attachment.getFileName();
         String ext = attachment.getFileExtension();
         String newExt = convertManager.convertsTo(ext);
+        String title = fileName.substring(0, fileName.lastIndexOf("."));
 
         if (pageIdString != null && !pageIdString.isEmpty()) {
             pageId = Long.parseLong(pageIdString);
             contextMap.put("pageId", pageId);
         }
 
-        if (newName != null && !newName.isEmpty()) {
-            newName = documentManager.getCorrectName(newName, newExt, pageId);
-        } else {
-            newName = documentManager.getCorrectName(fileName.substring(0, fileName.lastIndexOf(".")), newExt, pageId);
+        if (newTitle != null && !newTitle.isEmpty()) {
+            contextMap.put("newTitle", newTitle);
+            title = newTitle;
         }
+
+        String newName = documentManager.getCorrectName(title, newExt, pageId);
 
         contextMap.put("attachmentId", attachmentIdString);
         contextMap.put("oldName", fileName);
         contextMap.put("newName", newName);
-        contextMap.put("oldExt", ext);
-        contextMap.put("newExt", newExt);
         writer.write(getTemplate(contextMap));
     }
 
@@ -146,7 +146,11 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             String fileName = attachment.getFileName();
             String ext = attachment.getFileExtension();
             String title = fileName.substring(0, fileName.lastIndexOf("."));
+
             String pageIdAsString = request.getParameter("pageId");
+            String newTitle = request.getParameter("newTitle");
+
+            if (newTitle != null && !newTitle.isEmpty()) title = newTitle;
 
             Long pageId = null;
             if (pageIdAsString != null && !pageIdAsString.isEmpty()) {

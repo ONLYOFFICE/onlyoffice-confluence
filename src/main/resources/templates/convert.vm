@@ -51,7 +51,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
 
     <script type="text/javascript" language="javascript">
         (function (jq) {
-            var url = AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId=${attachmentId}&pageId=$!{pageId}";
+            var url = AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId=${attachmentId}&newTitle=$!{newTitle}&pageId=$!{pageId}";
             var editorUrl = AJS.contextPath() + "/plugins/servlet/onlyoffice/doceditor?attachmentId=";
 
             jq(document).ready(function () {
