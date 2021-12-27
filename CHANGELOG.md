@@ -8,6 +8,9 @@
 - create oform from docxf from document manager
 - "save as" in editor
 
+## Changed
+- compatible with Confluence 7.15
+
 ## 3.0.1
 ## Changed
 - compatible with Confluence 7.13
