@@ -19,8 +19,11 @@
 package onlyoffice.managers.document;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
+
 import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -34,8 +37,10 @@ import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
+import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.managers.configuration.ConfigurationManager;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
@@ -76,6 +81,12 @@ public class DocumentManagerImpl implements DocumentManager {
 
     public List<String> getEditedExts() {
         String exts = configurationManager.getProperty("files.docservice.edited-docs");
+        if(exts == null) return new ArrayList<String>();
+        return Arrays.asList(exts.split("\\|"));
+    }
+
+    public List<String> getFillFormExts() {
+        String exts = configurationManager.getProperty("files.docservice.fill-docs");
         if(exts == null) return new ArrayList<String>();
         return Arrays.asList(exts.split("\\|"));
     }
@@ -141,7 +152,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    private String getCorrectName(String fileName, String fileExt, Long pageID) {
+    public String getCorrectName(String fileName, String fileExt, Long pageID) {
         ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
@@ -186,7 +197,7 @@ public class DocumentManagerImpl implements DocumentManager {
             PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
 
-            fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") ? "docx" : fileExt.trim();
+            fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
             fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
 
             Date date = Calendar.getInstance().getTime();
@@ -196,7 +207,7 @@ public class DocumentManagerImpl implements DocumentManager {
             fileName = getCorrectName(fileName, fileExt, pageID);
 
             Page page = pageManager.getPage(pageID);
-            attachment = new Attachment(fileName, mimeType,  demoFile.available(), "");
+            attachment = new Attachment(fileName, mimeType, demoFile.available(), "");
 
             attachment.setCreator(confluenceUser);
             attachment.setCreationDate(date);
@@ -206,19 +217,30 @@ public class DocumentManagerImpl implements DocumentManager {
             attachmentManager.saveAttachment(attachment, null, demoFile);
             page.addAttachment(attachment);
         } catch (Exception ex) {
-            log.error(ex);
+            log.error(ex.getMessage(), ex);
         }
 
         return attachment.getContentId().asLong();
     }
 
     public String getDocType(String ext) {
-        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps".indexOf(ext) != -1)
+        if (".doc.docx.docm.dot.dotx.dotm.odt.fodt.ott.rtf.txt.html.htm.mht.pdf.djvu.fb2.epub.xps.docxf.oform".indexOf(ext) != -1)
             return "text";
         if (".xls.xlsx.xlsm.xlt.xltx.xltm.ods.fods.ots.csv".indexOf(ext) != -1)
             return "spreadsheet";
         if (".pps.ppsx.ppsm.ppt.pptx.pptm.pot.potx.potm.odp.fodp.otp".indexOf(ext) != -1)
             return "presentation";
         return null;
+    }
+
+    public String getMimeType(String name) {
+        Path path = new File(name).toPath();
+        String mimeType = null;
+        try {
+            mimeType = Files.probeContentType(path);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return mimeType != null ? mimeType : "application/octet-stream";
     }
 }

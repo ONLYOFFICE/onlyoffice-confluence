@@ -20,7 +20,13 @@ package onlyoffice.utils.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
 
+import com.atlassian.confluence.pages.Page;
+import com.atlassian.confluence.pages.PageManager;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import onlyoffice.managers.configuration.ConfigurationManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -34,12 +40,26 @@ import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
 
 import javax.enterprise.inject.Default;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
+
+    @ComponentImport
+    private final AttachmentManager attachmentManager;
+    @ComponentImport
+    private final PageManager pageManager;
+    private final ConfigurationManager configurationManager;
+    @Inject
+    public AttachmentUtilImpl(AttachmentManager attachmentManager, PageManager pageManager,
+                              ConfigurationManager configurationManager) {
+        this.attachmentManager = attachmentManager;
+        this.pageManager = pageManager;
+        this.configurationManager = configurationManager;
+    }
 
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
         if (user == null) {
@@ -65,6 +85,19 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         }
 
         boolean access = permissionManager.hasPermission(user, permission, attachment);
+        return access;
+    }
+
+    public boolean checkAccessCreate(User user, Long pageId) {
+        if (user == null) {
+            return false;
+        }
+
+        PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
+
+        Page page = pageManager.getPage(pageId);
+        boolean access = permissionManager.hasCreatePermission(user, page, Attachment.class);
+
         return access;
     }
 
@@ -107,5 +140,55 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         int version = attachment.getVersion();
         return attachmentId + "_" + version + "_" + hashCode;
+    }
+
+    public String getAttachmentPageTitle (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getContainer().getTitle();
+        }
+        return null;
+    }
+
+    public Long getAttachmentPageId (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getContainer().getId();
+        }
+        return null;
+    }
+
+    public String getAttachmentSpaceName (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getSpace().getName();
+        }
+        return null;
+    }
+
+    public String getAttachmentSpaceKey (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getSpace().getKey();
+        }
+        return null;
+    }
+
+    public Attachment createNewAttachment (String fileName, String mimeType, InputStream file, int size, Long pageId, ConfluenceUser user) throws IOException {
+        Date date = Calendar.getInstance().getTime();
+
+        Attachment attachment = new Attachment(fileName, mimeType, size, "");
+
+        attachment.setCreator(user);
+        attachment.setCreationDate(date);
+        attachment.setLastModificationDate(date);
+        attachment.setContainer(pageManager.getPage(pageId));
+
+        attachmentManager.saveAttachment(attachment, null, file);
+
+        Page page = pageManager.getPage(pageId);
+        page.addAttachment(attachment);
+
+        return attachment;
     }
 }

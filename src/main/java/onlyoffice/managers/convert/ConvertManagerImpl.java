@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import org.apache.http.HttpException;
@@ -50,7 +49,6 @@ public class ConvertManagerImpl implements ConvertManager {
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
     private final ConfigurationManager configurationManager;
-    private final DocumentManager documentManager;
 
     @SuppressWarnings("serial")
     private final Map<String, String> convertableDict = new HashMap<String, String>() {
@@ -61,6 +59,8 @@ public class ConvertManagerImpl implements ConvertManager {
             put("ppt", "pptx");
             put("ods", "xlsx");
             put("xls", "xlsx");
+            put("docx", "docxf");
+            put("docxf", "oform");
         }
     };
 
@@ -76,17 +76,16 @@ public class ConvertManagerImpl implements ConvertManager {
             put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
             put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
             put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            put("docxf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            put("oform", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         }
     };
 
     @Inject
-    public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager,
-                              ConfigurationManager configurationManager,
-                              DocumentManager documentManager) {
+    public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager) {
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
-        this.documentManager = documentManager;
     }
 
     public boolean isConvertable(String ext) {
@@ -101,14 +100,14 @@ public class ConvertManagerImpl implements ConvertManager {
         return mimeTypes.getOrDefault(trimDot(ext), null);
     }
 
-    public JSONObject convert(Long attachmentId, String ext) throws Exception {
+    public JSONObject convert(Long attachmentId, String key, String ext) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         JSONObject body = new JSONObject();
         body.put("async", true);
         body.put("embeddedfonts", true);
         body.put("filetype", ext);
         body.put("outputtype", convertsTo(ext));
-        body.put("key", documentManager.getKeyOfFile(attachmentId));
+        body.put("key", key);
         body.put("url", urlManager.getFileUri(attachmentId));
 
         StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);

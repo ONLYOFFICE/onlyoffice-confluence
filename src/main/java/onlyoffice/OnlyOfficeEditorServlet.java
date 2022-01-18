@@ -121,6 +121,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             fileName = request.getParameter("fileName");
             String fileExt = request.getParameter("fileExt");
             String pageID = request.getParameter("pageId");
+
             if (pageID != null && !pageID.equals("")) {
                 try {
                     Long attachmentId = documentManager.createDemo(fileName, fileExt,
@@ -139,7 +140,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
         }
 
-        Long attachmentId;
+        Long attachmentId = null;
 
         try {
             attachmentId = Long.parseLong(attachmentIdString);
@@ -175,16 +176,17 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
 
-        writer.write(getTemplate(apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
+        writer.write(getTemplate(attachmentId, apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl, errorMessage));
     }
 
-    private String getTemplate(String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
+    private String getTemplate(Long attachmentId, String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
             ConfluenceUser user, String gobackUrl, String errorMessage) throws UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
 
         String docTitle = fileName.trim();
         String docExt = docTitle.substring(docTitle.lastIndexOf(".") + 1).trim().toLowerCase();
+        Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
 
         config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
         config.put("errorMessage", errorMessage);
@@ -233,6 +235,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             // AsHtml at the end disables automatic html encoding
             config.put("jsonAsHtml", responseJson.toString());
+            config.put("pageId", pageId.toString());
+            config.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
+            config.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
+            config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
+            config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);

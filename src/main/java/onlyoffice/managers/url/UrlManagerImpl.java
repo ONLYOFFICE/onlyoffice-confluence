@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
     private final String callbackServler = "plugins/servlet/onlyoffice/save";
+    private final String APIServlet = "plugins/servlet/onlyoffice/api";
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -91,6 +92,12 @@ public class UrlManagerImpl implements UrlManager {
         log.info("fileUrl " + callbackUrl);
 
         return callbackUrl;
+    }
+
+    public String getSaveAsUri() {
+        String saveAsUri = getConfluenceBaseUrl() + APIServlet + "?type=save-as";
+
+        return saveAsUri;
     }
 
     public String getCallbackUrl(Long attachmentId) {

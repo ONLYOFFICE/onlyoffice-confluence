@@ -1,5 +1,16 @@
 # Change Log
 
+## 3.1.0
+## Added
+- support docxf and oform formats
+- create blank docxf from creation menu
+- create docxf from docx from creation menu
+- create oform from docxf from document manager
+- "save as" in editor
+
+## Changed
+- compatible with Confluence 7.15
+
 ## 3.0.1
 ## Changed
 - compatible with Confluence 7.13
