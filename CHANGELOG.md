@@ -31,7 +31,7 @@
 - "save as" in editor
 
 ## Changed
-- compatible with Confluence 7.15
+- compatible with Confluence 7.15.0
 
 ## 3.0.1
 ## Changed
