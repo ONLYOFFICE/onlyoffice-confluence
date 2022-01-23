@@ -173,7 +173,7 @@ public class UrlManagerImpl implements UrlManager {
     public String replaceDocEditorURLToInternal(String url) {
         String innerDocEditorUrl = getInnerDocEditorUrl();
         String publicDocEditorUrl = getPublicDocEditorUrl();
-        if (!publicDocEditorUrl.equals(innerDocEditorUrl)) {
+        if (!publicDocEditorUrl.equals(innerDocEditorUrl) && !configurationManager.demoActive()) {
            url = url.replace(publicDocEditorUrl, innerDocEditorUrl);
         }
         return url;
