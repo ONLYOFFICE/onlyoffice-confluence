@@ -238,7 +238,9 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             customizationObject.put("feedback", configurationManager.getBooleanPluginSetting("feedback", false));
             customizationObject.put("help", configurationManager.getBooleanPluginSetting("helpMenu", true));
             customizationObject.put("toolbarNoTabs", configurationManager.getBooleanPluginSetting("toolbarNoTabs", false));
-            customizationObject.put("reviewDisplay", configurationManager.getStringPluginSetting("reviewDisplay", "original"));
+            if (!configurationManager.getStringPluginSetting("reviewDisplay", "original").equals("original")) {
+                customizationObject.put("reviewDisplay", configurationManager.getStringPluginSetting("reviewDisplay", "original"));
+            }
             customizationObject.put("goback", gobackObject);
             gobackObject.put("url", gobackUrl);
 
