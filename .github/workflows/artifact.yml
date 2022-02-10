@@ -1,0 +1,39 @@
+name: Artifact
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+    branches: [master]
+  
+jobs:
+  artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Info 
+        run: |
+          echo "::set-output name=version::$(awk '/<version>/,/<\/version>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<version>\(.*\)</version>.*:\1:p')"
+          echo "::set-output name=artifact::$(awk '/<artifactId>/,/<\/artifactId>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<artifactId>\(.*\)</artifactId>.*:\1:p')"
+        id: info
+      - name: Build Artifact
+        run: |
+          cd ${{ github.workspace }}
+          cwd=$(pwd)
+          git submodule update --init --recursive
+          sudo apt install default-jre -y
+          sudo sh -c 'echo "deb https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" >>/etc/apt/sources.list'
+          wget https://packages.atlassian.com/api/gpg/key/public
+          sudo apt-key add public
+          sudo apt-get update -y
+          sudo apt-get install atlassian-plugin-sdk -y
+          atlas-version
+          atlas-package
+          cd ./target
+          mv ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar $cwd
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}
+          path: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar
