@@ -18,10 +18,7 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Base64;
 import java.util.List;
 
@@ -37,6 +34,7 @@ import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
@@ -277,13 +275,13 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 HttpEntity entity = response.getEntity();
 
                 if (status == HttpStatus.SC_OK) {
-                    InputStream stream = entity.getContent();
-                    Long size = entity.getContentLength();
+                    byte[] bytes = IOUtils.toByteArray(entity.getContent());
+                    InputStream inputStream = new ByteArrayInputStream(bytes);
 
                     if (newVersion) {
-                        attachmentUtil.saveAttachmentAsNewVersion(attachmentId, stream, size.intValue(), user);
+                        attachmentUtil.saveAttachmentAsNewVersion(attachmentId, inputStream, bytes.length, user);
                     } else {
-                        attachmentUtil.updateAttachment(attachmentId, stream, size.intValue(), user);
+                        attachmentUtil.updateAttachment(attachmentId, inputStream, bytes.length, user);
                     }
                 } else {
                     throw new HttpException("Document Server returned code " + status);
