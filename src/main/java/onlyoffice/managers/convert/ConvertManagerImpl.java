@@ -23,6 +23,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
+import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
@@ -48,6 +51,9 @@ import javax.inject.Named;
 public class ConvertManagerImpl implements ConvertManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.convert.ConvertManager");
 
+    @ComponentImport
+    private final LocaleManager localeManager;
+
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
     private final ConfigurationManager configurationManager;
@@ -56,11 +62,12 @@ public class ConvertManagerImpl implements ConvertManager {
     @Inject
     public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager,
                               ConfigurationManager configurationManager,
-                              DocumentManager documentManager) {
+                              DocumentManager documentManager, LocaleManager localeManager) {
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
         this.documentManager = documentManager;
+        this.localeManager = localeManager;
     }
 
     public boolean isConvertable(String ext) {
@@ -83,12 +90,13 @@ public class ConvertManagerImpl implements ConvertManager {
         return null;
     }
 
-    public JSONObject convert(Long attachmentId, String ext, String convertToExt) throws Exception {
+    public JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user) throws Exception {
        String url = urlManager.getFileUri(attachmentId);
-       return convert(attachmentId, ext, convertToExt, url, true);
+       String region = localeManager.getLocale(user).toLanguageTag();
+       return convert(attachmentId, ext, convertToExt, url, region, true);
     }
 
-    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, boolean async) throws Exception {
+    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, String region, boolean async) throws Exception {
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
             body.put("async", async);
@@ -97,6 +105,7 @@ public class ConvertManagerImpl implements ConvertManager {
             body.put("outputtype", convertToExt);
             body.put("key", documentManager.getKeyOfFile(attachmentId));
             body.put("url", url);
+            body.put("region", region);
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
             HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
