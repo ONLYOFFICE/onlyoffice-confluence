@@ -302,6 +302,13 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 return;
             }
 
+            var docsVersion = DocsAPI.DocEditor.version().split(".");
+
+            if (docsVersion[0] < 6 || docsVersion[0] == 6 && docsVersion[1] == 0) {
+                alert("$i18n.getText('onlyoffice.editor.message.docs-api-unsupported')");
+                return;
+            }
+
             var json = '${jsonAsHtml}';
 
             var config = {
