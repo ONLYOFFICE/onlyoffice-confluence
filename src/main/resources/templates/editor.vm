@@ -330,7 +330,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             }
 
             if ((config.document.fileType === "docxf" || config.document.fileType === "oform")
-                && DocsAPI.DocEditor.version().split(".")[0] < 7) {
+                && docsVersion[0] < 7) {
                 alert("$i18n.getText('onlyoffice.editor.message.forms.error.version')");
                 return;
             }
