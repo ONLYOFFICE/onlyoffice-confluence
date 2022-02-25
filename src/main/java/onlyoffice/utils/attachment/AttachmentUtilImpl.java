@@ -34,6 +34,7 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
@@ -166,10 +167,10 @@ public class AttachmentUtilImpl implements AttachmentUtil {
                     HttpEntity entity = response.getEntity();
 
                     if (status == HttpStatus.SC_OK) {
-                        InputStream streamDiff = entity.getContent();
-                        Long size = entity.getContentLength();
+                        byte[] bytes = IOUtils.toByteArray(entity.getContent());
+                        InputStream streamDiff = new ByteArrayInputStream(bytes);
 
-                        Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", size, "");
+                        Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", bytes.length, "");
                         diff.setContainer(attachment.getContainer());
 
                         attachment.addAttachment(changes);
