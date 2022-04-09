@@ -158,7 +158,22 @@ public class UrlManagerImpl implements UrlManager {
     }
 
     public String getCreateUri(Long pageId, String ext) {
-        return getConfluenceBaseUrl() + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + ext;
+
+        String targetExt = "docx";
+
+        switch (documentManager.getDocType(ext)) {
+            case "word":
+                targetExt = ext.equals("docxf") ? "docxf" : "docx";
+                break;
+            case "cell":
+                targetExt = "xlsx";
+                break;
+            case "slide":
+                targetExt = "pptx";
+                break;
+        }
+
+        return getConfluenceBaseUrl() + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + targetExt;
     }
 
     private String getConfluenceBaseUrl() {

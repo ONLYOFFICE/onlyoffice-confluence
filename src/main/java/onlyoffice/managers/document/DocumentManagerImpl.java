@@ -183,7 +183,7 @@ public class DocumentManagerImpl implements DocumentManager {
         Attachment attachment = null;
 
         fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
-        fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.connector.dialog-filecreate." + fileExt) : fileName;
+        fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
 
         InputStream demoFile = getDemoFile(user, fileExt);
 

@@ -225,8 +225,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
 
             if (attachmentUtil.checkAccessCreate(user, pageId)) {
-                String createNewExt = convertManager.convertsTo(docExt);
-                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, createNewExt));
+                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, docExt));
             }
 
             editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
