@@ -20,7 +20,6 @@ package onlyoffice;
 
 import java.io.*;
 import java.util.Base64;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -258,11 +257,10 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     }
 
     private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user, boolean newVersion) throws Exception {
-        List<String> defaultEditingTypes = configurationManager.getDefaultEditingTypes();;
-
         String attachmentExt = attachmentUtil.getFileExt(attachmentId);
         String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
-        if (!defaultEditingTypes.contains(attachmentExt)) {
+
+        if (!attachmentExt.equals(extDownloadUrl)) {
             JSONObject response = convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, null, false);
             downloadUrl = response.getString("fileUrl");
         }
