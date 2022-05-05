@@ -158,6 +158,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
             InputStream changesStream = new ByteArrayInputStream(history.getBytes(StandardCharsets.UTF_8));
             Attachment changes = new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
             changes.setContainer(attachment.getContainer());
+            changes.setHidden(true);
 
             try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
                 HttpGet request = new HttpGet(changesUrl);
@@ -172,6 +173,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
                         Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", bytes.length, "");
                         diff.setContainer(attachment.getContainer());
+                        diff.setHidden(true);
 
                         attachment.addAttachment(changes);
                         attachment.addAttachment(diff);
