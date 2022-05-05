@@ -233,8 +233,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                             saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
                             attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
                             attachmentUtil.setProperty(attachmentId, "onlyoffice-force-save", "true");
-
-                            attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
                         }
 
                         attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
