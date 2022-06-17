@@ -38,6 +38,7 @@ import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
@@ -263,6 +264,9 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
             config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
             config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
+            config.put("insertImageTypesAsHtml", new JSONArray(documentManager.getInsertImageTypes()).toString());
+            config.put("compareFileTypesAsHtml", new JSONArray(documentManager.getCompareFileTypes()).toString());
+            config.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeTypes()).toString());
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);

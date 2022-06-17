@@ -98,7 +98,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             document.location.reload();
         };
 
-        var insertDialog = function (docEditorEvent, windowFromUrl, command = null) {
+        var insertDialog = function (docEditorEvent, windowFromUrl, fileTypes, command = null) {
             if (defaultPanelComponent.length == 0) {
                 AJS.Editor.ImageDialog.panelComponent.forEach((component) => {
                     defaultPanelComponent.push(component);
@@ -146,18 +146,25 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     }
                 }
             });
+
+            var dialog = $("#insert-image-dialog");
+
+            dialog.find(".file-list").on("DOMNodeInserted", function(event) {
+                var fileExt = event.srcElement.dataset.fileName.split(".").pop();
+                if (!fileTypes.includes(fileExt)) $(event.srcElement).hide();
+            });
         };
 
         var onRequestInsertImage = function(event) {
-            insertDialog(docEditor.insertImage, true, event.data.c);
+            insertDialog(docEditor.insertImage, true, ${insertImageTypesAsHtml}, event.data.c);
         };
 
         var onRequestCompareFile = function() {
-            insertDialog(docEditor.setRevisedFile, false);
+            insertDialog(docEditor.setRevisedFile, false, ${compareFileTypesAsHtml});
         };
 
         var onRequestMailMergeRecipients = function(event) {
-            insertDialog(docEditor.setMailMergeRecipients, false);
+            insertDialog(docEditor.setMailMergeRecipients, false, ${mailMergeTypesAsHtml});
         };
 
         var onRequestSaveAs = function (event) {
