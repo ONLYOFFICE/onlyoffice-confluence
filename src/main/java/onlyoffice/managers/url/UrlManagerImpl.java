@@ -146,10 +146,10 @@ public class UrlManagerImpl implements UrlManager {
         if (referer != null && referer.contains("/display/")) {
             gobackUrl = referer;
         } else {
-            String viewPageAttachments = "pages/viewpageattachments.action?pageId=";
+            String viewPageAttachments = "/pages/viewpageattachments.action?pageId=";
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
             Attachment attachment = attachmentManager.getAttachment(attachmentId);
-            gobackUrl = getConfluenceBaseUrl() + viewPageAttachments + attachment.getContainer().getContentId().asLong();
+            gobackUrl = settingsManager.getGlobalSettings().getBaseUrl() + viewPageAttachments + attachment.getContainer().getContentId().asLong();
         }
 
         log.info("gobackUrl = " + gobackUrl);
