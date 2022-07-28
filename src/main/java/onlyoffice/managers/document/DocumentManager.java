@@ -4,6 +4,7 @@ import com.atlassian.confluence.user.ConfluenceUser;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 public interface DocumentManager extends Serializable {
     public long getMaxFileSize();
@@ -18,4 +19,7 @@ public interface DocumentManager extends Serializable {
     public boolean isEditable(String fileExtension);
     public boolean isFillForm(String fileExtension);
     public boolean isViewable(String fileExtension);
+    public List<String> getInsertImageTypes();
+    public List<String> getCompareFileTypes();
+    public List<String> getMailMergeTypes();
 }

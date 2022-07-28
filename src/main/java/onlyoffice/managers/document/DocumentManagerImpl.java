@@ -248,4 +248,16 @@ public class DocumentManagerImpl implements DocumentManager {
         String docType = getDocType(fileExtension);
         return docType != null;
     }
+
+    public List<String> getInsertImageTypes() {
+        return Arrays.asList("bmp", "gif", "jpeg", "jpg", "png");
+    }
+
+    public List<String> getCompareFileTypes() {
+        return Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
+    }
+
+    public List<String> getMailMergeTypes() {
+        return Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
+    }
 }
