@@ -4,6 +4,7 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -38,4 +39,5 @@ public interface AttachmentUtil extends Serializable {
     public String getAttachmentSpaceName (Long attachmentId);
     public String getAttachmentSpaceKey (Long attachmentId);
     public Attachment createNewAttachment (String title, String mimeType, InputStream file, int size, Long pageId, ConfluenceUser user) throws IOException;
+    public File getConvertedFile(Long attachmentId);
 }

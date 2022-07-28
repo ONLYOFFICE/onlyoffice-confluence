@@ -19,6 +19,7 @@
 package onlyoffice.utils.attachment;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +31,8 @@ import com.atlassian.confluence.content.ContentProperties;
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
+import com.atlassian.confluence.pages.persistence.dao.filesystem.HierarchicalContentFileSystemHelper;
+import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
@@ -61,6 +64,7 @@ import javax.inject.Named;
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
+    private static final HierarchicalContentFileSystemHelper fileSystemHelper = new HierarchicalContentFileSystemHelper();
 
     @ComponentImport
     private final AttachmentManager attachmentManager;
@@ -68,16 +72,19 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     private final TransactionTemplate transactionTemplate;
     @ComponentImport
     private final PageManager pageManager;
+    @ComponentImport
+    private final BootstrapManager bootstrapManager;
 
     private final ConfigurationManager configurationManager;
 
     @Inject
     public AttachmentUtilImpl(AttachmentManager attachmentManager, TransactionTemplate transactionTemplate,
-            ConfigurationManager configurationManager, PageManager pageManager) {
+            ConfigurationManager configurationManager, PageManager pageManager, BootstrapManager bootstrapManager) {
         this.attachmentManager = attachmentManager;
         this.transactionTemplate = transactionTemplate;
         this.configurationManager = configurationManager;
         this.pageManager = pageManager;
+        this.bootstrapManager = bootstrapManager;
     }
 
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
@@ -373,6 +380,18 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         page.addAttachment(attachment);
 
         return attachment;
+    }
+
+    public File getConvertedFile(Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+
+        File rootStorageDirectory = new File(bootstrapManager.getSharedHome() + File.separator + "dcl-document" + File.separator);
+        File convertStorageFolder = fileSystemHelper.createDirectoryHierarchy(rootStorageDirectory, attachment.getContainer().getId());
+
+        return new File(
+                convertStorageFolder,
+                Long.toString(attachment.getId()) + "_" + Integer.toString(attachment.getVersion())
+        );
     }
 
 }
