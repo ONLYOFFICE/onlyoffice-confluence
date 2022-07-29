@@ -204,7 +204,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
 
         CloseableHttpClient httpClient;
 
-        if (getBooleanPluginSetting("verifyCertificate", false)) {
+        if (getBooleanPluginSetting("verifyCertificate", false) && !demoActive()) {
             SSLContextBuilder builder = new SSLContextBuilder();
 
             builder.loadTrustMaterial(null, new TrustStrategy() {
