@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2021
+ * (c) Copyright Ascensio System SIA 2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,23 +59,6 @@ public class IsOfficeFileAttachment implements Condition {
         if (attachment == null) {
             return false;
         }
-
-        if (forEdit) {
-            if (form) {
-                if (!isExtensionFillForm(attachment.getFileExtension())) {
-                    return false;
-                }
-            } else {
-                if (!isExtensionEdit(attachment.getFileExtension())) {
-                    return false;
-                }
-            }
-        } else {
-            if (!isExtensionView(attachment.getFileExtension())) {
-                return false;
-            }
-        }
-
         if (attachment.getFileSize() > documentManager.getMaxFileSize()) {
             return false;
         }
@@ -83,29 +66,21 @@ public class IsOfficeFileAttachment implements Condition {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
         boolean accessView = attachmentUtil.checkAccess(attachment, user, false);
-        if (!forEdit && (!accessView || accessEdit)) {
-            return false;
+        String ext = attachment.getFileExtension();
+
+        if (forEdit) {
+            if (form) {
+                if (accessEdit && documentManager.isFillForm(ext)) return true;
+            } else {
+                if (accessEdit && documentManager.isEditable(ext)) return true;
+            }
+        } else {
+            if (accessView && documentManager.isViewable(ext) &&
+                    !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
+                return true;
+            }
         }
-        if (forEdit && !accessEdit) {
-            return false;
-        }
 
-        return true;
-    }
-
-    private boolean isExtensionView(String fileExtension) {
-        List<String> extsEdit = documentManager.getEditedExts();
-        List<String> extsFillForm = documentManager.getFillFormExts();
-        return extsEdit.contains(fileExtension) || extsFillForm.contains(fileExtension);
-    }
-
-    private boolean isExtensionEdit(String fileExtension) {
-        List<String> extsEdit = documentManager.getEditedExts();
-        return extsEdit.contains(fileExtension);
-    }
-
-    private boolean isExtensionFillForm(String fileExtension) {
-        List<String> extsFillForm = documentManager.getFillFormExts();
-        return extsFillForm.contains(fileExtension);
+        return false;
     }
 }

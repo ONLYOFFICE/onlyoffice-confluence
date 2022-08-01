@@ -17,17 +17,18 @@
 
     <resource type="i18n" name="i18n" location="lang-resource"/>
 
-    <web-resource key="onlyoffice-confluence-plugin-resources" name="Link for Web Resources rendering">
-        <description>The link used to make the document to be opened in the new browser tab for editing or viewing.</description>
-        <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for the main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
-        <resource type="download" name="images/" location="images/"/>
-        <resource type="download" name="onlyoffice-confluence-plugin.css" location="css/onlyoffice-confluence-plugin.css"/>
         <context>page</context>
     </web-resource>
 
-    <web-resource key="onlyoffice-confluence-plugin-resources-filecreate" name="Link for Web Resources rendering (file-create)">
-        <description>The link used to make the document to be created and opened in the new browser tab for editing.</description>
+    <web-resource key="onlyoffice-confluence-plugin-resources-configure" name="Web Resources container for the configuration page">
+        <resource type="download" name="configure.css" location="css/configure.css"/>
+        <resource type="download" name="icon_view.svg" location="images/icon_view.svg"/>
+        <resource type="download" name="icon_hide.svg" location="images/icon_hide.svg"/>
+    </web-resource>
+
+    <web-resource key="onlyoffice-confluence-plugin-resources-filecreate" name="Web Resources container for the file creation dialog">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <transformation extension="js">
             <transformer key="jsI18n"/>
@@ -37,10 +38,15 @@
                 <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
             </transformer>
         </transformation>
-        <resource type="download" name="dialog-filecreate-soy.js" location="/templates/dialog-filecreate.soy"/>
-        <resource type="download" name="onlyoffice-filecreate.js" location="/js/onlyoffice-filecreate.js"/>
-        <resource type="download" name="images/" location="/images"/>
-        <resource type="download" name="onlyoffice-confluence-plugin-filecreate.css" location="css/onlyoffice-confluence-plugin-filecreate.css"/>
+        <resource type="download" name="dialog-filecreate-soy.js" location="templates/dialog-filecreate.soy"/>
+        <resource type="download" name="dialog-filecreate.js" location="js/dialog-filecreate.js"/>
+        <resource type="download" name="dialog-filecreate.css" location="css/dialog-filecreate.css"/>
+        <resource type="download" name="new-docx.svg" location="images/new-docx.svg"/>
+        <resource type="download" name="new-xlsx.svg" location="images/new-xlsx.svg"/>
+        <resource type="download" name="new-pptx.svg" location="images/new-pptx.svg"/>
+        <resource type="download" name="new-docxf.svg" location="images/new-docxf.svg"/>
+        <resource type="download" name="confirm.svg" location="images/confirm.svg"/>
+        <resource type="download" name="16.svg" location="images/16.svg"/>
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <context>page</context>
     </web-resource>
@@ -50,23 +56,26 @@
         <dependency>com.atlassian.confluence.plugins.drag-and-drop:editor-drop-handler</dependency>
         <dependency>confluence.web.resources:page-move-resources</dependency>
         <resource type="download" name="editor.css" location="css/editor.css"/>
+        <resource type="download" name="word.ico" location="images/word.ico"/>
+        <resource type="download" name="cell.ico" location="images/cell.ico"/>
+        <resource type="download" name="slide.ico" location="images/slide.ico"/>
     </web-resource>
 
     <web-item key="onlyoffice-filecreate" name="New Document" section="system.content.button" weight="47">
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <icon height="16" width="16">
-            <link>/download/resources/${project.groupId}.${project.artifactId}:onlyoffice-confluence-plugin-resources-filecreate/images/16.svg</link>
+            <link>/download/resources/${project.groupId}.${project.artifactId}:onlyoffice-confluence-plugin-resources-filecreate/16.svg</link>
         </icon>
-        <label key="onlyoffice.connector.createlink"/>
-        <tooltip key="onlyoffice.connector.tooltip.createlink"/>
+        <label key="onlyoffice.editor.createlink"/>
+        <tooltip key="onlyoffice.editor.createlink.tooltip"/>
         <link linkId="onlyoffice-filecreate" absolute="true"/>
     </web-item>
-    <web-item key="onlyoffice-doceditor" name="Link for the attachment editing" section="system.attachment" weight="9">
+    <web-item key="onlyoffice-doceditor" name="Link for editing the attachment" section="system.attachment" weight="9">
         <condition class="onlyoffice.conditions.IsOfficeFileAttachment">
             <param name="forEdit">true</param>
         </condition>
-        <description>The link and the text for it which is used to open the document which is available for editing.</description>
-        <label key="onlyoffice.connector.editlink"/>
+        <description>Link and text for this link used to open the document which is available for editing.</description>
+        <label key="onlyoffice.editor.editlink"/>
         <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
@@ -80,17 +89,17 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
-    <web-item key="onlyoffice-docviewer" name="Link for the attachment viewing" section="system.attachment" weight="10">
+    <web-item key="onlyoffice-docviewer" name="Link for viewing the attachment" section="system.attachment" weight="10">
         <condition class="onlyoffice.conditions.IsOfficeFileAttachment"/>
-        <description>The link and the text for it which is used to open the document which is available for preview only.</description>
-        <label key="onlyoffice.connector.viewlink"/>
+        <description>Link and text for this link used to open the document which is available for preview only.</description>
+        <label key="onlyoffice.editor.viewlink"/>
         <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
-    <web-item key="onlyoffice-docconvert" name="Link for the attachment conversion" section="system.attachment" weight="11">
+    <web-item key="onlyoffice-docconvert" name="Link for converting the attachment" section="system.attachment" weight="11">
         <condition class="onlyoffice.conditions.IsOfficeFileConvertAttachment"/>
-        <description>The link and the text for it which is used to convert the document to Office Open XML format</description>
-        <label key="onlyoffice.connector.convertlink"/>
+        <description>Link and text for this link used to convert the document to the Office Open XML format</description>
+        <label key="onlyoffice.convert.link"/>
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
@@ -99,26 +108,34 @@
             <param name="form">true</param>
         </condition>
         <description>The link and the text for it which is used to convert the docx to oform</description>
-        <label key="onlyoffice.form.create"/>
+        <label key="onlyoffice.form.create.link"/>
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">
-        <description>The fully functional editor for most known formats of text documents, spreadsheets and presentations used to open these types of documents for editing or preview.</description>
+        <description>A full-featured editor for the most known formats of text documents, spreadsheets and presentations that can open these types of documents for editing or preview.</description>
         <url-pattern>/onlyoffice/doceditor</url-pattern>
     </servlet>
     <servlet key="OnlyOfficeSaveFileHandler" class="onlyoffice.OnlyOfficeSaveFileServlet" name="Save File Handler">
-        <description>The callback URL, used to inform the document storage service about the end of the document editing and return the link to the modified document so that it could be saved correctly.</description>
+        <description>Callback URL used to inform the document storage service about the end of the document editing session and return the link to the modified document so that it can be saved correctly.</description>
         <url-pattern>/onlyoffice/save</url-pattern>
     </servlet>
     <servlet key="OnlyOfficeConvertHandler" class="onlyoffice.OnlyOfficeConvertServlet" name="Convert Handler">
-        <description>The convert URL, used to make a request to document editing service to convert file to a different format.</description>
+        <description>Conversion URL used to make a request to the document editing service to convert the file to a different format.</description>
         <url-pattern>/onlyoffice/convert</url-pattern>
     </servlet>
     <servlet key="OnlyOfficeConfigure" class="onlyoffice.OnlyOfficeConfServlet" name="Configuration Page">
         <description>The configuration page.</description>
         <url-pattern>/onlyoffice/configure</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeHistory" class="onlyoffice.OnlyOfficeHistoryServlet" name="History Handler">
+        <description>History URL used to get the history data.</description>
+        <url-pattern>/onlyoffice/history</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeFileProvider" class="onlyoffice.OnlyOfficeFileProviderServlet" name="File Provider Handler">
+        <description>File Provider URL used to get a link for downloading the file.</description>
+        <url-pattern>/onlyoffice/file-provider</url-pattern>
     </servlet>
     <servlet key="OnlyOfficeAPI" class="onlyoffice.OnlyOfficeAPIServlet" name="ONLYOFFICE API Handler">
         <description>ONLYOFFICE API Handler.</description>

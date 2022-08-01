@@ -1,5 +1,27 @@
 # Change Log
 
+## 4.0.0
+## Added
+- review display settings
+- disable certificate verification
+- opening for editing not OOXML
+- editor interface customization
+- ability to get links to bookmarks in document
+- creating documents from editor
+- open non-editable formats on views
+- formats for conversion docm, dot, dotx, epub, htm, html, otp, ots, ott, pot, potm, potx, pps, ppsm, ppsx, pptm, rtf, xlsm, xlt, xltm, xltx
+- keep intermediate versions when editing (forcesave)
+- version history with highlighting changes
+- detecting mobile browser
+- change favicon in editor by document type
+- insert image from storage
+- compare file from storage
+- mail merge from storage
+
+## Changed
+- document server v6.0 and earlier is no longer supported
+- redesign settings page
+
 ## 3.1.0
 ## Added
 - support docxf and oform formats
@@ -9,7 +31,7 @@
 - "save as" in editor
 
 ## Changed
-- compatible with Confluence 7.15
+- compatible with Confluence 7.15.0
 
 ## 3.0.1
 ## Changed

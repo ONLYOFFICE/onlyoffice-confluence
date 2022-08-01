@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2021
+ * (c) Copyright Ascensio System SIA 2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,19 +62,19 @@
 }
 
 #inline-dialog-filecreate .icon-onlyoffice-new-docx{
-    background-image: url(images/new-docx.svg);
+    background-image: url(new-docx.svg);
 }
 
 #inline-dialog-filecreate .icon-onlyoffice-new-xlsx{
-    background-image: url(images/new-xlsx.svg);
+    background-image: url(new-xlsx.svg);
 }
 
 #inline-dialog-filecreate .icon-onlyoffice-new-pptx{
-    background-image: url(images/new-pptx.svg);
+    background-image: url(new-pptx.svg);
 }
 
 #inline-dialog-filecreate .icon-onlyoffice-new-docxf{
-    background-image: url(images/new-docxf.svg);
+    background-image: url(new-docxf.svg);
 }
 
 #inline-dialog-filecreate .filename{
@@ -116,7 +116,7 @@
     border: none;
     cursor: pointer;
     margin-left: 4px;
-    background: url(images/confirm.svg) center no-repeat;
+    background: url(confirm.svg) center no-repeat;
     font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     font-size: 14px;
 }

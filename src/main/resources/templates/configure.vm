@@ -1,11 +1,11 @@
-$webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources")
+$webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-configure")
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
 
         <!--
         *
-        * (c) Copyright Ascensio System SIA 2021
+        * (c) Copyright Ascensio System SIA 2022
         *
         * Licensed under the Apache License, Version 2.0 (the "License");
         * you may not use this file except in compliance with the License.
@@ -35,21 +35,35 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     var lastMsg;
 
                     var messages = {
-                        success: "$i18n.getText('onlyoffice.configuration.success')",
-                        mixedcontent: "$i18n.getText('onlyoffice.configuration.mixedcontent')",
-                        jsonparse: "$i18n.getText('onlyoffice.configuration.jsonparse')",
-                        docservunreachable: "$i18n.getText('onlyoffice.configuration.docservunreachable')",
-                        docservcommand: "$i18n.getText('onlyoffice.configuration.docservcommand')",
-                        jwterror: "$i18n.getText('onlyoffice.configuration.jwterror')"
+                        success: "$i18n.getText('onlyoffice.configuration.message.success')",
+                        mixedcontent: "$i18n.getText('onlyoffice.configuration.message.error.mixedcontent')",
+                        jsonparse: "$i18n.getText('onlyoffice.configuration.message.error.jsonparse')",
+                        docservunreachable: "$i18n.getText('onlyoffice.configuration.message.error.docservunreachable')",
+                        docservcommand: "$i18n.getText('onlyoffice.configuration.message.error.docservcommand')",
+                        jwterror: "$i18n.getText('onlyoffice.configuration.message.error.jwterror')"
                     };
 
                     function updateConfig() {
+                        var editingTypes = new Array();
+                        jq(".editing-types").each(function () {
+                            if ($(this).is(":checked")) editingTypes.push($(this).attr("id"));
+                        });
+
                         var data = {
                             "apiUrl": jq("#apiUrlField").attr("value"),
                             "docInnerUrl": jq("#docInnerUrlField").attr("value"),
                             "confUrl": jq("#confUrlField").attr("value"),
                             "jwtSecret": jq("#jwtSecretField").attr("value"),
-                            "demo": jq("#onlyofficeDemo").is(":checked")
+                            "verifyCertificate": jq("#verifyCertificate").is(":checked"),
+                            "forceSave": jq("#forceSave").is(":checked"),
+                            "demo": jq("#onlyofficeDemo").is(":checked"),
+                            "chat": jq("#chat").is(":checked"),
+                            "compactHeader": jq("#compactHeader").is(":checked"),
+                            "feedback": jq("#feedback").is(":checked"),
+                            "helpMenu": jq("#helpMenu").is(":checked"),
+                            "toolbarNoTabs": jq("#toolbarNoTabs").is(":checked"),
+                            "reviewDisplay": jq("input[name='reviewDisplay']:checked").attr("id").replace("reviewDisplay_", ""),
+                            "editingTypes": editingTypes
                         };
 
                         jq.ajax({
@@ -129,7 +143,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     jq("#onlyofficeConf").submit(function(e) {
                         submitBtn.attr("disabled", true);
                         e.preventDefault();
-                        if (jq("#onlyofficeDemo").is(":checked")) {
+                        if (jq("#onlyofficeDemo").is(":checked") && !jq("#onlyofficeDemo").prop("disabled")) {
                             updateConfig();
                         } else {
                             testDocServiceApi();
@@ -149,12 +163,12 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
                     var demoToggle = function () {
                         if (!jq("#onlyofficeDemo").prop("disabled")) {
-                            jq(".field-group input:not(#onlyofficeSubmitBtn, #confUrlField, #onlyofficeDemo)").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
+                            jq("#apiUrlField, #jwtSecretField, #docInnerUrlField, #verifyCertificate").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
                             if (jq("#onlyofficeDemo").prop("checked")) {
                                 jq(".view-control").css("pointer-events", "none");
                                 jq(".view-control").removeClass("view");
                                 jq("#jwtSecretField").attr("type", "password");
-                            }else{
+                            } else {
                                 jq(".view-control").css("pointer-events", "");
                             }
                         }
@@ -169,28 +183,22 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             })(jQuery);
         </script>
         <div id="onlyofficeMsg"></div>
-        <form id="onlyofficeConf" class="aui top-label">
-            <h3>$i18n.getText('onlyoffice.configuration.doc-section')</h3>
+        <form id="onlyofficeConf" class="aui long-label">
+            <h3>$i18n.getText('onlyoffice.configuration.section.server')</h3>
             <div class="field-group">
                 <label for="apiUrlField">$i18n.getText('onlyoffice.configuration.doc-url')</label>
-                <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-tooltip')">
+                <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url.tooltip')">
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="verifyCertificate" #if($verifyCertificate) checked="checked" #end />
+                    <label for="verifyCertificate">$i18n.getText('onlyoffice.configuration.verify-certificate')</label>
+                </div>
             </div>
             <div class="field-group">
                 <label for="jwtSecretField">$i18n.getText('onlyoffice.configuration.jwt-secret')</label>
                 <div class="secretFiled">
                     <a href="#" class="view-control"></a>
-                    <input type="password" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text" style="padding-right: 30px;">
+                    <input type="password" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.jwt-secret.tooltip')" style="padding-right: 30px;">
                 </div>
-            </div>
-
-            <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
-            <div class="field-group">
-                <label for="confUrlField">$i18n.getText('onlyoffice.configuration.conf-url')</label>
-                <input type="text" id="confUrlField" value="${docserviceConfUrl}" name="confUrlField" class="text">
-            </div>
-            <div class="field-group">
-                <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
-                <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner-tooltip')">
             </div>
             <div class="field-group">
                 <div class="checkbox">
@@ -207,8 +215,82 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 </div>
             </div>
 
+            <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
             <div class="field-group">
-                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.save')" class="button">
+                <label for="confUrlField">$i18n.getText('onlyoffice.configuration.conf-url')</label>
+                <input type="text" id="confUrlField" value="${docserviceConfUrl}" name="confUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.conf-url.tooltip')">
+            </div>
+            <div class="field-group">
+                <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
+                <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner.tooltip')">
+            </div>
+
+            <h3>$i18n.getText('onlyoffice.configuration.section.common')</h3>
+
+            <div class="field-group">
+                <label>$i18n.getText('onlyoffice.configuration.editing-types.label')</label>
+                #foreach($type in $defaultCustomizableEditingTypes.keySet())
+                    <div class="checkbox inline">
+                        <input type="checkbox" class="checkbox editing-types" id="${type}" #if($defaultCustomizableEditingTypes.get($type)) checked="checked" #end />
+                        <label for="${type}">${type}</label>
+                    </div>
+                #end
+                <div class="description">$i18n.getText('onlyoffice.configuration.editing-types.description')</div>
+            </div>
+
+            <div class="field-group">
+                <label>$i18n.getText('onlyoffice.configuration.force-save.label')</label>
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="forceSave" #if($forceSave) checked="checked" #end />
+                    <label for="forceSave">$i18n.getText('onlyoffice.configuration.force-save.enable')</label>
+                </div>
+                <div class="description">$i18n.getText('onlyoffice.configuration.force-save.description')</div>
+            </div>
+
+            <div class="field-group">
+                <label>$i18n.getText('onlyoffice.configuration.interface.label')</label>
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="chat" #if($chat) checked="checked" #end />
+                    <label for="chat">$i18n.getText('onlyoffice.configuration.interface.chat')</label>
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="compactHeader" #if($compactHeader) checked="checked" #end />
+                    <label for="compactHeader">$i18n.getText('onlyoffice.configuration.interface.compactHeader')</label>
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="feedback" #if($feedback) checked="checked" #end />
+                    <label for="feedback">$i18n.getText('onlyoffice.configuration.interface.feedback')</label>
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="helpMenu" #if($helpMenu) checked="checked" #end />
+                    <label for="helpMenu">$i18n.getText('onlyoffice.configuration.interface.helpMenu')</label>
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" class="checkbox" id="toolbarNoTabs" #if($toolbarNoTabs) checked="checked" #end />
+                    <label for="toolbarNoTabs">$i18n.getText('onlyoffice.configuration.interface.toolbarNoTabs')</label>
+                </div>
+                <div class="description">$i18n.getText('onlyoffice.configuration.interface.description')</div>
+            </div>
+
+            <div class="field-group">
+                <label>$i18n.getText('onlyoffice.configuration.reviewDisplay.label')</label>
+                <div class="radio inline">
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_markup" #if($reviewDisplay == "markup") checked="checked" #end />
+                    <label for="reviewDisplay_markup">$i18n.getText('onlyoffice.configuration.reviewDisplay.markup')</label>
+                </div>
+                <div class="radio inline">
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_final" #if($reviewDisplay == "final") checked="checked" #end />
+                    <label for="reviewDisplay_final">$i18n.getText('onlyoffice.configuration.reviewDisplay.final')</label>
+                </div>
+                <div class="radio inline">
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_original" #if($reviewDisplay == "original") checked="checked" #end />
+                    <label for="reviewDisplay_original">$i18n.getText('onlyoffice.configuration.reviewDisplay.original')</label>
+                </div>
+                <div class="description">$i18n.getText('onlyoffice.configuration.reviewDisplay.description')</div>
+            </div>
+
+            <div class="field-group">
+                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.button.save')" class="button">
             </div>
         </form>
     </body>

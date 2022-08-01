@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2021
+ * (c) Copyright Ascensio System SIA 2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,32 @@
 
 package onlyoffice.utils.attachment;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
+import com.atlassian.confluence.content.ContentProperties;
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.pages.PageManager;
+import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
+import com.atlassian.confluence.pages.persistence.dao.filesystem.HierarchicalContentFileSystemHelper;
+import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.transaction.TransactionCallback;
+import com.atlassian.sal.api.transaction.TransactionTemplate;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -47,18 +64,27 @@ import javax.inject.Named;
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
+    private static final HierarchicalContentFileSystemHelper fileSystemHelper = new HierarchicalContentFileSystemHelper();
 
     @ComponentImport
     private final AttachmentManager attachmentManager;
     @ComponentImport
+    private final TransactionTemplate transactionTemplate;
+    @ComponentImport
     private final PageManager pageManager;
+    @ComponentImport
+    private final BootstrapManager bootstrapManager;
+
     private final ConfigurationManager configurationManager;
+
     @Inject
-    public AttachmentUtilImpl(AttachmentManager attachmentManager, PageManager pageManager,
-                              ConfigurationManager configurationManager) {
+    public AttachmentUtilImpl(AttachmentManager attachmentManager, TransactionTemplate transactionTemplate,
+            ConfigurationManager configurationManager, PageManager pageManager, BootstrapManager bootstrapManager) {
         this.attachmentManager = attachmentManager;
-        this.pageManager = pageManager;
+        this.transactionTemplate = transactionTemplate;
         this.configurationManager = configurationManager;
+        this.pageManager = pageManager;
+        this.bootstrapManager = bootstrapManager;
     }
 
     public boolean checkAccess(Long attachmentId, User user, boolean forEdit) {
@@ -66,7 +92,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
             return false;
         }
 
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         return checkAccess(attachment, user, forEdit);
@@ -79,13 +104,14 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
 
-        Permission permission = Permission.VIEW;
         if (forEdit) {
-            permission = Permission.EDIT;
+            boolean create = checkAccessCreate(user, attachment.getContainer().getId());
+            boolean access = permissionManager.hasPermission(user, Permission.EDIT, attachment);
+            return create && access;
+        } else {
+            boolean access = permissionManager.hasPermission(user, Permission.VIEW, attachment);
+            return access;
         }
-
-        boolean access = permissionManager.hasPermission(user, permission, attachment);
-        return access;
     }
 
     public boolean checkAccessCreate(User user, Long pageId) {
@@ -101,9 +127,8 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return access;
     }
 
-    public void saveAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
+    public void saveAttachmentAsNewVersion(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         Attachment oldAttachment = attachment.copy();
@@ -114,32 +139,197 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
     }
 
+    public void updateAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        Date date = Calendar.getInstance().getTime();
+
+        attachment.setFileSize(size);
+        attachment.setCreator(user);
+        attachment.setCreationDate(date);
+
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                attDao.replaceAttachmentData(attachment, attachmentData);
+                attDao.updateAttachment(attachment);
+                return null;
+            }
+        });
+    }
+
+    public void saveAttachmentChanges (Long attachmentId, String history, String changesUrl) throws Exception {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+
+        if (history != null && !history.isEmpty() && changesUrl != null && !changesUrl.isEmpty()) {
+            InputStream changesStream = new ByteArrayInputStream(history.getBytes(StandardCharsets.UTF_8));
+            Attachment changes = new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
+            changes.setContainer(attachment.getContainer());
+            changes.setHidden(true);
+
+            try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
+                HttpGet request = new HttpGet(changesUrl);
+
+                try (CloseableHttpResponse response = httpClient.execute(request)) {
+                    int status = response.getStatusLine().getStatusCode();
+                    HttpEntity entity = response.getEntity();
+
+                    if (status == HttpStatus.SC_OK) {
+                        byte[] bytes = IOUtils.toByteArray(entity.getContent());
+                        InputStream streamDiff = new ByteArrayInputStream(bytes);
+
+                        Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", bytes.length, "");
+                        diff.setContainer(attachment.getContainer());
+                        diff.setHidden(true);
+
+                        attachment.addAttachment(changes);
+                        attachment.addAttachment(diff);
+
+                        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+                        Object result = transactionTemplate.execute(new TransactionCallback() {
+                            @Override
+                            public Object doInTransaction() {
+                                attDao.saveNewAttachment(changes, changesStream);
+                                attDao.saveNewAttachment(diff, streamDiff);
+                                attDao.updateAttachment(attachment);
+                                return null;
+                            }
+                        });
+                    } else {
+                        throw new HttpException("Docserver returned code " + status);
+                    }
+                }
+            }
+        }
+    }
+
+    public void removeAttachmentChanges (Long attachmentId) {
+        Attachment changes = getAttachmentChanges(attachmentId);
+        Attachment diff = getAttachmentDiff(attachmentId);
+
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                if (changes != null) attDao.removeAttachmentFromServer(changes);
+                if (diff != null) attDao.removeAttachmentFromServer(diff);
+                return null;
+            }
+        });
+    }
+
     public InputStream getAttachmentData(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachmentManager.getAttachmentData(attachment);
     }
 
     public String getMediaType(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getMediaType();
     }
 
     public String getFileName(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getFileName();
     }
 
+    public String getFileExt(Long attachmentId) {
+        String fileName = getFileName(attachmentId);
+        return fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
+    }
+
     public String getHashCode(Long attachmentId) {
-        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         int hashCode = attachment.hashCode();
         log.info("hashCode = " + hashCode);
 
         int version = attachment.getVersion();
         return attachmentId + "_" + version + "_" + hashCode;
+    }
+
+    public String getCollaborativeEditingKey (Long attachmentId) {
+        return getProperty(attachmentId, "onlyoffice-collaborative-editor-key");
+    }
+
+    public void setCollaborativeEditingKey (Long attachmentId, String key) {
+        if (key == null || key.isEmpty()) {
+            removeProperty(attachmentId, "onlyoffice-collaborative-editor-key");
+        } else {
+            setProperty(attachmentId, "onlyoffice-collaborative-editor-key", key);
+        }
+    }
+
+    public String getProperty (Long attachmentId, String name) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            ContentProperties contentProperties = attachment.getProperties();
+            return contentProperties.getStringProperty(name);
+        }
+        return null;
+    }
+
+    public boolean getPropertyAsBoolean (Long attachmentId, String name) {
+        String property = getProperty(attachmentId, name);
+        return Boolean.parseBoolean(property);
+    }
+
+    public void setProperty (Long attachmentId, String name, String value) {
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Attachment attachment = attDao.getById(attachmentId);
+
+        attachment.getProperties().setStringProperty(name, value);
+
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                attDao.updateAttachment(attachment);
+                return null;
+            }
+        });
+    }
+
+    public void removeProperty (Long attachmentId, String name) {
+        AttachmentDao attDao = attachmentManager.getAttachmentDao();
+        Attachment attachment = attDao.getById(attachmentId);
+
+        attachment.getProperties().removeProperty(name);
+
+        Object result = transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction() {
+                attDao.updateAttachment(attachment);
+                return null;
+            }
+        });
+    }
+
+    public List<Attachment> getAllVersions (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachmentManager.getAllVersions(attachment);
+        }
+        return null;
+    }
+
+    public int getVersion (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        return attachment.getVersion();
+    }
+
+    public Attachment getAttachmentChanges (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getAttachmentNamed("onlyoffice-changes.json");
+        }
+        return null;
+    }
+
+    public Attachment getAttachmentDiff (Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        if (attachment != null) {
+            return attachment.getAttachmentNamed("onlyoffice-diff.zip");
+        }
+        return null;
     }
 
     public String getAttachmentPageTitle (Long attachmentId) {
@@ -191,4 +381,17 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         return attachment;
     }
+
+    public File getConvertedFile(Long attachmentId) {
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
+
+        File rootStorageDirectory = new File(bootstrapManager.getSharedHome() + File.separator + "dcl-document" + File.separator);
+        File convertStorageFolder = fileSystemHelper.createDirectoryHierarchy(rootStorageDirectory, attachment.getContainer().getId());
+
+        return new File(
+                convertStorageFolder,
+                Long.toString(attachment.getId()) + "_" + Integer.toString(attachment.getVersion())
+        );
+    }
+
 }

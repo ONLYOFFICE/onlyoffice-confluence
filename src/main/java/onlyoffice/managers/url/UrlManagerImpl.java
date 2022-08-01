@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2021
+ * (c) Copyright Ascensio System SIA 2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,10 @@ import javax.servlet.http.HttpServletRequest;
 @Default
 public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
-    private final String callbackServler = "plugins/servlet/onlyoffice/save";
+    private final String docEditorServlet = "plugins/servlet/onlyoffice/doceditor";
+    private final String callbackServlet = "plugins/servlet/onlyoffice/save";
+    private final String historyServlet = "plugins/servlet/onlyoffice/history";
+    private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
     private final String APIServlet = "plugins/servlet/onlyoffice/api";
 
     @ComponentImport
@@ -85,13 +88,40 @@ public class UrlManagerImpl implements UrlManager {
         }
     }
 
-    public String getFileUri(Long attachmentId) throws Exception {
+    public String getFileUri(Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
-        String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
-        log.info("fileUrl " + callbackUrl);
+        String fileUri = getConfluenceBaseUrl() + fileProviderServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
+        log.info("fileUrl " + fileUri);
 
-        return callbackUrl;
+        return fileUri;
+    }
+
+    public String getAttachmentDiffUri(Long attachmentId) {
+        String hash = documentManager.createHash(Long.toString(attachmentId));
+        String diffAttachmentUrl = getConfluenceBaseUrl() + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return diffAttachmentUrl;
+    }
+
+    public String getHistoryInfoUri(Long attachmentId) {
+        String hash = documentManager.createHash(Long.toString(attachmentId));
+        String historyInfoUri = getConfluenceBaseUrl() + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return historyInfoUri;
+    }
+
+    public String getHistoryDataUri(Long attachmentId) {
+        String hash = documentManager.createHash(Long.toString(attachmentId));
+        String historyDataUri = getConfluenceBaseUrl() + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return historyDataUri;
+    }
+
+    public String getAttachmentDataUri() {
+        String attachmentDataUri = getConfluenceBaseUrl() + APIServlet + "?type=attachment-data";
+
+        return attachmentDataUri;
     }
 
     public String getSaveAsUri() {
@@ -103,7 +133,7 @@ public class UrlManagerImpl implements UrlManager {
     public String getCallbackUrl(Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
-        String callbackUrl = getConfluenceBaseUrl() + callbackServler + "?vkey=" + GeneralUtil.urlEncode(hash);
+        String callbackUrl = getConfluenceBaseUrl() + callbackServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;
@@ -113,18 +143,37 @@ public class UrlManagerImpl implements UrlManager {
         String gobackUrl = "";
         String referer = request.getHeader("referer");
 
-        if (referer != null && !referer.equals("")) {
+        if (referer != null && referer.contains("/display/")) {
             gobackUrl = referer;
-        }else {
-            String viewPageAttachments = "pages/viewpageattachments.action?pageId=";
+        } else {
+            String viewPageAttachments = "/pages/viewpageattachments.action?pageId=";
             AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
             Attachment attachment = attachmentManager.getAttachment(attachmentId);
-            gobackUrl = getConfluenceBaseUrl() + viewPageAttachments + attachment.getContainer().getContentId().asLong();
+            gobackUrl = settingsManager.getGlobalSettings().getBaseUrl() + viewPageAttachments + attachment.getContainer().getContentId().asLong();
         }
 
         log.info("gobackUrl = " + gobackUrl);
 
         return gobackUrl;
+    }
+
+    public String getCreateUri(Long pageId, String ext) {
+
+        String targetExt = "docx";
+
+        switch (documentManager.getDocType(ext)) {
+            case "word":
+                targetExt = ext.equals("docxf") ? "docxf" : "docx";
+                break;
+            case "cell":
+                targetExt = "xlsx";
+                break;
+            case "slide":
+                targetExt = "pptx";
+                break;
+        }
+
+        return getConfluenceBaseUrl() + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + targetExt;
     }
 
     private String getConfluenceBaseUrl() {
@@ -139,7 +188,7 @@ public class UrlManagerImpl implements UrlManager {
     public String replaceDocEditorURLToInternal(String url) {
         String innerDocEditorUrl = getInnerDocEditorUrl();
         String publicDocEditorUrl = getPublicDocEditorUrl();
-        if (!publicDocEditorUrl.equals(innerDocEditorUrl)) {
+        if (!publicDocEditorUrl.equals(innerDocEditorUrl) && !configurationManager.demoActive()) {
            url = url.replace(publicDocEditorUrl, innerDocEditorUrl);
         }
         return url;

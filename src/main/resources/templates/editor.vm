@@ -12,7 +12,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
     <!--
     *
-    * (c) Copyright Ascensio System SIA 2021
+    * (c) Copyright Ascensio System SIA 2022
     *
     * Licensed under the Apache License, Version 2.0 (the "License");
     * you may not use this file except in compliance with the License.
@@ -29,10 +29,11 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     -->
 
     <title>${docTitle} - ONLYOFFICE</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 
     #standardHeader()
 
+    <link rel="shortcut icon" href="${favicon}">
+    <link rel="icon" type="image/x-icon" href="${favicon}">
     <meta name="ajs-space-name" content="${spaceName}">
     <meta name="ajs-page-id" content="${pageId}">
     <meta name="ajs-latest-page-id" content="${pageId}">
@@ -56,6 +57,115 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     <script type="text/javascript" language="javascript">
 
         var docEditor;
+        var defaultPanelComponent = new Array();
+
+        var onAppReady = function () {
+            var errorMessage = "${errorMessage}";
+            if (errorMessage) {
+                docEditor.showMessage(errorMessage);
+            }
+            if (${demo}) {
+                docEditor.showMessage("$i18n.getText('onlyoffice.editor.message.demo')");
+            }
+        };
+
+        var onRequestHistory = function () {
+            var historyInfoUri = "${historyInfoUriAsHtml}";
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", historyInfoUri, false);
+            xhr.send();
+
+            if (xhr.status == 200) {
+                var historyInfo = JSON.parse(xhr.responseText);
+                docEditor.refreshHistory(historyInfo);
+            }
+        };
+
+        var onRequestHistoryData = function (event) {
+            var version = event.data;
+            var historyDataUri = "${historyDataUriAsHtml}";
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", historyDataUri + "&version=" + version, false);
+            xhr.send();
+
+            if (xhr.status == 200) {
+                var historyData = JSON.parse(xhr.responseText);
+                docEditor.setHistoryData(historyData);
+            }
+        };
+
+        var onRequestHistoryClose = function() {
+            document.location.reload();
+        };
+
+        var insertDialog = function (docEditorEvent, windowFromUrl, fileTypes, command = null) {
+            if (defaultPanelComponent.length == 0) {
+                AJS.Editor.ImageDialog.panelComponent.forEach((component) => {
+                    defaultPanelComponent.push(component);
+                });
+            } else {
+                AJS.Editor.ImageDialog.panelComponent = new Array();
+                defaultPanelComponent.forEach((component) => {
+                    AJS.Editor.ImageDialog.panelComponent.push(component);
+                });
+            }
+
+            if (!windowFromUrl) {
+                AJS.Editor.ImageDialog.panelComponent.splice(1, 1);
+            }
+
+            AJS.Editor.ImageDialog.insertImageDialog(function(a) {
+                if (a.url && windowFromUrl) {
+                    docEditorEvent({
+                        "c": command,
+                        "url": a.url
+                    });
+                } else {
+                    var selectItems = a.selectItems;
+                    var attachments = new Array();
+                    selectItems.forEach((selectItem) => {
+                        attachments.push(selectItem.attributes.id);
+                    });
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "${attachmentDataAsHtml}", false);
+                    xhr.send(JSON.stringify({
+                        command: command,
+                        attachments: attachments
+                    }));
+
+                    if (xhr.status == 200) {
+                        var dataAttachments = JSON.parse(xhr.responseText);
+
+                        // bug https://bugzilla.onlyoffice.com/show_bug.cgi?id=50683
+                        // dataAttachments.forEach((dataAttachment) => {
+                        //    docEditorEvent(dataAttachment);
+                        // });
+
+                        docEditorEvent(dataAttachments.pop());
+                    }
+                }
+            });
+
+            var dialog = $("#insert-image-dialog");
+
+            dialog.find(".file-list").on("DOMNodeInserted", function(event) {
+                var fileExt = event.srcElement.dataset.fileName.split(".").pop();
+                if (!fileTypes.includes(fileExt)) $(event.srcElement).hide();
+            });
+        };
+
+        var onRequestInsertImage = function(event) {
+            insertDialog(docEditor.insertImage, true, ${insertImageTypesAsHtml}, event.data.c);
+        };
+
+        var onRequestCompareFile = function() {
+            insertDialog(docEditor.setRevisedFile, false, ${compareFileTypesAsHtml});
+        };
+
+        var onRequestMailMergeRecipients = function(event) {
+            insertDialog(docEditor.setMailMergeRecipients, false, ${mailMergeTypesAsHtml});
+        };
 
         var onRequestSaveAs = function (event) {
             var title = event.data.title.substring(0, event.data.title.lastIndexOf("."));
@@ -172,9 +282,37 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             dialog.find("#reorderRequirement").hide();
         };
 
+        var createActionLink = function(href, actionData) {
+            var link;
+            var actionIndex = href.indexOf("&actionData=");
+            if (actionIndex != -1) {
+                var endIndex = href.indexOf("&", actionIndex + "&actionData=".length);
+                if (endIndex != -1) {
+                    link = href.substring(0, actionIndex) + href.substring(endIndex) + "&actionData=" + encodeURIComponent(actionData);
+                } else {
+                    link = href.substring(0, actionIndex) + "&actionData=" + encodeURIComponent(actionData);
+                }
+            } else {
+                link = href + "&actionData=" + encodeURIComponent(actionData);
+            }
+            return link;
+        }
+
+        var onMakeActionLink = function (event) {
+            var actionData = JSON.stringify(event.data);
+            docEditor.setActionLink(createActionLink(location.href, actionData));
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
-                alert("$i18n.getText('onlyoffice.connector.docs-api.undefined')");
+                alert("$i18n.getText('onlyoffice.editor.message.docs-api-undefined')");
+                return;
+            }
+
+            var docsVersion = DocsAPI.DocEditor.version().split(".");
+
+            if (docsVersion[0] < 6 || docsVersion[0] == 6 && docsVersion[1] == 0) {
+                alert("$i18n.getText('onlyoffice.editor.message.docs-api-unsupported')");
                 return;
             }
 
@@ -182,16 +320,15 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
             var config = {
                 "events" : {
-                    "onAppReady": function () {
-                        var errorMessage = "${errorMessage}";
-                        if (errorMessage) {
-                            docEditor.showMessage(errorMessage);
-                        }
-                        if (${demo}) {
-                            docEditor.showMessage("$i18n.getText('onlyoffice.configuration.demo.message')");
-                        }
-                    },
+                    "onAppReady": onAppReady,
+                    "onRequestHistory": onRequestHistory,
+                    "onRequestHistoryData": onRequestHistoryData,
+                    "onRequestHistoryClose": onRequestHistoryClose,
+                    "onRequestInsertImage": onRequestInsertImage,
+                    "onRequestCompareFile": onRequestCompareFile,
+                    "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
                     "onRequestSaveAs": onRequestSaveAs,
+                    "onMakeActionLink": onMakeActionLink,
                 },
             };
 
@@ -200,8 +337,8 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             }
 
             if ((config.document.fileType === "docxf" || config.document.fileType === "oform")
-                && DocsAPI.DocEditor.version().split(".")[0] < 7) {
-                alert("$i18n.getText('onlyoffice.editor.forms.error.version')");
+                && docsVersion[0] < 7) {
+                alert("$i18n.getText('onlyoffice.editor.message.forms.error.version')");
                 return;
             }
 
@@ -213,7 +350,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         } else if (window.attachEvent) {
             window.attachEvent("load", connectEditor);
         }
-
     </script>
 </body>
 

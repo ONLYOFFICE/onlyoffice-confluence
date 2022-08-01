@@ -8,7 +8,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
 
     <!--
     *
-    * (c) Copyright Ascensio System SIA 2021
+    * (c) Copyright Ascensio System SIA 2022
     *
     * Licensed under the Apache License, Version 2.0 (the "License");
     * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
             <h2 class="dialog-title">ONLYOFFICE</h2>
             <div class="dialog-page-body">
                 <div class="dialog-panel-body" style="height: 86px;">
-                    <div id="attachment-onlyoffice-convert-message">$i18n.getText('onlyoffice.connector.convertmessage',
+                    <div id="attachment-onlyoffice-convert-message">$i18n.getText('onlyoffice.convert.label',
                         ${oldName}, ${newName})</div>
                     <br>
                     <div id="attachment-onlyoffice-convert-progress-bar" class="aui-progress-indicator">
@@ -51,7 +51,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
 
     <script type="text/javascript" language="javascript">
         (function (jq) {
-            var url = AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId=${attachmentId}&oldExt=${oldExt}&newExt=${newExt}&newName=${newName}&pageId=$!{pageId}";
+            var url = AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId=${attachmentId}&newTitle=$!{newTitle}&pageId=$!{pageId}";
             var editorUrl = AJS.contextPath() + "/plugins/servlet/onlyoffice/doceditor?attachmentId=";
 
             jq(document).ready(function () {
@@ -73,7 +73,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
 
                 function onError(error) {
                     thumb.css("background", "#de350b");
-                    msg.text("$i18n.getText('onlyoffice.connector.converterror') " + error);
+                    msg.text("$i18n.getText('onlyoffice.convert.message.error') " + error);
                     btn.removeAttr("disabled");
                 }
 

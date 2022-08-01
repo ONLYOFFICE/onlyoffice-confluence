@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2021
+ * (c) Copyright Ascensio System SIA 2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ AJS.toInit(function ($) {
     var paramsPage = {
         pageId: AJS.params.pageId,
         extensions: {
-            "docx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.docx"),
-            "xlsx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.xlsx"),
-            "pptx" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.pptx"),
-            "docxf" : AJS.I18n.getText ("onlyoffice.connector.dialog-filecreate.docxf")
+            "docx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.docx"),
+            "xlsx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.xlsx"),
+            "pptx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.pptx"),
+            "docxf" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.docxf")
         }
     };
 
@@ -66,6 +66,7 @@ AJS.toInit(function ($) {
        $(this).find(".filename label").addClass("hidden");
        $(this).find(".filename input").removeClass("hidden");
        $(this).addClass("active");
+       $(this).find(".filename input.input-name").focus();
     });
 
     $(document).on("submit", ".filenameform", function(event) {
@@ -76,7 +77,7 @@ AJS.toInit(function ($) {
                 var fileExt = a.selectItems[0].attributes.fileName.split(".").pop();
                 if (fileExt == "docx") {
                     window.open("/plugins/servlet/onlyoffice/convert?attachmentId=" + a.selectItems[0].attributes.id +
-                            "&pageId=" + AJS.params.pageId + "&newName=" +  $("#view-input-docxf").attr("value")
+                            "&pageId=" + AJS.params.pageId + "&newTitle=" +  $("#view-input-docxf").attr("value")
                     )
                     setTimeout(function () { document.location.reload(); }, 1000);
                 } else {

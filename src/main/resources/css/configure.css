@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2021
+ * (c) Copyright Ascensio System SIA 2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
  *
  */
 
- .secretFiled {
+.secretFiled {
     position: inherit;
     max-width: 250px;
     width: 100%;
 }
+
 .view-control {
     position: absolute;
     display: block;
@@ -28,11 +29,18 @@
     right: 6px;
     width: 20px;
     height: 20px;
-    background: url(images/icon_view.svg) 0 0 no-repeat;
+    background: url(icon_view.svg) 0 0 no-repeat;
 }
+
 .view-control.view {
-    background: url(images/icon_hide.svg) 0 0 no-repeat;
+    background: url(icon_hide.svg) 0 0 no-repeat;
 }
-#onlyofficeSubmitBtn{
+
+#onlyofficeSubmitBtn {
     margin-top: 19px;
+}
+
+.inline {
+    display: inline-block;
+    margin-right: 20px !important;
 }

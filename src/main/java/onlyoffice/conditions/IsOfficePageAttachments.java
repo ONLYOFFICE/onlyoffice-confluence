@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2021
+ * (c) Copyright Ascensio System SIA 2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,14 @@
 
 package onlyoffice.conditions;
 
-import com.atlassian.confluence.pages.Page;
-import com.atlassian.confluence.pages.PageManager;
-import com.atlassian.confluence.security.Permission;
-import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
-import com.atlassian.spring.container.ContainerManager;
 import com.opensymphony.webwork.ServletActionContext;
+import onlyoffice.utils.attachment.AttachmentUtil;
+
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,6 +33,13 @@ import java.util.regex.Pattern;
 
 public class IsOfficePageAttachments implements Condition {
     private String pageAttachments = "viewpageattachments.action";
+
+    private final AttachmentUtil attachmentUtil;
+
+    @Inject
+    public IsOfficePageAttachments(AttachmentUtil attachmentUtil) {
+        this.attachmentUtil = attachmentUtil;
+    }
 
     public void init(Map<String, String> map) throws PluginParseException {
 
@@ -52,11 +57,8 @@ public class IsOfficePageAttachments implements Condition {
             boolean access = false;
             if (pageId != null){
                 ConfluenceUser user = AuthenticatedUserThreadLocal.get();
-                PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
-                PageManager pageManager = (PageManager) ContainerManager.getComponent("pageManager");
 
-                Page page = pageManager.getPage(Long.parseLong(pageId));
-                access = permissionManager.hasPermission(user, Permission.EDIT, page);
+                access = attachmentUtil.checkAccessCreate(user, Long.parseLong(pageId));
             }
             return matcher.matches() && access;
         }else {

@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2021
+ * (c) Copyright Ascensio System SIA 2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,9 @@ import org.apache.log4j.Logger;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
+import java.io.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
@@ -94,6 +91,14 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
             log.error(e.toString() + "\n" + sw.toString());
             return null;
         }
+    }
+
+    public boolean forceSaveEnabled() {
+        String forceSave = (String) pluginSettings.get("onlyoffice.forceSave");
+        if (forceSave == null || forceSave.isEmpty()) {
+            return false;
+        }
+        return Boolean.parseBoolean(forceSave);
     }
 
     public boolean selectDemo(Boolean demo) {
@@ -154,13 +159,52 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return Boolean.parseBoolean(setting);
     }
 
+    public String getStringPluginSetting(String key, String defaultValue) {
+        String setting = (String) pluginSettings.get("onlyoffice." + key);
+        if (setting == null || setting.isEmpty()) {
+            return defaultValue;
+        }
+        return setting;
+    }
+
+    public List<String> getDefaultEditingTypes() {
+        String editableTypes = getProperty("docservice.type.edit");
+        return new ArrayList<>(Arrays.asList(editableTypes.split("\\|")));
+    }
+
+    public List<String> getFillFormTypes() {
+        String editableTypes = getProperty("docservice.type.fill-form");
+        return new ArrayList<>(Arrays.asList(editableTypes.split("\\|")));
+    }
+
+    public Map<String, Boolean> getCustomizableEditingTypes () {
+        Map<String, Boolean> customizableEditingTypes = new HashMap<>();
+        List<String> editingTypes = null;
+
+        String editingTypesString = (String) pluginSettings.get("onlyoffice.editingTypes");
+
+        if (editingTypesString != null && !editingTypesString.isEmpty()) {
+            editingTypes = Arrays.asList(editingTypesString.substring(1, editingTypesString.length() - 1).replace("\"", "").split(","));
+        } else {
+            editingTypes = Arrays.asList("csv", "txt");
+        }
+
+        List<String> availableTypes = Arrays.asList(getProperty("docservice.type.edit.customizable").split("\\|"));
+
+        for (String type : availableTypes) {
+            customizableEditingTypes.put(type, editingTypes.contains(type));
+        }
+
+        return customizableEditingTypes;
+    }
+
     public CloseableHttpClient getHttpClient() throws Exception {
         Integer timeout = Integer.parseInt(getProperty("timeout")) * 1000;
         RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout).setSocketTimeout(timeout).build();
 
         CloseableHttpClient httpClient;
 
-        if (getBooleanPluginSetting("verifyCertificate", false)) {
+        if (getBooleanPluginSetting("verifyCertificate", false) && !demoActive()) {
             SSLContextBuilder builder = new SSLContextBuilder();
 
             builder.loadTrustMaterial(null, new TrustStrategy() {
