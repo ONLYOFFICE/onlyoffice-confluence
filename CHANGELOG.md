@@ -1,5 +1,8 @@
 # Change Log
 
+## Changed
+- compatible with Confluence 7.19.0
+
 ## 4.0.0
 ## Added
 - review display settings
