@@ -1,5 +1,9 @@
 # Change Log
 
+## 4.0.1
+## Added
+- button ONLYOFFICE in confluence preview 
+
 ## 4.0.0
 ## Added
 - review display settings
