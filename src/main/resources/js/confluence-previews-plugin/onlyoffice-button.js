@@ -27,8 +27,6 @@ define('cp/component/onlyoffice-button', [
              templateStore) {
     'use strict';
 
-    var currentDialog = null;
-
     var OnlyofficeButtonView = Backbone.View.extend({
         tagName: 'span',
 
@@ -37,12 +35,37 @@ define('cp/component/onlyoffice-button', [
         },
 
         render: function () {
-            var that = this;
-            this.$el.html(templateStore.get('controlOnlyofficeButton')({
-                attachmentId: that._mediaViewer.getCurrentFile().get('id')
+            var attachmentId = this._mediaViewer.getCurrentFile().get('id');
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open("POST", "/plugins/servlet/onlyoffice/confluence/previews/plugin/access", false);
+            xhr.send(JSON.stringify({
+                 attachmentId: attachmentId
             }));
-            if ($.fn.tooltip) {
-                this.$('a').tooltip({gravity: 'n'});
+
+            var title;
+
+            if (xhr.status == 200) {
+                var response = JSON.parse(xhr.responseText);
+
+                if (response.access == "edit") {
+                    title = AJS.I18n.getText('onlyoffice.editor.editlink');
+                } else if (response.access == "view") {
+                    title = AJS.I18n.getText('onlyoffice.editor.viewlink');
+                } else if (response.access == "fillform") {
+                    title = AJS.I18n.getText('onlyoffice.editor.fillFormlink');
+                }
+            }
+
+            if (title) {
+                this.$el.html(templateStore.get('controlOnlyofficeButton')({
+                    attachmentId: attachmentId,
+                    title: title
+                }));
+                if ($.fn.tooltip) {
+                    this.$('a').tooltip({gravity: 'n'});
+                }
             }
 
             return this;
@@ -50,13 +73,10 @@ define('cp/component/onlyoffice-button', [
     });
 
     var OnlyofficeButton = function (mediaViewer) {
-        if (!mediaViewer.getConfig().enableShareButton) {
-            return;
-        }
         mediaViewer.getView().fileControlsView.addLayerView('onlyofficeButton', OnlyofficeButtonView, {
-            weight: 9,
+            weight: 1,
             predicate: function (mediaViewer) {
-                return !mediaViewer.getCurrentFile().get('isRemoteLink');
+                return true;
             }
         });
     };

@@ -158,4 +158,8 @@
         <description>ONLYOFFICE API Handler.</description>
         <url-pattern>/onlyoffice/api</url-pattern>
     </servlet>
+    <servlet key="OnlyOfficeButtonCondition" class="onlyoffice.conditions.confluence.previews.plugin.OnlyofficeButton" name="ONLYOFFICE Button Condition">
+        <description>Conditions for displaying ONLYOFFICE button in confluence preview.</description>
+        <url-pattern>/onlyoffice/confluence/previews/plugin/access</url-pattern>
+    </servlet>
 </atlassian-plugin>
