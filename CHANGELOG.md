@@ -1,6 +1,5 @@
 # Change Log
 
-## 4.0.1
 ## Added
 - button ONLYOFFICE in confluence preview 
 
