@@ -26,8 +26,6 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
@@ -46,9 +44,6 @@ public class OnlyofficeButton extends HttpServlet {
     private final ParsingUtil parsingUtil;
     private final AttachmentUtil attachmentUtil;
     private final DocumentManager documentManager;
-
-    private static final Logger log = LogManager.getLogger("onlyoffice.conditions.confluence.previews.plugin.OnlyofficeButton");
-
 
     @Inject
     public OnlyofficeButton(AttachmentManager attachmentManager, ParsingUtil parsingUtil, AttachmentUtil attachmentUtil, DocumentManager documentManager) {
@@ -76,8 +71,6 @@ public class OnlyofficeButton extends HttpServlet {
             String ext = attachment.getFileExtension();
             String access = null;
 
-
-            log.error(attachment.isLatestVersion());
             if (accessEdit && documentManager.isEditable(ext)) {
                 access = "edit";
             } else if (accessEdit && documentManager.isFillForm(ext)) {
