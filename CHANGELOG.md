@@ -1,5 +1,8 @@
 # Change Log
 
+## Added
+- button ONLYOFFICE in confluence preview 
+
 ## Changed
 - compatible with Confluence 7.19.0
 - Chinese (Traditional, Taiwan), Basque (Spain), Armenian and Malay (Malaysia) empty file templates

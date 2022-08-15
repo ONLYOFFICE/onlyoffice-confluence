@@ -107,7 +107,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         if (forEdit) {
             boolean create = checkAccessCreate(user, attachment.getContainer().getId());
             boolean access = permissionManager.hasPermission(user, Permission.EDIT, attachment);
-            return create && access;
+            return create && access && attachment.isLatestVersion();
         } else {
             boolean access = permissionManager.hasPermission(user, Permission.VIEW, attachment);
             return access;
