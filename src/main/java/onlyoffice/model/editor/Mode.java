@@ -16,15 +16,13 @@
  *
  */
 
-package onlyoffice.model;
+package onlyoffice.model.editor;
 
 import com.google.gson.annotations.SerializedName;
 
-public enum Type {
-    @SerializedName("desktop")
-    DESKTOP,
-    @SerializedName("mobile")
-    MOBILE,
-    @SerializedName("embedded")
-    EMBEDDED
+public enum Mode {
+    @SerializedName("view")
+    VIEW,
+    @SerializedName("edit")
+    EDIT
 }

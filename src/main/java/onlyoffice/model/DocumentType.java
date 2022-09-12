@@ -20,11 +20,11 @@ package onlyoffice.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public enum Type {
-    @SerializedName("desktop")
-    DESKTOP,
-    @SerializedName("mobile")
-    MOBILE,
-    @SerializedName("embedded")
-    EMBEDDED
+public enum DocumentType {
+    @SerializedName("word")
+    WORD,
+    @SerializedName("cell")
+    CELL,
+    @SerializedName("slide")
+    SLIDE
 }

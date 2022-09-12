@@ -16,15 +16,16 @@
  *
  */
 
-package onlyoffice.model;
+package onlyoffice.model.editor;
 
-import com.google.gson.annotations.SerializedName;
+import com.atlassian.confluence.user.ConfluenceUser;
 
-public enum Type {
-    @SerializedName("desktop")
-    DESKTOP,
-    @SerializedName("mobile")
-    MOBILE,
-    @SerializedName("embedded")
-    EMBEDDED
+public class User {
+    String id;
+    String name;
+
+    public User(ConfluenceUser user) {
+        this.id = user.getName();
+        this.name = user.getFullName();
+    }
 }

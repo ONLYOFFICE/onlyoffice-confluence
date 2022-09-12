@@ -16,15 +16,14 @@
  *
  */
 
-package onlyoffice.model;
+package onlyoffice.model.editor;
 
-import com.google.gson.annotations.SerializedName;
+import onlyoffice.managers.url.UrlManager;
 
-public enum Type {
-    @SerializedName("desktop")
-    DESKTOP,
-    @SerializedName("mobile")
-    MOBILE,
-    @SerializedName("embedded")
-    EMBEDDED
+public class Goback {
+    String url;
+
+    public Goback (UrlManager urlManager, Long attachmentId, String referer) {
+        this.url = urlManager.getGobackUrl(attachmentId, referer);
+    }
 }

@@ -16,15 +16,15 @@
  *
  */
 
-package onlyoffice.model;
+package onlyoffice.model.document;
 
-import com.google.gson.annotations.SerializedName;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import onlyoffice.utils.attachment.AttachmentUtil;
 
-public enum Type {
-    @SerializedName("desktop")
-    DESKTOP,
-    @SerializedName("mobile")
-    MOBILE,
-    @SerializedName("embedded")
-    EMBEDDED
+public class Permissions {
+    boolean edit;
+
+    public Permissions (AttachmentUtil attachmentUtil, Long attachmentId) {
+        edit = attachmentUtil.checkAccess(attachmentId,  AuthenticatedUserThreadLocal.get(), true);
+    }
 }
