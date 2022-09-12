@@ -29,4 +29,5 @@ public interface UrlManager extends Serializable {
     String getCreateUri(Long pageId, String ext);
 
     String replaceDocEditorURLToInternal(String url);
+    public String getDocServiceApiUrl();
 }

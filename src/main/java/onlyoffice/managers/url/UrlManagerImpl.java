@@ -211,4 +211,8 @@ public class UrlManagerImpl implements UrlManager {
         }
         return result;
     }
+
+    public String getDocServiceApiUrl(){
+        return getPublicDocEditorUrl() + configurationManager.getProperty("files.docservice.url.api");
+    }
 }

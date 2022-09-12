@@ -165,7 +165,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
 
-        writer.write(getTemplate(attachmentId, type, apiUrl, callbackUrl, fileUrl, key, fileName, user, gobackUrl,
+        writer.write(getTemplate(attachmentId, type, callbackUrl, fileUrl, key, fileName, user, gobackUrl,
                 actionData, errorMessage));
     }
 
@@ -183,7 +183,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String documentType = documentManager.getDocType(docExt);
         Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
 
-        config.put("docserviceApiUrl", apiUrl + configurationManager.getProperty("files.docservice.url.api"));
+        config.put("docserviceApiUrl", urlManager.getDocServiceApiUrl());
         config.put("errorMessage", errorMessage);
         config.put("docTitle", docTitle);
         config.put("favicon", webResourceUrlProvider.getStaticPluginResourceUrl(
