@@ -1,6 +1,7 @@
 package onlyoffice.managers.document;
 
 import com.atlassian.confluence.user.ConfluenceUser;
+import onlyoffice.model.DocumentType;
 
 import java.io.IOException;
 import java.io.Serializable;

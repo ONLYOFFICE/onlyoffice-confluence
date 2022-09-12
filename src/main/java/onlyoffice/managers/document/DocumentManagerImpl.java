@@ -28,6 +28,7 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
+import onlyoffice.model.DocumentType;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.model.Format;
 import onlyoffice.model.Type;

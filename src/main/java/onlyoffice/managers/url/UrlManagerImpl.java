@@ -29,6 +29,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.model.DocumentType;
 import onlyoffice.managers.jwt.JwtManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -177,13 +178,13 @@ public class UrlManagerImpl implements UrlManager {
         String targetExt = "docx";
 
         switch (documentManager.getDocType(ext)) {
-            case "word":
+            case WORD:
                 targetExt = ext.equals("docxf") ? "docxf" : "docx";
                 break;
-            case "cell":
+            case CELL:
                 targetExt = "xlsx";
                 break;
-            case "slide":
+            case SLIDE:
                 targetExt = "pptx";
                 break;
             default:

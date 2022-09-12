@@ -32,6 +32,7 @@ import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
+import onlyoffice.model.DocumentType;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -180,7 +181,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String docTitle = fileName.trim();
         String docExt = attachmentUtil.getFileExt(attachmentId);
         boolean canEdit = documentManager.isEditable(docExt) || documentManager.isFillForm(docExt);
-        String documentType = documentManager.getDocType(docExt);
+        DocumentType documentType = documentManager.getDocType(docExt);
         Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
 
         config.put("docserviceApiUrl", urlManager.getDocServiceApiUrl());
