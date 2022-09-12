@@ -76,7 +76,7 @@ public class ConvertManagerImpl implements ConvertManager {
             body.put("embeddedfonts", true);
             body.put("filetype", currentExt);
             body.put("outputtype", convertToExt);
-            body.put("key", documentManager.getKeyOfFile(attachmentId));
+            body.put("key", documentManager.getKeyOfFile(attachmentId, false));
             body.put("url", url);
             body.put("region", region);
 

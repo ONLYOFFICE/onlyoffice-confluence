@@ -10,7 +10,7 @@ import java.util.List;
 public interface DocumentManager extends Serializable {
     long getMaxFileSize();
 
-    String getKeyOfFile(Long attachmentId);
+    String getKeyOfFile(Long attachmentId, boolean embedded);
 
     String createHash(String str);
 
