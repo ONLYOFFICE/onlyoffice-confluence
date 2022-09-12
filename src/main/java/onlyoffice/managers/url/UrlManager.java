@@ -24,10 +24,11 @@ public interface UrlManager extends Serializable {
 
     String getCallbackUrl(Long attachmentId);
 
-    String getGobackUrl(Long attachmentId, HttpServletRequest request);
+    String getGobackUrl(Long attachmentId, String referer);
 
     String getCreateUri(Long pageId, String ext);
 
     String replaceDocEditorURLToInternal(String url);
+
     public String getDocServiceApiUrl();
 }

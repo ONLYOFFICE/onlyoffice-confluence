@@ -153,9 +153,8 @@ public class UrlManagerImpl implements UrlManager {
         return callbackUrl;
     }
 
-    public String getGobackUrl(final Long attachmentId, final HttpServletRequest request) {
+    public String getGobackUrl(final Long attachmentId, final String referer) {
         String gobackUrl = "";
-        String referer = request.getHeader("referer");
 
         if (referer != null && referer.contains("/display/")) {
             gobackUrl = referer;
