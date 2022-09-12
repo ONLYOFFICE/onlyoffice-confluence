@@ -86,10 +86,10 @@ public class ConvertManagerImpl implements ConvertManager {
             request.setHeader("Accept", "application/json");
 
             if (jwtManager.jwtEnabled()) {
-                String token = jwtManager.createToken(body);
+                String token = jwtManager.createToken(body.toString());
                 JSONObject payloadBody = new JSONObject();
                 payloadBody.put("payload", body);
-                String headerToken = jwtManager.createToken(body);
+                String headerToken = jwtManager.createToken(body.toString());
                 body.put("token", token);
                 String header = jwtManager.getJwtHeader();
                 request.setHeader(header, "Bearer " + headerToken);

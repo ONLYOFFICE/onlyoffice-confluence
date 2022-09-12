@@ -261,7 +261,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
 
             if (jwtManager.jwtEnabled()) {
-                responseJson.put("token", jwtManager.createToken(responseJson));
+                responseJson.put("token", jwtManager.createToken(responseJson.toString()));
             }
 
             // AsHtml at the end disables automatic html encoding
