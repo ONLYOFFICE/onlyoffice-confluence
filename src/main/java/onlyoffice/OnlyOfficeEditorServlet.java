@@ -28,15 +28,19 @@ import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.plugin.webresource.UrlMode;
 import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import onlyoffice.managers.auth.AuthContext;
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.sal.api.message.I18nResolver;
+import onlyoffice.managers.config.ConfigManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
-import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
-import onlyoffice.model.DocumentType;
+import onlyoffice.model.Type;
+import onlyoffice.model.editor.Mode;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -50,6 +54,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
@@ -57,16 +66,17 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
     private final LocaleManager localeManager;
     private final WebResourceUrlProvider webResourceUrlProvider;
+    private final I18nResolver i18n;
     private final SystemInformationService sysInfoService;
 
-    private final JwtManager jwtManager;
     private final UrlManager urlManager;
     private final ConfigurationManager configurationManager;
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
+    private final ConfigManager configManager;
 
-    public OnlyOfficeEditorServlet(final LocaleManager localeManager,
+    public OnlyOfficeEditorServlet(final LocaleManager localeManager, final I18nResolver i18n,
                                    final WebResourceUrlProvider webResourceUrlProvider,
                                    final SystemInformationService sysInfoService,
                                    final UrlManager urlManager, final JwtManager jwtManager,
@@ -76,12 +86,12 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.localeManager = localeManager;
         this.webResourceUrlProvider = webResourceUrlProvider;
         this.urlManager = urlManager;
-        this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.sysInfoService = sysInfoService;
+        this.configManager = configManager;
     }
 
     @Override
@@ -103,18 +113,17 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String key = "";
         String fileName = "";
         String errorMessage = "";
-        ConfluenceUser user = null;
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         String attachmentIdString = request.getParameter("attachmentId");
-        String actionData = request.getParameter("actionData");
+        String actionDataString = request.getParameter("actionData");
         String referer = request.getHeader("referer");
 
-        if (attachmentIdString == null) {
-            fileName = request.getParameter("fileName");
+        if (attachmentIdString == null || attachmentIdString.isEmpty()) {
+            String fileName = request.getParameter("fileName");
             String fileExt = request.getParameter("fileExt");
             String pageId = request.getParameter("pageId");
             if (pageId != null && !pageId.equals("")) {
-                user = AuthenticatedUserThreadLocal.get();
 
                 if (!attachmentUtil.checkAccessCreate(user, Long.parseLong(pageId))) {
                     response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -129,40 +138,37 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
         }
 
-        Long attachmentId = null;
-
         try {
-            attachmentId = Long.parseLong(attachmentIdString);
-            log.info("attachmentId " + attachmentId);
+            Long attachmentId = Long.parseLong(attachmentIdString);
+            Attachment attachment = attachmentUtil.getAttachment(attachmentId);
 
-            user = AuthenticatedUserThreadLocal.get();
-            log.info("user " + user);
-            if (attachmentUtil.checkAccess(attachmentId, user, false)) {
-                type = documentManager.getEditorType(request.getHeader("USER-AGENT"));
-
-                key = documentManager.getKeyOfFile(attachmentId, false);
-
-                fileName = attachmentUtil.getFileName(attachmentId);
-
-                fileUrl = urlManager.getFileUri(attachmentId);
-
-                gobackUrl = urlManager.getGobackUrl(attachmentId, referer);
-
-                if (attachmentUtil.checkAccess(attachmentId, user, true)) {
-                    callbackUrl = urlManager.getCallbackUrl(attachmentId);
-                }
-            } else {
-                log.error("access deny");
-                errorMessage = "You don not have enough permission to view the file";
+            if (attachment == null) {
+                response.sendError(404);
+                return;
             }
-        } catch (Exception ex) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            ex.printStackTrace(pw);
-            String error = ex.toString() + "\n" + sw.toString();
-            log.error(error);
-            errorMessage = ex.toString();
-        }
+
+            if (!attachmentUtil.checkAccess(attachmentId, user, false)) {
+                response.sendRedirect(attachment.getContainer().getUrlPath());
+                return;
+            }
+
+            Map<String, Object> context = MacroUtils.defaultVelocityContext();
+            context.put("docserviceApiUrl", urlManager.getDocServiceApiUrl());
+            context.put("docTitle", attachmentUtil.getFileName(attachmentId));
+            context.put("favicon", urlManager.getFaviconUrl(attachmentId));
+            context.put("pageId", attachment.getContainer().getId());
+            context.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
+            context.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
+            context.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
+
+            if (documentManager.getDocType(attachmentId) != null) {
+                Type type = documentManager.getEditorType(request.getHeader("USER-AGENT"));
+
+                JSONObject actionData = null;
+
+                if (actionDataString != null && !actionDataString.isEmpty()) {
+                    actionData = new JSONObject(actionDataString);
+                }
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
@@ -226,8 +232,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 editorConfigObject.put("mode", "edit");
                 editorConfigObject.put("callbackUrl", callbackUrl);
             } else {
-                permObject.put("edit", false);
-                editorConfigObject.put("mode", "view");
+                context.put("errorMessage", i18n.getText("onlyoffice.editor.message.error.unsupported") + "(." + attachmentUtil.getFileExt(attachmentId) + ")");
             }
 
             if (actionData != null && !actionData.isEmpty()) {
@@ -288,9 +293,5 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             String error = ex.toString() + "\n" + sw.toString();
             log.error(error);
         }
-
-        defaults.putAll(config);
-        defaults.put("demo", configurationManager.demoActive());
-        return VelocityUtils.getRenderedTemplate("templates/editor.vm", defaults);
     }
 }

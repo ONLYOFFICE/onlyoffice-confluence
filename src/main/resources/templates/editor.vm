@@ -63,17 +63,17 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         var defaultPanelComponent = new Array();
 
         var onAppReady = function () {
-            var errorMessage = "${errorMessage}";
+            var errorMessage = "$!{errorMessage}";
             if (errorMessage) {
                 docEditor.showMessage(errorMessage);
             }
-            if (${demo}) {
+            if (Boolean($!{demo})) {
                 docEditor.showMessage("$i18n.getText('onlyoffice.editor.message.demo')");
             }
         };
 
         var onRequestHistory = function () {
-            var historyInfoUri = "${historyInfoUriAsHtml}";
+            var historyInfoUri = "$!{historyInfoUriAsHtml}";
             var xhr = new XMLHttpRequest();
             xhr.open("GET", historyInfoUri, false);
             xhr.send();
@@ -86,7 +86,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
         var onRequestHistoryData = function (event) {
             var version = event.data;
-            var historyDataUri = "${historyDataUriAsHtml}";
+            var historyDataUri = "$!{historyDataUriAsHtml}";
             var xhr = new XMLHttpRequest();
             xhr.open("GET", historyDataUri + "&version=" + version, false);
             xhr.send();
@@ -144,7 +144,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     });
 
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "${attachmentDataAsHtml}", false);
+                    xhr.open("POST", "$!{attachmentDataAsHtml}", false);
                     xhr.send(JSON.stringify({
                         command: command,
                         attachments: attachments
@@ -172,15 +172,15 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         };
 
         var onRequestInsertImage = function(event) {
-            insertDialog(docEditor.insertImage, true, ${insertImageTypesAsHtml}, event.data.c);
+            insertDialog(docEditor.insertImage, true, $insertImageTypesAsHtml, event.data.c);
         };
 
         var onRequestCompareFile = function() {
-            insertDialog(docEditor.setRevisedFile, false, ${compareFileTypesAsHtml});
+            insertDialog(docEditor.setRevisedFile, false, $compareFileTypesAsHtml);
         };
 
         var onRequestMailMergeRecipients = function(event) {
-            insertDialog(docEditor.setMailMergeRecipients, false, ${mailMergeTypesAsHtml});
+            insertDialog(docEditor.setMailMergeRecipients, false, $mailMergeTypesAsHtml);
         };
 
         var onRequestSaveAs = function (event) {
@@ -229,7 +229,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     $("#move-button").attr("disabled", "disabled");
 
                     var xhr = new XMLHttpRequest();
-                    xhr.open("POST", "${saveAsUriAsHtml}", true);
+                    xhr.open("POST", "$!{saveAsUriAsHtml}", true);
                     xhr.send(JSON.stringify({
                         url: url,
                         title: title,
@@ -351,6 +351,8 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 return;
             }
 
+            var configAsHtml = '$!{configAsHtml}';
+
             var config = {
                 "events" : {
                     "onAppReady": onAppReady,
@@ -365,13 +367,15 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 },
             };
 
+            if (configAsHtml) {
+                Object.assign(config, JSON.parse(configAsHtml || "{}"));
+            }
             if (!AJS.Meta.get("is-blog-post")) {
                 config.events.onRequestSaveAs = onRequestSaveAs;
             }
 
             Object.assign(config, JSON.parse($("#editorConfig").html() || "{}"));
-
-            if ((config.document.fileType === "docxf" || config.document.fileType === "oform")
+            if (config.document && (config.document.fileType === "docxf" || config.document.fileType === "oform")
                 && docsVersion[0] < 7) {
                 alert("$i18n.getText('onlyoffice.editor.message.forms.error.version')");
                 return;
