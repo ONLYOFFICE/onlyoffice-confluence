@@ -2,6 +2,7 @@ package onlyoffice.managers.document;
 
 import com.atlassian.confluence.user.ConfluenceUser;
 import onlyoffice.model.DocumentType;
+import onlyoffice.model.Type;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -22,7 +23,7 @@ public interface DocumentManager extends Serializable {
 
     String getDocType(String ext);
 
-    String getEditorType(String userAgent);
+    Type getEditorType(String userAgent);
 
     String getMimeType(String name);
 

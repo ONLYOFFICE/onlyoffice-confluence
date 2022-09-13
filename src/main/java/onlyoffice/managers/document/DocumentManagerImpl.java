@@ -32,6 +32,7 @@ import onlyoffice.model.DocumentType;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.model.Format;
 import onlyoffice.model.Type;
+import onlyoffice.model.Type;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
@@ -237,12 +238,12 @@ public class DocumentManagerImpl implements DocumentManager {
         return mimeType != null ? mimeType : "application/octet-stream";
     }
 
-    public String getEditorType(final String userAgent) {
+    public Type getEditorType (final String userAgent) {
         Pattern pattern = Pattern.compile(USER_AGENT_MOBILE, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         if (userAgent != null && pattern.matcher(userAgent).find()) {
-            return "mobile";
+            return Type.MOBILE;
         } else {
-            return "desktop";
+            return Type.DESKTOP;
         }
     }
 
