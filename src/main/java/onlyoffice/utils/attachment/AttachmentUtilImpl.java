@@ -431,3 +431,8 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
 }
+    public Attachment getAttachment(Long attachmentId) {
+        return attachmentManager.getAttachment(attachmentId);
+    }
+
+}
