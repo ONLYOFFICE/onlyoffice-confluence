@@ -19,12 +19,15 @@
 package onlyoffice.model.document;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 public class Permissions {
     boolean edit;
 
-    public Permissions (AttachmentUtil attachmentUtil, Long attachmentId) {
-        edit = attachmentUtil.checkAccess(attachmentId,  AuthenticatedUserThreadLocal.get(), true);
+    public Permissions (DocumentManager documentManager, AttachmentUtil attachmentUtil, Long attachmentId) {
+        String fileExt = attachmentUtil.getFileExt(attachmentId);
+        boolean isEditable = documentManager.isEditable(fileExt) || documentManager.isFillForm(fileExt);
+        edit = attachmentUtil.checkAccess(attachmentId,  AuthenticatedUserThreadLocal.get(), true) && isEditable;
     }
 }

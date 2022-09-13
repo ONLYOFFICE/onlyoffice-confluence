@@ -35,6 +35,6 @@ public class Document {
         title = attachmentUtil.getFileName(attachmentId);
         fileType = attachmentUtil.getFileExt(attachmentId);
         url = urlManager.getFileUri(attachmentId);
-        permissions = new Permissions(attachmentUtil, attachmentId);
+        permissions = new Permissions(documentManager, attachmentUtil, attachmentId);
     }
 }
