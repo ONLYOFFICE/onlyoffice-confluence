@@ -16,6 +16,10 @@
     </plugin-info>
 
     <resource type="i18n" name="i18n" location="lang-resource"/>
+    <resource type="download" name="images/144.png" key="images" location="images/144.png"/>
+    <resource type="download" name="images/preview-placeholder-word.jpg" key="images" location="images/preview-placeholder-word.jpg"/>
+    <resource type="download" name="images/preview-placeholder-cell.jpg" key="images" location="images/preview-placeholder-cell.jpg"/>
+    <resource type="download" name="images/preview-placeholder-slide.jpg" key="images" location="images/preview-placeholder-slide.jpg"/>
 
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for the main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
@@ -79,6 +83,29 @@
         <resource type="download" name="cell.ico" location="images/cell.ico"/>
         <resource type="download" name="slide.ico" location="images/slide.ico"/>
     </web-resource>
+
+    <web-resource key="macro-browser-smart-fields" name="Macro Browser Smart Fields">
+        <resource location="js/onlyoffice-preview-macro-fields.js" name="onlyoffice-preview-macro-fields.js" type="download"/>
+        <dependency>confluence.editor.actions:editor-macro-browser</dependency>
+        <context>macro-browser</context>
+    </web-resource>
+
+    <xhtml-macro name='onlyoffice-preview' class='onlyoffice.macro.OnlyOfficePreviewMacro' key='onlyoffice-preview'
+                 icon="/download/resources/${atlassian.plugin.key}/images/144.png">
+        <description>onlyoffice.onlyoffice-confluence-plugin.onlyoffice-preview.desc</description>
+        <category name="confluence-content"/>
+        <category name="media"/>
+        <parameters>
+            <parameter name="page" type="confluence-content">
+                <option key="includeDatePath" value="true"/>
+            </parameter>
+            <parameter name="name" required="true" type="attachment">
+                <alias name=""/>
+            </parameter>
+            <parameter name="width" type="string"/>
+            <parameter name="height" type="string"/>
+        </parameters>
+    </xhtml-macro>
 
     <web-item key="onlyoffice-filecreate" name="New Document" section="system.content.button" weight="47">
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
