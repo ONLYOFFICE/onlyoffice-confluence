@@ -20,6 +20,8 @@ package onlyoffice.managers.url;
 
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.plugin.webresource.UrlMode;
+import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -46,16 +48,16 @@ public class UrlManagerImpl implements UrlManager {
     private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
     private final String apiServlet = "plugins/servlet/onlyoffice/api";
 
-    private final SettingsManager settingsManager;
+    private final WebResourceUrlProvider webResourceUrlProvider;    private final SettingsManager settingsManager;
     private final PluginSettings pluginSettings;
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
     private final JwtManager jwtManager;
 
-    public UrlManagerImpl(final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
+    public UrlManagerImpl(final WebResourceUrlProvider webResourceUrlProvider, final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
                           final ConfigurationManager configurationManager, final DocumentManager documentManager,
                           final JwtManager jwtManager) {
-        this.settingsManager = settingsManager;
+        this.webResourceUrlProvider = webResourceUrlProvider;        this.settingsManager = settingsManager;
         this.configurationManager = configurationManager;
         this.documentManager = documentManager;
         this.jwtManager = jwtManager;
@@ -212,7 +214,22 @@ public class UrlManagerImpl implements UrlManager {
         return result;
     }
 
-    public String getDocServiceApiUrl(){
+    public String getDocServiceApiUrl() {
         return getPublicDocEditorUrl() + configurationManager.getProperty("files.docservice.url.api");
+    }
+
+    public String getFaviconUrl(Long attachmentId) {
+        String nameIcon = "word";
+
+        DocumentType documentType = documentManager.getDocType(attachmentId);
+        if (documentType != null) {
+            nameIcon = documentType.name().toLowerCase();
+        }
+
+        return webResourceUrlProvider.getStaticPluginResourceUrl(
+                "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
+                nameIcon +".ico",
+                UrlMode.ABSOLUTE
+        );
     }
 }

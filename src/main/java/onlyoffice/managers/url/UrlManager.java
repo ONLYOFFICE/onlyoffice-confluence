@@ -31,4 +31,5 @@ public interface UrlManager extends Serializable {
     String replaceDocEditorURLToInternal(String url);
 
     public String getDocServiceApiUrl();
+    public String getFaviconUrl(Long attachmentId);
 }
