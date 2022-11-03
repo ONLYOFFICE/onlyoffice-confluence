@@ -46,6 +46,10 @@ Find the uploaded ***ONLYOFFICE Confluence connector*** on the `Manage add-ons` 
 ```
 http://documentserver/
 ```
+Starting from version 7.2, JWT is enabled by default and the secret key is generated automatically to restrict the access to ONLYOFFICE Docs and for security reasons and data integrity. 
+Specify your own **Secret key** on the Confluence administration page. 
+In the ONLYOFFICE Docs [config file](https://api.onlyoffice.com/editors/signature/), specify the same secret key and enable the validation.
+
 ## Compiling Confluence ONLYOFFICE integration app
 
 You will need:
