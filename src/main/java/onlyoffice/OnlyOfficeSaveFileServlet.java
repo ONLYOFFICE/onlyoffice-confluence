@@ -185,7 +185,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
                     String history = jsonObj.getString("history");
                     String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
-                    log.info("changesUri = " + downloadUrl);
+                    log.info("changesUri = " + changesUrl);
 
                     Boolean forceSaveVersion = attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
 
