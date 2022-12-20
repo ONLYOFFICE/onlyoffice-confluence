@@ -137,11 +137,14 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
             int dotIdx = name.lastIndexOf(46);
             if (dotIdx != -1) {
                 String fileExt = name.substring(dotIdx + 1).toLowerCase();
-                if (documentManager.getDocType(fileExt) != null) documentType = documentManager.getDocType(fileExt);
+                if (documentManager.getDocType(fileExt) != null) {
+                    documentType = documentManager.getDocType(fileExt);
+                    if (fileExt.equals("oform")) documentType = DocumentType.FORM;
+                }
             }
         }
 
-        return new DefaultImagePlaceholder(this.resourcePath + "/images/preview-placeholder-" + documentType.name().toLowerCase() + ".jpg", true, new ImageDimensions(380, 300));
+        return new DefaultImagePlaceholder(this.resourcePath + "/images/preview-placeholder-" + documentType.name().toLowerCase() + ".svg", true, new ImageDimensions(380, 300));
     }
 
     private String getFileName(final Map<String, String> args) throws MacroExecutionException {

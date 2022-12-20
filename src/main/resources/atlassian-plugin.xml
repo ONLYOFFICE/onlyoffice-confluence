@@ -17,9 +17,10 @@
 
     <resource type="i18n" name="i18n" location="lang-resource"/>
     <resource type="download" name="images/144.png" key="images" location="images/144.png"/>
-    <resource type="download" name="images/preview-placeholder-word.jpg" key="images" location="images/preview-placeholder-word.jpg"/>
-    <resource type="download" name="images/preview-placeholder-cell.jpg" key="images" location="images/preview-placeholder-cell.jpg"/>
-    <resource type="download" name="images/preview-placeholder-slide.jpg" key="images" location="images/preview-placeholder-slide.jpg"/>
+    <resource type="download" name="images/preview-placeholder-word.svg" key="images" location="images/preview-placeholder-word.svg"/>
+    <resource type="download" name="images/preview-placeholder-cell.svg" key="images" location="images/preview-placeholder-cell.svg"/>
+    <resource type="download" name="images/preview-placeholder-slide.svg" key="images" location="images/preview-placeholder-slide.svg"/>
+    <resource type="download" name="images/preview-placeholder-form.svg" key="images" location="images/preview-placeholder-form.svg"/>
 
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for the main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
