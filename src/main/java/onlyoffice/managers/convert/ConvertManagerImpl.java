@@ -26,6 +26,8 @@ import java.util.List;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import onlyoffice.constants.Format;
+import onlyoffice.constants.Formats;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
@@ -146,6 +148,45 @@ public class ConvertManagerImpl implements ConvertManager {
                 }
             }
         }
+    }
+
+    public String getTargetExt(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                switch(format.getType()) {
+                    case FORM:
+                        if (format.getConvertTo().contains("oform")) return "oform";
+                        break;
+                    case WORD:
+                        if (format.getConvertTo().contains("docx")) return "docx";
+                        break;
+                    case CELL:
+                        if (format.getConvertTo().contains("xlsx")) return "xlsx";
+                        break;
+                    case SLIDE:
+                        if (format.getConvertTo().contains("pptx")) return "pptx";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public List<String> getTargetExtList(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                return format.getConvertTo();
+            }
+        }
+
+        return null;
     }
 
     private String trimDot(String input) {
