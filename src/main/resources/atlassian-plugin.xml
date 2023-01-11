@@ -136,6 +136,11 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
+    <web-item key="download-as-menu" name="Download As" section="system.attachment">
+        <description>Link and text for this link used to where a document is available for download in various formats.</description>
+        <label key="onlyoffice.convert.dialog.download-as"/>
+        <link linkId="download-as"><![CDATA[/plugins/downloadAs/downloadAsPopup.action?spaceKey=$space.key&sourcePageId=$page.id&fileName=$file.name&attachmentId=$attachment.id]]></link>
+    </web-item>
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">
         <description>A full-featured editor for the most known formats of text documents, spreadsheets and presentations that can open these types of documents for editing or preview.</description>
