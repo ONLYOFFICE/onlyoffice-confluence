@@ -162,4 +162,8 @@
         <description>Conditions for displaying ONLYOFFICE button in confluence preview.</description>
         <url-pattern>/onlyoffice/confluence/previews/plugin/access</url-pattern>
     </servlet>
+    <servlet key="OnlyOfficeFormatsInfo" class="onlyoffice.OnlyOfficeFormatsInfoServlet" name="ONLYOFFICE Formats Information">
+        <description>ONLYOFFICE Formats Information.</description>
+        <url-pattern>/onlyoffice/formats/info</url-pattern>
+    </servlet>
 </atlassian-plugin>
