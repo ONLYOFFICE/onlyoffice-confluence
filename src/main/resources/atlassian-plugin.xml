@@ -166,4 +166,14 @@
         <description>ONLYOFFICE Formats Information.</description>
         <url-pattern>/onlyoffice/formats/info</url-pattern>
     </servlet>
+    <xwork name="Download as Action" key="download-as-action">
+        <description>Download as action</description>
+        <default-interceptor-ref name="defaultStack"/>
+        <package name="download-as-package" extends="default" namespace="/plugins/downloadAs">
+            <action name="downloadAsPopup"
+                    class="onlyoffice.action.DownloadAsPopupAction">
+                <result name="success" type="velocity">/templates/download-as-popup.vm</result>
+            </action>
+        </package>
+    </xwork>
 </atlassian-plugin>

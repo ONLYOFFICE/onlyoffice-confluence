@@ -1,0 +1,44 @@
+<section role="dialog" id="download-as-popup" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true"
+         data-aui-remove-on-hide="true">
+    <form action="$action.getBootstrapManager().getWebAppContextPath()/plugins/downloadAs/downloadAs.action"
+          method="get" class="aui">
+        <header class="aui-dialog2-header">
+            <h2 class="aui-dialog2-header-main">$action.getText(
+                "onlyoffice.connector.dialog.conversion.header.title")</h2>
+        </header>
+
+        <div class="aui-dialog2-content" id="diff-page-popup-binder">
+
+            <div class="field-group">
+                <label for="file-name">$action.getText('onlyoffice.connector.dialog.conversion.field.name')</label>
+                <input class="text autocomplete-space" type="text" id="file-name" name="file-name"
+                       value="$action.getFileName()">
+            </div>
+
+            <div class="field-group">
+                <label for="current-type">$action.getText(
+                    "onlyoffice.connector.dialog.conversion.field.current-type")</label>
+                <input class="text autocomplete-space" type="text" id="current-type"
+                       name="current-type" value="$action.getFileType()" disabled="disabled">
+            </div>
+
+            <div class="field-group">
+                <label for="target-file-type">$action.getText(
+                    "onlyoffice.connector.dialog.conversion.field.target-type")</label>
+                <select class="select" id="target-file-type" name="targetFileType">
+                    #foreach($type in $action.getTargetFileTypeList())
+                        <option value="{$type}">$type</option>
+                    #end
+                </select>
+            </div>
+
+            <footer class="aui-dialog2-footer">
+                <div class="aui-dialog2-footer-actions">
+                    <button id="dialog-diff-button" class="aui-button aui-button-primary">$action.getText(
+                        "onlyoffice.convert.dialog.download-as")</button>
+                    <button id="dialog-diff-button-close" class="aui-button aui-button-link">$action.getText(
+                        "onlyoffice.connector.dialog.conversion.button.close")</button>
+                </div>
+            </footer>
+    </form>
+</section>
