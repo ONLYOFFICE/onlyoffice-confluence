@@ -28,6 +28,13 @@
         <resource type="download" name="icon_hide.svg" location="images/icon_hide.svg"/>
     </web-resource>
 
+    <web-resource key="onlyoffice-confluence-plugin-resources-download-as" name="Web Resources container for the download file popup">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:dialog2</dependency>
+        <resource type="download" name="onlyoffice-download-as-popup.js" location="js/onlyoffice-download-as-popup.js"/>
+        <context>page</context>
+    </web-resource>
+
     <web-resource key="onlyoffice-confluence-plugin-resources-filecreate" name="Web Resources container for the file creation dialog">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <transformation extension="js">
