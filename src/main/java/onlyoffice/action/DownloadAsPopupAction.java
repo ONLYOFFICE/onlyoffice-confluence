@@ -103,23 +103,19 @@ public class DownloadAsPopupAction extends ConfluenceActionSupport implements Pa
         Long attachmentId = Long.parseLong(this.attachmentId);
         String fileName = attachmentUtil.getFileName(attachmentId);
 
-        //return fileName.substring(0, fileName.lastIndexOf("."));
-        return "fileName";
+        return fileName.substring(0, fileName.lastIndexOf("."));
     }
 
     public String getFileType() {
         Long attachmentId = Long.parseLong(this.attachmentId);
-        return "txt";
-        //return attachmentUtil.getFileExt(attachmentId);
+        return attachmentUtil.getFileExt(attachmentId);
     }
 
     public String getTargetFileType() {
-        return "docx";
-        //return convertManager.getTargetExt(getFileType());
+        return convertManager.getTargetExt(getFileType());
     }
 
     public List<String> getTargetFileTypeList() {
-        return Arrays.asList("docx", "csv");
-//        return convertManager.getTargetExtList(getFileType());
+        return convertManager.getTargetExtList(getFileType());
     }
 }
