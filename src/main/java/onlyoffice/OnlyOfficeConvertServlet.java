@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import onlyoffice.constants.Formats;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import com.atlassian.confluence.pages.PageManager;
 import onlyoffice.managers.convert.ConvertManager;
@@ -162,7 +163,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             String newExt = request.getParameter("newExt");
 
             if (attachmentUtil.checkAccess(attachmentId, user, false) && attachmentUtil.checkAccessCreate(user, pageId)) {
-                if (convertManager.isConvertable(ext)) {
+                if (Formats.getConvertFormatsByExt(ext).size() > 0) {
                     String convertToExt = isDownloadAs && newExt != null
                             ? newExt : convertManager.convertsTo(ext);
                     json = convertManager.convert(attachmentId, ext, convertToExt, user, title);
