@@ -9,6 +9,11 @@
                 AJS.dialog2("#download-as-popup").show();
                 $("#download-as-popup-binder").css("padding-bottom", "0");
 
+                AJS.$('#dialog-diff-button-close').bind("click", function (e) {
+                    e.preventDefault();
+                    AJS.dialog2("#download-as-popup").hide();
+                });
+
                 AJS.$('#dialog-diff-button').bind("click", function (e) {
                     e.preventDefault();
                     downloadAsAction();
