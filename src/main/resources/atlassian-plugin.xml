@@ -140,6 +140,7 @@
         <description>Link and text for this link used to where a document is available for download in various formats.</description>
         <label key="onlyoffice.convert.dialog.download-as"/>
         <link linkId="download-as"><![CDATA[/plugins/downloadAs/downloadAsPopup.action?attachmentId=$attachment.id]]></link>
+        <styleClass>download-as-class</styleClass>
     </web-item>
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">

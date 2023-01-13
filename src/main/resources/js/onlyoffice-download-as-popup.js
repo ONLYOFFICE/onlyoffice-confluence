@@ -1,7 +1,7 @@
 (function ($) {
     $(function () {
-        AJS.$('#download-as').unbind('click');
-        AJS.$('#download-as').bind("click", function (e) {
+        AJS.$('.download-as-class').unbind('click');
+        AJS.$('.download-as-class').bind("click", function (e) {
             e.preventDefault();
             var link = AJS.$(this);
             AJS.$.get(link.attr('href'), function (response) {
