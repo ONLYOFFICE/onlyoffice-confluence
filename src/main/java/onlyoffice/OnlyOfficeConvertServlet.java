@@ -130,6 +130,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         }
 
         String attachmentIdString = request.getParameter("attachmentId");
+        boolean isDownloadAs = request.getParameter("isDownloadAs").equals("true");
         ConfluenceUser user = null;
         String errorMessage = null;
         JSONObject json = null;
@@ -158,18 +159,22 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             } else {
                 pageId = attachment.getContainer().getId();
             }
+            String newExt = request.getParameter("newExt");
 
             if (attachmentUtil.checkAccess(attachmentId, user, false) && attachmentUtil.checkAccessCreate(user, pageId)) {
                 if (convertManager.isConvertable(ext)) {
-                    String convertToExt = convertManager.convertsTo(ext);
-                    json = convertManager.convert(attachmentId, ext, convertToExt, user);
+                    String convertToExt = isDownloadAs && newExt != null
+                            ? newExt : convertManager.convertsTo(ext);
+                    json = convertManager.convert(attachmentId, ext, convertToExt, user, title);
 
                     if (json.has("endConvert") && json.getBoolean("endConvert")) {
-                        String newFileName = documentManager.getCorrectName(title, convertToExt, pageId);
-                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"), newFileName, pageId);
-                        json.put("attachmentId", newAttachmentId);
+                        if (!isDownloadAs) {
+                            String newFileName = documentManager.getCorrectName(title, convertToExt, pageId);
+                            Long newAttachmentId = savefile(attachment, json.getString("fileUrl"), newFileName, pageId);
+                            json.put("attachmentId", newAttachmentId);
+                        }
                     } else if (json.has("error")) {
-                        errorMessage = "Unknown conversion error";
+                        errorMessage = "Unknown conversion error \n" + json.toString();
                     }
                 } else {
                     errorMessage = "Files of " + ext + " format cannot be converted";

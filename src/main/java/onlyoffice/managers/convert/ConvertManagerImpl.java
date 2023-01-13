@@ -92,13 +92,12 @@ public class ConvertManagerImpl implements ConvertManager {
         return null;
     }
 
-    public JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user) throws Exception {
+    public JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user, String title) throws Exception {
        String url = urlManager.getFileUri(attachmentId);
        String region = localeManager.getLocale(user).toLanguageTag();
-       return convert(attachmentId, ext, convertToExt, url, region, true);
+       return convert(attachmentId, ext, convertToExt, url, region, true, title);
     }
-
-    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, String region, boolean async) throws Exception {
+    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, String region, boolean async, String title) throws Exception {
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
             body.put("async", async);
@@ -108,6 +107,9 @@ public class ConvertManagerImpl implements ConvertManager {
             body.put("key", documentManager.getKeyOfFile(attachmentId));
             body.put("url", url);
             body.put("region", region);
+            if (title != null) {
+                body.put("title", title);
+            }
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
             HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()

@@ -9,8 +9,8 @@ import java.util.List;
 public interface ConvertManager extends Serializable {
     public boolean isConvertable(String ext);
     public String convertsTo(String ext);
-    public JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user) throws Exception;
-    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, String region, boolean async) throws Exception;
+    public JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user, String title) throws Exception;
+    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, String region, boolean async, String title) throws Exception;
     String getTargetExt(String ext);
     List<String> getTargetExtList(String ext);
 }
