@@ -41,6 +41,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.atlassian.confluence.pages.Attachment;
@@ -175,7 +176,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                             json.put("attachmentId", newAttachmentId);
                         }
                     } else if (json.has("error")) {
-                        errorMessage = "Unknown conversion error \n" + json.toString();
+                        errorMessage = "Unknown conversion error";
                     }
                 } else {
                     errorMessage = "Files of " + ext + " format cannot be converted";
@@ -196,7 +197,11 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
         if (errorMessage != null) {
-            writer.write("{\"error\":\"" + errorMessage + "\"}");
+            String errorData = "";
+            if (json != null && json.has("error")) {
+                errorData = ",\"errorData\":" + json + "";
+            }
+            writer.write("{\"error\":\"" + errorMessage + "\"" + errorData + "}");
         } else {
             writer.write(json.toString());
         }
