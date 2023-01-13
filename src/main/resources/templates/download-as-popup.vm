@@ -27,7 +27,7 @@
                     "onlyoffice.connector.dialog.conversion.field.target-type")</label>
                 <select class="select" id="target-file-type" name="targetFileType">
                     #foreach($type in $action.getTargetFileTypeList())
-                        <option value="{$type}">$type</option>
+                        <option value="$type">$type</option>
                     #end
                 </select>
             </div>
@@ -42,3 +42,15 @@
             </footer>
     </form>
 </section>
+
+<script>
+    $("#dialog-diff-button").on("click" ,function () {
+        AJS.Onlyoffice = {
+            fileName: $("#file-name").val(),
+            currentFileType: "$action.getFileType()",
+            targetFileType: $("#target-file-type").val(),
+            pageId: "$action.getPageId()",
+            attachmentId: "$action.getAttachmentId()"
+        }
+    });
+</script>
