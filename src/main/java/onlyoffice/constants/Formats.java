@@ -24,7 +24,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Formats {
     public static final List<Format> formats = new ArrayList<Format>() {{
@@ -78,5 +80,16 @@ public class Formats {
 
     public static List<Format> getSupportedFormats() {
         return formats;
+    }
+
+    public static List<String> getConvertFormatsByExt(String ext) throws NoSuchElementException {
+        if (ext != null) {
+            return formats.stream()
+                    .filter(format -> format.getName().equals(ext))
+                    .map(format -> format.convertTo)
+                    .findFirst()
+                    .orElse(Collections.emptyList());
+        }
+        return Collections.emptyList();
     }
 }
