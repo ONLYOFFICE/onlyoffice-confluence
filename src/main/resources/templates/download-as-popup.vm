@@ -7,7 +7,7 @@
                 "onlyoffice.connector.dialog.conversion.header.title")</h2>
         </header>
 
-        <div class="aui-dialog2-content" id="diff-page-popup-binder">
+        <div class="aui-dialog2-content" id="download-as-popup-binder">
 
             <div class="field-group">
                 <label for="file-name">$action.getText('onlyoffice.connector.dialog.conversion.field.name')</label>
@@ -40,6 +40,7 @@
                         "onlyoffice.connector.dialog.conversion.button.close")</button>
                 </div>
             </footer>
+        </div>
     </form>
 </section>
 
