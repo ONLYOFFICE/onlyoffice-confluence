@@ -3,27 +3,27 @@
     <form action="$action.getBootstrapManager().getWebAppContextPath()/plugins/downloadAs/downloadAs.action"
           method="get" class="aui">
         <header class="aui-dialog2-header">
-            <h2 class="aui-dialog2-header-main">$action.getText(
+            <h2 class="aui-dialog2-header-main">$i18n.getText(
                 "onlyoffice.connector.dialog.conversion.header.title")</h2>
         </header>
 
         <div class="aui-dialog2-content" id="download-as-popup-binder">
 
             <div class="field-group">
-                <label for="file-name">$action.getText('onlyoffice.connector.dialog.conversion.field.name')</label>
+                <label for="file-name">$i18n.getText('onlyoffice.connector.dialog.conversion.field.name')</label>
                 <input class="text autocomplete-space" type="text" id="file-name" name="file-name"
                        value="$action.getFileName()">
             </div>
 
             <div class="field-group">
-                <label for="current-type">$action.getText(
+                <label for="current-type">$i18n.getText(
                     "onlyoffice.connector.dialog.conversion.field.current-type")</label>
                 <input class="text autocomplete-space" type="text" id="current-type"
                        name="current-type" value="$action.getFileType()" disabled="disabled">
             </div>
 
             <div class="field-group">
-                <label for="target-file-type">$action.getText(
+                <label for="target-file-type">$i18n.getText(
                     "onlyoffice.connector.dialog.conversion.field.target-type")</label>
                 <select class="select" id="target-file-type" name="targetFileType">
                     #foreach($type in $action.getTargetFileTypeList())
@@ -34,9 +34,9 @@
 
             <footer class="aui-dialog2-footer">
                 <div class="aui-dialog2-footer-actions">
-                    <button id="dialog-download-as-button" class="aui-button aui-button-primary">$action.getText(
+                    <button id="dialog-download-as-button" class="aui-button aui-button-primary">$i18n.getText(
                         "onlyoffice.convert.dialog.download-as")</button>
-                    <button id="dialog-close-button" class="aui-button aui-button-link">$action.getText(
+                    <button id="dialog-close-button" class="aui-button aui-button-link">$i18n.getText(
                         "onlyoffice.connector.dialog.conversion.button.close")</button>
                 </div>
             </footer>
