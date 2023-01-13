@@ -17,6 +17,11 @@
 
                 AJS.$('#dialog-download-as-button').bind("click", function (e) {
                     e.preventDefault();
+                    var that = this;
+                    if (!that.isBusy()) {
+                        that.busy();
+                    }
+                    $("#download-as-popup form").find("input,select").not(".disabled").attr("disabled","disabled");
                     downloadAsAction();
                 });
             });
@@ -101,6 +106,7 @@
 
     function onError(response) {
         var errorMessage = getErrorByResponse(response);
+        document.querySelector('#dialog-download-as-button').idle();
         $(".aui-message-context").html("<div class='aui-message aui-message-error'>" + errorMessage + "</div>");
     }
 
