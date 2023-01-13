@@ -174,10 +174,6 @@
         <description>Conditions for displaying ONLYOFFICE button in confluence preview.</description>
         <url-pattern>/onlyoffice/confluence/previews/plugin/access</url-pattern>
     </servlet>
-    <servlet key="OnlyOfficeFormatsInfo" class="onlyoffice.OnlyOfficeFormatsInfoServlet" name="ONLYOFFICE Formats Information">
-        <description>ONLYOFFICE Formats Information.</description>
-        <url-pattern>/onlyoffice/formats/info</url-pattern>
-    </servlet>
     <xwork name="Download as Action" key="download-as-action">
         <description>Download as action</description>
         <default-interceptor-ref name="defaultStack"/>

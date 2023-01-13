@@ -79,18 +79,4 @@ public class Formats {
     public static List<Format> getSupportedFormats() {
         return formats;
     }
-
-    public static JSONArray getSupportedFormatsAsJson() throws JSONException {
-        JSONArray array = new JSONArray();
-        for (Format format : formats) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("name", format.name);
-            jsonObject.put("type", format.type);
-            jsonObject.put("edit", format.edit);
-            jsonObject.put("fillForm", format.fillForm);
-            jsonObject.put("convertTo", new JSONArray(format.convertTo));
-            array.put(jsonObject);
-        }
-        return array;
-    }
 }
