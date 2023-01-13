@@ -122,6 +122,7 @@
             $("#onlyoffice-download-as-iframe").remove();
             $("body").append("<iframe id='onlyoffice-download-as-iframe' style='display:none;'></iframe>");
             $("#onlyoffice-download-as-iframe").attr("src", data.fileUrl);
+            AJS.dialog2("#download-as-popup").hide();
         }
     }
 })(AJS.$);
