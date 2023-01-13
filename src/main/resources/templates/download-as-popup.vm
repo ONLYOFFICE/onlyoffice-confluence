@@ -34,9 +34,9 @@
 
             <footer class="aui-dialog2-footer">
                 <div class="aui-dialog2-footer-actions">
-                    <button id="dialog-diff-button" class="aui-button aui-button-primary">$action.getText(
+                    <button id="dialog-download-as-button" class="aui-button aui-button-primary">$action.getText(
                         "onlyoffice.convert.dialog.download-as")</button>
-                    <button id="dialog-diff-button-close" class="aui-button aui-button-link">$action.getText(
+                    <button id="dialog-close-button" class="aui-button aui-button-link">$action.getText(
                         "onlyoffice.connector.dialog.conversion.button.close")</button>
                 </div>
             </footer>
@@ -45,7 +45,7 @@
 </section>
 
 <script>
-    $("#dialog-diff-button").on("click" ,function () {
+    $("#dialog-download-as-button").on("click" ,function () {
         AJS.Onlyoffice = {
             fileName: $("#file-name").val(),
             currentFileType: "$action.getFileType()",
