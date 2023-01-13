@@ -31,6 +31,9 @@
     <web-resource key="onlyoffice-confluence-plugin-resources-download-as" name="Web Resources container for the download file popup">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:dialog2</dependency>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
         <resource type="download" name="onlyoffice-download-as-popup.js" location="js/onlyoffice-download-as-popup.js"/>
         <context>page</context>
     </web-resource>

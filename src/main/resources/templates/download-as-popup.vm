@@ -31,6 +31,16 @@
                     #end
                 </select>
             </div>
+            <div class="aui-message-context">
+                #if ($action.hasAnyErrors())
+                    #foreach ($error in $action.getErrorMessages())
+                        <div class="aui-message aui-message-error">$textutils.htmlEncode(${error})</div>
+                    #end
+                    #foreach ($error in $action.errors)
+                        <div class="aui-message aui-message-error">$textutils.htmlEncode(${error})</div>
+                    #end
+                #end
+            </div>
 
             <footer class="aui-dialog2-footer">
                 <div class="aui-dialog2-footer-actions">
