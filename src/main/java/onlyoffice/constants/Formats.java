@@ -18,10 +18,6 @@
 
 package onlyoffice.constants;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +31,7 @@ public class Formats {
         add(new Format("docm", Type.WORD, Arrays.asList("docx", "docxf", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt")));
         add(new Format("docx", Type.WORD, true, Arrays.asList("docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt")));
         add(new Format("docxf", Type.FORM, true, Arrays.asList("docx", "oform", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt")));
-        add(new Format("oform", Type.FORM, false, true, Arrays.asList( "pdf")));
+        add(new Format("oform", Type.FORM, false, true, Arrays.asList("pdf")));
         add(new Format("dot", Type.WORD, Arrays.asList("docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt")));
         add(new Format("dotm", Type.WORD, Arrays.asList("docx", "docxf", "docm", "dotx", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt")));
         add(new Format("dotx", Type.WORD, Arrays.asList("docx", "docxf", "docm", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt")));
@@ -54,7 +50,7 @@ public class Formats {
         add(new Format("xml", Type.WORD, Arrays.asList("docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt")));
 
         add(new Format("csv", Type.CELL, new ArrayList<>()));
-        add(new Format("fods", Type.CELL, Arrays.asList( "xlsx", "csv", "ods", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm")));
+        add(new Format("fods", Type.CELL, Arrays.asList("xlsx", "csv", "ods", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm")));
         add(new Format("ods", Type.CELL, Arrays.asList("xlsx", "csv", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm")));
         add(new Format("ots", Type.CELL, Arrays.asList("xlsx", "csv", "ods", "pdf", "pdfa", "xltx", "xlsm", "xltm")));
         add(new Format("xls", Type.CELL, Arrays.asList("xlsx", "csv", "ods", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm")));
@@ -75,7 +71,7 @@ public class Formats {
         add(new Format("ppsx", Type.SLIDE, Arrays.asList("pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm")));
         add(new Format("ppt", Type.SLIDE, Arrays.asList("pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm")));
         add(new Format("pptm", Type.SLIDE, Arrays.asList("pptx", "odp", "otp", "pdf", "pdfa", "potx", "potm")));
-        add(new Format("pptx", Type.SLIDE, true, Arrays.asList( "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm")));
+        add(new Format("pptx", Type.SLIDE, true, Arrays.asList("odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm")));
     }};
 
     public static List<Format> getSupportedFormats() {
