@@ -34,6 +34,8 @@ public class DownloadAsPopupAction extends ConfluenceActionSupport implements Pa
         this.pageId = pageId;
     }
 
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public void setTargetFileType(String targetFileType) {
@@ -67,6 +69,10 @@ public class DownloadAsPopupAction extends ConfluenceActionSupport implements Pa
 
     public void setAttachmentId(String attachmentId) {
         this.attachmentId = attachmentId;
+    }
+
+    public String getAttachmentId() {
+        return attachmentId;
     }
 
     public String getFileName() {
