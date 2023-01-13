@@ -22,4 +22,5 @@ public interface DocumentManager extends Serializable {
     public List<String> getInsertImageTypes();
     public List<String> getCompareFileTypes();
     public List<String> getMailMergeTypes();
+    long getConvertationFilesizeMax();
 }

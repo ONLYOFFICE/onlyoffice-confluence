@@ -45,6 +45,8 @@ import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static onlyoffice.constants.Constants.CONVERTATION_FILESIZE_MAX;
+
 @Named
 @Default
 public class DocumentManagerImpl implements DocumentManager {
@@ -259,5 +261,15 @@ public class DocumentManagerImpl implements DocumentManager {
 
     public List<String> getMailMergeTypes() {
         return Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
+    }
+
+    @Override
+    public long getConvertationFilesizeMax() {
+        String convertationFilesizeMax = configurationManager.getProperty("convertation-filesize-max");
+        if (convertationFilesizeMax != null) {
+            long maxSize = Long.parseLong(convertationFilesizeMax);
+            return maxSize > 0 ? maxSize : CONVERTATION_FILESIZE_MAX;
+        }
+        return CONVERTATION_FILESIZE_MAX;
     }
 }
