@@ -7,8 +7,6 @@ import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DownloadAsPopupAction extends ConfluenceActionSupport implements PageAware {
@@ -17,10 +15,6 @@ public class DownloadAsPopupAction extends ConfluenceActionSupport implements Pa
     private ConvertManager convertManager;
     private AbstractPage page;
     private String attachmentId;
-
-
-    private String spaceKey;
-    private Long sourcePageId;
     private String fileName;
     private String targetFileType;
     private Long pageId;
@@ -32,48 +26,19 @@ public class DownloadAsPopupAction extends ConfluenceActionSupport implements Pa
         this.convertManager = convertManager;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     public Long getPageId() {
         return pageId;
     }
 
-    public String getSpaceKey() {
-        return spaceKey;
     public void setPageId(Long pageId) {
         this.pageId = pageId;
     }
 
-    public void setSpaceKey(String spaceKey) {
-        this.spaceKey = spaceKey;
-    }
-
-    public Long getSourcePageId() {
-        return sourcePageId;
-    }
-
-    public void setSourcePageId(Long sourcePageId) {
-        this.sourcePageId = sourcePageId;
     }
 
     public void setTargetFileType(String targetFileType) {
         this.targetFileType = targetFileType;
     }
-
-//    @Override
-//    public String execute() throws Exception {
-//        if (this.sourcePageId != null && this.spaceKey != null && this.destinationPageName != null) {
-//            this.sourcePage = this.pageManager.getPage(this.sourcePageId);
-//            Page destinationPage = this.pageManager.getPage(this.spaceKey, this.destinationPageName);
-//            if (this.sourcePage != null && destinationPage != null) {
-//                this.destinationPageId = destinationPage.getId();
-//                this.sourcePageTitle = this.sourcePage.getTitle();
-//                this.destinationPageTitle = destinationPage.getTitle();
-//                this.diff = this.differ.diff(this.sourcePage, destinationPage);
-//            }
-//        }
-//        return super.execute();
-//    }
 
     @Override
     public AbstractPage getPage() {
