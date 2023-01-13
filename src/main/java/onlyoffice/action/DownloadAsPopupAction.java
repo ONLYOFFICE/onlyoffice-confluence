@@ -23,6 +23,7 @@ public class DownloadAsPopupAction extends ConfluenceActionSupport implements Pa
     private Long sourcePageId;
     private String fileName;
     private String targetFileType;
+    private Long pageId;
 
     @Inject
     public DownloadAsPopupAction(final AttachmentUtil attachmentUtil,
@@ -33,10 +34,14 @@ public class DownloadAsPopupAction extends ConfluenceActionSupport implements Pa
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    public Long getPageId() {
+        return pageId;
     }
 
     public String getSpaceKey() {
         return spaceKey;
+    public void setPageId(Long pageId) {
+        this.pageId = pageId;
     }
 
     public void setSpaceKey(String spaceKey) {

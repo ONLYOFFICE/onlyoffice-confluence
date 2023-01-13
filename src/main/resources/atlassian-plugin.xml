@@ -139,7 +139,7 @@
     <web-item key="download-as-menu" name="Download As" section="system.attachment">
         <description>Link and text for this link used to where a document is available for download in various formats.</description>
         <label key="onlyoffice.convert.dialog.download-as"/>
-        <link linkId="download-as"><![CDATA[/plugins/downloadAs/downloadAsPopup.action?attachmentId=$attachment.id]]></link>
+        <link linkId="download-as"><![CDATA[/plugins/downloadAs/downloadAsPopup.action?attachmentId=$attachment.id&pageId=$page.id]]></link>
         <styleClass>download-as-class</styleClass>
     </web-item>
 
