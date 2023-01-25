@@ -22,7 +22,7 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
-import com.opensymphony.webwork.ServletActionContext;
+import com.atlassian.core.filters.ServletContextThreadLocal;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 import javax.inject.Inject;
@@ -46,7 +46,7 @@ public class IsOfficePageAttachments implements Condition {
     }
 
     public boolean shouldDisplay(Map<String, Object> context) {
-        HttpServletRequest request = ServletActionContext.getRequest();
+        HttpServletRequest request = ServletContextThreadLocal.getRequest();
 
         if (request != null){
             String uri = request.getServletPath();
