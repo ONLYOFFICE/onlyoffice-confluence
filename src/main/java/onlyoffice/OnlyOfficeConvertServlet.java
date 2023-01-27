@@ -98,7 +98,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         Long pageId = attachment.getContainer().getId();
         String fileName = attachment.getFileName();
         String ext = attachment.getFileExtension();
-        String newExt = convertManager.convertsTo(ext);
+        String newExt = convertManager.getTargetExt(ext);
         String title = fileName.substring(0, fileName.lastIndexOf("."));
 
         if (pageIdString != null && !pageIdString.isEmpty()) {
@@ -159,9 +159,10 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                 pageId = attachment.getContainer().getId();
             }
 
+            String convertToExt = convertManager.getTargetExt(ext);
+
             if (attachmentUtil.checkAccess(attachmentId, user, false) && attachmentUtil.checkAccessCreate(user, pageId)) {
-                if (convertManager.isConvertable(ext)) {
-                    String convertToExt = convertManager.convertsTo(ext);
+                if (convertToExt != null) {
                     json = convertManager.convert(attachmentId, ext, convertToExt, user);
 
                     if (json.has("endConvert") && json.getBoolean("endConvert")) {

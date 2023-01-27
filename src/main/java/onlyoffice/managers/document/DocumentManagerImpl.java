@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
@@ -35,6 +36,9 @@ import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
+import onlyoffice.constants.Format;
+import onlyoffice.constants.Formats;
+import onlyoffice.constants.Type;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import org.apache.log4j.LogManager;
@@ -196,13 +200,16 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public String getDocType(String ext) {
-        List<String> wordFormats = Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
-        List<String> cellFormats = Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
-        List<String> slideFormats = Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
+        List<Format> supportedFormats = Formats.getSupportedFormats();
 
-        if (wordFormats.contains(ext)) return "word";
-        if (cellFormats.contains(ext)) return "cell";
-        if (slideFormats.contains(ext)) return "slide";
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+
+                String type = format.getType().name().toLowerCase().equals("form") ? "word" : format.getType().name().toLowerCase();
+
+                return type;
+            }
+        }
 
         return null;
     }
@@ -227,21 +234,29 @@ public class DocumentManagerImpl implements DocumentManager {
         }
     }
 
-    public boolean isEditable(String fileExtension) {
-        List<String> editingTypes = configurationManager.getDefaultEditingTypes();
-
-        Map<String, Boolean> customizableEditingTypes = configurationManager.getCustomizableEditingTypes();
-
-        for (Map.Entry<String, Boolean> customizableEditingType : customizableEditingTypes.entrySet()) {
-            if (customizableEditingType.getValue()) editingTypes.add(customizableEditingType.getKey());
+    public boolean isEditable(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+        List<Format> enrichmentSupportedFormats = this.enrichmentSupportedFormats(supportedFormats);
+        for (Format format : enrichmentSupportedFormats) {
+            if (format.getName().equals(ext)) {
+                return format.isEdit();
+            }
         }
-
-        return editingTypes.contains(fileExtension);
+        return false;
     }
 
-    public boolean isFillForm(String fileExtension) {
-        List<String> fillFormTypes = configurationManager.getFillFormTypes();
-        return configurationManager.getFillFormTypes().contains(fileExtension);
+    public boolean isFillForm(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+        boolean isFillForm = false;
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                isFillForm = format.isFillForm();
+                break;
+            }
+        }
+
+        return isFillForm;
     }
 
     public boolean isViewable(String fileExtension) {
@@ -254,10 +269,43 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public List<String> getCompareFileTypes() {
-        return Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+        List<String> result = new ArrayList<>();
+
+        for (Format format : supportedFormats) {
+            if (format.getType().equals(Type.WORD)) {
+                result.add(format.getName());
+            }
+        }
+
+        return result;
     }
 
     public List<String> getMailMergeTypes() {
-        return Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+        List<String> result = new ArrayList<>();
+
+        for (Format format : supportedFormats) {
+            if (format.getType().equals(Type.CELL)) {
+                result.add(format.getName());
+            }
+        }
+
+        return result;
+    }
+
+    private List<Format> enrichmentSupportedFormats(List<Format> supportedFormats) {
+        List<Format> extendSupportedFormats = new ArrayList<>();
+        Map<String, Boolean> customizableEditingTypes = configurationManager.getCustomizableEditingTypes();
+        for (Map.Entry<String, Boolean> customizableEditingType : customizableEditingTypes.entrySet()) {
+            extendSupportedFormats = supportedFormats.stream()
+                    .peek(format -> {
+                        if (format.getName().equals(customizableEditingType.getKey())) {
+                            format.setEdit(customizableEditingType.getValue());
+                        }
+                    })
+                    .collect(Collectors.toList());
+        }
+        return extendSupportedFormats;
     }
 }

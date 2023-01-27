@@ -20,12 +20,13 @@ package onlyoffice.managers.convert;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import onlyoffice.constants.Format;
+import onlyoffice.constants.Formats;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
@@ -68,26 +69,6 @@ public class ConvertManagerImpl implements ConvertManager {
         this.configurationManager = configurationManager;
         this.documentManager = documentManager;
         this.localeManager = localeManager;
-    }
-
-    public boolean isConvertable(String ext) {
-        String convertableTypes = configurationManager.getProperty("docservice.type.convert");
-        if(convertableTypes == null) return false;
-        List<String> exts = Arrays.asList(convertableTypes.split("\\|"));
-        return exts.contains(ext);
-    }
-
-    public String convertsTo(String ext) {
-        String docType = documentManager.getDocType(ext);
-        if (docType != null) {
-            if (ext.equals("docx")) return "docxf";
-            if (ext.equals("docxf")) return "oform";
-
-            if (docType.equals("word")) return "docx";
-            if (docType.equals("cell")) return "xlsx";
-            if (docType.equals("slide")) return "pptx";
-        }
-        return null;
     }
 
     public JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user) throws Exception {
@@ -148,7 +129,43 @@ public class ConvertManagerImpl implements ConvertManager {
         }
     }
 
-    private String trimDot(String input) {
-        return input.startsWith(".") ? input.substring(1) : input;
+    public String getTargetExt(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                switch(format.getType()) {
+                    case FORM:
+                        if (format.getConvertTo().contains("oform")) return "oform";
+                        break;
+                    case WORD:
+                        if (format.getConvertTo().contains("docx")) return "docx";
+                        break;
+                    case CELL:
+                        if (format.getConvertTo().contains("xlsx")) return "xlsx";
+                        break;
+                    case SLIDE:
+                        if (format.getConvertTo().contains("pptx")) return "pptx";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return null;
     }
+
+    public List<String> getTargetExtList(String ext) {
+        List<Format> supportedFormats = Formats.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                return format.getConvertTo();
+            }
+        }
+
+        return null;
+    }
+
 }

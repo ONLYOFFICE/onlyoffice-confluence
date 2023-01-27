@@ -19,8 +19,6 @@ public interface ConfigurationManager extends Serializable {
     public String getDemo(String key);
     public Boolean getBooleanPluginSetting(String key, Boolean defaultValue);
     public String getStringPluginSetting(String key, String defaultValue);
-    public List<String> getDefaultEditingTypes();
-    public List<String> getFillFormTypes();
     public Map<String, Boolean> getCustomizableEditingTypes();
     public CloseableHttpClient getHttpClient() throws Exception;
 }

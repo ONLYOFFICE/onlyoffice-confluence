@@ -68,7 +68,7 @@ public class IsOfficeFileConvertAttachment implements Condition {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
 
-        if (!accessEdit || !convertManager.isConvertable(ext) || ext.equals("docx")) {
+        if (!accessEdit || convertManager.getTargetExt(ext) == null || ext.equals("docx")) {
             return false;
         }
 
