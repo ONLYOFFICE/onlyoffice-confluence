@@ -61,14 +61,14 @@ public class ConvertManagerImpl implements ConvertManager {
     }
 
     public JSONObject convert(final Long attachmentId, final String ext, final String convertToExt,
-                              final ConfluenceUser user) throws Exception {
+                              final ConfluenceUser user, final String title) throws Exception {
         String url = urlManager.getFileUri(attachmentId);
         String region = localeManager.getLocale(user).toLanguageTag();
-        return convert(attachmentId, ext, convertToExt, url, region, true);
+        return convert(attachmentId, ext, convertToExt, url, region, true, title);
     }
 
     public JSONObject convert(final Long attachmentId, final String currentExt, final String convertToExt,
-                              final String url, final String region, final boolean async) throws Exception {
+                              final String url, final String region, final boolean async, final String title) throws Exception {
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
             body.put("async", async);
@@ -78,10 +78,12 @@ public class ConvertManagerImpl implements ConvertManager {
             body.put("key", documentManager.getKeyOfFile(attachmentId));
             body.put("url", url);
             body.put("region", region);
+            body.put("title", title);
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
-            HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
-                    + configurationManager.getProperties().getProperty("files.docservice.url.convert"));
+            String conversionServiceUrl =urlManager.getInnerDocEditorUrl() + configurationManager.getProperties().getProperty("files.docservice.url.convert");
+
+            HttpPost request = new HttpPost(conversionServiceUrl);
             request.setEntity(requestEntity);
             request.setHeader("Accept", "application/json");
 
@@ -96,26 +98,28 @@ public class ConvertManagerImpl implements ConvertManager {
             }
 
             log.debug("Sending POST to Docserver: " + body.toString());
+            JSONObject callBackJson = new JSONObject();
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 int status = response.getStatusLine().getStatusCode();
 
                 if (status != HttpStatus.SC_OK) {
-                    throw new HttpException("Docserver returned code " + status);
+                    log.error("Conversion service returned code " + status + ". URL: " + conversionServiceUrl);
+                    callBackJson.put("error", -10);
                 } else {
                     InputStream is = response.getEntity().getContent();
                     String content = IOUtils.toString(is, StandardCharsets.UTF_8);
 
                     log.debug("Docserver returned: " + content);
-                    JSONObject callBackJson = null;
+
                     try {
                         callBackJson = new JSONObject(content);
                     } catch (Exception e) {
                         throw new Exception("Couldn't convert JSON from docserver: " + e.getMessage());
                     }
-
-                    return callBackJson;
                 }
+
+                return callBackJson;
             }
         }
     }
