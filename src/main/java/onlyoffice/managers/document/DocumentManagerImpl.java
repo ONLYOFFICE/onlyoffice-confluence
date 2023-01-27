@@ -91,6 +91,18 @@ public class DocumentManagerImpl implements DocumentManager {
         return key;
     }
 
+    public long getConvertationFileSizeMax() {
+        long size;
+        try {
+            String filesizeMax = configurationManager.getProperty("convertation-filesize-max");
+            size = Long.parseLong(filesizeMax);
+        } catch (Exception ex) {
+            size = 0;
+        }
+
+        return size > 0 ? size : 5 * 1024 * 1024;
+    }
+
     private String generateRevisionId(final String expectedKey) {
         String result = expectedKey;
 
