@@ -141,7 +141,7 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
-    <web-item key="onlyoffice-download-as" name="Link to download as attachment" section="system.attachment">
+    <web-item key="onlyoffice-download-as" name="Link to download as attachment" section="system.attachment" weight="35">
         <condition class="onlyoffice.conditions.IsOfficeFileDownloadAsAttachment"/>
         <description>Link and text for this link used to where a document is available for download in various formats.</description>
         <label key="onlyoffice.connector.download-as.link"/>
