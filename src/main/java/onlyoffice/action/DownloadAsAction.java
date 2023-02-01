@@ -20,9 +20,9 @@ package onlyoffice.action;
 
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.core.filters.ServletContextThreadLocal;
 import com.atlassian.xwork.HttpMethod;
 import com.atlassian.xwork.PermittedMethods;
-import com.opensymphony.webwork.ServletActionContext;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -62,23 +62,23 @@ public class DownloadAsAction extends ConfluenceActionSupport {
 
         if (!attachmentUtil.checkAccess(attachmentId, getAuthenticatedUser(), false)) {
             addActionError(getText("onlyoffice.connector.dialog.conversion.message.error.permission"));
-            ServletActionContext.getResponse().setStatus(403);
+            ServletContextThreadLocal.getResponse().setStatus(403);
             return;
         }
 
         if (fileName == null || fileName.isEmpty()) {
             addActionError(getText("onlyoffice.connector.error.Unknown"));
-            ServletActionContext.getResponse().setStatus(400);
+            ServletContextThreadLocal.getResponse().setStatus(400);
         }
 
         if (StringUtils.containsAny((CharSequence)this.fileName, DownloadAsAction.INVALID_CHARS)) {
             addActionError(getText("filename.contain.invalid.character"));
-            ServletActionContext.getResponse().setStatus(400);
+            ServletContextThreadLocal.getResponse().setStatus(400);
         }
 
         if (targetFileType == null || targetFileType.isEmpty()) {
             addActionError(getText("onlyoffice.connector.error.Unknown"));
-            ServletActionContext.getResponse().setStatus(400);
+            ServletContextThreadLocal.getResponse().setStatus(400);
             return;
         }
 
@@ -87,7 +87,7 @@ public class DownloadAsAction extends ConfluenceActionSupport {
                 !convertManager.getTargetExtList(ext).contains(targetFileType)
         ) {
             addActionError(getText("onlyoffice.connector.error.Unknown"));
-            ServletActionContext.getResponse().setStatus(415);
+            ServletContextThreadLocal.getResponse().setStatus(415);
         }
     }
 
@@ -104,7 +104,7 @@ public class DownloadAsAction extends ConfluenceActionSupport {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         JSONObject convertResult = convertManager.convert(attachmentId, ext, targetExt, user, this.fileName + "." + targetExt);
-        HttpServletResponse response = ServletActionContext.getResponse();
+        HttpServletResponse response = ServletContextThreadLocal.getResponse();
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
         writer.write(convertResult.toString());
