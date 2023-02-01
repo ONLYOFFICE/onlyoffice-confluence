@@ -155,8 +155,8 @@
     </build>
 
     <properties>
-        <confluence.version>8.0.2</confluence.version>
-        <confluence.data.version>8.0.2</confluence.data.version>
+        <confluence.version>8.0.1</confluence.version>
+        <confluence.data.version>8.0.1</confluence.data.version>
         <amps.version>6.3.21</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
         <atlassian.spring.scanner.version>2.2.3</atlassian.spring.scanner.version>
