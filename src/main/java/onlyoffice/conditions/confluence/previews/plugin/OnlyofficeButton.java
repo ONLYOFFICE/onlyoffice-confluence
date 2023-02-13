@@ -39,7 +39,7 @@ import java.io.PrintWriter;
 
 public class OnlyofficeButton extends HttpServlet {
     @ComponentImport
-    AttachmentManager attachmentManager;
+    private AttachmentManager attachmentManager;
 
     private final ParsingUtil parsingUtil;
     private final AttachmentUtil attachmentUtil;

@@ -294,12 +294,12 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     }
 
     public class Version {
-        public int version;
-        public String key;
-        public Object changes;
-        public String created;
-        public User user;
-        public String serverVersion;
+        private int version;
+        private String key;
+        private Object changes;
+        private String created;
+        private User user;
+        private String serverVersion;
 
         public Version() { }
 
@@ -328,8 +328,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
 
         public class User {
-            public String id;
-            public String name;
+            private String id;
+            private String name;
 
             public User(final String id, final String name) {
                 this.id = id;
@@ -339,13 +339,13 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     }
 
     public class VersionData {
-        public int version;
-        public String key;
-        public String url;
-        public String fileType;
-        public String changesUrl;
-        public Previous previous;
-        public String token;
+        private int version;
+        private String key;
+        private String url;
+        private String fileType;
+        private String changesUrl;
+        private Previous previous;
+        private String token;
 
         public VersionData() { }
 
@@ -378,9 +378,9 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
 
         public class Previous {
-            public String key;
-            public String url;
-            public String fileType;
+            private String key;
+            private String url;
+            private String fileType;
 
             public Previous(final String key, final String url, final String fileType) {
                 this.key = key;
