@@ -82,7 +82,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type");
         if (type != null) {
-            switch (type.toLowerCase()){
+            switch (type.toLowerCase()) {
                 case "diff":
                     getAttachmentDiff(request, response);
                     break;

@@ -186,7 +186,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         config.put("docTitle", docTitle);
         config.put("favicon", webResourceUrlProvider.getStaticPluginResourceUrl(
                 "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
-                documentType +".ico",
+                documentType + ".ico",
                 UrlMode.ABSOLUTE)
         );
 

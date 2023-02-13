@@ -79,7 +79,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return properties;
     }
 
-    public String getProperty(final String propertyName){
+    public String getProperty(final String propertyName) {
         try {
             Properties properties = getProperties();
             String property = properties.getProperty(propertyName);
@@ -133,7 +133,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
                 date.add(Calendar.DATE, Integer.parseInt(demoData.get("trial")));
                 if (date.after(Calendar.getInstance())) {
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             } catch (ParseException e) {

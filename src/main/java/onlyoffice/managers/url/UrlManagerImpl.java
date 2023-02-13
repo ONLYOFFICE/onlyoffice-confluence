@@ -72,7 +72,7 @@ public class UrlManagerImpl implements UrlManager {
         String url = "";
         if (configurationManager.demoActive()) {
             url = configurationManager.getDemo("url");
-        }else {
+        } else {
             url = (String) pluginSettings.get("onlyoffice.apiUrl");
         }
         return (url == null || url.isEmpty()) ? "" : url;

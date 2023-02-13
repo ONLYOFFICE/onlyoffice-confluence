@@ -179,7 +179,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             if (configurationManager.demoActive()) {
                 apiUrl = configurationManager.getDemo("url");
                 docInnerUrl = configurationManager.getDemo("url");
-            }else {
+            } else {
                 apiUrl = AppendSlash(jsonObj.getString("apiUrl"));
                 jwtSecret = jsonObj.getString("jwtSecret");
                 docInnerUrl = AppendSlash(jsonObj.getString("docInnerUrl"));

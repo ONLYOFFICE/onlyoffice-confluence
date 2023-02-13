@@ -48,20 +48,20 @@ public class IsOfficePageAttachments implements Condition {
     public boolean shouldDisplay(final Map<String, Object> context) {
         HttpServletRequest request = ServletContextThreadLocal.getRequest();
 
-        if (request != null){
+        if (request != null) {
             String uri = request.getServletPath();
             Pattern pattern = Pattern.compile(".*/" + pageAttachments + ".*");
             Matcher matcher = pattern.matcher(uri);
 
             String pageId = request.getParameter("pageId");
             boolean access = false;
-            if (pageId != null){
+            if (pageId != null) {
                 ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
                 access = attachmentUtil.checkAccessCreate(user, Long.parseLong(pageId));
             }
             return matcher.matches() && access;
-        }else {
+        } else {
             return false;
         }
     }
