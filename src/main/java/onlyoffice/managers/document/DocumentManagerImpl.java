@@ -157,14 +157,14 @@ public class DocumentManagerImpl implements DocumentManager {
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
 
-        List<Attachment> Attachments  =  attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
+        List<Attachment> attachments  =  attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
         String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]","_");
         int count = 0;
         Boolean flag = true;
 
         while(flag) {
             flag = false;
-            for (Attachment attachment : Attachments) {
+            for (Attachment attachment : attachments) {
                 if (attachment.getFileName().equals(name)) {
                     count++;
                     name = fileName + " (" + count + ")." + fileExt;
