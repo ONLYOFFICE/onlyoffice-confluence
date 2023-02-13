@@ -92,7 +92,7 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
         byte[] buffer = new byte[BUFFER_SIZE];
 
         OutputStream output = response.getOutputStream();
-        for (int length = 0; (length = inputStream.read(buffer)) > 0; ) {
+        for (int length = 0; (length = inputStream.read(buffer)) > 0;) {
             output.write(buffer, 0, length);
         }
     }
