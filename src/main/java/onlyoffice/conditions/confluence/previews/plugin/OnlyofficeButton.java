@@ -76,8 +76,8 @@ public class OnlyofficeButton extends HttpServlet {
                 access = "edit";
             } else if (accessEdit && documentManager.isFillForm(ext)) {
                 access = "fillform";
-            } else if (accessView && documentManager.isViewable(ext) &&
-                    !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
+            } else if (accessView && documentManager.isViewable(ext)
+                    && !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
                 access = "view";
             }
 

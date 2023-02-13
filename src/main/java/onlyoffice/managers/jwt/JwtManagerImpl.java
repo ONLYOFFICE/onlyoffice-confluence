@@ -100,8 +100,8 @@ public class JwtManagerImpl implements JwtManager {
     }
 
     public String getJwtHeader() {
-        String header = configurationManager.demoActive() ?
-                configurationManager
+        String header = configurationManager.demoActive()
+                ? configurationManager
                         .getDemo("header") : (String) applicationConfiguration.getProperty("onlyoffice.jwt.header");
         return header == null || header.isEmpty() ? "Authorization" : header;
     }
@@ -113,8 +113,8 @@ public class JwtManagerImpl implements JwtManager {
     }
 
     private Mac getHasher() throws Exception {
-        String jwts = configurationManager.demoActive() ?
-                configurationManager.getDemo("secret") : (String) settings.get("onlyoffice.jwtSecret");
+        String jwts = configurationManager.demoActive()
+                ? configurationManager.getDemo("secret") : (String) settings.get("onlyoffice.jwtSecret");
 
         Mac sha256 = Mac.getInstance("HmacSHA256");
         SecretKeySpec secret_key = new SecretKeySpec(jwts.getBytes("UTF-8"), "HmacSHA256");
