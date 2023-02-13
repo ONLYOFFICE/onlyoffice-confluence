@@ -54,10 +54,12 @@ import java.util.regex.Pattern;
 @Default
 public class DocumentManagerImpl implements DocumentManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
-    private final String userAgentMobile =
-            "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
-    private final static int DEFAULT_MAX_FILE_SIZE = 5242880;
-    private final static int MAX_KEY_LENGTH = 20;
+    private static final String USER_AGENT_MOBILE =
+            "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris"
+            +"|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian"
+            + "|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
+    private static final int DEFAULT_MAX_FILE_SIZE = 5242880;
+    private static final int MAX_KEY_LENGTH = 20;
 
     @ComponentImport
     private final I18nResolver i18n;
@@ -241,7 +243,7 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public String getEditorType(final String userAgent) {
-        Pattern pattern = Pattern.compile(userAgentMobile, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+        Pattern pattern = Pattern.compile(USER_AGENT_MOBILE, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         if (userAgent != null && pattern.matcher(userAgent).find()) {
             return "mobile";
         } else {
