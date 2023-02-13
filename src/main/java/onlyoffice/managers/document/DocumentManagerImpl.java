@@ -54,10 +54,10 @@ import java.util.regex.Pattern;
 @Default
 public class DocumentManagerImpl implements DocumentManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
-    private static final String USER_AGENT_MOBILE =
-            "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris"
-            +"|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian"
-            + "|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
+    private static final String USER_AGENT_MOBILE = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec"
+            + "|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone"
+            + "|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap"
+            + "|windows (ce|phone)|xda|xiino";
     private static final int DEFAULT_MAX_FILE_SIZE = 5242880;
     private static final int MAX_KEY_LENGTH = 20;
 
@@ -196,10 +196,10 @@ public class DocumentManagerImpl implements DocumentManager {
             throws
             IOException {
         String extension =
-                fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ?
-                        "docx" : fileExt.trim();
-        String name = fileName == null || fileName.equals("") ?
-                i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
+                fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf")
+                        ? "docx" : fileExt.trim();
+        String name = fileName == null || fileName.equals("")
+                ? i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
 
         InputStream demoFile = getDemoFile(user, extension);
 

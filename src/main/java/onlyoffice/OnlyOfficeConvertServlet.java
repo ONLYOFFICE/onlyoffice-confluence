@@ -167,8 +167,8 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                 pageId = attachment.getContainer().getId();
             }
 
-            if (attachmentUtil.checkAccess(attachmentId, user, false) &&
-                    attachmentUtil.checkAccessCreate(user, pageId)) {
+            if (attachmentUtil.checkAccess(attachmentId, user, false)
+                    && attachmentUtil.checkAccessCreate(user, pageId)) {
                 if (convertManager.isConvertable(ext)) {
                     String convertToExt = convertManager.convertsTo(ext);
                     json = convertManager.convert(attachmentId, ext, convertToExt, user);

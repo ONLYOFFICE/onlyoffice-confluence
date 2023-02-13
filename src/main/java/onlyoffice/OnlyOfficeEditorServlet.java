@@ -130,8 +130,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
                 Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageId), user);
 
-                response.sendRedirect(request.getContextPath() + "?attachmentId=" +
-                        URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                response.sendRedirect(request.getContextPath() + "?attachmentId="
+                        + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
                 return;
             }
         }

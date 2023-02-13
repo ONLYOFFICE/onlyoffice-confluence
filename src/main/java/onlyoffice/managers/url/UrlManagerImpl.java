@@ -150,8 +150,8 @@ public class UrlManagerImpl implements UrlManager {
             AttachmentManager attachmentManager =
                     (AttachmentManager) ContainerManager.getComponent("attachmentManager");
             Attachment attachment = attachmentManager.getAttachment(attachmentId);
-            gobackUrl = settingsManager.getGlobalSettings().getBaseUrl() + viewPageAttachments +
-                    attachment.getContainer().getContentId().asLong();
+            gobackUrl = settingsManager.getGlobalSettings().getBaseUrl() + viewPageAttachments
+                    + attachment.getContainer().getContentId().asLong();
         }
 
         log.info("gobackUrl = " + gobackUrl);
