@@ -64,7 +64,7 @@ import javax.inject.Named;
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
-    private static final HierarchicalContentFileSystemHelper fileSystemHelper = new HierarchicalContentFileSystemHelper();
+    private static final HierarchicalContentFileSystemHelper FILE_SYSTEM_HELPER = new HierarchicalContentFileSystemHelper();
 
     @ComponentImport
     private final AttachmentManager attachmentManager;
@@ -391,7 +391,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         File rootStorageDirectory = new File(bootstrapManager.getSharedHome() + File.separator + "dcl-document" + File.separator);
-        File convertStorageFolder = fileSystemHelper.createDirectoryHierarchy(rootStorageDirectory, attachment.getContainer().getId());
+        File convertStorageFolder = FILE_SYSTEM_HELPER.createDirectoryHierarchy(rootStorageDirectory, attachment.getContainer().getId());
 
         return new File(
                 convertStorageFolder,

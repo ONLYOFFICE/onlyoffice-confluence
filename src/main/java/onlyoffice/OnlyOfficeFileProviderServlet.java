@@ -37,7 +37,7 @@ import java.io.OutputStream;
 
 public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFileProviderServlet");
+    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFileProviderServlet");
     private static final int BUFFER_SIZE = 10240;
 
     private final ParsingUtil parsingUtil;

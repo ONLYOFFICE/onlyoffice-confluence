@@ -56,7 +56,7 @@ import java.util.Map;
 
 public class OnlyOfficeHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
+    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
     private static final int BUFFER_SIZE = 10240;
 
     @ComponentImport

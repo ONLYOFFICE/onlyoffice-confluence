@@ -59,7 +59,7 @@ import javax.inject.Inject;
 
 public class OnlyOfficeConvertServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
+    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
 
     @ComponentImport
     private final AttachmentManager attachmentManager;
