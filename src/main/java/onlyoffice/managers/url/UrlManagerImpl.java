@@ -173,6 +173,7 @@ public class UrlManagerImpl implements UrlManager {
             case "slide":
                 targetExt = "pptx";
                 break;
+            default:
         }
 
         return getConfluenceBaseUrl() + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + targetExt;
