@@ -72,7 +72,9 @@ public class ConvertManagerImpl implements ConvertManager {
 
     public boolean isConvertable(final String ext) {
         String convertableTypes = configurationManager.getProperty("docservice.type.convert");
-        if(convertableTypes == null) { return false; }
+        if(convertableTypes == null) {
+            return false;
+        }
         List<String> exts = Arrays.asList(convertableTypes.split("\\|"));
         return exts.contains(ext);
     }
@@ -80,12 +82,22 @@ public class ConvertManagerImpl implements ConvertManager {
     public String convertsTo(final String ext) {
         String docType = documentManager.getDocType(ext);
         if (docType != null) {
-            if (ext.equals("docx")) { return "docxf"; }
-            if (ext.equals("docxf")) { return "oform"; }
+            if (ext.equals("docx")) {
+                return "docxf";
+            }
+            if (ext.equals("docxf")) {
+                return "oform";
+            }
 
-            if (docType.equals("word")) { return "docx"; }
-            if (docType.equals("cell")) { return "xlsx"; }
-            if (docType.equals("slide")) { return "pptx"; }
+            if (docType.equals("word")) {
+                return "docx";
+            }
+            if (docType.equals("cell")) {
+                return "xlsx";
+            }
+            if (docType.equals("slide")) {
+                return "pptx";
+            }
         }
         return null;
     }

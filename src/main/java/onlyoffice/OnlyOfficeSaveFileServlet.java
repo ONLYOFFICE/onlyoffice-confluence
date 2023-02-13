@@ -198,7 +198,9 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         attachmentUtil.removeAttachmentChanges(attachmentId);
 
                         File convertedFile = attachmentUtil.getConvertedFile(attachmentId);
-                        if (convertedFile.exists()) { convertedFile.delete(); }
+                        if (convertedFile.exists()) {
+                            convertedFile.delete();
+                        }
                     } else {
                         saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
                     }
@@ -242,7 +244,9 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
 
                         File convertedFile = attachmentUtil.getConvertedFile(attachmentId);
-                        if (convertedFile.exists()) { convertedFile.delete(); }
+                        if (convertedFile.exists()) {
+                            convertedFile.delete();
+                        }
                     } else {
                         log.info("Forcesave is disabled, ignoring forcesave request");
                     }

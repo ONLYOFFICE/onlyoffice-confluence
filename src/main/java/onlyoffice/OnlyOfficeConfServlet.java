@@ -110,10 +110,18 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         Boolean demoAvailable = configurationManager.demoAvailable(true);
         Map<String, Boolean> defaultCustomizableEditingTypes = configurationManager.getCustomizableEditingTypes();
 
-        if (apiUrl == null || apiUrl.isEmpty()) { apiUrl = ""; }
-        if (jwtSecret == null || jwtSecret.isEmpty()) { jwtSecret = ""; }
-		if (docInnerUrl == null || docInnerUrl.isEmpty()) { docInnerUrl = ""; }
-		if (confUrl == null || confUrl.isEmpty()) { confUrl = ""; }
+        if (apiUrl == null || apiUrl.isEmpty()) {
+            apiUrl = "";
+        }
+        if (jwtSecret == null || jwtSecret.isEmpty()) {
+            jwtSecret = "";
+        }
+		if (docInnerUrl == null || docInnerUrl.isEmpty()) {
+            docInnerUrl = "";
+        }
+		if (confUrl == null || confUrl.isEmpty()) {
+            confUrl = "";
+        }
 
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter writer = response.getWriter();
@@ -248,7 +256,9 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
 
                 String content = IOUtils.toString(response.getEntity().getContent(), "utf-8").trim();
-                if (content.equalsIgnoreCase("true")) { return true; }
+                if (content.equalsIgnoreCase("true")) {
+                    return true;
+                }
             }
         } catch (Exception e) {
             log.debug("/healthcheck error: " + e.getMessage());

@@ -78,8 +78,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type");
         if (type != null) {
-            switch (type.toLowerCase())
-            {
+            switch (type.toLowerCase()) {
                 case "save-as":
                     saveAs(request, response);
                     break;

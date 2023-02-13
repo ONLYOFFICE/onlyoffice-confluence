@@ -200,9 +200,15 @@ public class DocumentManagerImpl implements DocumentManager {
         List<String> cellFormats = Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
         List<String> slideFormats = Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
 
-        if (wordFormats.contains(ext)) { return "word"; }
-        if (cellFormats.contains(ext)) { return "cell"; }
-        if (slideFormats.contains(ext)) { return "slide"; }
+        if (wordFormats.contains(ext)) {
+            return "word";
+        }
+        if (cellFormats.contains(ext)) {
+            return "cell";
+        }
+        if (slideFormats.contains(ext)) {
+            return "slide";
+        }
 
         return null;
     }
@@ -233,7 +239,8 @@ public class DocumentManagerImpl implements DocumentManager {
         Map<String, Boolean> customizableEditingTypes = configurationManager.getCustomizableEditingTypes();
 
         for (Map.Entry<String, Boolean> customizableEditingType : customizableEditingTypes.entrySet()) {
-            if (customizableEditingType.getValue()) { editingTypes.add(customizableEditingType.getKey()); }
+            if (customizableEditingType.getValue()) {
+                editingTypes.add(customizableEditingType.getKey()); }
         }
 
         return editingTypes.contains(fileExtension);

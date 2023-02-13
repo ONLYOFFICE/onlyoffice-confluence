@@ -82,8 +82,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type");
         if (type != null) {
-            switch (type.toLowerCase())
-            {
+            switch (type.toLowerCase()){
                 case "diff":
                     getAttachmentDiff(request, response);
                     break;
@@ -309,7 +308,9 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             this.changes = changes;
         }
 
-        public void setCreated(final String created) { this.created = created; }
+        public void setCreated(final String created) {
+            this.created = created;
+        }
 
         public void setUser(final String id, final String name) {
             this.user = new User(id, name);
@@ -365,7 +366,9 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             this.previous = new Previous(key, url, fileType);
         }
 
-        public void setToken(final String token) { this.token = token; }
+        public void setToken(final String token) {
+            this.token = token;
+        }
 
         public class Previous {
             public String key;
