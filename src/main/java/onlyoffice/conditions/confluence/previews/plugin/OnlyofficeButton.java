@@ -55,7 +55,8 @@ public class OnlyofficeButton extends HttpServlet {
     }
 
     @Override
-    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         InputStream requestStream = request.getInputStream();
         String body = parsingUtil.getBody(requestStream);
 

@@ -10,17 +10,30 @@ import java.util.Properties;
 
 public interface ConfigurationManager extends Serializable {
     Properties getProperties() throws IOException;
+
     String getProperty(String propertyName);
+
     boolean forceSaveEnabled();
+
     boolean selectDemo(Boolean demo);
+
     Boolean demoEnabled();
+
     Boolean demoAvailable(Boolean forActivate);
+
     Boolean demoActive();
+
     String getDemo(String key);
+
     Boolean getBooleanPluginSetting(String key, Boolean defaultValue);
+
     String getStringPluginSetting(String key, String defaultValue);
+
     List<String> getDefaultEditingTypes();
+
     List<String> getFillFormTypes();
+
     Map<String, Boolean> getCustomizableEditingTypes();
+
     CloseableHttpClient getHttpClient() throws Exception;
 }

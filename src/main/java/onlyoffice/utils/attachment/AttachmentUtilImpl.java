@@ -18,24 +18,23 @@
 
 package onlyoffice.utils.attachment;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import com.atlassian.confluence.content.ContentProperties;
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
 import com.atlassian.confluence.pages.persistence.dao.filesystem.HierarchicalContentFileSystemHelper;
+import com.atlassian.confluence.security.Permission;
+import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.BootstrapManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
+import com.atlassian.spring.container.ContainerManager;
+import com.atlassian.user.User;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -47,24 +46,24 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.atlassian.confluence.pages.Attachment;
-import com.atlassian.confluence.pages.AttachmentManager;
-import com.atlassian.confluence.security.Permission;
-import com.atlassian.confluence.security.PermissionManager;
-import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
-import com.atlassian.spring.container.ContainerManager;
-import com.atlassian.user.User;
-
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @Named
 @Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
-    private static final HierarchicalContentFileSystemHelper FILE_SYSTEM_HELPER = new HierarchicalContentFileSystemHelper();
+    private static final HierarchicalContentFileSystemHelper FILE_SYSTEM_HELPER =
+            new HierarchicalContentFileSystemHelper();
 
     @ComponentImport
     private final AttachmentManager attachmentManager;
@@ -128,7 +127,8 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return access;
     }
 
-    public void saveAttachmentAsNewVersion(final Long attachmentId, final InputStream attachmentData, final int size, final ConfluenceUser user)
+    public void saveAttachmentAsNewVersion(final Long attachmentId, final InputStream attachmentData, final int size,
+                                           final ConfluenceUser user)
             throws IOException, IllegalArgumentException {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
@@ -140,7 +140,8 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
     }
 
-    public void updateAttachment(final Long attachmentId, final InputStream attachmentData, final int size, final ConfluenceUser user) {
+    public void updateAttachment(final Long attachmentId, final InputStream attachmentData, final int size,
+                                 final ConfluenceUser user) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         Date date = Calendar.getInstance().getTime();
 
@@ -159,12 +160,14 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         });
     }
 
-    public void saveAttachmentChanges(final Long attachmentId, final String history, final String changesUrl) throws Exception {
+    public void saveAttachmentChanges(final Long attachmentId, final String history, final String changesUrl)
+            throws Exception {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         if (history != null && !history.isEmpty() && changesUrl != null && !changesUrl.isEmpty()) {
             InputStream changesStream = new ByteArrayInputStream(history.getBytes(StandardCharsets.UTF_8));
-            Attachment changes = new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
+            Attachment changes =
+                    new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
             changes.setContainer(attachment.getContainer());
             changes.setHidden(true);
 
@@ -369,7 +372,9 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public Attachment createNewAttachment(final String fileName, final String mimeType, final InputStream file, final int size, final Long pageId, final ConfluenceUser user) throws IOException {
+    public Attachment createNewAttachment(final String fileName, final String mimeType, final InputStream file,
+                                          final int size, final Long pageId, final ConfluenceUser user)
+            throws IOException {
         Date date = Calendar.getInstance().getTime();
 
         Attachment attachment = new Attachment(fileName, mimeType, size, "");
@@ -390,8 +395,10 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     public File getConvertedFile(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
-        File rootStorageDirectory = new File(bootstrapManager.getSharedHome() + File.separator + "dcl-document" + File.separator);
-        File convertStorageFolder = FILE_SYSTEM_HELPER.createDirectoryHierarchy(rootStorageDirectory, attachment.getContainer().getId());
+        File rootStorageDirectory =
+                new File(bootstrapManager.getSharedHome() + File.separator + "dcl-document" + File.separator);
+        File convertStorageFolder =
+                FILE_SYSTEM_HELPER.createDirectoryHierarchy(rootStorageDirectory, attachment.getContainer().getId());
 
         return new File(
                 convertStorageFolder,

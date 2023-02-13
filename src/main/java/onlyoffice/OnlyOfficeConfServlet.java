@@ -18,17 +18,14 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.atlassian.sal.api.user.UserManager;
+import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.utils.parsing.ParsingUtil;
@@ -45,17 +42,16 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.atlassian.confluence.setup.settings.SettingsManager;
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.spring.container.ContainerManager;
-
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.atlassian.sal.api.user.UserManager;
-
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 public class OnlyOfficeConfServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConfServlet");
@@ -85,7 +81,8 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         String username = userManager.getRemoteUsername(request);
         if (username == null || !userManager.isSystemAdmin(username)) {
             SettingsManager settingsManager = (SettingsManager) ContainerManager.getComponent("settingsManager");
@@ -98,7 +95,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         String apiUrl = (String) pluginSettings.get("onlyoffice.apiUrl");
         String jwtSecret = (String) pluginSettings.get("onlyoffice.jwtSecret");
         String docInnerUrl = (String) pluginSettings.get("onlyoffice.docInnerUrl");
-		String confUrl = (String) pluginSettings.get("onlyoffice.confUrl");
+        String confUrl = (String) pluginSettings.get("onlyoffice.confUrl");
         Boolean verifyCertificate = configurationManager.getBooleanPluginSetting("verifyCertificate", false);
         Boolean forceSave = configurationManager.forceSaveEnabled();
         Boolean chat = configurationManager.getBooleanPluginSetting("chat", true);
@@ -117,10 +114,10 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         if (jwtSecret == null || jwtSecret.isEmpty()) {
             jwtSecret = "";
         }
-		if (docInnerUrl == null || docInnerUrl.isEmpty()) {
+        if (docInnerUrl == null || docInnerUrl.isEmpty()) {
             docInnerUrl = "";
         }
-		if (confUrl == null || confUrl.isEmpty()) {
+        if (confUrl == null || confUrl.isEmpty()) {
             confUrl = "";
         }
 
@@ -131,7 +128,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         contextMap.put("docserviceApiUrl", apiUrl);
         contextMap.put("docserviceInnerUrl", docInnerUrl);
-		contextMap.put("docserviceConfUrl", confUrl);
+        contextMap.put("docserviceConfUrl", confUrl);
         contextMap.put("docserviceJwtSecret", jwtSecret);
         contextMap.put("verifyCertificate", verifyCertificate);
         contextMap.put("forceSave", forceSave);
@@ -154,7 +151,8 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         String username = userManager.getRemoteUsername(request);
         if (username == null || !userManager.isSystemAdmin(username)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -316,7 +314,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         if (errorCode == ERROR_INVALID_TOKEN) {
             throw new SecurityException();
-        } else  {
+        } else {
             return errorCode == 0;
         }
     }

@@ -19,19 +19,6 @@
 package onlyoffice.managers.document;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.MessageDigest;
-
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -42,21 +29,33 @@ import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
-import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.commons.codec.binary.Hex;
 
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 @Named
 @Default
 public class DocumentManagerImpl implements DocumentManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
-    private final String userAgentMobile = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
+    private final String userAgentMobile =
+            "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
     private final static int DEFAULT_MAX_FILE_SIZE = 5242880;
     private final static int MAX_KEY_LENGTH = 20;
 
@@ -153,16 +152,17 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public String getCorrectName(final String fileName, final String fileExt, final Long pageID) {
-        ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
+        ContentEntityManager contentEntityManager =
+                (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
 
-        List<Attachment> attachments  =  attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
-        String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]","_");
+        List<Attachment> attachments = attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
+        String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]", "_");
         int count = 0;
         Boolean flag = true;
 
-        while(flag) {
+        while (flag) {
             flag = false;
             for (Attachment attachment : attachments) {
                 if (attachment.getFileName().equals(name)) {
@@ -190,17 +190,22 @@ public class DocumentManagerImpl implements DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public Long createDemo(final String fileName, final String fileExt, final Long pageId, final ConfluenceUser user) throws
+    public Long createDemo(final String fileName, final String fileExt, final Long pageId, final ConfluenceUser user)
+            throws
             IOException {
-        String extension = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
-        String name = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
+        String extension =
+                fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ?
+                        "docx" : fileExt.trim();
+        String name = fileName == null || fileName.equals("") ?
+                i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
 
         InputStream demoFile = getDemoFile(user, extension);
 
         name = getCorrectName(name, extension, pageId);
         String mimeType = getMimeType(name);
 
-        Attachment attachment = attachmentUtil.createNewAttachment(name, mimeType, demoFile, demoFile.available(), pageId, user);
+        Attachment attachment =
+                attachmentUtil.createNewAttachment(name, mimeType, demoFile, demoFile.available(), pageId, user);
 
         return attachment.getContentId().asLong();
     }
@@ -208,7 +213,8 @@ public class DocumentManagerImpl implements DocumentManager {
     public String getDocType(final String ext) {
         List<String> wordFormats = Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
         List<String> cellFormats = Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
-        List<String> slideFormats = Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
+        List<String> slideFormats =
+                Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
 
         if (wordFormats.contains(ext)) {
             return "word";
@@ -227,7 +233,7 @@ public class DocumentManagerImpl implements DocumentManager {
         Path path = new File(name).toPath();
         String mimeType = null;
         try {
-             mimeType = Files.probeContentType(path);
+            mimeType = Files.probeContentType(path);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
@@ -250,7 +256,8 @@ public class DocumentManagerImpl implements DocumentManager {
 
         for (Map.Entry<String, Boolean> customizableEditingType : customizableEditingTypes.entrySet()) {
             if (customizableEditingType.getValue()) {
-                editingTypes.add(customizableEditingType.getKey()); }
+                editingTypes.add(customizableEditingType.getKey());
+            }
         }
 
         return editingTypes.contains(fileExtension);

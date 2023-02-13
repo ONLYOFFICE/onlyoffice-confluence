@@ -78,7 +78,8 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         String type = request.getParameter("type");
         if (type != null) {
             switch (type.toLowerCase()) {
@@ -157,7 +158,8 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         }
     }
 
-    private void attachmentData(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void attachmentData(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         if (user == null) {

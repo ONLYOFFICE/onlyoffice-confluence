@@ -18,19 +18,9 @@
 
 package onlyoffice;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Base64;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -47,15 +37,22 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONArray;
-
-import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.user.UserAccessor;
-import com.atlassian.spring.container.ContainerManager;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Base64;
 
 public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -92,7 +89,8 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         response.setContentType("text/plain; charset=utf-8");
 
         String vkey = request.getParameter("vkey");
@@ -143,7 +141,8 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     String jwth = jwtManager.getJwtHeader();
                     String header = (String) request.getHeader(jwth);
                     String authorizationPrefix = "Bearer ";
-                    token = (header != null && header.startsWith(authorizationPrefix)) ? header.substring(authorizationPrefix.length()) : header;
+                    token = (header != null && header.startsWith(authorizationPrefix)) ?
+                            header.substring(authorizationPrefix.length()) : header;
                     inBody = false;
                 }
 
@@ -178,7 +177,8 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         JSONObject action = (JSONObject) actions.get(0);
                         if (action.getLong("type") == 1) {
                             if (user == null || !attachmentUtil.checkAccess(attachmentId, user, true)) {
-                                throw new SecurityException("Access denied. User " + user + " don't have the appropriate permissions to edit this document.");
+                                throw new SecurityException("Access denied. User " + user +
+                                        " don't have the appropriate permissions to edit this document.");
                             }
 
                             if (attachmentUtil.getCollaborativeEditingKey(attachmentId) == null) {
@@ -200,7 +200,8 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
                     log.info("changesUri = " + changesUrl);
 
-                    Boolean forceSaveVersion = attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
+                    Boolean forceSaveVersion =
+                            attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
 
                     attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
 
@@ -238,7 +239,8 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
                         log.info("changesUri = " + downloadUrl);
 
-                        Boolean forceSaveVersion = attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
+                        Boolean forceSaveVersion =
+                                attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
 
                         if (forceSaveVersion) {
                             saveAttachmentFromUrl(attachmentId, downloadUrl, user, false);
@@ -276,13 +278,15 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private void saveAttachmentFromUrl(final Long attachmentId, final String downloadUrl, final ConfluenceUser user, final boolean newVersion) throws Exception {
+    private void saveAttachmentFromUrl(final Long attachmentId, final String downloadUrl, final ConfluenceUser user,
+                                       final boolean newVersion) throws Exception {
         String attachmentExt = attachmentUtil.getFileExt(attachmentId);
         String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
         String url = downloadUrl;
 
         if (!attachmentExt.equals(extDownloadUrl)) {
-            JSONObject response = convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, null, false);
+            JSONObject response =
+                    convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, null, false);
             url = response.getString("fileUrl");
         }
 

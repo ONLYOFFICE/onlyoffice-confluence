@@ -72,7 +72,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final ParsingUtil parsingUtil;
 
     @Inject
-    public OnlyOfficeHistoryServlet(final LocaleManager localeManager, final FormatSettingsManager formatSettingsManager,
+    public OnlyOfficeHistoryServlet(final LocaleManager localeManager,
+                                    final FormatSettingsManager formatSettingsManager,
                                     final AuthContext authContext, final DocumentManager documentManager,
                                     final AttachmentUtil attachmentUtil, final UrlManager urlManager,
                                     final JwtManager jwtManager, final ParsingUtil parsingUtil) {
@@ -87,7 +88,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         String type = request.getParameter("type");
         if (type != null) {
             switch (type.toLowerCase()) {
@@ -110,7 +112,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentDiff(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void getAttachmentDiff(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException {
         String vkey = request.getParameter("vkey");
         String attachmentIdString = documentManager.readHash(vkey);
 
@@ -146,7 +149,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentHistoryInfo(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void getAttachmentHistoryInfo(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -219,7 +223,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -263,7 +268,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         boolean adjacentVersions = (attachment.getVersion() - prevVersion.getVersion()) == 1;
                         if (adjacentVersions) {
                             versionData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
-                            versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId()), urlManager.getFileUri(prevVersion.getId()), prevVersion.getFileExtension());
+                            versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId()),
+                                    urlManager.getFileUri(prevVersion.getId()), prevVersion.getFileExtension());
                         }
                     }
                     break;
@@ -302,7 +308,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         private User user;
         private String serverVersion;
 
-        public Version() { }
+        public Version() {
+        }
 
         public void setVersion(final int version) {
             this.version = version;
@@ -348,7 +355,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         private Previous previous;
         private String token;
 
-        public VersionData() { }
+        public VersionData() {
+        }
 
         public void setVersion(final int version) {
             this.version = version;

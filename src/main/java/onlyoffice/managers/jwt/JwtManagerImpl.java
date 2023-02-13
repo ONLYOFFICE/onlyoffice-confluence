@@ -19,22 +19,19 @@
 package onlyoffice.managers.jwt;
 
 import com.atlassian.config.ApplicationConfiguration;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import org.json.JSONObject;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-
-import java.util.Base64;
-import java.util.Base64.Encoder;
-
-import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.Mac;
-
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 
 @Named
 @Default
@@ -51,7 +48,8 @@ public class JwtManagerImpl implements JwtManager {
     private final PluginSettings settings;
 
     @Inject
-    public JwtManagerImpl(final PluginSettingsFactory pluginSettingsFactory, final ApplicationConfiguration applicationConfiguration,
+    public JwtManagerImpl(final PluginSettingsFactory pluginSettingsFactory,
+                          final ApplicationConfiguration applicationConfiguration,
                           final ConfigurationManager configurationManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         settings = pluginSettingsFactory.createGlobalSettings();
@@ -106,7 +104,7 @@ public class JwtManagerImpl implements JwtManager {
     public String getJwtHeader() {
         String header = configurationManager.demoActive()
                 ? configurationManager
-                        .getDemo("header") : (String) applicationConfiguration.getProperty("onlyoffice.jwt.header");
+                .getDemo("header") : (String) applicationConfiguration.getProperty("onlyoffice.jwt.header");
         return header == null || header.isEmpty() ? "Authorization" : header;
     }
 

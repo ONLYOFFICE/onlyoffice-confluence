@@ -18,8 +18,6 @@
 
 package onlyoffice.conditions;
 
-import java.util.Map;
-
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -30,6 +28,7 @@ import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 public class IsOfficeFileConvertAttachment implements Condition {
 

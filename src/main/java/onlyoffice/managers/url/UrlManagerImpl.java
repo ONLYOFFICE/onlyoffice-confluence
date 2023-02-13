@@ -16,23 +16,20 @@
  *
  */
 
-
 package onlyoffice.managers.url;
 
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-
-import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.confluence.setup.settings.SettingsManager;
-
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
@@ -99,21 +96,24 @@ public class UrlManagerImpl implements UrlManager {
 
     public String getAttachmentDiffUri(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
-        String diffAttachmentUrl = getConfluenceBaseUrl() + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
+        String diffAttachmentUrl =
+                getConfluenceBaseUrl() + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
 
         return diffAttachmentUrl;
     }
 
     public String getHistoryInfoUri(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
-        String historyInfoUri = getConfluenceBaseUrl() + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
+        String historyInfoUri =
+                getConfluenceBaseUrl() + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
 
         return historyInfoUri;
     }
 
     public String getHistoryDataUri(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
-        String historyDataUri = getConfluenceBaseUrl() + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
+        String historyDataUri =
+                getConfluenceBaseUrl() + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
 
         return historyDataUri;
     }
@@ -147,9 +147,11 @@ public class UrlManagerImpl implements UrlManager {
             gobackUrl = referer;
         } else {
             String viewPageAttachments = "/pages/viewpageattachments.action?pageId=";
-            AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+            AttachmentManager attachmentManager =
+                    (AttachmentManager) ContainerManager.getComponent("attachmentManager");
             Attachment attachment = attachmentManager.getAttachment(attachmentId);
-            gobackUrl = settingsManager.getGlobalSettings().getBaseUrl() + viewPageAttachments + attachment.getContainer().getContentId().asLong();
+            gobackUrl = settingsManager.getGlobalSettings().getBaseUrl() + viewPageAttachments +
+                    attachment.getContainer().getContentId().asLong();
         }
 
         log.info("gobackUrl = " + gobackUrl);

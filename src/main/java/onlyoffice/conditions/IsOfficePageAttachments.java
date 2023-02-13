@@ -20,9 +20,9 @@ package onlyoffice.conditions;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.core.filters.ServletContextThreadLocal;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
-import com.atlassian.core.filters.ServletContextThreadLocal;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 import javax.inject.Inject;

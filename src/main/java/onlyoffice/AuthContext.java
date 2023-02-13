@@ -18,18 +18,15 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.security.Principal;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.atlassian.confluence.util.GeneralUtil;
-
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.security.Principal;
 
 @Named
 public class AuthContext {

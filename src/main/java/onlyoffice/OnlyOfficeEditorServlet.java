@@ -18,23 +18,14 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.inject.Inject;
-
-import com.atlassian.plugin.webresource.WebResourceUrlProvider;
+import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.webresource.UrlMode;
+import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -46,12 +37,19 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
-import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
@@ -74,9 +72,12 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
 
     @Inject
-    public OnlyOfficeEditorServlet(final LocaleManager localeManager, final WebResourceUrlProvider webResourceUrlProvider,
-                                   final UrlManager urlManager, final JwtManager jwtManager, final ConfigurationManager configurationManager,
-                                   final AuthContext authContext, final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+    public OnlyOfficeEditorServlet(final LocaleManager localeManager,
+                                   final WebResourceUrlProvider webResourceUrlProvider,
+                                   final UrlManager urlManager, final JwtManager jwtManager,
+                                   final ConfigurationManager configurationManager,
+                                   final AuthContext authContext, final DocumentManager documentManager,
+                                   final AttachmentUtil attachmentUtil,
                                    final ConvertManager convertManager) {
         this.localeManager = localeManager;
         this.webResourceUrlProvider = webResourceUrlProvider;
@@ -90,7 +91,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -128,7 +130,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
                 Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageId), user);
 
-                response.sendRedirect(request.getContextPath() + "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                response.sendRedirect(request.getContextPath() + "?attachmentId=" +
+                        URLEncoder.encode(attachmentId.toString(), "UTF-8"));
                 return;
             }
         }
@@ -175,8 +178,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 actionData, errorMessage));
     }
 
-    private String getTemplate(final Long attachmentId, final String type, final String apiUrl, final String callbackUrl, final String fileUrl, final String key, final String fileName,
-                               final ConfluenceUser user, final String gobackUrl, final String actionData, final String errorMessage) throws
+    private String getTemplate(final Long attachmentId, final String type, final String apiUrl,
+                               final String callbackUrl, final String fileUrl, final String key, final String fileName,
+                               final ConfluenceUser user, final String gobackUrl, final String actionData,
+                               final String errorMessage) throws
             UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
@@ -240,12 +245,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             customizationObject.put("forcesave", configurationManager.forceSaveEnabled());
             customizationObject.put("chat", configurationManager.getBooleanPluginSetting("chat", true));
-            customizationObject.put("compactHeader", configurationManager.getBooleanPluginSetting("compactHeader", false));
+            customizationObject.put("compactHeader",
+                    configurationManager.getBooleanPluginSetting("compactHeader", false));
             customizationObject.put("feedback", configurationManager.getBooleanPluginSetting("feedback", false));
             customizationObject.put("help", configurationManager.getBooleanPluginSetting("helpMenu", true));
-            customizationObject.put("toolbarNoTabs", configurationManager.getBooleanPluginSetting("toolbarNoTabs", false));
+            customizationObject.put("toolbarNoTabs",
+                    configurationManager.getBooleanPluginSetting("toolbarNoTabs", false));
             if (!configurationManager.getStringPluginSetting("reviewDisplay", "original").equals("original")) {
-                customizationObject.put("reviewDisplay", configurationManager.getStringPluginSetting("reviewDisplay", "original"));
+                customizationObject.put("reviewDisplay",
+                        configurationManager.getStringPluginSetting("reviewDisplay", "original"));
             }
             customizationObject.put("goback", gobackObject);
             gobackObject.put("url", gobackUrl);

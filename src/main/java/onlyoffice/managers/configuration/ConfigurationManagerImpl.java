@@ -192,7 +192,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         String editingTypesString = (String) pluginSettings.get("onlyoffice.editingTypes");
 
         if (editingTypesString != null && !editingTypesString.isEmpty()) {
-            editingTypes = Arrays.asList(editingTypesString.substring(1, editingTypesString.length() - 1).replace("\"", "").split(","));
+            editingTypes = Arrays.asList(
+                    editingTypesString.substring(1, editingTypesString.length() - 1).replace("\"", "").split(","));
         } else {
             editingTypes = Arrays.asList("csv", "txt");
         }
@@ -217,19 +218,23 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
 
             builder.loadTrustMaterial(null, new TrustStrategy() {
                 @Override
-                public boolean isTrusted(final X509Certificate[] chain, final String authType) throws CertificateException {
+                public boolean isTrusted(final X509Certificate[] chain, final String authType)
+                        throws CertificateException {
                     return true;
                 }
             });
 
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(builder.build(), new HostnameVerifier() {
-                @Override
-                public boolean verify(final String hostname, final SSLSession session) {
-                    return true;
-                }
-            });
+            SSLConnectionSocketFactory sslConnectionSocketFactory =
+                    new SSLConnectionSocketFactory(builder.build(), new HostnameVerifier() {
+                        @Override
+                        public boolean verify(final String hostname, final SSLSession session) {
+                            return true;
+                        }
+                    });
 
-            httpClient = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).setDefaultRequestConfig(config).build();
+            httpClient =
+                    HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).setDefaultRequestConfig(config)
+                            .build();
         } else {
             httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
         }

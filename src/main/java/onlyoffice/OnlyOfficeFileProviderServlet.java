@@ -58,12 +58,14 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         if (jwtManager.jwtEnabled()) {
             String jwth = jwtManager.getJwtHeader();
             String header = request.getHeader(jwth);
             String authorizationPrefix = "Bearer ";
-            String token = (header != null && header.startsWith(authorizationPrefix)) ? header.substring(authorizationPrefix.length()) : header;
+            String token = (header != null && header.startsWith(authorizationPrefix)) ?
+                    header.substring(authorizationPrefix.length()) : header;
 
             if (token == null || token == "") {
                 throw new SecurityException("Expected JWT");
@@ -90,7 +92,7 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
         byte[] buffer = new byte[BUFFER_SIZE];
 
         OutputStream output = response.getOutputStream();
-        for (int length = 0; (length = inputStream.read(buffer)) > 0;) {
+        for (int length = 0; (length = inputStream.read(buffer)) > 0; ) {
             output.write(buffer, 0, length);
         }
     }
