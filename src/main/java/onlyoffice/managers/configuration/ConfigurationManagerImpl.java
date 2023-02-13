@@ -142,11 +142,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
                 Calendar date = Calendar.getInstance();
                 date.setTime(dateFormat.parse(demoStart));
                 date.add(Calendar.DATE, Integer.parseInt(demoData.get("trial")));
-                if (date.after(Calendar.getInstance())) {
-                    return true;
-                } else {
-                    return false;
-                }
+
+                return date.after(Calendar.getInstance());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
