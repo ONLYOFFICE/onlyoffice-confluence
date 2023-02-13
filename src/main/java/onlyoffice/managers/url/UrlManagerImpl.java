@@ -44,7 +44,7 @@ public class UrlManagerImpl implements UrlManager {
     private final String callbackServlet = "plugins/servlet/onlyoffice/save";
     private final String historyServlet = "plugins/servlet/onlyoffice/history";
     private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
-    private final String APIServlet = "plugins/servlet/onlyoffice/api";
+    private final String apiServlet = "plugins/servlet/onlyoffice/api";
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -119,13 +119,13 @@ public class UrlManagerImpl implements UrlManager {
     }
 
     public String getAttachmentDataUri() {
-        String attachmentDataUri = getConfluenceBaseUrl() + APIServlet + "?type=attachment-data";
+        String attachmentDataUri = getConfluenceBaseUrl() + apiServlet + "?type=attachment-data";
 
         return attachmentDataUri;
     }
 
     public String getSaveAsUri() {
-        String saveAsUri = getConfluenceBaseUrl() + APIServlet + "?type=save-as";
+        String saveAsUri = getConfluenceBaseUrl() + apiServlet + "?type=save-as";
 
         return saveAsUri;
     }
