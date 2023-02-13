@@ -59,8 +59,8 @@ public class UrlManagerImpl implements UrlManager {
     private final DocumentManager documentManager;
 
     @Inject
-    public UrlManagerImpl(PluginSettingsFactory pluginSettingsFactory, SettingsManager settingsManager,
-                          ConfigurationManager configurationManager, DocumentManager documentManager) {
+    public UrlManagerImpl(final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
+                          final ConfigurationManager configurationManager, final DocumentManager documentManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.settingsManager = settingsManager;
         this.configurationManager = configurationManager;
@@ -88,7 +88,7 @@ public class UrlManagerImpl implements UrlManager {
         }
     }
 
-    public String getFileUri(Long attachmentId) {
+    public String getFileUri(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
         String fileUri = getConfluenceBaseUrl() + fileProviderServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
@@ -97,21 +97,21 @@ public class UrlManagerImpl implements UrlManager {
         return fileUri;
     }
 
-    public String getAttachmentDiffUri(Long attachmentId) {
+    public String getAttachmentDiffUri(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
         String diffAttachmentUrl = getConfluenceBaseUrl() + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
 
         return diffAttachmentUrl;
     }
 
-    public String getHistoryInfoUri(Long attachmentId) {
+    public String getHistoryInfoUri(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
         String historyInfoUri = getConfluenceBaseUrl() + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
 
         return historyInfoUri;
     }
 
-    public String getHistoryDataUri(Long attachmentId) {
+    public String getHistoryDataUri(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
         String historyDataUri = getConfluenceBaseUrl() + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
 
@@ -130,7 +130,7 @@ public class UrlManagerImpl implements UrlManager {
         return saveAsUri;
     }
 
-    public String getCallbackUrl(Long attachmentId) {
+    public String getCallbackUrl(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 
         String callbackUrl = getConfluenceBaseUrl() + callbackServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
@@ -139,7 +139,7 @@ public class UrlManagerImpl implements UrlManager {
         return callbackUrl;
     }
 
-    public String getGobackUrl(Long attachmentId, HttpServletRequest request) {
+    public String getGobackUrl(final Long attachmentId, final HttpServletRequest request) {
         String gobackUrl = "";
         String referer = request.getHeader("referer");
 
@@ -157,7 +157,7 @@ public class UrlManagerImpl implements UrlManager {
         return gobackUrl;
     }
 
-    public String getCreateUri(Long pageId, String ext) {
+    public String getCreateUri(final Long pageId, final String ext) {
 
         String targetExt = "docx";
 
@@ -185,12 +185,14 @@ public class UrlManagerImpl implements UrlManager {
         }
     }
 
-    public String replaceDocEditorURLToInternal(String url) {
+    public String replaceDocEditorURLToInternal(final String url) {
         String innerDocEditorUrl = getInnerDocEditorUrl();
         String publicDocEditorUrl = getPublicDocEditorUrl();
+        String result = url;
+
         if (!publicDocEditorUrl.equals(innerDocEditorUrl) && !configurationManager.demoActive()) {
-           url = url.replace(publicDocEditorUrl, innerDocEditorUrl);
+            result = result.replace(publicDocEditorUrl, innerDocEditorUrl);
         }
-        return url;
+        return result;
     }
 }

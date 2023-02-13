@@ -38,12 +38,12 @@ public class IsOfficeFileAttachment implements Condition {
     private AttachmentUtil attachmentUtil;
 
     @Inject
-    public IsOfficeFileAttachment(DocumentManager documentManager, AttachmentUtil attachmentUtil) {
+    public IsOfficeFileAttachment(final DocumentManager documentManager, final AttachmentUtil attachmentUtil) {
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
     }
 
-    public void init(Map<String, String> params) throws PluginParseException {
+    public void init(final Map<String, String> params) throws PluginParseException {
         forEdit = false;
         form = false;
         if (params != null && !params.isEmpty() && params.get("forEdit") != null) {
@@ -54,7 +54,7 @@ public class IsOfficeFileAttachment implements Condition {
         }
     }
 
-    public boolean shouldDisplay(Map<String, Object> context) {
+    public boolean shouldDisplay(final Map<String, Object> context) {
         Attachment attachment = (Attachment) context.get("attachment");
         if (attachment == null) {
             return false;

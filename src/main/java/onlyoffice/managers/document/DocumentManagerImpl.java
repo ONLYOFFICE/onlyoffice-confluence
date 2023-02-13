@@ -57,8 +57,8 @@ public class DocumentManagerImpl implements DocumentManager {
     private final AttachmentUtil attachmentUtil;
 
     @Inject
-    public DocumentManagerImpl(I18nResolver i18n, ConfigurationManager configurationManager,
-                               AttachmentUtil attachmentUtil) {
+    public DocumentManagerImpl(final I18nResolver i18n, final ConfigurationManager configurationManager,
+                               final AttachmentUtil attachmentUtil) {
         this.i18n = i18n;
         this.configurationManager = configurationManager;
         this.attachmentUtil = attachmentUtil;
@@ -76,7 +76,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return size > 0 ? size : 5 * 1024 * 1024;
     }
 
-    public String getKeyOfFile(Long attachmentId) {
+    public String getKeyOfFile(final Long attachmentId) {
         String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
         if (key == null) {
             String hashCode = attachmentUtil.getHashCode(attachmentId);
@@ -86,17 +86,19 @@ public class DocumentManagerImpl implements DocumentManager {
         return key;
     }
 
-    private String generateRevisionId(String expectedKey) {
-        if (expectedKey.length() > 20) {
-            expectedKey = Integer.toString(expectedKey.hashCode());
+    private String generateRevisionId(final String expectedKey) {
+        String result = expectedKey;
+
+        if (result.length() > 20) {
+            result = Integer.toString(result.hashCode());
         }
-        String key = expectedKey.replace("[^0-9-.a-zA-Z_=]", "_");
+        String key = result.replace("[^0-9-.a-zA-Z_=]", "_");
         key = key.substring(0, Math.min(key.length(), 20));
         log.info("key = " + key);
         return key;
     }
 
-    public String createHash(String str) {
+    public String createHash(final String str) {
         try {
             String secret = configurationManager.getProperty("files.docservice.secret");
 
@@ -110,7 +112,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    public String readHash(String base64) {
+    public String readHash(final String base64) {
         try {
             String str = new String(Base64.getDecoder().decode(base64), "UTF-8");
 
@@ -128,7 +130,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    private String getHashHex(String str) {
+    private String getHashHex(final String str) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] digest = md.digest(str.getBytes());
@@ -141,7 +143,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    public String getCorrectName(String fileName, String fileExt, Long pageID) {
+    public String getCorrectName(final String fileName, final String fileExt, final Long pageID) {
         ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
@@ -166,7 +168,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return name;
     }
 
-    private InputStream getDemoFile(ConfluenceUser user, String fileExt) {
+    private InputStream getDemoFile(final ConfluenceUser user, final String fileExt) {
         LocaleManager localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
         PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
 
@@ -179,23 +181,21 @@ public class DocumentManagerImpl implements DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public Long createDemo(String fileName, String fileExt, Long pageId, ConfluenceUser user) throws IOException {
-        Attachment attachment = null;
+    public Long createDemo(final String fileName, final String fileExt, final Long pageId, final ConfluenceUser user) throws IOException {
+        String extension = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
+        String name = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
 
-        fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
-        fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
+        InputStream demoFile = getDemoFile(user, extension);
 
-        InputStream demoFile = getDemoFile(user, fileExt);
+        name = getCorrectName(name, extension, pageId);
+        String mimeType = getMimeType(name);
 
-        fileName = getCorrectName(fileName, fileExt, pageId);
-        String mimeType = getMimeType(fileName);
-
-        attachment = attachmentUtil.createNewAttachment(fileName, mimeType, demoFile, demoFile.available(), pageId, user);
+        Attachment attachment = attachmentUtil.createNewAttachment(name, mimeType, demoFile, demoFile.available(), pageId, user);
 
         return attachment.getContentId().asLong();
     }
 
-    public String getDocType(String ext) {
+    public String getDocType(final String ext) {
         List<String> wordFormats = Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
         List<String> cellFormats = Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
         List<String> slideFormats = Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
@@ -207,7 +207,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return null;
     }
 
-    public String getMimeType(String name) {
+    public String getMimeType(final String name) {
         Path path = new File(name).toPath();
         String mimeType = null;
         try {
@@ -218,7 +218,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return mimeType != null ? mimeType : "application/octet-stream";
     }
 
-    public String getEditorType (String userAgent) {
+    public String getEditorType (final String userAgent) {
         Pattern pattern = Pattern.compile(userAgentMobile, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         if (userAgent != null && pattern.matcher(userAgent).find()) {
             return "mobile";
@@ -227,7 +227,7 @@ public class DocumentManagerImpl implements DocumentManager {
         }
     }
 
-    public boolean isEditable(String fileExtension) {
+    public boolean isEditable(final String fileExtension) {
         List<String> editingTypes = configurationManager.getDefaultEditingTypes();
 
         Map<String, Boolean> customizableEditingTypes = configurationManager.getCustomizableEditingTypes();
@@ -239,12 +239,12 @@ public class DocumentManagerImpl implements DocumentManager {
         return editingTypes.contains(fileExtension);
     }
 
-    public boolean isFillForm(String fileExtension) {
+    public boolean isFillForm(final String fileExtension) {
         List<String> fillFormTypes = configurationManager.getFillFormTypes();
         return configurationManager.getFillFormTypes().contains(fileExtension);
     }
 
-    public boolean isViewable(String fileExtension) {
+    public boolean isViewable(final String fileExtension) {
         String docType = getDocType(fileExtension);
         return docType != null;
     }

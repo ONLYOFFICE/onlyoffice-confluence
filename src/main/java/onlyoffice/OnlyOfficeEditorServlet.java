@@ -69,10 +69,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
 
     @Inject
-    public OnlyOfficeEditorServlet(LocaleManager localeManager, WebResourceUrlProvider webResourceUrlProvider,
-            UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager,
-            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
-            ConvertManager convertManager) {
+    public OnlyOfficeEditorServlet(final LocaleManager localeManager, final WebResourceUrlProvider webResourceUrlProvider,
+                                   final UrlManager urlManager, final JwtManager jwtManager, final ConfigurationManager configurationManager,
+                                   final AuthContext authContext, final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                                   final ConvertManager convertManager) {
         this.localeManager = localeManager;
         this.webResourceUrlProvider = webResourceUrlProvider;
         this.urlManager = urlManager;
@@ -85,7 +85,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -170,8 +170,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 actionData, errorMessage));
     }
 
-    private String getTemplate(Long attachmentId, String type, String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
-            ConfluenceUser user, String gobackUrl, String actionData, String errorMessage) throws UnsupportedEncodingException {
+    private String getTemplate(final Long attachmentId, final String type, final String apiUrl, final String callbackUrl, final String fileUrl, final String key, final String fileName,
+                               final ConfluenceUser user, final String gobackUrl, final String actionData, final String errorMessage) throws UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
 

@@ -67,9 +67,10 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final PageManager pageManager;
 
     @Inject
-    public OnlyOfficeConvertServlet(AttachmentManager attachmentManager, AttachmentUtil attachmentUtil,
-            ConvertManager convertManager, AuthContext authContext, DocumentManager documentManager,
-            ConfigurationManager configurationManager, PageManager pageManager) {
+    public OnlyOfficeConvertServlet(final AttachmentManager attachmentManager, final AttachmentUtil attachmentUtil,
+                                    final ConvertManager convertManager, final AuthContext authContext,
+                                    final DocumentManager documentManager, final ConfigurationManager configurationManager,
+                                    final PageManager pageManager) {
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
@@ -80,7 +81,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -119,12 +120,12 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         writer.write(getTemplate(contextMap));
     }
 
-    private String getTemplate(Map<String, Object> map) throws UnsupportedEncodingException {
+    private String getTemplate(final Map<String, Object> map) throws UnsupportedEncodingException {
         return VelocityUtils.getRenderedTemplate("templates/convert.vm", map);
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -196,7 +197,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         }
     }
 
-    private Long savefile(Attachment attachment, String fileUrl, String newName, Long pageId) throws Exception {
+    private Long savefile(final Attachment attachment, final String fileUrl, final String newName, final Long pageId) throws Exception {
         log.info("downloadUri = " + fileUrl);
 
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {

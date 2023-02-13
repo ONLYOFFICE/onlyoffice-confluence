@@ -44,8 +44,9 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private final DocumentManager documentManager;
 
     @Inject
-    public OnlyOfficeFileProviderServlet(ParsingUtil parsingUtil, AttachmentUtil attachmentUtil, JwtManager jwtManager,
-            UrlManager urlManager, DocumentManager documentManager) {
+    public OnlyOfficeFileProviderServlet(final ParsingUtil parsingUtil, final AttachmentUtil attachmentUtil,
+                                         final JwtManager jwtManager, final UrlManager urlManager,
+                                         final DocumentManager documentManager) {
         this.parsingUtil = parsingUtil;
         this.attachmentUtil = attachmentUtil;
         this.jwtManager = jwtManager;
@@ -54,7 +55,7 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         if (jwtManager.jwtEnabled()) {
             String jwth = jwtManager.getJwtHeader();
             String header = request.getHeader(jwth);

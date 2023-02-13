@@ -35,7 +35,7 @@ import javax.inject.Named;
 public class AuthContext {
     private final Logger log = LogManager.getLogger("onlyoffice.AuthContext");
 
-    public boolean checkUserAuthorisation(HttpServletRequest request, HttpServletResponse response)
+    public boolean checkUserAuthorisation(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
         Principal principal = request.getUserPrincipal();
         if (principal == null) {
@@ -49,7 +49,7 @@ public class AuthContext {
         return true;
     }
 
-    private String getLoginUrl(HttpServletRequest request) throws IOException {
+    private String getLoginUrl(final HttpServletRequest request) throws IOException {
         StringBuilder stringBuilder = new StringBuilder(request.getContextPath());
         String fullUrl = stringBuilder.append("/login.action?permissionViolation=true&os_destination=")
                 .append("plugins%2Fservlet%2Fonlyoffice%2Fdoceditor").append("?")

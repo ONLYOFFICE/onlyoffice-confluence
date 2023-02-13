@@ -46,7 +46,8 @@ public class OnlyofficeButton extends HttpServlet {
     private final DocumentManager documentManager;
 
     @Inject
-    public OnlyofficeButton(AttachmentManager attachmentManager, ParsingUtil parsingUtil, AttachmentUtil attachmentUtil, DocumentManager documentManager) {
+    public OnlyofficeButton(final AttachmentManager attachmentManager, final ParsingUtil parsingUtil,
+                            final AttachmentUtil attachmentUtil, final DocumentManager documentManager) {
         this.attachmentManager = attachmentManager;
         this.parsingUtil = parsingUtil;
         this.attachmentUtil = attachmentUtil;
@@ -54,7 +55,7 @@ public class OnlyofficeButton extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         InputStream requestStream = request.getInputStream();
         String body = parsingUtil.getBody(requestStream);
 

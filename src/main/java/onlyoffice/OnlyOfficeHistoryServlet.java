@@ -64,9 +64,10 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final ParsingUtil parsingUtil;
 
     @Inject
-    public OnlyOfficeHistoryServlet(LocaleManager localeManager, FormatSettingsManager formatSettingsManager,
-            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
-            UrlManager urlManager, JwtManager jwtManager, ParsingUtil parsingUtil) {
+    public OnlyOfficeHistoryServlet(final LocaleManager localeManager, final FormatSettingsManager formatSettingsManager,
+                                    final AuthContext authContext, final DocumentManager documentManager,
+                                    final AttachmentUtil attachmentUtil, final UrlManager urlManager,
+                                    final JwtManager jwtManager, final ParsingUtil parsingUtil) {
         this.localeManager = localeManager;
         this.formatSettingsManager = formatSettingsManager;
         this.authContext = authContext;
@@ -78,7 +79,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type");
         if (type != null) {
             switch (type.toLowerCase())
@@ -102,7 +103,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentDiff (HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void getAttachmentDiff (final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         String vkey = request.getParameter("vkey");
         String attachmentIdString = documentManager.readHash(vkey);
 
@@ -138,7 +139,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentHistoryInfo (HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void getAttachmentHistoryInfo (final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -211,7 +212,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentHistoryData (HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void getAttachmentHistoryData (final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -296,25 +297,25 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
         public Version() { }
 
-        public void setVersion(int version) {
+        public void setVersion(final int version) {
             this.version = version;
         }
 
-        public void setKey(String key) {
+        public void setKey(final String key) {
             this.key = key;
         }
 
-        public void setChanges(Object changes) {
+        public void setChanges(final Object changes) {
             this.changes = changes;
         }
 
-        public void setCreated(String created) { this.created = created; }
+        public void setCreated(final String created) { this.created = created; }
 
-        public void setUser(String id, String name) {
+        public void setUser(final String id, final String name) {
             this.user = new User(id, name);
         }
 
-        public void setServerVersion(String serverVersion) {
+        public void setServerVersion(final String serverVersion) {
             this.serverVersion = serverVersion;
         }
 
@@ -322,7 +323,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             public String id;
             public String name;
 
-            public User(String id, String name) {
+            public User(final String id, final String name) {
                 this.id = id;
                 this.name = name;
             }
@@ -340,38 +341,38 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
         public VersionData() { }
 
-        public void setVersion(int version) {
+        public void setVersion(final int version) {
             this.version = version;
         }
 
-        public void setKey(String key) {
+        public void setKey(final String key) {
             this.key = key;
         }
 
-        public void setUrl(String url) {
+        public void setUrl(final String url) {
             this.url = url;
         }
 
-        public void setFileType(String fileType) {
+        public void setFileType(final String fileType) {
             this.fileType = fileType;
         }
 
-        public void setChangesUrl(String changesUrl) {
+        public void setChangesUrl(final String changesUrl) {
             this.changesUrl = changesUrl;
         }
 
-        public void setPrevious(String key, String url, String fileType) {
+        public void setPrevious(final String key, final String url, final String fileType) {
             this.previous = new Previous(key, url, fileType);
         }
 
-        public void setToken(String token) { this.token = token; }
+        public void setToken(final String token) { this.token = token; }
 
         public class Previous {
             public String key;
             public String url;
             public String fileType;
 
-            public Previous(String key, String url, String fileType) {
+            public Previous(final String key, final String url, final String fileType) {
                 this.key = key;
                 this.url = url;
                 this.fileType = fileType;

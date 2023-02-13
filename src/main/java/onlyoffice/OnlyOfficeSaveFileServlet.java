@@ -66,9 +66,10 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private final ConvertManager convertManager;
 
     @Inject
-    public OnlyOfficeSaveFileServlet(JwtManager jwtManager, DocumentManager documentManager,
-            AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager,
-            ConfigurationManager configurationManager, ConvertManager convertManager) {
+    public OnlyOfficeSaveFileServlet(final JwtManager jwtManager, final DocumentManager documentManager,
+                                     final AttachmentUtil attachmentUtil, final ParsingUtil parsingUtil,
+                                     final UrlManager urlManager, final ConfigurationManager configurationManager,
+                                     final ConvertManager convertManager) {
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
@@ -79,7 +80,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain; charset=utf-8");
 
         String vkey = request.getParameter("vkey");
@@ -104,7 +105,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         log.info("error = " + error);
     }
 
-    private void processData(String attachmentIdString, HttpServletRequest request) throws Exception {
+    private void processData(final String attachmentIdString, final HttpServletRequest request) throws Exception {
         log.info("attachmentId = " + attachmentIdString);
         InputStream requestStream = request.getInputStream();
         if (attachmentIdString.isEmpty()) {
@@ -260,17 +261,18 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private void saveAttachmentFromUrl (Long attachmentId, String downloadUrl, ConfluenceUser user, boolean newVersion) throws Exception {
+    private void saveAttachmentFromUrl (final Long attachmentId, final String downloadUrl, final ConfluenceUser user, final boolean newVersion) throws Exception {
         String attachmentExt = attachmentUtil.getFileExt(attachmentId);
         String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
+        String url = downloadUrl;
 
         if (!attachmentExt.equals(extDownloadUrl)) {
             JSONObject response = convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, null, false);
-            downloadUrl = response.getString("fileUrl");
+            url = response.getString("fileUrl");
         }
 
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
-            HttpGet request = new HttpGet(downloadUrl);
+            HttpGet request = new HttpGet(url);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 int status = response.getStatusLine().getStatusCode();
@@ -292,7 +294,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private ConfluenceUser getConfluenceUserFromJSON (JSONObject jsonObj) throws JSONException {
+    private ConfluenceUser getConfluenceUserFromJSON (final JSONObject jsonObj) throws JSONException {
         ConfluenceUser confluenceUser = null;
         if (jsonObj.has("users")) {
             JSONArray users = jsonObj.getJSONArray("users");

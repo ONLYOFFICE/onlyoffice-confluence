@@ -73,9 +73,9 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
 
     @Inject
-    public OnlyOfficeConfServlet(UserManager userManager, PluginSettingsFactory pluginSettingsFactory,
-                                 JwtManager jwtManager, ConfigurationManager configurationManager,
-                                 ParsingUtil parsingUtil) {
+    public OnlyOfficeConfServlet(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
+                                 final JwtManager jwtManager, final ConfigurationManager configurationManager,
+                                 final ParsingUtil parsingUtil) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.jwtManager = jwtManager;
@@ -84,7 +84,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         String username = userManager.getRemoteUsername(request);
         if (username == null || !userManager.isSystemAdmin(username)) {
             SettingsManager settingsManager = (SettingsManager) ContainerManager.getComponent("settingsManager");
@@ -140,12 +140,12 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         writer.write(getTemplate(contextMap));
     }
 
-    private String getTemplate(Map<String, Object> map) throws UnsupportedEncodingException {
+    private String getTemplate(final Map<String, Object> map) throws UnsupportedEncodingException {
         return VelocityUtils.getRenderedTemplate("templates/configure.vm", map);
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         String username = userManager.getRemoteUsername(request);
         if (username == null || !userManager.isSystemAdmin(username)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -234,13 +234,13 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         response.getWriter().write("{\"success\": true}");
     }
 
-    private String AppendSlash(String str) {
+    private String AppendSlash(final String str) {
         if (str == null || str.isEmpty() || str.endsWith("/"))
             return str;
         return str + "/";
     }
 
-    private Boolean CheckDocServUrl(String url) {
+    private Boolean CheckDocServUrl(final String url) {
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             HttpGet request = new HttpGet(url + "healthcheck");
             try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -255,7 +255,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         return false;
     }
 
-    private Boolean CheckDocServCommandService(String url) throws SecurityException {
+    private Boolean CheckDocServCommandService(final String url) throws SecurityException {
         Integer errorCode = -1;
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();

@@ -37,15 +37,15 @@ public class IsOfficePageAttachments implements Condition {
     private final AttachmentUtil attachmentUtil;
 
     @Inject
-    public IsOfficePageAttachments(AttachmentUtil attachmentUtil) {
+    public IsOfficePageAttachments(final AttachmentUtil attachmentUtil) {
         this.attachmentUtil = attachmentUtil;
     }
 
-    public void init(Map<String, String> map) throws PluginParseException {
+    public void init(final Map<String, String> map) throws PluginParseException {
 
     }
 
-    public boolean shouldDisplay(Map<String, Object> context) {
+    public boolean shouldDisplay(final Map<String, Object> context) {
         HttpServletRequest request = ServletContextThreadLocal.getRequest();
 
         if (request != null){

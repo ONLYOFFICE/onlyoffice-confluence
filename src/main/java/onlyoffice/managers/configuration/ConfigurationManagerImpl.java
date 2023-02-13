@@ -59,7 +59,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     private Map<String, String> demoData;
 
     @Inject
-    public ConfigurationManagerImpl(PluginSettingsFactory pluginSettingsFactory) {
+    public ConfigurationManagerImpl(final PluginSettingsFactory pluginSettingsFactory) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
 
@@ -79,7 +79,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return properties;
     }
 
-    public String getProperty(String propertyName){
+    public String getProperty(final String propertyName){
         try {
             Properties properties = getProperties();
             String property = properties.getProperty(propertyName);
@@ -101,7 +101,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return Boolean.parseBoolean(forceSave);
     }
 
-    public boolean selectDemo(Boolean demo) {
+    public boolean selectDemo(final Boolean demo) {
         pluginSettings.put(pluginDemoName, demo.toString());
         if (demo) {
             String demoStart = (String) pluginSettings.get(pluginDemoNameStart);
@@ -123,7 +123,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return Boolean.parseBoolean(demo);
     }
 
-    public Boolean demoAvailable(Boolean forActivate) {
+    public Boolean demoAvailable(final Boolean forActivate) {
         String demoStart = (String) pluginSettings.get(pluginDemoNameStart);
         if (demoStart != null && !demoStart.isEmpty()) {
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -147,11 +147,11 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return demoEnabled() && demoAvailable(false);
     }
 
-    public String getDemo(String key) {
+    public String getDemo(final String key) {
         return demoData.get(key);
     }
 
-    public Boolean getBooleanPluginSetting(String key, Boolean defaultValue) {
+    public Boolean getBooleanPluginSetting(final String key, final Boolean defaultValue) {
         String setting = (String) pluginSettings.get("onlyoffice." + key);
         if (setting == null || setting.isEmpty()) {
             return defaultValue;
@@ -159,7 +159,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return Boolean.parseBoolean(setting);
     }
 
-    public String getStringPluginSetting(String key, String defaultValue) {
+    public String getStringPluginSetting(final String key, final String defaultValue) {
         String setting = (String) pluginSettings.get("onlyoffice." + key);
         if (setting == null || setting.isEmpty()) {
             return defaultValue;
@@ -209,14 +209,14 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
 
             builder.loadTrustMaterial(null, new TrustStrategy() {
                 @Override
-                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                public boolean isTrusted(final X509Certificate[] chain, final String authType) throws CertificateException {
                     return true;
                 }
             });
 
             SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(builder.build(), new HostnameVerifier() {
                 @Override
-                public boolean verify(String hostname, SSLSession session) {
+                public boolean verify(final String hostname, final SSLSession session) {
                     return true;
                 }
             });

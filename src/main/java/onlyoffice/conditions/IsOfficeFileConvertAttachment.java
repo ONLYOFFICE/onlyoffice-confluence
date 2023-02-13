@@ -40,14 +40,14 @@ public class IsOfficeFileConvertAttachment implements Condition {
     private final ConvertManager convertManager;
 
     @Inject
-    public IsOfficeFileConvertAttachment(DocumentManager documentManager, AttachmentUtil attachmentUtil,
-                                         ConvertManager convertManager) {
+    public IsOfficeFileConvertAttachment(final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                                         final ConvertManager convertManager) {
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
     }
 
-    public void init(Map<String, String> params) throws PluginParseException {
+    public void init(final Map<String, String> params) throws PluginParseException {
         form = false;
 
         if (params != null && !params.isEmpty() && params.get("form") != null) {
@@ -55,7 +55,7 @@ public class IsOfficeFileConvertAttachment implements Condition {
         }
     }
 
-    public boolean shouldDisplay(Map<String, Object> context) {
+    public boolean shouldDisplay(final Map<String, Object> context) {
         Attachment attachment = (Attachment) context.get("attachment");
         if (attachment == null) {
             return false;
