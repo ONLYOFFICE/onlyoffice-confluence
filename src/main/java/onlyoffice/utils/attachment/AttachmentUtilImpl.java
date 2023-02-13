@@ -212,8 +212,8 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         Object result = transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction() {
-                if (changes != null) attDao.removeAttachmentFromServer(changes);
-                if (diff != null) attDao.removeAttachmentFromServer(diff);
+                if (changes != null) { attDao.removeAttachmentFromServer(changes);}
+                if (diff != null) { attDao.removeAttachmentFromServer(diff); }
                 return null;
             }
         });

@@ -69,9 +69,9 @@ public class IsOfficeFileAttachment implements Condition {
 
         if (forEdit) {
             if (form) {
-                if (accessEdit && documentManager.isFillForm(ext)) return true;
+                if (accessEdit && documentManager.isFillForm(ext)) { return true; }
             } else {
-                if (accessEdit && documentManager.isEditable(ext)) return true;
+                if (accessEdit && documentManager.isEditable(ext)) { return true; }
             }
         } else {
             if (accessView && documentManager.isViewable(ext)

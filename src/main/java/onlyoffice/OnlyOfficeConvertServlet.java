@@ -151,7 +151,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             String pageIdAsString = request.getParameter("pageId");
             String newTitle = request.getParameter("newTitle");
 
-            if (newTitle != null && !newTitle.isEmpty()) title = newTitle;
+            if (newTitle != null && !newTitle.isEmpty()) { title = newTitle; }
 
             Long pageId = null;
             if (pageIdAsString != null && !pageIdAsString.isEmpty()) {

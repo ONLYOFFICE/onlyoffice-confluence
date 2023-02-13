@@ -80,8 +80,7 @@ public class JwtManagerImpl implements JwtManager {
     }
 
     public Boolean verify(final String token) {
-        if (!jwtEnabled())
-            return false;
+        if (!jwtEnabled()) { return false; }
 
         String[] jwt = token.split("\\.");
         if (jwt.length != 3) {
@@ -90,8 +89,7 @@ public class JwtManagerImpl implements JwtManager {
 
         try {
             String hash = calculateHash(jwt[0], jwt[1]);
-            if (!hash.equals(jwt[2]))
-                return false;
+            if (!hash.equals(jwt[2])) { return false; }
         } catch (Exception ex) {
             return false;
         }
