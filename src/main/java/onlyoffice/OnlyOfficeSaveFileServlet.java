@@ -61,6 +61,13 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
+    private static final int STATUS_EDITING = 1;
+    private static final int STATUS_MUST_SAVE = 2;
+    private static final int STATUS_CORRUPTED = 3;
+    private static final int STATUS_CLOSED = 4;
+    private static final int STATUS_FORCE_SAVE = 6;
+    private static final int STATUS_CORRUPTED_FORCE_SAVE = 7;
+
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
 
@@ -103,7 +110,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         if (error.isEmpty()) {
             writer.write("{\"error\":0}");
         } else {
-            response.setStatus(500);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             writer.write("{\"error\":1,\"message\":\"" + error + "\"}");
         }
 
@@ -135,7 +142,8 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 if (token == null || token == "") {
                     String jwth = jwtManager.getJwtHeader();
                     String header = (String) request.getHeader(jwth);
-                    token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
+                    String authorizationPrefix = "Bearer ";
+                    token = (header != null && header.startsWith(authorizationPrefix)) ? header.substring(authorizationPrefix.length()) : header;
                     inBody = false;
                 }
 
@@ -163,7 +171,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             ConfluenceUser user = getConfluenceUserFromJSON(jsonObj);
             log.info("user = " + user);
 
-            if (status == 1) {
+            if (status == STATUS_EDITING) {
                 if (jsonObj.has("actions")) {
                     JSONArray actions = jsonObj.getJSONArray("actions");
                     if (actions.length() > 0) {
@@ -182,8 +190,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 }
             }
 
-            // MustSave, Corrupted
-            if (status == 2 || status == 3) {
+            if (status == STATUS_MUST_SAVE || status == STATUS_CORRUPTED) {
                 if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
                     String downloadUrl = jsonObj.getString("url");
                     downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
@@ -216,12 +223,11 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 }
             }
 
-            if (status == 4) {
+            if (status == STATUS_CLOSED) {
                 attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
             }
 
-            // MustForceSave, CorruptedForceSave
-            if (status == 6 || status == 7) {
+            if (status == STATUS_FORCE_SAVE || status == STATUS_CORRUPTED_FORCE_SAVE) {
                 if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
                     if (configurationManager.forceSaveEnabled()) {
                         String downloadUrl = jsonObj.getString("url");

@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 @Named
 @Default
@@ -209,7 +210,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     }
 
     public CloseableHttpClient getHttpClient() throws Exception {
-        Integer timeout = Integer.parseInt(getProperty("timeout")) * 1000;
+        Integer timeout = (int) TimeUnit.SECONDS.toMillis(Long.parseLong(getProperty("timeout")));
         RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout).setSocketTimeout(timeout).build();
 
         CloseableHttpClient httpClient;

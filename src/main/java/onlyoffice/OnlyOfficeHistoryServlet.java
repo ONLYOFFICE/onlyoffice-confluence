@@ -57,6 +57,7 @@ import java.util.Map;
 public class OnlyOfficeHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
+    private static final int BUFFER_SIZE = 10240;
 
     @ComponentImport
     private final LocaleManager localeManager;
@@ -133,7 +134,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             response.setContentLength(inputStream.available());
             response.addHeader("Access-Control-Allow-Origin", publicDocEditorUrl);
 
-            byte[] buffer = new byte[10240];
+            byte[] buffer = new byte[BUFFER_SIZE];
 
             OutputStream output = response.getOutputStream();
             for (int length = 0; (length = inputStream.read(buffer)) > 0; ) {

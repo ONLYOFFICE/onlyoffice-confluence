@@ -40,6 +40,8 @@ import javax.inject.Named;
 @Default
 public class JwtManagerImpl implements JwtManager {
 
+    private final static int NUMBER_PARTS_TOKEN = 3;
+
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
     @ComponentImport
@@ -85,7 +87,7 @@ public class JwtManagerImpl implements JwtManager {
         }
 
         String[] jwt = token.split("\\.");
-        if (jwt.length != 3) {
+        if (jwt.length != NUMBER_PARTS_TOKEN) {
             return false;
         }
 

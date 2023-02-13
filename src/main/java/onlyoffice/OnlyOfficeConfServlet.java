@@ -60,6 +60,7 @@ import javax.inject.Inject;
 public class OnlyOfficeConfServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConfServlet");
     private final long serialVersionUID = 1L;
+    private final static int ERROR_INVALID_TOKEN = 6;
 
     @ComponentImport
     private final UserManager userManager;
@@ -313,7 +314,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             return false;
         }
 
-        if (errorCode == 6) {
+        if (errorCode == ERROR_INVALID_TOKEN) {
             throw new SecurityException();
         } else if (errorCode != 0) {
             return false;

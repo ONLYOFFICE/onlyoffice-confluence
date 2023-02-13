@@ -38,6 +38,7 @@ import java.io.OutputStream;
 public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFileProviderServlet");
+    private static final int BUFFER_SIZE = 10240;
 
     private final ParsingUtil parsingUtil;
     private final AttachmentUtil attachmentUtil;
@@ -61,7 +62,8 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
         if (jwtManager.jwtEnabled()) {
             String jwth = jwtManager.getJwtHeader();
             String header = request.getHeader(jwth);
-            String token = (header != null && header.startsWith("Bearer ")) ? header.substring(7) : header;
+            String authorizationPrefix = "Bearer ";
+            String token = (header != null && header.startsWith(authorizationPrefix)) ? header.substring(authorizationPrefix.length()) : header;
 
             if (token == null || token == "") {
                 throw new SecurityException("Expected JWT");
@@ -85,7 +87,7 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
         InputStream inputStream = attachmentUtil.getAttachmentData(attachmentId);
         response.setContentLength(inputStream.available());
 
-        byte[] buffer = new byte[10240];
+        byte[] buffer = new byte[BUFFER_SIZE];
 
         OutputStream output = response.getOutputStream();
         for (int length = 0; (length = inputStream.read(buffer)) > 0;) {

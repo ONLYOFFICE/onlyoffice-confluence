@@ -57,6 +57,8 @@ import javax.inject.Named;
 public class DocumentManagerImpl implements DocumentManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
     private final String userAgentMobile = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
+    private final static int DEFAULT_MAX_FILE_SIZE = 5242880;
+    private final static int MAX_KEY_LENGTH = 20;
 
     @ComponentImport
     private final I18nResolver i18n;
@@ -80,7 +82,7 @@ public class DocumentManagerImpl implements DocumentManager {
             size = 0;
         }
 
-        return size > 0 ? size : 5 * 1024 * 1024;
+        return size > 0 ? size : DEFAULT_MAX_FILE_SIZE;
     }
 
     public String getKeyOfFile(final Long attachmentId) {
@@ -96,11 +98,11 @@ public class DocumentManagerImpl implements DocumentManager {
     private String generateRevisionId(final String expectedKey) {
         String result = expectedKey;
 
-        if (result.length() > 20) {
+        if (result.length() > MAX_KEY_LENGTH) {
             result = Integer.toString(result.hashCode());
         }
         String key = result.replace("[^0-9-.a-zA-Z_=]", "_");
-        key = key.substring(0, Math.min(key.length(), 20));
+        key = key.substring(0, Math.min(key.length(), MAX_KEY_LENGTH));
         log.info("key = " + key);
         return key;
     }
