@@ -18,9 +18,14 @@
 
 package onlyoffice;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -171,7 +176,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     }
 
     private String getTemplate(final Long attachmentId, final String type, final String apiUrl, final String callbackUrl, final String fileUrl, final String key, final String fileName,
-                               final ConfluenceUser user, final String gobackUrl, final String actionData, final String errorMessage) throws UnsupportedEncodingException {
+                               final ConfluenceUser user, final String gobackUrl, final String actionData, final String errorMessage) throws
+            UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
 

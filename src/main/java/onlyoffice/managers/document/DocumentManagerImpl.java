@@ -18,11 +18,18 @@
 
 package onlyoffice.managers.document;
 
-import java.io.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.atlassian.confluence.core.ContentEntityManager;
@@ -181,7 +188,8 @@ public class DocumentManagerImpl implements DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public Long createDemo(final String fileName, final String fileExt, final Long pageId, final ConfluenceUser user) throws IOException {
+    public Long createDemo(final String fileName, final String fileExt, final Long pageId, final ConfluenceUser user) throws
+            IOException {
         String extension = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
         String name = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
 
