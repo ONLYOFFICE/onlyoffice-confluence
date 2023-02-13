@@ -179,9 +179,9 @@ public class OnlyOfficeConfServlet extends HttpServlet {
                 apiUrl = configurationManager.getDemo("url");
                 docInnerUrl = configurationManager.getDemo("url");
             } else {
-                apiUrl = AppendSlash(jsonObj.getString("apiUrl"));
+                apiUrl = appendSlash(jsonObj.getString("apiUrl"));
                 jwtSecret = jsonObj.getString("jwtSecret");
-                docInnerUrl = AppendSlash(jsonObj.getString("docInnerUrl"));
+                docInnerUrl = appendSlash(jsonObj.getString("docInnerUrl"));
                 Boolean verifyCertificate = jsonObj.getBoolean("verifyCertificate");
                 pluginSettings.put("onlyoffice.apiUrl", apiUrl);
                 pluginSettings.put("onlyoffice.jwtSecret", jwtSecret);
@@ -189,7 +189,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
                 pluginSettings.put("onlyoffice.verifyCertificate", verifyCertificate.toString());
             }
 
-            String confUrl = AppendSlash(jsonObj.getString("confUrl"));
+            String confUrl = appendSlash(jsonObj.getString("confUrl"));
             Boolean forceSave = jsonObj.getBoolean("forceSave");
             Boolean chat = jsonObj.getBoolean("chat");
             Boolean compactHeader = jsonObj.getBoolean("compactHeader");
@@ -222,14 +222,14 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         }
 
         log.debug("Checking docserv url");
-        if (!CheckDocServUrl((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl)) {
+        if (!checkDocServUrl((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl)) {
             response.getWriter().write("{\"success\": false, \"message\": \"docservunreachable\"}");
             return;
         }
 
         try {
             log.debug("Checking docserv commandservice");
-            if (!CheckDocServCommandService((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl)) {
+            if (!checkDocServCommandService((docInnerUrl == null || docInnerUrl.isEmpty()) ? apiUrl : docInnerUrl)) {
                 response.getWriter().write("{\"success\": false, \"message\": \"docservcommand\"}");
                 return;
             }
@@ -241,7 +241,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         response.getWriter().write("{\"success\": true}");
     }
 
-    private String AppendSlash(final String str) {
+    private String appendSlash(final String str) {
         if (str == null || str.isEmpty() || str.endsWith("/")) {
             return str;
         } else {
@@ -249,7 +249,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         }
     }
 
-    private Boolean CheckDocServUrl(final String url) {
+    private Boolean checkDocServUrl(final String url) {
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             HttpGet request = new HttpGet(url + "healthcheck");
             try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -266,7 +266,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         return false;
     }
 
-    private Boolean CheckDocServCommandService(final String url) throws SecurityException {
+    private Boolean checkDocServCommandService(final String url) throws SecurityException {
         Integer errorCode = -1;
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
