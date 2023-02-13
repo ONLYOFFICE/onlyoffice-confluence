@@ -177,7 +177,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return new ArrayList<>(Arrays.asList(editableTypes.split("\\|")));
     }
 
-    public Map<String, Boolean> getCustomizableEditingTypes () {
+    public Map<String, Boolean> getCustomizableEditingTypes() {
         Map<String, Boolean> customizableEditingTypes = new HashMap<>();
         List<String> editingTypes = null;
 

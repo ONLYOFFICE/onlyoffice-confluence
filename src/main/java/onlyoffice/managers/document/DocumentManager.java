@@ -14,7 +14,7 @@ public interface DocumentManager extends Serializable {
     public String getCorrectName(String fileName, String fileExt, Long pageID);
     public Long createDemo(String fileName, String fileExt, Long pageID, ConfluenceUser user) throws IOException;
     public String getDocType(String ext);
-    public String getEditorType (String userAgent);
+    public String getEditorType(String userAgent);
     public String getMimeType(String name);
     public boolean isEditable(String fileExtension);
     public boolean isFillForm(String fileExtension);

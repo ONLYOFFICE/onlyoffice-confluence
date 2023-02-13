@@ -218,7 +218,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return mimeType != null ? mimeType : "application/octet-stream";
     }
 
-    public String getEditorType (final String userAgent) {
+    public String getEditorType(final String userAgent) {
         Pattern pattern = Pattern.compile(userAgentMobile, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         if (userAgent != null && pattern.matcher(userAgent).find()) {
             return "mobile";

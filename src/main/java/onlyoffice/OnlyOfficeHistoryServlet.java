@@ -103,7 +103,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentDiff (final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void getAttachmentDiff(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         String vkey = request.getParameter("vkey");
         String attachmentIdString = documentManager.readHash(vkey);
 
@@ -139,7 +139,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentHistoryInfo (final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void getAttachmentHistoryInfo(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -212,7 +212,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
     }
 
-    private void getAttachmentHistoryData (final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }

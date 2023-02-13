@@ -261,7 +261,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private void saveAttachmentFromUrl (final Long attachmentId, final String downloadUrl, final ConfluenceUser user, final boolean newVersion) throws Exception {
+    private void saveAttachmentFromUrl(final Long attachmentId, final String downloadUrl, final ConfluenceUser user, final boolean newVersion) throws Exception {
         String attachmentExt = attachmentUtil.getFileExt(attachmentId);
         String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
         String url = downloadUrl;
@@ -294,7 +294,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private ConfluenceUser getConfluenceUserFromJSON (final JSONObject jsonObj) throws JSONException {
+    private ConfluenceUser getConfluenceUserFromJSON(final JSONObject jsonObj) throws JSONException {
         ConfluenceUser confluenceUser = null;
         if (jsonObj.has("users")) {
             JSONArray users = jsonObj.getJSONArray("users");

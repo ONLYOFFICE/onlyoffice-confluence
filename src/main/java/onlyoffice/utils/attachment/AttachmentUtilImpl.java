@@ -159,7 +159,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         });
     }
 
-    public void saveAttachmentChanges (final Long attachmentId, final String history, final String changesUrl) throws Exception {
+    public void saveAttachmentChanges(final Long attachmentId, final String history, final String changesUrl) throws Exception {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         if (history != null && !history.isEmpty() && changesUrl != null && !changesUrl.isEmpty()) {
@@ -204,7 +204,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         }
     }
 
-    public void removeAttachmentChanges (final Long attachmentId) {
+    public void removeAttachmentChanges(final Long attachmentId) {
         Attachment changes = getAttachmentChanges(attachmentId);
         Attachment diff = getAttachmentDiff(attachmentId);
 
@@ -248,11 +248,11 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return attachmentId + "_" + version + "_" + hashCode;
     }
 
-    public String getCollaborativeEditingKey (final Long attachmentId) {
+    public String getCollaborativeEditingKey(final Long attachmentId) {
         return getProperty(attachmentId, "onlyoffice-collaborative-editor-key");
     }
 
-    public void setCollaborativeEditingKey (final Long attachmentId, final String key) {
+    public void setCollaborativeEditingKey(final Long attachmentId, final String key) {
         if (key == null || key.isEmpty()) {
             removeProperty(attachmentId, "onlyoffice-collaborative-editor-key");
         } else {
@@ -260,7 +260,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         }
     }
 
-    public String getProperty (final Long attachmentId, final String name) {
+    public String getProperty(final Long attachmentId, final String name) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             ContentProperties contentProperties = attachment.getProperties();
@@ -269,12 +269,12 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public boolean getPropertyAsBoolean (final Long attachmentId, final String name) {
+    public boolean getPropertyAsBoolean(final Long attachmentId, final String name) {
         String property = getProperty(attachmentId, name);
         return Boolean.parseBoolean(property);
     }
 
-    public void setProperty (final Long attachmentId, final String name, final String value) {
+    public void setProperty(final Long attachmentId, final String name, final String value) {
         AttachmentDao attDao = attachmentManager.getAttachmentDao();
         Attachment attachment = attDao.getById(attachmentId);
 
@@ -289,7 +289,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         });
     }
 
-    public void removeProperty (final Long attachmentId, final String name) {
+    public void removeProperty(final Long attachmentId, final String name) {
         AttachmentDao attDao = attachmentManager.getAttachmentDao();
         Attachment attachment = attDao.getById(attachmentId);
 
@@ -304,7 +304,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         });
     }
 
-    public List<Attachment> getAllVersions (final Long attachmentId) {
+    public List<Attachment> getAllVersions(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachmentManager.getAllVersions(attachment);
@@ -312,12 +312,12 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public int getVersion (final Long attachmentId) {
+    public int getVersion(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getVersion();
     }
 
-    public Attachment getAttachmentChanges (final Long attachmentId) {
+    public Attachment getAttachmentChanges(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachment.getAttachmentNamed("onlyoffice-changes.json");
@@ -325,7 +325,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public Attachment getAttachmentDiff (final Long attachmentId) {
+    public Attachment getAttachmentDiff(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachment.getAttachmentNamed("onlyoffice-diff.zip");
@@ -333,7 +333,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public String getAttachmentPageTitle (final Long attachmentId) {
+    public String getAttachmentPageTitle(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachment.getContainer().getTitle();
@@ -341,7 +341,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public Long getAttachmentPageId (final Long attachmentId) {
+    public Long getAttachmentPageId(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachment.getContainer().getId();
@@ -349,7 +349,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public String getAttachmentSpaceName (final Long attachmentId) {
+    public String getAttachmentSpaceName(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachment.getSpace().getName();
@@ -357,7 +357,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public String getAttachmentSpaceKey (final Long attachmentId) {
+    public String getAttachmentSpaceKey(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         if (attachment != null) {
             return attachment.getSpace().getKey();
@@ -365,7 +365,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public Attachment createNewAttachment (final String fileName, final String mimeType, final InputStream file, final int size, final Long pageId, final ConfluenceUser user) throws IOException {
+    public Attachment createNewAttachment(final String fileName, final String mimeType, final InputStream file, final int size, final Long pageId, final ConfluenceUser user) throws IOException {
         Date date = Calendar.getInstance().getTime();
 
         Attachment attachment = new Attachment(fileName, mimeType, size, "");

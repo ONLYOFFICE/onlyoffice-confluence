@@ -96,7 +96,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         }
     }
 
-    private void saveAs (final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void saveAs(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         if (user == null) {
@@ -155,7 +155,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         }
     }
 
-    private void attachmentData (final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    private void attachmentData(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         if (user == null) {
