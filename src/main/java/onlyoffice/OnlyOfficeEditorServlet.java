@@ -27,7 +27,6 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.webresource.UrlMode;
 import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -68,7 +67,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
-    private final ConvertManager convertManager;
 
 
     @Inject
@@ -77,8 +75,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                                    final UrlManager urlManager, final JwtManager jwtManager,
                                    final ConfigurationManager configurationManager,
                                    final AuthContext authContext, final DocumentManager documentManager,
-                                   final AttachmentUtil attachmentUtil,
-                                   final ConvertManager convertManager) {
+                                   final AttachmentUtil attachmentUtil) {
         this.localeManager = localeManager;
         this.webResourceUrlProvider = webResourceUrlProvider;
         this.urlManager = urlManager;
@@ -87,7 +84,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
-        this.convertManager = convertManager;
     }
 
     @Override

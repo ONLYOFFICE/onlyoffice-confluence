@@ -20,9 +20,7 @@ package onlyoffice;
 
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
-import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -40,20 +38,15 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFileProviderServlet");
     private static final int BUFFER_SIZE = 10240;
 
-    private final ParsingUtil parsingUtil;
     private final AttachmentUtil attachmentUtil;
-    private final UrlManager urlManager;
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
 
     @Inject
-    public OnlyOfficeFileProviderServlet(final ParsingUtil parsingUtil, final AttachmentUtil attachmentUtil,
-                                         final JwtManager jwtManager, final UrlManager urlManager,
+    public OnlyOfficeFileProviderServlet(final AttachmentUtil attachmentUtil, final JwtManager jwtManager,
                                          final DocumentManager documentManager) {
-        this.parsingUtil = parsingUtil;
         this.attachmentUtil = attachmentUtil;
         this.jwtManager = jwtManager;
-        this.urlManager = urlManager;
         this.documentManager = documentManager;
     }
 

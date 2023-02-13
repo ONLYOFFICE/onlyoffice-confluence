@@ -18,7 +18,6 @@
 
 package onlyoffice.managers.configuration;
 
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.apache.http.client.config.RequestConfig;
@@ -59,9 +58,6 @@ import java.util.concurrent.TimeUnit;
 @Default
 public class ConfigurationManagerImpl implements ConfigurationManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.configuration.ConfigurationManager");
-
-    @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
     private final PluginSettings pluginSettings;
 
     private final String configurationPath = "onlyoffice-config.properties";
@@ -71,7 +67,6 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
 
     @Inject
     public ConfigurationManagerImpl(final PluginSettingsFactory pluginSettingsFactory) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
 
         demoData = new HashMap<String, String>();
