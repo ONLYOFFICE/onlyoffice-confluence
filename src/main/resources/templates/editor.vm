@@ -1,5 +1,6 @@
 $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor")
 #requireResourcesForContext("viewattachments")
+#requireResourcesForContext("editor")
 
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -99,20 +100,33 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         };
 
         var insertDialog = function (docEditorEvent, windowFromUrl, fileTypes, command = null) {
+            if (AJS.Editor.ImageDialog.panelComponent.length == 0) {
+                var attachmentsPanelView = new AJS.Editor.FileDialog.AttachmentsPanelView({
+                    eventListener: AJS.Editor.FileDialog.eventListener
+                });
+
+                AJS.Editor.ImageDialog.panelComponent.push(attachmentsPanelView);
+                AJS.Editor.ImageDialog.panelComponent.push(new AJS.Editor.FileDialog.ExternalPanelView());
+                AJS.Editor.ImageDialog.panelComponent.push(new AJS.Editor.FileDialog.SearchPanelView());
+            }
+
             if (defaultPanelComponent.length == 0) {
                 AJS.Editor.ImageDialog.panelComponent.forEach((component) => {
                     defaultPanelComponent.push(component);
                 });
-            } else {
-                AJS.Editor.ImageDialog.panelComponent = new Array();
-                defaultPanelComponent.forEach((component) => {
-                    AJS.Editor.ImageDialog.panelComponent.push(component);
-                });
             }
 
-            if (!windowFromUrl) {
-                AJS.Editor.ImageDialog.panelComponent.splice(1, 1);
-            }
+            AJS.Editor.ImageDialog.panelComponent.splice(0, AJS.Editor.ImageDialog.panelComponent.length)
+            defaultPanelComponent.filter(function(el, i) {
+                if (windowFromUrl) {
+                    return true;
+                } else {
+                    return i != 1;
+                }
+
+              }).forEach((component) => {
+                AJS.Editor.ImageDialog.panelComponent.push(component);
+            });
 
             AJS.Editor.ImageDialog.insertImageDialog(function(a) {
                 if (a.url && windowFromUrl) {
