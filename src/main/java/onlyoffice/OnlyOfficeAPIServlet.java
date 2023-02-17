@@ -44,7 +44,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +55,7 @@ import java.util.Map;
 
 public class OnlyOfficeAPIServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
+    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
 
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
@@ -63,9 +66,9 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private final ConfigurationManager configurationManager;
 
     @Inject
-    public OnlyOfficeAPIServlet(JwtManager jwtManager, DocumentManager documentManager,
-                                AttachmentUtil attachmentUtil, ParsingUtil parsingUtil, UrlManager urlManager,
-                                ConfigurationManager configurationManager) {
+    public OnlyOfficeAPIServlet(final JwtManager jwtManager, final DocumentManager documentManager,
+                                final AttachmentUtil attachmentUtil, final ParsingUtil parsingUtil,
+                                final UrlManager urlManager, final ConfigurationManager configurationManager) {
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
@@ -75,11 +78,11 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         String type = request.getParameter("type");
         if (type != null) {
-            switch (type.toLowerCase())
-            {
+            switch (type.toLowerCase()) {
                 case "save-as":
                     saveAs(request, response);
                     break;
@@ -96,7 +99,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         }
     }
 
-    private void saveAs (HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void saveAs(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         if (user == null) {
@@ -155,7 +158,8 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         }
     }
 
-    private void attachmentData (HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void attachmentData(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         if (user == null) {

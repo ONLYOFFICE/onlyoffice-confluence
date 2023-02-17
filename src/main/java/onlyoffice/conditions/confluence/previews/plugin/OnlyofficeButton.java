@@ -39,14 +39,15 @@ import java.io.PrintWriter;
 
 public class OnlyofficeButton extends HttpServlet {
     @ComponentImport
-    AttachmentManager attachmentManager;
+    private AttachmentManager attachmentManager;
 
     private final ParsingUtil parsingUtil;
     private final AttachmentUtil attachmentUtil;
     private final DocumentManager documentManager;
 
     @Inject
-    public OnlyofficeButton(AttachmentManager attachmentManager, ParsingUtil parsingUtil, AttachmentUtil attachmentUtil, DocumentManager documentManager) {
+    public OnlyofficeButton(final AttachmentManager attachmentManager, final ParsingUtil parsingUtil,
+                            final AttachmentUtil attachmentUtil, final DocumentManager documentManager) {
         this.attachmentManager = attachmentManager;
         this.parsingUtil = parsingUtil;
         this.attachmentUtil = attachmentUtil;
@@ -54,7 +55,8 @@ public class OnlyofficeButton extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         InputStream requestStream = request.getInputStream();
         String body = parsingUtil.getBody(requestStream);
 
@@ -75,8 +77,8 @@ public class OnlyofficeButton extends HttpServlet {
                 access = "edit";
             } else if (accessEdit && documentManager.isFillForm(ext)) {
                 access = "fillform";
-            } else if (accessView && documentManager.isViewable(ext) &&
-                    !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
+            } else if (accessView && documentManager.isViewable(ext)
+                    && !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
                 access = "view";
             }
 

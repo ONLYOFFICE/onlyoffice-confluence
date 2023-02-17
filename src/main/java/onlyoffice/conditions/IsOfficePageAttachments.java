@@ -20,9 +20,9 @@ package onlyoffice.conditions;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.core.filters.ServletContextThreadLocal;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
-import com.atlassian.core.filters.ServletContextThreadLocal;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 import javax.inject.Inject;
@@ -37,31 +37,31 @@ public class IsOfficePageAttachments implements Condition {
     private final AttachmentUtil attachmentUtil;
 
     @Inject
-    public IsOfficePageAttachments(AttachmentUtil attachmentUtil) {
+    public IsOfficePageAttachments(final AttachmentUtil attachmentUtil) {
         this.attachmentUtil = attachmentUtil;
     }
 
-    public void init(Map<String, String> map) throws PluginParseException {
+    public void init(final Map<String, String> map) throws PluginParseException {
 
     }
 
-    public boolean shouldDisplay(Map<String, Object> context) {
+    public boolean shouldDisplay(final Map<String, Object> context) {
         HttpServletRequest request = ServletContextThreadLocal.getRequest();
 
-        if (request != null){
+        if (request != null) {
             String uri = request.getServletPath();
             Pattern pattern = Pattern.compile(".*/" + pageAttachments + ".*");
             Matcher matcher = pattern.matcher(uri);
 
             String pageId = request.getParameter("pageId");
             boolean access = false;
-            if (pageId != null){
+            if (pageId != null) {
                 ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
                 access = attachmentUtil.checkAccessCreate(user, Long.parseLong(pageId));
             }
             return matcher.matches() && access;
-        }else {
+        } else {
             return false;
         }
     }

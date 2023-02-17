@@ -18,11 +18,6 @@
 
 package onlyoffice.managers.convert;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -45,6 +40,10 @@ import org.json.JSONObject;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 
 @Named
 @Default
@@ -60,9 +59,9 @@ public class ConvertManagerImpl implements ConvertManager {
     private final DocumentManager documentManager;
 
     @Inject
-    public ConvertManagerImpl(UrlManager urlManager, JwtManager jwtManager,
-                              ConfigurationManager configurationManager,
-                              DocumentManager documentManager, LocaleManager localeManager) {
+    public ConvertManagerImpl(final UrlManager urlManager, final JwtManager jwtManager,
+                              final ConfigurationManager configurationManager,
+                              final DocumentManager documentManager, final LocaleManager localeManager) {
         this.urlManager = urlManager;
         this.jwtManager = jwtManager;
         this.configurationManager = configurationManager;
@@ -70,33 +69,47 @@ public class ConvertManagerImpl implements ConvertManager {
         this.localeManager = localeManager;
     }
 
-    public boolean isConvertable(String ext) {
+    public boolean isConvertable(final String ext) {
         String convertableTypes = configurationManager.getProperty("docservice.type.convert");
-        if(convertableTypes == null) return false;
+        if (convertableTypes == null) {
+            return false;
+        }
         List<String> exts = Arrays.asList(convertableTypes.split("\\|"));
         return exts.contains(ext);
     }
 
-    public String convertsTo(String ext) {
+    public String convertsTo(final String ext) {
         String docType = documentManager.getDocType(ext);
         if (docType != null) {
-            if (ext.equals("docx")) return "docxf";
-            if (ext.equals("docxf")) return "oform";
+            if (ext.equals("docx")) {
+                return "docxf";
+            }
+            if (ext.equals("docxf")) {
+                return "oform";
+            }
 
-            if (docType.equals("word")) return "docx";
-            if (docType.equals("cell")) return "xlsx";
-            if (docType.equals("slide")) return "pptx";
+            if (docType.equals("word")) {
+                return "docx";
+            }
+            if (docType.equals("cell")) {
+                return "xlsx";
+            }
+            if (docType.equals("slide")) {
+                return "pptx";
+            }
         }
         return null;
     }
 
-    public JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user) throws Exception {
-       String url = urlManager.getFileUri(attachmentId);
-       String region = localeManager.getLocale(user).toLanguageTag();
-       return convert(attachmentId, ext, convertToExt, url, region, true);
+    public JSONObject convert(final Long attachmentId, final String ext, final String convertToExt,
+                              final ConfluenceUser user) throws Exception {
+        String url = urlManager.getFileUri(attachmentId);
+        String region = localeManager.getLocale(user).toLanguageTag();
+        return convert(attachmentId, ext, convertToExt, url, region, true);
     }
 
-    public JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, String region, boolean async) throws Exception {
+    public JSONObject convert(final Long attachmentId, final String currentExt, final String convertToExt,
+                              final String url, final String region, final boolean async) throws Exception {
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
             body.put("async", async);
@@ -148,7 +161,7 @@ public class ConvertManagerImpl implements ConvertManager {
         }
     }
 
-    private String trimDot(String input) {
+    private String trimDot(final String input) {
         return input.startsWith(".") ? input.substring(1) : input;
     }
 }

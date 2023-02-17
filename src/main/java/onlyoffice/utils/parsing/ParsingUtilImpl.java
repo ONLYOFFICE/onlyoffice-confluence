@@ -8,7 +8,7 @@ import java.util.Scanner;
 @Named
 @Default
 public class ParsingUtilImpl implements ParsingUtil {
-    public String getBody(InputStream stream) {
+    public String getBody(final InputStream stream) {
         Scanner scanner = null;
         Scanner scannerUseDelimiter = null;
         try {
