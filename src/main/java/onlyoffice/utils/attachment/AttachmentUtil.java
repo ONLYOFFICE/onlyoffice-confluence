@@ -1,5 +1,6 @@
 package onlyoffice.utils.attachment;
 
+import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.user.User;
@@ -68,4 +69,6 @@ public interface AttachmentUtil extends Serializable {
                                    ConfluenceUser user) throws IOException;
 
     File getConvertedFile(Long attachmentId);
+
+    ContentEntityObject getContainer(Long containerId);
 }

@@ -199,7 +199,7 @@ public class DocumentManagerImpl implements DocumentManager {
                 fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf")
                         ? "docx" : fileExt.trim();
         String name = fileName == null || fileName.equals("")
-                ? i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
+                ? i18n.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
 
         InputStream demoFile = getDemoFile(user, extension);
 

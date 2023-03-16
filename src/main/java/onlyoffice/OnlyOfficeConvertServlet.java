@@ -20,7 +20,6 @@ package onlyoffice;
 
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
-import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -66,21 +65,18 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final ConfigurationManager configurationManager;
-    private final PageManager pageManager;
 
     @Inject
     public OnlyOfficeConvertServlet(final AttachmentManager attachmentManager, final AttachmentUtil attachmentUtil,
                                     final ConvertManager convertManager, final AuthContext authContext,
                                     final DocumentManager documentManager,
-                                    final ConfigurationManager configurationManager,
-                                    final PageManager pageManager) {
+                                    final ConfigurationManager configurationManager) {
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.configurationManager = configurationManager;
-        this.pageManager = pageManager;
     }
 
     @Override
@@ -223,7 +219,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
                     Attachment copy = attachment.copyLatestVersion();
 
-                    copy.setContainer(pageManager.getPage(pageId));
+                    copy.setContainer(attachmentUtil.getContainer(pageId));
                     copy.setFileName(newName);
                     copy.setFileSize(bytes.length);
                     copy.setMediaType(documentManager.getMimeType(newName));

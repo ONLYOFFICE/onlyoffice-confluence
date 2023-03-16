@@ -19,9 +19,9 @@
 package onlyoffice.utils.attachment;
 
 import com.atlassian.confluence.content.ContentProperties;
+import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
-import com.atlassian.confluence.pages.Page;
 import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
 import com.atlassian.confluence.pages.persistence.dao.filesystem.HierarchicalContentFileSystemHelper;
@@ -121,8 +121,8 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
 
-        Page page = pageManager.getPage(pageId);
-        boolean access = permissionManager.hasCreatePermission(user, page, Attachment.class);
+        ContentEntityObject container = getContainer(pageId);
+        boolean access = permissionManager.hasCreatePermission(user, container, Attachment.class);
 
         return access;
     }
@@ -376,18 +376,18 @@ public class AttachmentUtilImpl implements AttachmentUtil {
                                           final int size, final Long pageId, final ConfluenceUser user)
             throws IOException {
         Date date = Calendar.getInstance().getTime();
+        ContentEntityObject container = getContainer(pageId);
 
         Attachment attachment = new Attachment(fileName, mimeType, size, "");
 
         attachment.setCreator(user);
         attachment.setCreationDate(date);
         attachment.setLastModificationDate(date);
-        attachment.setContainer(pageManager.getPage(pageId));
+        attachment.setContainer(container);
 
         attachmentManager.saveAttachment(attachment, null, file);
 
-        Page page = pageManager.getPage(pageId);
-        page.addAttachment(attachment);
+        container.addAttachment(attachment);
 
         return attachment;
     }
@@ -404,6 +404,16 @@ public class AttachmentUtilImpl implements AttachmentUtil {
                 convertStorageFolder,
                 Long.toString(attachment.getId()) + "_" + Integer.toString(attachment.getVersion())
         );
+    }
+
+    public ContentEntityObject getContainer(final Long containerId) {
+        ContentEntityObject container = pageManager.getPage(containerId);
+
+        if (container == null) {
+            container = pageManager.getBlogPost(containerId);
+        }
+
+        return container;
     }
 
 }
