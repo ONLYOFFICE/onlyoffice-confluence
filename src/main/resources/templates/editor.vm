@@ -52,6 +52,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     </div>
     <div class="form">
         <div id="iframeEditor"></div>
+        <span style="display:none;" id="editorConfig" aria-hidden="true">$jsonAsHtml</span>
     </div>
 
     <script type="text/javascript" src="${docserviceApiUrl}"></script>
@@ -330,8 +331,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 return;
             }
 
-            var json = '${jsonAsHtml}';
-
             var config = {
                 "events" : {
                     "onAppReady": onAppReady,
@@ -346,9 +345,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 },
             };
 
-            if (json) {
-                Object.assign(config, JSON.parse(json));
-            }
+            Object.assign(config, JSON.parse($("#editorConfig").html() || "{}"));
 
             if ((config.document.fileType === "docxf" || config.document.fileType === "oform")
                 && docsVersion[0] < 7) {
