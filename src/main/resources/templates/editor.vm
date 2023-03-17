@@ -42,6 +42,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     <meta name="ajs-parent-page-id" content="${pageId}">
     <meta name="ajs-original-parent-page" content="${pageTitle}">
     <meta name="ajs-from-page-title" content="${pageTitle}">
+    <meta name="ajs-is-blog-post" content="${isBlogPost}">
 </head>
 
 <body>
@@ -340,10 +341,13 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestInsertImage": onRequestInsertImage,
                     "onRequestCompareFile": onRequestCompareFile,
                     "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
-                    "onRequestSaveAs": onRequestSaveAs,
                     "onMakeActionLink": onMakeActionLink,
                 },
             };
+
+            if (!AJS.Meta.get("is-blog-post")) {
+                config.events.onRequestSaveAs = onRequestSaveAs;
+            }
 
             Object.assign(config, JSON.parse($("#editorConfig").html() || "{}"));
 

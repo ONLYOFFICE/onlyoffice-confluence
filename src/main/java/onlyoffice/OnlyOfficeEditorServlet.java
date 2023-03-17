@@ -19,6 +19,7 @@
 package onlyoffice;
 
 import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -270,6 +271,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
             config.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
             config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
+            config.put("isBlogPost", String.valueOf(attachmentUtil.getContainer(pageId) instanceof BlogPost));
             config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
             config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
