@@ -1,5 +1,10 @@
 # Change Log
 
+## Changed
+- compatible with Confluence 8.1.1
+- Confluence 6 is no longer supported
+- fix editing in blog
+
 ## 4.1.0
 ## Added
 - button ONLYOFFICE in confluence preview 
