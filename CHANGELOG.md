@@ -1,5 +1,6 @@
 # Change Log
 
+## 4.2.0
 ## Changed
 - compatible with Confluence 8.1.1
 - Confluence 6 is no longer supported
