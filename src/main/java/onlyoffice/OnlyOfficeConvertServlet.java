@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,14 @@
 
 package onlyoffice;
 
-import java.io.*;
-import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import onlyoffice.managers.configuration.ConfigurationManager;
-import com.atlassian.confluence.pages.PageManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
@@ -42,19 +40,22 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import com.atlassian.confluence.pages.Attachment;
-import com.atlassian.confluence.pages.AttachmentManager;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
-import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
-
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 public class OnlyOfficeConvertServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
+    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
 
     @ComponentImport
     private final AttachmentManager attachmentManager;
@@ -64,23 +65,23 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final ConfigurationManager configurationManager;
-    private final PageManager pageManager;
 
     @Inject
-    public OnlyOfficeConvertServlet(AttachmentManager attachmentManager, AttachmentUtil attachmentUtil,
-            ConvertManager convertManager, AuthContext authContext, DocumentManager documentManager,
-            ConfigurationManager configurationManager, PageManager pageManager) {
+    public OnlyOfficeConvertServlet(final AttachmentManager attachmentManager, final AttachmentUtil attachmentUtil,
+                                    final ConvertManager convertManager, final AuthContext authContext,
+                                    final DocumentManager documentManager,
+                                    final ConfigurationManager configurationManager) {
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.configurationManager = configurationManager;
-        this.pageManager = pageManager;
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -119,12 +120,13 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         writer.write(getTemplate(contextMap));
     }
 
-    private String getTemplate(Map<String, Object> map) throws UnsupportedEncodingException {
+    private String getTemplate(final Map<String, Object> map) throws UnsupportedEncodingException {
         return VelocityUtils.getRenderedTemplate("templates/convert.vm", map);
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -150,7 +152,9 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             String pageIdAsString = request.getParameter("pageId");
             String newTitle = request.getParameter("newTitle");
 
-            if (newTitle != null && !newTitle.isEmpty()) title = newTitle;
+            if (newTitle != null && !newTitle.isEmpty()) {
+                title = newTitle;
+            }
 
             Long pageId = null;
             if (pageIdAsString != null && !pageIdAsString.isEmpty()) {
@@ -159,7 +163,8 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                 pageId = attachment.getContainer().getId();
             }
 
-            if (attachmentUtil.checkAccess(attachmentId, user, false) && attachmentUtil.checkAccessCreate(user, pageId)) {
+            if (attachmentUtil.checkAccess(attachmentId, user, false)
+                    && attachmentUtil.checkAccessCreate(user, pageId)) {
                 if (convertManager.isConvertable(ext)) {
                     String convertToExt = convertManager.convertsTo(ext);
                     json = convertManager.convert(attachmentId, ext, convertToExt, user);
@@ -196,7 +201,8 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         }
     }
 
-    private Long savefile(Attachment attachment, String fileUrl, String newName, Long pageId) throws Exception {
+    private Long savefile(final Attachment attachment, final String fileUrl, final String newName, final Long pageId)
+            throws Exception {
         log.info("downloadUri = " + fileUrl);
 
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
@@ -213,7 +219,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
                     Attachment copy = attachment.copyLatestVersion();
 
-                    copy.setContainer(pageManager.getPage(pageId));
+                    copy.setContainer(attachmentUtil.getContainer(pageId));
                     copy.setFileName(newName);
                     copy.setFileSize(bytes.length);
                     copy.setMediaType(documentManager.getMimeType(newName));

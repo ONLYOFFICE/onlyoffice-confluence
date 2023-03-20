@@ -9,18 +9,31 @@ import java.util.Map;
 import java.util.Properties;
 
 public interface ConfigurationManager extends Serializable {
-    public Properties getProperties() throws IOException;
-    public String getProperty(String propertyName);
-    public boolean forceSaveEnabled();
-    public boolean selectDemo(Boolean demo);
-    public Boolean demoEnabled();
-    public Boolean demoAvailable(Boolean forActivate);
-    public Boolean demoActive();
-    public String getDemo(String key);
-    public Boolean getBooleanPluginSetting(String key, Boolean defaultValue);
-    public String getStringPluginSetting(String key, String defaultValue);
-    public List<String> getDefaultEditingTypes();
-    public List<String> getFillFormTypes();
-    public Map<String, Boolean> getCustomizableEditingTypes();
-    public CloseableHttpClient getHttpClient() throws Exception;
+    Properties getProperties() throws IOException;
+
+    String getProperty(String propertyName);
+
+    boolean forceSaveEnabled();
+
+    boolean selectDemo(Boolean demo);
+
+    Boolean demoEnabled();
+
+    Boolean demoAvailable(Boolean forActivate);
+
+    Boolean demoActive();
+
+    String getDemo(String key);
+
+    Boolean getBooleanPluginSetting(String key, Boolean defaultValue);
+
+    String getStringPluginSetting(String key, String defaultValue);
+
+    List<String> getDefaultEditingTypes();
+
+    List<String> getFillFormTypes();
+
+    Map<String, Boolean> getCustomizableEditingTypes();
+
+    CloseableHttpClient getHttpClient() throws Exception;
 }

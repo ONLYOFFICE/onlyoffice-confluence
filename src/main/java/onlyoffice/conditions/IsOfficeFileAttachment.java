@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@
 
 package onlyoffice.conditions;
 
-import java.util.List;
-import java.util.Map;
-
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -30,6 +27,7 @@ import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 public class IsOfficeFileAttachment implements Condition {
     private boolean forEdit;
@@ -38,12 +36,12 @@ public class IsOfficeFileAttachment implements Condition {
     private AttachmentUtil attachmentUtil;
 
     @Inject
-    public IsOfficeFileAttachment(DocumentManager documentManager, AttachmentUtil attachmentUtil) {
+    public IsOfficeFileAttachment(final DocumentManager documentManager, final AttachmentUtil attachmentUtil) {
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
     }
 
-    public void init(Map<String, String> params) throws PluginParseException {
+    public void init(final Map<String, String> params) throws PluginParseException {
         forEdit = false;
         form = false;
         if (params != null && !params.isEmpty() && params.get("forEdit") != null) {
@@ -54,7 +52,7 @@ public class IsOfficeFileAttachment implements Condition {
         }
     }
 
-    public boolean shouldDisplay(Map<String, Object> context) {
+    public boolean shouldDisplay(final Map<String, Object> context) {
         Attachment attachment = (Attachment) context.get("attachment");
         if (attachment == null) {
             return false;
@@ -70,13 +68,17 @@ public class IsOfficeFileAttachment implements Condition {
 
         if (forEdit) {
             if (form) {
-                if (accessEdit && documentManager.isFillForm(ext)) return true;
+                if (accessEdit && documentManager.isFillForm(ext)) {
+                    return true;
+                }
             } else {
-                if (accessEdit && documentManager.isEditable(ext)) return true;
+                if (accessEdit && documentManager.isEditable(ext)) {
+                    return true;
+                }
             }
         } else {
-            if (accessView && documentManager.isViewable(ext) &&
-                    !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
+            if (accessView && documentManager.isViewable(ext)
+                    && !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
                 return true;
             }
         }

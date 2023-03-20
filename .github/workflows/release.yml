@@ -9,18 +9,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Get Info
         run: | 
-          echo "::set-output name=version::$(awk '/<version>/,/<\/version>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<version>\(.*\)</version>.*:\1:p')"
-          echo "::set-output name=artifact::$(awk '/<artifactId>/,/<\/artifactId>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<artifactId>\(.*\)</artifactId>.*:\1:p')"
+          echo "version=$(awk '/<version>/,/<\/version>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<version>\(.*\)</version>.*:\1:p')" >> $GITHUB_OUTPUT
+          echo "artifact=$(awk '/<artifactId>/,/<\/artifactId>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<artifactId>\(.*\)</artifactId>.*:\1:p')" >> $GITHUB_OUTPUT
         id: info
+      - name: Install Java 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
       - name: Build Artifact
         run: |
           cd ${{ github.workspace }}
           cwd=$(pwd)
           git submodule update --init --recursive
-          sudo apt install default-jre -y
           sudo sh -c 'echo "deb https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" >>/etc/apt/sources.list'
           wget https://packages.atlassian.com/api/gpg/key/public
           sudo apt-key add public
@@ -34,22 +38,9 @@ jobs:
         run: |
           awk '/## [0-9]/{p++} p; /## [0-9]/{if (p > 1) exit}' CHANGELOG.md | awk 'NR>2 {print last} {last=$0}' > RELEASE.md
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: ncipollo/release-action@v1
         id: create_release
         with:
-          draft: false
-          prerelease: false
-          release_name: ${{ steps.info.outputs.version }}
-          tag_name: ${{ steps.info.outputs.version }}
-          body_path: ./RELEASE.md
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-      - name: Upload Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar
-          asset_name: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar
-          asset_content_type: application/java-archive
+          artifacts: "${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar"
+          bodyFile: RELEASE.md
+          tag: v${{ steps.info.outputs.version }}

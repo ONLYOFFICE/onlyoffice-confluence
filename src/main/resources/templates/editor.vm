@@ -1,5 +1,6 @@
 $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor")
 #requireResourcesForContext("viewattachments")
+#requireResourcesForContext("editor")
 
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -12,7 +13,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
     <!--
     *
-    * (c) Copyright Ascensio System SIA 2022
+    * (c) Copyright Ascensio System SIA 2023
     *
     * Licensed under the Apache License, Version 2.0 (the "License");
     * you may not use this file except in compliance with the License.
@@ -41,6 +42,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     <meta name="ajs-parent-page-id" content="${pageId}">
     <meta name="ajs-original-parent-page" content="${pageTitle}">
     <meta name="ajs-from-page-title" content="${pageTitle}">
+    <meta name="ajs-is-blog-post" content="${isBlogPost}">
 </head>
 
 <body>
@@ -51,6 +53,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     </div>
     <div class="form">
         <div id="iframeEditor"></div>
+        <span style="display:none;" id="editorConfig" aria-hidden="true">$jsonAsHtml</span>
     </div>
 
     <script type="text/javascript" src="${docserviceApiUrl}"></script>
@@ -99,20 +102,33 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         };
 
         var insertDialog = function (docEditorEvent, windowFromUrl, fileTypes, command = null) {
+            if (AJS.Editor.ImageDialog.panelComponent.length == 0) {
+                var attachmentsPanelView = new AJS.Editor.FileDialog.AttachmentsPanelView({
+                    eventListener: AJS.Editor.FileDialog.eventListener
+                });
+
+                AJS.Editor.ImageDialog.panelComponent.push(attachmentsPanelView);
+                AJS.Editor.ImageDialog.panelComponent.push(new AJS.Editor.FileDialog.ExternalPanelView());
+                AJS.Editor.ImageDialog.panelComponent.push(new AJS.Editor.FileDialog.SearchPanelView());
+            }
+
             if (defaultPanelComponent.length == 0) {
                 AJS.Editor.ImageDialog.panelComponent.forEach((component) => {
                     defaultPanelComponent.push(component);
                 });
-            } else {
-                AJS.Editor.ImageDialog.panelComponent = new Array();
-                defaultPanelComponent.forEach((component) => {
-                    AJS.Editor.ImageDialog.panelComponent.push(component);
-                });
             }
 
-            if (!windowFromUrl) {
-                AJS.Editor.ImageDialog.panelComponent.splice(1, 1);
-            }
+            AJS.Editor.ImageDialog.panelComponent.splice(0, AJS.Editor.ImageDialog.panelComponent.length)
+            defaultPanelComponent.filter(function(el, i) {
+                if (windowFromUrl) {
+                    return true;
+                } else {
+                    return i != 1;
+                }
+
+              }).forEach((component) => {
+                AJS.Editor.ImageDialog.panelComponent.push(component);
+            });
 
             AJS.Editor.ImageDialog.insertImageDialog(function(a) {
                 if (a.url && windowFromUrl) {
@@ -316,8 +332,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 return;
             }
 
-            var json = '${jsonAsHtml}';
-
             var config = {
                 "events" : {
                     "onAppReady": onAppReady,
@@ -327,14 +341,15 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestInsertImage": onRequestInsertImage,
                     "onRequestCompareFile": onRequestCompareFile,
                     "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
-                    "onRequestSaveAs": onRequestSaveAs,
                     "onMakeActionLink": onMakeActionLink,
                 },
             };
 
-            if (json) {
-                Object.assign(config, JSON.parse(json));
+            if (!AJS.Meta.get("is-blog-post")) {
+                config.events.onRequestSaveAs = onRequestSaveAs;
             }
+
+            Object.assign(config, JSON.parse($("#editorConfig").html() || "{}"));
 
             if ((config.document.fileType === "docxf" || config.document.fileType === "oform")
                 && docsVersion[0] < 7) {

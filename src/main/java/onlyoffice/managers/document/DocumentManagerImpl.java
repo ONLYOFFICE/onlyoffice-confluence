@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,6 @@
 
 package onlyoffice.managers.document;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.util.*;
-import java.util.regex.Pattern;
 
 import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
@@ -35,21 +29,37 @@ import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
-import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.commons.codec.binary.Hex;
 
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 @Named
 @Default
 public class DocumentManagerImpl implements DocumentManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
-    private final String userAgentMobile = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino";
+    private static final String USER_AGENT_MOBILE = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec"
+            + "|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone"
+            + "|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap"
+            + "|windows (ce|phone)|xda|xiino";
+    private static final int DEFAULT_MAX_FILE_SIZE = 5242880;
+    private static final int MAX_KEY_LENGTH = 20;
 
     @ComponentImport
     private final I18nResolver i18n;
@@ -57,8 +67,8 @@ public class DocumentManagerImpl implements DocumentManager {
     private final AttachmentUtil attachmentUtil;
 
     @Inject
-    public DocumentManagerImpl(I18nResolver i18n, ConfigurationManager configurationManager,
-                               AttachmentUtil attachmentUtil) {
+    public DocumentManagerImpl(final I18nResolver i18n, final ConfigurationManager configurationManager,
+                               final AttachmentUtil attachmentUtil) {
         this.i18n = i18n;
         this.configurationManager = configurationManager;
         this.attachmentUtil = attachmentUtil;
@@ -73,10 +83,10 @@ public class DocumentManagerImpl implements DocumentManager {
             size = 0;
         }
 
-        return size > 0 ? size : 5 * 1024 * 1024;
+        return size > 0 ? size : DEFAULT_MAX_FILE_SIZE;
     }
 
-    public String getKeyOfFile(Long attachmentId) {
+    public String getKeyOfFile(final Long attachmentId) {
         String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
         if (key == null) {
             String hashCode = attachmentUtil.getHashCode(attachmentId);
@@ -86,17 +96,19 @@ public class DocumentManagerImpl implements DocumentManager {
         return key;
     }
 
-    private String generateRevisionId(String expectedKey) {
-        if (expectedKey.length() > 20) {
-            expectedKey = Integer.toString(expectedKey.hashCode());
+    private String generateRevisionId(final String expectedKey) {
+        String result = expectedKey;
+
+        if (result.length() > MAX_KEY_LENGTH) {
+            result = Integer.toString(result.hashCode());
         }
-        String key = expectedKey.replace("[^0-9-.a-zA-Z_=]", "_");
-        key = key.substring(0, Math.min(key.length(), 20));
+        String key = result.replace("[^0-9-.a-zA-Z_=]", "_");
+        key = key.substring(0, Math.min(key.length(), MAX_KEY_LENGTH));
         log.info("key = " + key);
         return key;
     }
 
-    public String createHash(String str) {
+    public String createHash(final String str) {
         try {
             String secret = configurationManager.getProperty("files.docservice.secret");
 
@@ -110,7 +122,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    public String readHash(String base64) {
+    public String readHash(final String base64) {
         try {
             String str = new String(Base64.getDecoder().decode(base64), "UTF-8");
 
@@ -128,7 +140,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    private String getHashHex(String str) {
+    private String getHashHex(final String str) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] digest = md.digest(str.getBytes());
@@ -141,19 +153,20 @@ public class DocumentManagerImpl implements DocumentManager {
         return "";
     }
 
-    public String getCorrectName(String fileName, String fileExt, Long pageID) {
-        ContentEntityManager contentEntityManager = (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
+    public String getCorrectName(final String fileName, final String fileExt, final Long pageID) {
+        ContentEntityManager contentEntityManager =
+                (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
         AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
         ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
 
-        List<Attachment> Attachments  =  attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
-        String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]","_");
+        List<Attachment> attachments = attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
+        String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]", "_");
         int count = 0;
         Boolean flag = true;
 
-        while(flag) {
+        while (flag) {
             flag = false;
-            for (Attachment attachment : Attachments) {
+            for (Attachment attachment : attachments) {
                 if (attachment.getFileName().equals(name)) {
                     count++;
                     name = fileName + " (" + count + ")." + fileExt;
@@ -166,7 +179,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return name;
     }
 
-    private InputStream getDemoFile(ConfluenceUser user, String fileExt) {
+    private InputStream getDemoFile(final ConfluenceUser user, final String fileExt) {
         LocaleManager localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
         PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
 
@@ -179,47 +192,58 @@ public class DocumentManagerImpl implements DocumentManager {
         return pluginAccessor.getDynamicResourceAsStream(pathToDemoFile + "/new." + fileExt);
     }
 
-    public Long createDemo(String fileName, String fileExt, Long pageId, ConfluenceUser user) throws IOException {
-        Attachment attachment = null;
+    public Long createDemo(final String fileName, final String fileExt, final Long pageId, final ConfluenceUser user)
+            throws
+            IOException {
+        String extension =
+                fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf")
+                        ? "docx" : fileExt.trim();
+        String name = fileName == null || fileName.equals("")
+                ? i18n.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
 
-        fileExt = fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf") ? "docx" : fileExt.trim();
-        fileName = fileName == null || fileName.equals("") ? i18n.getText("onlyoffice.editor.dialog.filecreate." + fileExt) : fileName;
+        InputStream demoFile = getDemoFile(user, extension);
 
-        InputStream demoFile = getDemoFile(user, fileExt);
+        name = getCorrectName(name, extension, pageId);
+        String mimeType = getMimeType(name);
 
-        fileName = getCorrectName(fileName, fileExt, pageId);
-        String mimeType = getMimeType(fileName);
-
-        attachment = attachmentUtil.createNewAttachment(fileName, mimeType, demoFile, demoFile.available(), pageId, user);
+        Attachment attachment =
+                attachmentUtil.createNewAttachment(name, mimeType, demoFile, demoFile.available(), pageId, user);
 
         return attachment.getContentId().asLong();
     }
 
-    public String getDocType(String ext) {
+    public String getDocType(final String ext) {
         List<String> wordFormats = Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
         List<String> cellFormats = Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
-        List<String> slideFormats = Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
+        List<String> slideFormats =
+                Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
 
-        if (wordFormats.contains(ext)) return "word";
-        if (cellFormats.contains(ext)) return "cell";
-        if (slideFormats.contains(ext)) return "slide";
+        if (wordFormats.contains(ext)) {
+            return "word";
+        }
+        if (cellFormats.contains(ext)) {
+            return "cell";
+        }
+        if (slideFormats.contains(ext)) {
+            return "slide";
+        }
 
         return null;
     }
 
-    public String getMimeType(String name) {
+    public String getMimeType(final String name) {
         Path path = new File(name).toPath();
         String mimeType = null;
         try {
-             mimeType = Files.probeContentType(path);
+            mimeType = Files.probeContentType(path);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
         return mimeType != null ? mimeType : "application/octet-stream";
     }
 
-    public String getEditorType (String userAgent) {
-        Pattern pattern = Pattern.compile(userAgentMobile, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    public String getEditorType(final String userAgent) {
+        Pattern pattern = Pattern.compile(USER_AGENT_MOBILE, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         if (userAgent != null && pattern.matcher(userAgent).find()) {
             return "mobile";
         } else {
@@ -227,24 +251,26 @@ public class DocumentManagerImpl implements DocumentManager {
         }
     }
 
-    public boolean isEditable(String fileExtension) {
+    public boolean isEditable(final String fileExtension) {
         List<String> editingTypes = configurationManager.getDefaultEditingTypes();
 
         Map<String, Boolean> customizableEditingTypes = configurationManager.getCustomizableEditingTypes();
 
         for (Map.Entry<String, Boolean> customizableEditingType : customizableEditingTypes.entrySet()) {
-            if (customizableEditingType.getValue()) editingTypes.add(customizableEditingType.getKey());
+            if (customizableEditingType.getValue()) {
+                editingTypes.add(customizableEditingType.getKey());
+            }
         }
 
         return editingTypes.contains(fileExtension);
     }
 
-    public boolean isFillForm(String fileExtension) {
+    public boolean isFillForm(final String fileExtension) {
         List<String> fillFormTypes = configurationManager.getFillFormTypes();
         return configurationManager.getFillFormTypes().contains(fileExtension);
     }
 
-    public boolean isViewable(String fileExtension) {
+    public boolean isViewable(final String fileExtension) {
         String docType = getDocType(fileExtension);
         return docType != null;
     }
