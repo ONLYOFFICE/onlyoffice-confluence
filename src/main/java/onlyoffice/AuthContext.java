@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,21 @@
 
 package onlyoffice;
 
-import java.io.IOException;
-import java.security.Principal;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.atlassian.confluence.util.GeneralUtil;
-
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.security.Principal;
 
 @Named
 public class AuthContext {
     private final Logger log = LogManager.getLogger("onlyoffice.AuthContext");
 
-    public boolean checkUserAuthorisation(HttpServletRequest request, HttpServletResponse response)
+    public boolean checkUserAuthorisation(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
         Principal principal = request.getUserPrincipal();
         if (principal == null) {
@@ -49,7 +46,7 @@ public class AuthContext {
         return true;
     }
 
-    private String getLoginUrl(HttpServletRequest request) throws IOException {
+    private String getLoginUrl(final HttpServletRequest request) throws IOException {
         StringBuilder stringBuilder = new StringBuilder(request.getContextPath());
         String fullUrl = stringBuilder.append("/login.action?permissionViolation=true&os_destination=")
                 .append("plugins%2Fservlet%2Fonlyoffice%2Fdoceditor").append("?")

@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,16 @@
 
 package onlyoffice;
 
-import java.io.*;
-import java.net.URLEncoder;
-import java.util.*;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.inject.Inject;
-
-import com.atlassian.plugin.webresource.WebResourceUrlProvider;
+import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.pages.BlogPost;
+import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.webresource.UrlMode;
+import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -41,12 +37,19 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.languages.LocaleManager;
-import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
-import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import javax.inject.Inject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
@@ -65,14 +68,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
-    private final ConvertManager convertManager;
 
 
     @Inject
-    public OnlyOfficeEditorServlet(LocaleManager localeManager, WebResourceUrlProvider webResourceUrlProvider,
-            UrlManager urlManager, JwtManager jwtManager, ConfigurationManager configurationManager,
-            AuthContext authContext, DocumentManager documentManager, AttachmentUtil attachmentUtil,
-            ConvertManager convertManager) {
+    public OnlyOfficeEditorServlet(final LocaleManager localeManager,
+                                   final WebResourceUrlProvider webResourceUrlProvider,
+                                   final UrlManager urlManager, final JwtManager jwtManager,
+                                   final ConfigurationManager configurationManager,
+                                   final AuthContext authContext, final DocumentManager documentManager,
+                                   final AttachmentUtil attachmentUtil) {
         this.localeManager = localeManager;
         this.webResourceUrlProvider = webResourceUrlProvider;
         this.urlManager = urlManager;
@@ -81,11 +85,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
-        this.convertManager = convertManager;
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         if (!authContext.checkUserAuthorisation(request, response)) {
             return;
         }
@@ -123,7 +127,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
                 Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageId), user);
 
-                response.sendRedirect(request.getContextPath() + "?attachmentId=" + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                response.sendRedirect(request.getContextPath() + "?attachmentId="
+                        + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
                 return;
             }
         }
@@ -170,8 +175,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 actionData, errorMessage));
     }
 
-    private String getTemplate(Long attachmentId, String type, String apiUrl, String callbackUrl, String fileUrl, String key, String fileName,
-            ConfluenceUser user, String gobackUrl, String actionData, String errorMessage) throws UnsupportedEncodingException {
+    private String getTemplate(final Long attachmentId, final String type, final String apiUrl,
+                               final String callbackUrl, final String fileUrl, final String key, final String fileName,
+                               final ConfluenceUser user, final String gobackUrl, final String actionData,
+                               final String errorMessage) throws
+            UnsupportedEncodingException {
         Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
         Map<String, String> config = new HashMap<String, String>();
 
@@ -186,7 +194,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         config.put("docTitle", docTitle);
         config.put("favicon", webResourceUrlProvider.getStaticPluginResourceUrl(
                 "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
-                documentType +".ico",
+                documentType + ".ico",
                 UrlMode.ABSOLUTE)
         );
 
@@ -234,12 +242,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             customizationObject.put("forcesave", configurationManager.forceSaveEnabled());
             customizationObject.put("chat", configurationManager.getBooleanPluginSetting("chat", true));
-            customizationObject.put("compactHeader", configurationManager.getBooleanPluginSetting("compactHeader", false));
+            customizationObject.put("compactHeader",
+                    configurationManager.getBooleanPluginSetting("compactHeader", false));
             customizationObject.put("feedback", configurationManager.getBooleanPluginSetting("feedback", false));
             customizationObject.put("help", configurationManager.getBooleanPluginSetting("helpMenu", true));
-            customizationObject.put("toolbarNoTabs", configurationManager.getBooleanPluginSetting("toolbarNoTabs", false));
+            customizationObject.put("toolbarNoTabs",
+                    configurationManager.getBooleanPluginSetting("toolbarNoTabs", false));
             if (!configurationManager.getStringPluginSetting("reviewDisplay", "original").equals("original")) {
-                customizationObject.put("reviewDisplay", configurationManager.getStringPluginSetting("reviewDisplay", "original"));
+                customizationObject.put("reviewDisplay",
+                        configurationManager.getStringPluginSetting("reviewDisplay", "original"));
             }
             customizationObject.put("goback", gobackObject);
             gobackObject.put("url", gobackUrl);
@@ -260,6 +271,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
             config.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
             config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
+            config.put("isBlogPost", String.valueOf(attachmentUtil.getContainer(pageId) instanceof BlogPost));
             config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
             config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());

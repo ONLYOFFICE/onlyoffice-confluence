@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,15 @@ AJS.toInit(function ($) {
 
     $(document).on("submit", ".filenameform", function(event) {
         if (event.currentTarget.id == "form-docxf") {
+            if (AJS.Editor.ImageDialog.panelComponent.length == 0) {
+                var attachmentsPanelView = new AJS.Editor.FileDialog.AttachmentsPanelView({
+                    eventListener: AJS.Editor.FileDialog.eventListener
+                });
+
+                AJS.Editor.ImageDialog.panelComponent.push(attachmentsPanelView);
+                AJS.Editor.ImageDialog.panelComponent.push(new AJS.Editor.FileDialog.SearchPanelView());
+            }
+
             if (AJS.Editor.ImageDialog.panelComponent.length > 2) AJS.Editor.ImageDialog.panelComponent.splice(1, 1);
 
             var insertImageDialog = AJS.Editor.ImageDialog.insertImageDialog(function(a) {

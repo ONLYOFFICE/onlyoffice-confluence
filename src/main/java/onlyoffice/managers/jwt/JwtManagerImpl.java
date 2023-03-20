@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,25 @@
 package onlyoffice.managers.jwt;
 
 import com.atlassian.config.ApplicationConfiguration;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import org.json.JSONObject;
 
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-
-import java.util.Base64;
-import java.util.Base64.Encoder;
-
-import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.Mac;
-
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 
 @Named
 @Default
 public class JwtManagerImpl implements JwtManager {
+
+    private static final int NUMBER_PARTS_TOKEN = 3;
 
     @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
@@ -49,8 +48,9 @@ public class JwtManagerImpl implements JwtManager {
     private final PluginSettings settings;
 
     @Inject
-    public JwtManagerImpl(PluginSettingsFactory pluginSettingsFactory, ApplicationConfiguration applicationConfiguration,
-                          ConfigurationManager configurationManager) {
+    public JwtManagerImpl(final PluginSettingsFactory pluginSettingsFactory,
+                          final ApplicationConfiguration applicationConfiguration,
+                          final ConfigurationManager configurationManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
         settings = pluginSettingsFactory.createGlobalSettings();
         this.applicationConfiguration = applicationConfiguration;
@@ -62,7 +62,7 @@ public class JwtManagerImpl implements JwtManager {
                 && !((String) settings.get("onlyoffice.jwtSecret")).isEmpty();
     }
 
-    public String createToken(JSONObject payload) throws Exception {
+    public String createToken(final JSONObject payload) throws Exception {
         JSONObject header = new JSONObject();
         header.put("alg", "HS256");
         header.put("typ", "JWT");
@@ -79,19 +79,21 @@ public class JwtManagerImpl implements JwtManager {
         return encHeader + "." + encPayload + "." + hash;
     }
 
-    public Boolean verify(String token) {
-        if (!jwtEnabled())
+    public Boolean verify(final String token) {
+        if (!jwtEnabled()) {
             return false;
+        }
 
         String[] jwt = token.split("\\.");
-        if (jwt.length != 3) {
+        if (jwt.length != NUMBER_PARTS_TOKEN) {
             return false;
         }
 
         try {
             String hash = calculateHash(jwt[0], jwt[1]);
-            if (!hash.equals(jwt[2]))
+            if (!hash.equals(jwt[2])) {
                 return false;
+            }
         } catch (Exception ex) {
             return false;
         }
@@ -100,25 +102,25 @@ public class JwtManagerImpl implements JwtManager {
     }
 
     public String getJwtHeader() {
-        String header = configurationManager.demoActive() ?
-                configurationManager
-                        .getDemo("header") : (String) applicationConfiguration.getProperty("onlyoffice.jwt.header");
+        String header = configurationManager.demoActive()
+                ? configurationManager
+                .getDemo("header") : (String) applicationConfiguration.getProperty("onlyoffice.jwt.header");
         return header == null || header.isEmpty() ? "Authorization" : header;
     }
 
-    private String calculateHash(String header, String payload) throws Exception {
+    private String calculateHash(final String header, final String payload) throws Exception {
         Mac hasher = getHasher();
         return Base64.getUrlEncoder().encodeToString(hasher.doFinal((header + "." + payload).getBytes("UTF-8")))
                 .replace("=", "");
     }
 
     private Mac getHasher() throws Exception {
-        String jwts = configurationManager.demoActive() ?
-                configurationManager.getDemo("secret") : (String) settings.get("onlyoffice.jwtSecret");
+        String jwts = configurationManager.demoActive()
+                ? configurationManager.getDemo("secret") : (String) settings.get("onlyoffice.jwtSecret");
 
         Mac sha256 = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secret_key = new SecretKeySpec(jwts.getBytes("UTF-8"), "HmacSHA256");
-        sha256.init(secret_key);
+        SecretKeySpec secretKey = new SecretKeySpec(jwts.getBytes("UTF-8"), "HmacSHA256");
+        sha256.init(secretKey);
 
         return sha256;
     }

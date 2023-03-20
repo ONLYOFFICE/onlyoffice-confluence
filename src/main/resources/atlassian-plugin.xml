@@ -20,6 +20,7 @@
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for the main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
         <context>page</context>
+        <context>blogpost</context>
     </web-resource>
 
     <web-resource key="onlyoffice-confluence-plugin-resources-configure" name="Web Resources container for the configuration page">
@@ -49,6 +50,7 @@
         <resource type="download" name="16.svg" location="images/16.svg"/>
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <context>page</context>
+        <context>blogpost</context>
     </web-resource>
 
     <web-resource key="onlyoffice-confluence-previews-plugin" name="Button ONLYOFFICE for confluence preview lightbox">
