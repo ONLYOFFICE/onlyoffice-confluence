@@ -49,13 +49,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
     private final long serialVersionUID = 1L;
 
-    private Properties properties;
 
     @ComponentImport
     private final LocaleManager localeManager;
@@ -98,8 +96,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         if (apiUrl == null || apiUrl.isEmpty()) {
             apiUrl = "";
         }
-
-        properties = configurationManager.getProperties();
 
         String type = "";
         String callbackUrl = "";
@@ -189,7 +185,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String documentType = documentManager.getDocType(docExt);
         Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
 
-        config.put("docserviceApiUrl", apiUrl + properties.getProperty("files.docservice.url.api"));
+        config.put("docserviceApiUrl", apiUrl + configurationManager.getProperty("files.docservice.url.api"));
         config.put("errorMessage", errorMessage);
         config.put("docTitle", docTitle);
         config.put("favicon", webResourceUrlProvider.getStaticPluginResourceUrl(
