@@ -19,6 +19,7 @@
 package onlyoffice.utils.attachment;
 
 import com.atlassian.confluence.content.ContentProperties;
+import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
@@ -85,6 +86,30 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         this.configurationManager = configurationManager;
         this.pageManager = pageManager;
         this.bootstrapManager = bootstrapManager;
+    }
+
+    public Attachment getAttachment(final Long attachmentId) {
+        try {
+            return attachmentManager.getAttachment(attachmentId);
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
+    public Attachment getAttachmentByName(final String fileName, final Long pageId) {
+        ContentEntityManager contentEntityManager =
+                (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
+        ContentEntityObject contentEntityObject = contentEntityManager.getById(pageId);
+
+        List<Attachment> attachments = attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
+
+        for (Attachment attachment : attachments) {
+            if (attachment.getFileName().equals(fileName)) {
+                return attachment;
+            }
+        }
+
+        return null;
     }
 
     public boolean checkAccess(final Long attachmentId, final User user, final boolean forEdit) {
