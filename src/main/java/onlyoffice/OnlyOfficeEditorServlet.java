@@ -282,6 +282,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
             config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
             config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
+            config.put("referenceDataUriAsHtml", urlManager.getReferenceDataUri(pageId));
             config.put("insertImageTypesAsHtml", new JSONArray(documentManager.getInsertImageTypes()).toString());
             config.put("compareFileTypesAsHtml", new JSONArray(documentManager.getCompareFileTypes()).toString());
             config.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeTypes()).toString());

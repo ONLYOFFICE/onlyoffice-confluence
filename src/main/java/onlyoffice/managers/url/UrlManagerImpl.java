@@ -130,6 +130,12 @@ public class UrlManagerImpl implements UrlManager {
         return saveAsUri;
     }
 
+    public String getReferenceDataUri(final Long pageId) {
+        String referenceDataUri = getConfluenceBaseUrl() + apiServlet + "?type=reference-data&pageId=" + pageId;
+
+        return referenceDataUri;
+    }
+
     public String getCallbackUrl(final Long attachmentId) {
         String hash = documentManager.createHash(Long.toString(attachmentId));
 

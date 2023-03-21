@@ -20,6 +20,8 @@ public interface UrlManager extends Serializable {
 
     String getSaveAsUri();
 
+    String getReferenceDataUri(Long pageId);
+
     String getCallbackUrl(Long attachmentId);
 
     String getGobackUrl(Long attachmentId, HttpServletRequest request);

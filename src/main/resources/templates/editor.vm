@@ -319,6 +319,25 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             docEditor.setActionLink(createActionLink(location.href, actionData));
         };
 
+        var onRequestReferenceData = function(event) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "${referenceDataUriAsHtml}");
+            xhr.send(JSON.stringify(event.data));
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState != 4) return;
+                if (xhr.status == 200) {
+                    docEditor.setReferenceData(JSON.parse(xhr.responseText));
+                } else if (xhr.status == 403) {
+                    docEditor.setReferenceData({error: "$i18n.getText('operation.forbidden.message')"});
+                } else if (xhr.status == 404) {
+                    docEditor.setReferenceData({error: "$i18n.getText('title.attachment.not.found')"});
+                } else {
+                    docEditor.setReferenceData({error: "$i18n.getText('dialog.error.unknown.title')"});
+                }
+            }
+        };
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.editor.message.docs-api-undefined')");
@@ -342,6 +361,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestCompareFile": onRequestCompareFile,
                     "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
                     "onMakeActionLink": onMakeActionLink,
+                    "onRequestReferenceData": onRequestReferenceData
                 },
             };
 
