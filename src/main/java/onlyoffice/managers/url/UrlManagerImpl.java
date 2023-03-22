@@ -21,16 +21,21 @@ package onlyoffice.managers.url;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.GeneralUtil;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.managers.jwt.JwtManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
@@ -44,12 +49,15 @@ public class UrlManagerImpl implements UrlManager {
     private final PluginSettings pluginSettings;
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
+    private final JwtManager jwtManager;
 
     public UrlManagerImpl(final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
-                          final ConfigurationManager configurationManager, final DocumentManager documentManager) {
+                          final ConfigurationManager configurationManager, final DocumentManager documentManager,
+                          final JwtManager jwtManager) {
         this.settingsManager = settingsManager;
         this.configurationManager = configurationManager;
         this.documentManager = documentManager;
+        this.jwtManager = jwtManager;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
     }
 
@@ -74,10 +82,14 @@ public class UrlManagerImpl implements UrlManager {
     }
 
     public String getFileUri(final Long attachmentId) {
-        String hash = documentManager.createHash(Long.toString(attachmentId));
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
-        String fileUri = getConfluenceBaseUrl() + fileProviderServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
-        log.info("fileUrl " + fileUri);
+        Map<String, String> params = new HashMap<>();
+        params.put("userKey", user.getKey().getStringValue());
+        params.put("attachmentId", attachmentId.toString());
+
+        String fileUri =
+                getConfluenceBaseUrl() + fileProviderServlet + "?token=" + jwtManager.createInternalToken(params);
 
         return fileUri;
     }
@@ -125,9 +137,14 @@ public class UrlManagerImpl implements UrlManager {
     }
 
     public String getCallbackUrl(final Long attachmentId) {
-        String hash = documentManager.createHash(Long.toString(attachmentId));
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
-        String callbackUrl = getConfluenceBaseUrl() + callbackServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
+        Map<String, String> params = new HashMap<>();
+        params.put("userKey", user.getKey().getStringValue());
+        params.put("attachmentId", attachmentId.toString());
+
+        String callbackUrl =
+                getConfluenceBaseUrl() + callbackServlet + "?token=" + jwtManager.createInternalToken(params);
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;

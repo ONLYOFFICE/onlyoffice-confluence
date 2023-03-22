@@ -18,11 +18,16 @@
 
 package onlyoffice;
 
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.sal.api.user.UserKey;
+import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -69,12 +74,34 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
             }
         }
 
-        String vkey = request.getParameter("vkey");
-        log.info("vkey = " + vkey);
-        String attachmentIdString = documentManager.readHash(vkey);
+        String token = request.getParameter("token");
+        String payload = null;
 
+        try {
+            payload = jwtManager.verifyInternalToken(token);
+        } catch (Exception e) {
+            throw new SecurityException("Invalid link token!");
+        }
+
+        JSONObject bodyFromToken = new JSONObject(payload);
+        String userKeyString = bodyFromToken.getString("userKey");
+        String attachmentIdString = bodyFromToken.getString("attachmentId");
+
+        UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+
+        UserKey userKey = new UserKey(userKeyString);
+        ConfluenceUser user = userAccessor.getUserByKey(userKey);
         Long attachmentId = Long.parseLong(attachmentIdString);
-        log.info("attachmentId " + attachmentId);
+
+        if (attachmentUtil.getAttachment(attachmentId) == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        if (!attachmentUtil.checkAccess(attachmentId, user, false)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
         String contentType = attachmentUtil.getMediaType(attachmentId);
         response.setContentType(contentType);
