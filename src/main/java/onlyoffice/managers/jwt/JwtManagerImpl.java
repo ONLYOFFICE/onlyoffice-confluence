@@ -21,17 +21,21 @@ package onlyoffice.managers.jwt;
 import com.atlassian.config.ApplicationConfiguration;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import org.json.JSONObject;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
-import java.util.Base64.Encoder;
+import java.util.Map;
 
 public class JwtManagerImpl implements JwtManager {
 
-    private static final int NUMBER_PARTS_TOKEN = 3;
+    private static final long ACCEPT_LEEWAY = 3;
 
     private final ApplicationConfiguration applicationConfiguration;
     private final ConfigurationManager configurationManager;
@@ -51,42 +55,28 @@ public class JwtManagerImpl implements JwtManager {
     }
 
     public String createToken(final JSONObject payload) throws Exception {
-        JSONObject header = new JSONObject();
-        header.put("alg", "HS256");
-        header.put("typ", "JWT");
+        Algorithm algorithm = Algorithm.HMAC256(getJwtSecret());
 
-        Encoder enc = Base64.getUrlEncoder();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, ?> payloadMap = objectMapper.readValue(payload.toString(), Map.class);
 
-        String encHeader = enc.encodeToString(header.toString().getBytes("UTF-8"))
-                .replace("=", "");
-        String encPayload = enc.encodeToString(payload.toString().getBytes("UTF-8"))
-                .replace("=", "");
+        String token = JWT.create()
+                .withPayload(payloadMap)
+                .sign(algorithm);
 
-        String hash = calculateHash(encHeader, encPayload);
-
-        return encHeader + "." + encPayload + "." + hash;
+        return token;
     }
 
-    public Boolean verify(final String token) {
-        if (!jwtEnabled()) {
-            return false;
-        }
+    public String verify(final String token) {
+        Algorithm algorithm = Algorithm.HMAC256(getJwtSecret());
+        Base64.Decoder decoder = Base64.getUrlDecoder();
 
-        String[] jwt = token.split("\\.");
-        if (jwt.length != NUMBER_PARTS_TOKEN) {
-            return false;
-        }
+        DecodedJWT jwt = JWT.require(algorithm)
+                .acceptLeeway(ACCEPT_LEEWAY)
+                .build()
+                .verify(token);
 
-        try {
-            String hash = calculateHash(jwt[0], jwt[1]);
-            if (!hash.equals(jwt[2])) {
-                return false;
-            }
-        } catch (Exception ex) {
-            return false;
-        }
-
-        return true;
+        return new String(decoder.decode(jwt.getPayload()));
     }
 
     public String getJwtHeader() {
@@ -111,5 +101,10 @@ public class JwtManagerImpl implements JwtManager {
         sha256.init(secretKey);
 
         return sha256;
+    }
+
+    private String getJwtSecret() {
+        return configurationManager.demoActive()
+                ? configurationManager.getDemo("secret") : (String) settings.get("onlyoffice.jwtSecret");
     }
 }

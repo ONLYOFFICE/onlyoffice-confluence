@@ -9,7 +9,7 @@ public interface JwtManager extends Serializable {
 
     String createToken(JSONObject payload) throws Exception;
 
-    Boolean verify(String token);
+    String verify(String token);
 
     String getJwtHeader();
 }
