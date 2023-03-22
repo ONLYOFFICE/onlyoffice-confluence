@@ -250,7 +250,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                     if (attachment != null) {
                         attachmentId = attachment.getId();
                         referenceData.put("fileKey", attachment.getId());
-                        referenceData.put("instanceId", sysInfoService.getConfluenceInfo().getServerId());
+                        referenceData.put("instanceId", sysInfoService.getConfluenceInfo().getBaseUrl());
                     }
                 }
             }

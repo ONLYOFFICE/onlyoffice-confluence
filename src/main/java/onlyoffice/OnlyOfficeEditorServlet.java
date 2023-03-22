@@ -224,7 +224,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             responseJson.put("editorConfig", editorConfigObject);
 
             referenceData.put("fileKey", attachmentId);
-            referenceData.put("instanceId", sysInfoService.getConfluenceInfo().getServerId());
+            referenceData.put("instanceId", sysInfoService.getConfluenceInfo().getBaseUrl());
 
             if (canEdit && callbackUrl != null && !callbackUrl.isEmpty()) {
                 permObject.put("edit", true);
