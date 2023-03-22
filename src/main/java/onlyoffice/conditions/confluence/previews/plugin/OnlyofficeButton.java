@@ -22,13 +22,11 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -38,14 +36,11 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 
 public class OnlyofficeButton extends HttpServlet {
-    @ComponentImport
     private AttachmentManager attachmentManager;
-
     private final ParsingUtil parsingUtil;
     private final AttachmentUtil attachmentUtil;
     private final DocumentManager documentManager;
 
-    @Inject
     public OnlyofficeButton(final AttachmentManager attachmentManager, final ParsingUtil parsingUtil,
                             final AttachmentUtil attachmentUtil, final DocumentManager documentManager) {
         this.attachmentManager = attachmentManager;

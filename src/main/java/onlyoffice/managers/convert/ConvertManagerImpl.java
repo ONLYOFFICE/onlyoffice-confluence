@@ -20,7 +20,6 @@ package onlyoffice.managers.convert;
 
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
@@ -37,28 +36,20 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-@Named
-@Default
 public class ConvertManagerImpl implements ConvertManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.convert.ConvertManager");
 
-    @ComponentImport
     private final LocaleManager localeManager;
-
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
 
-    @Inject
     public ConvertManagerImpl(final UrlManager urlManager, final JwtManager jwtManager,
                               final ConfigurationManager configurationManager,
                               final DocumentManager documentManager, final LocaleManager localeManager) {

@@ -22,7 +22,6 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -42,7 +41,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -60,18 +58,14 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
 
-    @ComponentImport
     private final SystemInformationService sysInfoService;
-
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
-
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
     private final ConfigurationManager configurationManager;
 
-    @Inject
     public OnlyOfficeAPIServlet(final SystemInformationService sysInfoService, final JwtManager jwtManager,
                                 final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
                                 final ParsingUtil parsingUtil, final UrlManager urlManager,

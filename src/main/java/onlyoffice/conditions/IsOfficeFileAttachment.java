@@ -26,7 +26,6 @@ import com.atlassian.plugin.web.Condition;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
-import javax.inject.Inject;
 import java.util.Map;
 
 public class IsOfficeFileAttachment implements Condition {
@@ -35,7 +34,6 @@ public class IsOfficeFileAttachment implements Condition {
     private DocumentManager documentManager;
     private AttachmentUtil attachmentUtil;
 
-    @Inject
     public IsOfficeFileAttachment(final DocumentManager documentManager, final AttachmentUtil attachmentUtil) {
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;

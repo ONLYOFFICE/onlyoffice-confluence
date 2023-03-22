@@ -41,7 +41,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -67,14 +66,12 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
-
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
     private final ConfigurationManager configurationManager;
     private final ConvertManager convertManager;
 
-    @Inject
     public OnlyOfficeSaveFileServlet(final JwtManager jwtManager, final DocumentManager documentManager,
                                      final AttachmentUtil attachmentUtil, final ParsingUtil parsingUtil,
                                      final UrlManager urlManager, final ConfigurationManager configurationManager,

@@ -19,7 +19,6 @@
 package onlyoffice.managers.jwt;
 
 import com.atlassian.config.ApplicationConfiguration;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import onlyoffice.managers.configuration.ConfigurationManager;
@@ -27,31 +26,20 @@ import org.json.JSONObject;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 
-@Named
-@Default
 public class JwtManagerImpl implements JwtManager {
 
     private static final int NUMBER_PARTS_TOKEN = 3;
 
-    @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
-    @ComponentImport
     private final ApplicationConfiguration applicationConfiguration;
-
     private final ConfigurationManager configurationManager;
     private final PluginSettings settings;
 
-    @Inject
     public JwtManagerImpl(final PluginSettingsFactory pluginSettingsFactory,
                           final ApplicationConfiguration applicationConfiguration,
                           final ConfigurationManager configurationManager) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
         settings = pluginSettingsFactory.createGlobalSettings();
         this.applicationConfiguration = applicationConfiguration;
         this.configurationManager = configurationManager;

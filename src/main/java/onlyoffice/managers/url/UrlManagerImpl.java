@@ -22,7 +22,6 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
@@ -31,13 +30,8 @@ import onlyoffice.managers.document.DocumentManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
-@Named
-@Default
 public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
     private final String docEditorServlet = "plugins/servlet/onlyoffice/doceditor";
@@ -46,19 +40,13 @@ public class UrlManagerImpl implements UrlManager {
     private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
     private final String apiServlet = "plugins/servlet/onlyoffice/api";
 
-    @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
-    @ComponentImport
     private final SettingsManager settingsManager;
-
     private final PluginSettings pluginSettings;
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
 
-    @Inject
     public UrlManagerImpl(final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
                           final ConfigurationManager configurationManager, final DocumentManager documentManager) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
         this.settingsManager = settingsManager;
         this.configurationManager = configurationManager;
         this.documentManager = documentManager;

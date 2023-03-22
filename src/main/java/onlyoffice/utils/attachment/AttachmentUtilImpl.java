@@ -31,7 +31,6 @@ import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.setup.BootstrapManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.spring.container.ContainerManager;
@@ -47,9 +46,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -59,25 +55,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-@Named
-@Default
 public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
     private static final HierarchicalContentFileSystemHelper FILE_SYSTEM_HELPER =
             new HierarchicalContentFileSystemHelper();
 
-    @ComponentImport
     private final AttachmentManager attachmentManager;
-    @ComponentImport
     private final TransactionTemplate transactionTemplate;
-    @ComponentImport
     private final PageManager pageManager;
-    @ComponentImport
     private final BootstrapManager bootstrapManager;
 
     private final ConfigurationManager configurationManager;
 
-    @Inject
     public AttachmentUtilImpl(final AttachmentManager attachmentManager, final TransactionTemplate transactionTemplate,
                               final ConfigurationManager configurationManager, final PageManager pageManager,
                               final BootstrapManager bootstrapManager) {
