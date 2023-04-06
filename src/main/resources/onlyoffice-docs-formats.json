@@ -1,0 +1,389 @@
+[
+    {
+        "name": "djvu",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": [],
+        "mime": "image/vnd.djvu"
+    },
+    {
+        "name": "doc",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.ms-word"
+    },
+    {
+        "name": "docm",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.ms-word.document.macroEnabled.12"
+    },
+    {
+        "name": "docx",
+        "type": "word",
+        "edit": true,
+        "fill": false,
+        "editable": false,
+        "convert": ["docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    },
+    {
+        "name": "docxf",
+        "type": "word",
+        "edit": true,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "oform", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document.docxf"
+    },
+    {
+        "name": "oform",
+        "type": "word",
+        "edit": false,
+        "fill": true,
+        "editable": false,
+        "convert": ["pdf"],
+        "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document.oform"
+    },
+    {
+        "name": "dot",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/msword"
+    },
+    {
+        "name": "dotm",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.ms-word.template.macroEnabled.12"
+    },
+    {
+        "name": "dotx",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.template"
+    },
+    {
+        "name": "epub",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/epub+zip"
+    },
+    {
+        "name": "fb2",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "text/fb2+xml"
+    },
+    {
+        "name": "fodt",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.oasis.opendocument.text"
+    },
+    {
+        "name": "html",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "text/html"
+    },
+    {
+        "name": "mht",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "multipart/related"
+    },
+    {
+        "name": "odt",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": true,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.oasis.opendocument.text"
+    },
+    {
+        "name": "ott",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/vnd.oasis.opendocument.text-template"
+    },
+    {
+        "name": "pdf",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": [],
+        "mime": "application/pdf"
+    },
+    {
+        "name": "rtf",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": true,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "txt"],
+        "mime": "text/rtf"
+    },
+    {
+        "name": "txt",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": true,
+        "convert": [],
+        "mime": "text/plain"
+    },
+    {
+        "name": "xps",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pdf", "pdfa"],
+        "mime": "application/vnd.ms-xpsdocument"
+    },
+    {
+        "name": "oxps",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pdf", "pdfa"],
+        "mime": "application/oxps"
+    },
+    {
+        "name": "xml",
+        "type": "word",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["docx", "docxf", "docm", "dotx", "dotm", "epub", "fb2", "html", "odt", "ott", "pdf", "pdfa", "rtf", "txt"],
+        "mime": "application/xml"
+    },
+    {
+        "name": "csv",
+        "type": "cell",
+        "edit": false,
+        "fill": false,
+        "editable": true,
+        "convert": [],
+        "mime": "text/csv"
+    },
+    {
+        "name": "fods",
+        "type": "cell",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["xlsx", "csv", "ods", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm"],
+        "mime": "application/vnd.oasis.opendocument.spreadsheet"
+    },
+    {
+        "name": "ods",
+        "type": "cell",
+        "edit": false,
+        "fill": false,
+        "editable": true,
+        "convert": ["xlsx", "csv", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm"],
+        "mime": "application/vnd.oasis.opendocument.spreadsheet"
+    },
+    {
+        "name": "ots",
+        "type": "cell",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["xlsx", "csv", "ods", "pdf", "pdfa", "xltx", "xlsm", "xltm"],
+        "mime": "application/vnd.oasis.opendocument.spreadsheet-template"
+    },
+    {
+        "name": "xls",
+        "type": "cell",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["xlsx", "csv", "ods", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm"],
+        "mime": "application/vnd.ms-excel"
+    },
+    {
+        "name": "xlsm",
+        "type": "cell",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["xlsx", "csv", "ods", "ots", "pdf", "pdfa", "xltx", "xltm"],
+        "mime": "application/vnd.ms-excel.sheet.macroEnabled.12"
+    },
+    {
+        "name": "xlsx",
+        "type": "cell",
+        "edit": true,
+        "fill": false,
+        "editable": false,
+        "convert": ["csv", "ods", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm"],
+        "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    },
+    {
+        "name": "xlt",
+        "type": "cell",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["xlsx", "csv", "ods", "ots", "pdf", "pdfa", "xltx", "xlsm", "xltm"],
+        "mime": "application/vnd.ms-excel"
+    },
+    {
+        "name": "xltm",
+        "type": "cell",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["xlsx", "csv", "ods", "ots", "pdf", "pdfa", "xltx", "xlsm"],
+        "mime": "application/vnd.ms-excel.template.macroenabled.12"
+    },
+    {
+        "name": "fodp",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.oasis.opendocument.presentation"
+    },
+    {
+        "name": "odp",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": true,
+        "convert": ["pptx", "otp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.oasis.opendocument.presentation"
+    },
+    {
+        "name": "otp",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.oasis.opendocument.presentation-template"
+    },
+    {
+        "name": "pot",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.ms-powerpoint"
+    },
+    {
+        "name": "potm",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm"],
+        "mime": "application/vnd.ms-powerpoint.template.macroEnabled.12"
+    },
+    {
+        "name": "potx",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "pptm", "potm"],
+        "mime": "application/vnd.openxmlformats-officedocument.presentationml.template"
+    },
+    {
+        "name": "pps",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.ms-powerpoint"
+    },
+    {
+        "name": "ppsm",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.ms-powerpoint.slideshow.macroenabled.12"
+    },
+    {
+        "name": "ppsx",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.openxmlformats-officedocument.presentationml.slideshow"
+    },
+    {
+        "name": "ppt",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.ms-powerpoint"
+    },
+    {
+        "name": "pptm",
+        "type": "slide",
+        "edit": false,
+        "fill": false,
+        "editable": false,
+        "convert": ["pptx", "odp", "otp", "pdf", "pdfa", "potx", "potm"],
+        "mime": "application/vnd.ms-powerpoint.presentation.macroenabled.12"
+    },
+    {
+        "name": "pptx",
+        "type": "slide",
+        "edit": true,
+        "fill": false,
+        "editable": false,
+        "convert": ["odp", "otp", "pdf", "pdfa", "potx", "pptm", "potm"],
+        "mime": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    }
+]
