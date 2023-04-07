@@ -20,6 +20,9 @@ package onlyoffice.managers.configuration;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import onlyoffice.model.Format;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -41,7 +44,6 @@ import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,6 +58,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     private final PluginSettings pluginSettings;
 
     private final String configurationPath = "onlyoffice-config.properties";
+    private final String formatsPath = "onlyoffice-docs-formats.json";
     private final String pluginDemoName = "onlyoffice.demo";
     private final String pluginDemoNameStart = "onlyoffice.demoStart";
     private Map<String, String> demoData;
@@ -164,19 +167,9 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return setting;
     }
 
-    public List<String> getDefaultEditingTypes() {
-        String editableTypes = getProperty("docservice.type.edit");
-        return new ArrayList<>(Arrays.asList(editableTypes.split("\\|")));
-    }
-
-    public List<String> getFillFormTypes() {
-        String editableTypes = getProperty("docservice.type.fill-form");
-        return new ArrayList<>(Arrays.asList(editableTypes.split("\\|")));
-    }
-
     public Map<String, Boolean> getCustomizableEditingTypes() {
         Map<String, Boolean> customizableEditingTypes = new HashMap<>();
-        List<String> editingTypes = null;
+        List<String> editingTypes;
 
         String editingTypesString = (String) pluginSettings.get("onlyoffice.editingTypes");
 
@@ -187,10 +180,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
             editingTypes = Arrays.asList("csv", "txt");
         }
 
-        List<String> availableTypes = Arrays.asList(getProperty("docservice.type.edit.customizable").split("\\|"));
+        List<Format> formats = this.getSupportedFormats();
 
-        for (String type : availableTypes) {
-            customizableEditingTypes.put(type, editingTypes.contains(type));
+        for (Format format : formats) {
+            if (format.getAction().equals("editable")) {
+                customizableEditingTypes.put(format.getName(), editingTypes.contains(format.getName()));
+            }
         }
 
         return customizableEditingTypes;
@@ -229,6 +224,20 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         }
 
         return httpClient;
+    }
+
+    public List<Format> getSupportedFormats() {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(formatsPath);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Format> formats = null;
+        try {
+            formats = objectMapper.readValue(inputStream, new TypeReference<List<Format>>() { });
+        } catch (IOException e) {
+           log.error(e.getMessage(), e);
+        }
+
+        return formats;
     }
 }
 
