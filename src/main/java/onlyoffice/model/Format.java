@@ -23,9 +23,7 @@ import java.util.List;
 public class Format {
     private String name;
     private Type type;
-    private boolean edit;
-    private boolean fill;
-    private boolean editable;
+    private String action;
     private List<String> convert;
     private String mime;
 
@@ -37,16 +35,8 @@ public class Format {
         return type;
     }
 
-    public boolean isEdit() {
-        return edit;
-    }
-
-    public boolean isFill() {
-        return fill;
-    }
-
-    public boolean isEditable() {
-        return editable;
+    public String getAction() {
+        return action;
     }
 
     public List<String> getConvert() {
@@ -65,16 +55,8 @@ public class Format {
         this.type = type;
     }
 
-    public void setEdit(final boolean edit) {
-        this.edit = edit;
-    }
-
-    public void setFill(final boolean fill) {
-        this.fill = fill;
-    }
-
-    public void setEditable(final boolean editable) {
-        this.editable = editable;
+    public void setAction(final String action) {
+        this.action = action;
     }
 
     public void setConvert(final List<String> convert) {
