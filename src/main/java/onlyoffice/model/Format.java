@@ -23,7 +23,7 @@ import java.util.List;
 public class Format {
     private String name;
     private Type type;
-    private String action;
+    private List<String>  actions;
     private List<String> convert;
     private String mime;
 
@@ -35,8 +35,8 @@ public class Format {
         return type;
     }
 
-    public String getAction() {
-        return action;
+    public List<String>  getActions() {
+        return actions;
     }
 
     public List<String> getConvert() {
@@ -55,8 +55,8 @@ public class Format {
         this.type = type;
     }
 
-    public void setAction(final String action) {
-        this.action = action;
+    public void setAction(final List<String> actions) {
+        this.actions = actions;
     }
 
     public void setConvert(final List<String> convert) {

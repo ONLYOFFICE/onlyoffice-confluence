@@ -246,7 +246,7 @@ public class DocumentManagerImpl implements DocumentManager {
         List<Format> supportedFormats = configurationManager.getSupportedFormats();
 
         for (Format format : supportedFormats) {
-            if (format.getName().equals(ext) && format.getAction().equals("edit")) {
+            if (format.getName().equals(ext) && format.getActions().contains("edit")) {
                 return true;
             }
         }
@@ -266,7 +266,7 @@ public class DocumentManagerImpl implements DocumentManager {
         List<Format> supportedFormats = configurationManager.getSupportedFormats();
 
         for (Format format : supportedFormats) {
-            if (format.getName().equals(ext) && format.getAction().equals("fill")) {
+            if (format.getName().equals(ext) && format.getActions().contains("fill")) {
                 return true;
             }
         }
@@ -275,8 +275,15 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public boolean isViewable(final String fileExtension) {
-        String docType = getDocType(fileExtension);
-        return docType != null;
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(fileExtension) && format.getActions().contains("view")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public List<String> getInsertImageTypes() {
