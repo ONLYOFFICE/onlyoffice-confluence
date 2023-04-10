@@ -61,7 +61,9 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     private final String formatsPath = "onlyoffice-docs-formats.json";
     private final String pluginDemoName = "onlyoffice.demo";
     private final String pluginDemoNameStart = "onlyoffice.demoStart";
+
     private Map<String, String> demoData;
+    private List<Format> supportedFormats;
 
     public ConfigurationManagerImpl(final PluginSettingsFactory pluginSettingsFactory) {
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
@@ -71,6 +73,15 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         demoData.put("header", "AuthorizationJWT");
         demoData.put("secret", "sn2puSUF7muF5Jas");
         demoData.put("trial", "30");
+
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(formatsPath);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            supportedFormats = objectMapper.readValue(inputStream, new TypeReference<List<Format>>() { });
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     public Properties getProperties() throws IOException {
@@ -183,7 +194,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         List<Format> formats = this.getSupportedFormats();
 
         for (Format format : formats) {
-            if (format.getAction().equals("editable")) {
+            if (format.getActions().contains("lossy-edit")) {
                 customizableEditingTypes.put(format.getName(), editingTypes.contains(format.getName()));
             }
         }
@@ -227,17 +238,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     }
 
     public List<Format> getSupportedFormats() {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(formatsPath);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<Format> formats = null;
-        try {
-            formats = objectMapper.readValue(inputStream, new TypeReference<List<Format>>() { });
-        } catch (IOException e) {
-           log.error(e.getMessage(), e);
-        }
-
-        return formats;
+        return supportedFormats;
     }
 }
 
