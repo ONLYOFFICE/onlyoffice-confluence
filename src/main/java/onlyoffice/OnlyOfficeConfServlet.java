@@ -134,6 +134,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         contextMap.put("docserviceDemoAvailable", demoAvailable);
         contextMap.put("pathApiUrl", configurationManager.getProperty("files.docservice.url.api"));
         contextMap.put("defaultCustomizableEditingTypes", defaultCustomizableEditingTypes);
+        contextMap.put("supportedFormats", configurationManager.getSupportedFormats());
 
         writer.write(getTemplate(contextMap));
     }
