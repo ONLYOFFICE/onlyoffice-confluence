@@ -163,7 +163,7 @@
     {
         "name": "txt",
         "type": "word",
-        "actions": ["view", "lossy-true"],
+        "actions": ["view", "lossy-edit"],
         "convert": [],
         "mime": "text/plain"
     },
