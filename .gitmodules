@@ -1,4 +1,0 @@
-[submodule "src/main/resources/app_data"]
-	path = src/main/resources/app_data
-	url = https://github.com/ONLYOFFICE/document-templates
-	branch = main/new
