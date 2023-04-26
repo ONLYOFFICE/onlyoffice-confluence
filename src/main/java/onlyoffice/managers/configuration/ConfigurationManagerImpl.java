@@ -58,7 +58,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     private final PluginSettings pluginSettings;
 
     private final String configurationPath = "onlyoffice-config.properties";
-    private final String formatsPath = "onlyoffice-docs-formats.json";
+    private final String formatsPath = "app_data/document-formats/onlyoffice-docs-formats.json";
     private final String pluginDemoName = "onlyoffice.demo";
     private final String pluginDemoNameStart = "onlyoffice.demoStart";
 
