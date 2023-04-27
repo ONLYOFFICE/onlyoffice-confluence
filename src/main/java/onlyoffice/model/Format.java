@@ -25,7 +25,7 @@ public class Format {
     private Type type;
     private List<String>  actions;
     private List<String> convert;
-    private String mime;
+    private List<String> mime;
 
     public String getName() {
         return name;
@@ -43,7 +43,7 @@ public class Format {
         return convert;
     }
 
-    public String getMime() {
+    public List<String> getMime() {
         return mime;
     }
 
@@ -63,7 +63,7 @@ public class Format {
         this.convert = convert;
     }
 
-    public void setMime(final String mime) {
+    public void setMime(final List<String> mime) {
         this.mime = mime;
     }
 

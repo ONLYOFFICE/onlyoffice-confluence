@@ -178,7 +178,10 @@ public class DocumentManagerImpl implements DocumentManager {
         LocaleManager localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
         PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
 
-        String pathToDemoFile = "app_data/document-templates/" + localeManager.getLocale(user).toString().replace("_", "-");
+        String pathToDemoFile = "app_data/document-templates/" + localeManager
+                .getLocale(user)
+                .toString()
+                .replace("_", "-");
 
         if (pluginAccessor.getDynamicResourceAsStream(pathToDemoFile) == null) {
             pathToDemoFile = "app_data/en-US";
