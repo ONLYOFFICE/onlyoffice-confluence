@@ -65,6 +65,7 @@
                     <productVersion>${confluence.version}</productVersion>
                     <productDataVersion>${confluence.data.version}</productDataVersion>
                     <enableQuickReload>false</enableQuickReload>
+                    <extractDependencies>false</extractDependencies>
                 </configuration>
             </plugin>
 
