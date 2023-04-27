@@ -2,7 +2,7 @@
 
 ## 
 ## Added
-- referenceData
+- Paste Special to add a link between files
 
 ## 4.2.0
 ## Changed
