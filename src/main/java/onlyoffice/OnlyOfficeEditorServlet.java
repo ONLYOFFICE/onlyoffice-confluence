@@ -21,6 +21,7 @@ package onlyoffice;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
+import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
@@ -59,6 +60,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final LocaleManager localeManager;
     @ComponentImport
     private final WebResourceUrlProvider webResourceUrlProvider;
+    @ComponentImport
+    private final SystemInformationService sysInfoService;
 
     private final JwtManager jwtManager;
     private final UrlManager urlManager;
@@ -71,6 +74,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     @Inject
     public OnlyOfficeEditorServlet(final LocaleManager localeManager,
                                    final WebResourceUrlProvider webResourceUrlProvider,
+                                   final SystemInformationService sysInfoService,
                                    final UrlManager urlManager, final JwtManager jwtManager,
                                    final ConfigurationManager configurationManager,
                                    final AuthContext authContext, final DocumentManager documentManager,
@@ -83,6 +87,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
+        this.sysInfoService = sysInfoService;
     }
 
     @Override
@@ -199,6 +204,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         JSONObject editorConfigObject = new JSONObject();
         JSONObject userObject = new JSONObject();
         JSONObject permObject = new JSONObject();
+        JSONObject referenceData = new JSONObject();
         JSONObject customizationObject = new JSONObject();
         JSONObject gobackObject = new JSONObject();
 
@@ -214,7 +220,11 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             documentObject.put("fileType", docExt);
             documentObject.put("key", key);
             documentObject.put("permissions", permObject);
+            documentObject.put("referenceData", referenceData);
             responseJson.put("editorConfig", editorConfigObject);
+
+            referenceData.put("fileKey", attachmentId);
+            referenceData.put("instanceId", sysInfoService.getConfluenceInfo().getBaseUrl());
 
             if (canEdit && callbackUrl != null && !callbackUrl.isEmpty()) {
                 permObject.put("edit", true);
@@ -272,6 +282,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
             config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
             config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
+            config.put("referenceDataUriAsHtml", urlManager.getReferenceDataUri(pageId));
             config.put("insertImageTypesAsHtml", new JSONArray(documentManager.getInsertImageTypes()).toString());
             config.put("compareFileTypesAsHtml", new JSONArray(documentManager.getCompareFileTypes()).toString());
             config.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeTypes()).toString());

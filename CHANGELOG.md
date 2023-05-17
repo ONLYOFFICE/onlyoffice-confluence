@@ -1,5 +1,9 @@
 # Change Log
 
+## 
+## Added
+- Paste Special to add a link between files
+
 ## 4.2.0
 ## Changed
 - compatible with Confluence 8.1.1

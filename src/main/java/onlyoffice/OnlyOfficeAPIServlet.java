@@ -18,8 +18,11 @@
 
 package onlyoffice;
 
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -57,6 +60,9 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
 
+    @ComponentImport
+    private final SystemInformationService sysInfoService;
+
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
 
@@ -66,9 +72,11 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private final ConfigurationManager configurationManager;
 
     @Inject
-    public OnlyOfficeAPIServlet(final JwtManager jwtManager, final DocumentManager documentManager,
-                                final AttachmentUtil attachmentUtil, final ParsingUtil parsingUtil,
-                                final UrlManager urlManager, final ConfigurationManager configurationManager) {
+    public OnlyOfficeAPIServlet(final SystemInformationService sysInfoService, final JwtManager jwtManager,
+                                final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                                final ParsingUtil parsingUtil, final UrlManager urlManager,
+                                final ConfigurationManager configurationManager) {
+        this.sysInfoService = sysInfoService;
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
@@ -88,6 +96,9 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                     break;
                 case "attachment-data":
                     attachmentData(request, response);
+                    break;
+                case "reference-data":
+                    referenceData(request, response);
                     break;
                 default:
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -205,6 +216,75 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
             writer.write(gson.toJson(responseJson));
         } catch (Exception e) {
             throw new IOException(e.getMessage());
+        }
+    }
+
+    private void referenceData(final HttpServletRequest request, final HttpServletResponse response)
+            throws IOException {
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+
+        if (user == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        InputStream requestStream = request.getInputStream();
+        String body = parsingUtil.getBody(requestStream);
+
+        try {
+            JSONObject bodyJson = new JSONObject(body);
+            JSONObject referenceData = new JSONObject();
+            Long attachmentId = null;
+
+            if (bodyJson.has("referenceData")) {
+                referenceData = bodyJson.getJSONObject("referenceData");
+                if (referenceData.getString("instanceId").equals(sysInfoService.getConfluenceInfo().getBaseUrl())) {
+                    attachmentId = referenceData.getLong("fileKey");
+                }
+            }
+
+            Attachment attachment = attachmentUtil.getAttachment(attachmentId);
+
+            if (attachment == null) {
+                String pageIdString = request.getParameter("pageId");
+
+                if (pageIdString != null && !pageIdString.isEmpty()) {
+                    Long pageId = Long.parseLong(pageIdString);
+                    attachment = attachmentUtil.getAttachmentByName(bodyJson.getString("path"), pageId);
+                    if (attachment != null) {
+                        attachmentId = attachment.getId();
+                        referenceData.put("fileKey", attachment.getId());
+                        referenceData.put("instanceId", sysInfoService.getConfluenceInfo().getBaseUrl());
+                    }
+                }
+            }
+
+            if (attachment == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            if (!attachmentUtil.checkAccess(attachmentId, user, false)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+
+            JSONObject responseJson = new JSONObject();
+
+            responseJson.put("fileType", attachmentUtil.getFileExt(attachmentId));
+            responseJson.put("path", attachmentUtil.getFileName(attachmentId));
+            responseJson.put("referenceData", referenceData);
+            responseJson.put("url", urlManager.getFileUri(attachmentId));
+
+            if (jwtManager.jwtEnabled()) {
+                responseJson.put("token", jwtManager.createToken(responseJson));
+            }
+
+            response.setContentType("application/json");
+            PrintWriter writer = response.getWriter();
+            writer.write(responseJson.toString());
+        } catch (Exception e) {
+            throw new IOException(e.getMessage(), e);
         }
     }
 }
