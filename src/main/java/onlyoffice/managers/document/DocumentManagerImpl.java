@@ -26,7 +26,6 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
@@ -35,9 +34,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,8 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@Named
-@Default
 public class DocumentManagerImpl implements DocumentManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
     private static final String USER_AGENT_MOBILE = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec"
@@ -61,15 +55,13 @@ public class DocumentManagerImpl implements DocumentManager {
     private static final int DEFAULT_MAX_FILE_SIZE = 5242880;
     private static final int MAX_KEY_LENGTH = 20;
 
-    @ComponentImport
-    private final I18nResolver i18n;
+    private final I18nResolver i18nResolver;
     private final ConfigurationManager configurationManager;
     private final AttachmentUtil attachmentUtil;
 
-    @Inject
-    public DocumentManagerImpl(final I18nResolver i18n, final ConfigurationManager configurationManager,
+    public DocumentManagerImpl(final I18nResolver i18nResolver, final ConfigurationManager configurationManager,
                                final AttachmentUtil attachmentUtil) {
-        this.i18n = i18n;
+        this.i18nResolver = i18nResolver;
         this.configurationManager = configurationManager;
         this.attachmentUtil = attachmentUtil;
     }
@@ -199,7 +191,7 @@ public class DocumentManagerImpl implements DocumentManager {
                 fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf")
                         ? "docx" : fileExt.trim();
         String name = fileName == null || fileName.equals("")
-                ? i18n.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
+                ? i18nResolver.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
 
         InputStream demoFile = getDemoFile(user, extension);
 

@@ -24,7 +24,6 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +41,6 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
 
-    @Inject
     public OnlyOfficeFileProviderServlet(final AttachmentUtil attachmentUtil, final JwtManager jwtManager,
                                          final DocumentManager documentManager) {
         this.attachmentUtil = attachmentUtil;

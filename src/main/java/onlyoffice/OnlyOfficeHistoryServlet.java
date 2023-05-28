@@ -26,9 +26,9 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.spring.container.ContainerManager;
 import com.google.gson.Gson;
+import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -39,7 +39,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -59,11 +58,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
     private static final int BUFFER_SIZE = 10240;
 
-    @ComponentImport
     private final LocaleManager localeManager;
-    @ComponentImport
     private final FormatSettingsManager formatSettingsManager;
-
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
@@ -71,7 +67,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final JwtManager jwtManager;
     private final ParsingUtil parsingUtil;
 
-    @Inject
     public OnlyOfficeHistoryServlet(final LocaleManager localeManager,
                                     final FormatSettingsManager formatSettingsManager,
                                     final AuthContext authContext, final DocumentManager documentManager,

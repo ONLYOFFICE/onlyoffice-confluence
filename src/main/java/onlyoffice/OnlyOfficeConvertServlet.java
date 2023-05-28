@@ -24,7 +24,7 @@ import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -40,7 +40,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -57,16 +56,13 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
 
-    @ComponentImport
     private final AttachmentManager attachmentManager;
-
     private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final ConfigurationManager configurationManager;
 
-    @Inject
     public OnlyOfficeConvertServlet(final AttachmentManager attachmentManager, final AttachmentUtil attachmentUtil,
                                     final ConvertManager convertManager, final AuthContext authContext,
                                     final DocumentManager documentManager,

@@ -30,9 +30,6 @@ import org.apache.http.ssl.TrustStrategy;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 import java.io.IOException;
@@ -54,8 +51,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-@Named
-@Default
 public class ConfigurationManagerImpl implements ConfigurationManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.configuration.ConfigurationManager");
     private final PluginSettings pluginSettings;
@@ -65,7 +60,6 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
     private final String pluginDemoNameStart = "onlyoffice.demoStart";
     private Map<String, String> demoData;
 
-    @Inject
     public ConfigurationManagerImpl(final PluginSettingsFactory pluginSettingsFactory) {
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
 

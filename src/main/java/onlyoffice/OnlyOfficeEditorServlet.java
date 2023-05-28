@@ -25,9 +25,9 @@ import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.plugin.webresource.UrlMode;
 import com.atlassian.plugin.webresource.WebResourceUrlProvider;
+import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
@@ -38,7 +38,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,12 +54,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
     private final long serialVersionUID = 1L;
 
-
-    @ComponentImport
     private final LocaleManager localeManager;
-    @ComponentImport
     private final WebResourceUrlProvider webResourceUrlProvider;
-    @ComponentImport
     private final SystemInformationService sysInfoService;
 
     private final JwtManager jwtManager;
@@ -70,8 +65,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
 
-
-    @Inject
     public OnlyOfficeEditorServlet(final LocaleManager localeManager,
                                    final WebResourceUrlProvider webResourceUrlProvider,
                                    final SystemInformationService sysInfoService,

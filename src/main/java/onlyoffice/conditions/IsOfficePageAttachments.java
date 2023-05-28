@@ -25,7 +25,6 @@ import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -33,10 +32,8 @@ import java.util.regex.Pattern;
 
 public class IsOfficePageAttachments implements Condition {
     private String pageAttachments = "viewpageattachments.action";
-
     private final AttachmentUtil attachmentUtil;
 
-    @Inject
     public IsOfficePageAttachments(final AttachmentUtil attachmentUtil) {
         this.attachmentUtil = attachmentUtil;
     }
