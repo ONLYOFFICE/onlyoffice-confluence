@@ -1,6 +1,14 @@
 Confluence ONLYOFFICE integration app uses code from the following 3rd party projects:
 
 
+com.auth0.java-jwt  - Java implementation of JSON Web Token (JWT) (https://github.com/auth0/java-jwt/blob/master/LICENSE)
+License:              MIT License
+License File:         com.auth0.java-jwt.license
+
+com.fasterxml.jackson.core.jackson-databind - General data-binding functionality for Jackson: works on core streaming API (https://github.com/FasterXML/jackson-databind/blob/2.16/LICENSE)
+License:              Apache License 2.0
+License File:         com.fasterxml.jackson.core.jackson-databind.license
+
 javax.servlet-api   - Java Servlet API (https://opensource.org/licenses/CDDL-1.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 License:              CDDL, GPL 2.0
 License File:         javax.servlet-api.license
