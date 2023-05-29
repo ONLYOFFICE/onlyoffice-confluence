@@ -146,7 +146,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentHistoryInfo(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
 
@@ -220,7 +220,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
 

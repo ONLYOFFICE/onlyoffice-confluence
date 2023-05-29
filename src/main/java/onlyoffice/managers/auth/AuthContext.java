@@ -5,5 +5,5 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface AuthContext {
-    boolean checkUserAuthorisation(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    boolean checkUserAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }

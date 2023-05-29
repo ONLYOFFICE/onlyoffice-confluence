@@ -86,7 +86,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     @Override
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
 

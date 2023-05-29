@@ -232,15 +232,19 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
 
             if (bodyJson.has("referenceData")) {
                 referenceData = bodyJson.getJSONObject("referenceData");
-                attachmentId = referenceData.getLong("fileKey");
+                if (referenceData.getString("instanceId").equals(sysInfoService.getConfluenceInfo().getBaseUrl())) {
+                    attachmentId = referenceData.getLong("fileKey");
+                }
             }
 
-            if (attachmentUtil.getAttachment(attachmentId) == null) {
+            Attachment attachment = attachmentUtil.getAttachment(attachmentId);
+
+            if (attachment == null) {
                 String pageIdString = request.getParameter("pageId");
 
                 if (pageIdString != null && !pageIdString.isEmpty()) {
                     Long pageId = Long.parseLong(pageIdString);
-                    Attachment attachment = attachmentUtil.getAttachmentByName(bodyJson.getString("path"), pageId);
+                    attachment = attachmentUtil.getAttachmentByName(bodyJson.getString("path"), pageId);
                     if (attachment != null) {
                         attachmentId = attachment.getId();
                         referenceData.put("fileKey", attachment.getId());
@@ -249,7 +253,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 }
             }
 
-            if (attachmentUtil.getAttachment(attachmentId) == null) {
+            if (attachment == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
