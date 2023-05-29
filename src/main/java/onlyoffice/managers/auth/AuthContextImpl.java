@@ -30,7 +30,7 @@ import java.security.Principal;
 public class AuthContextImpl implements AuthContext {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.auth.AuthContext");
 
-    public boolean checkUserAuthorisation(final HttpServletRequest request, final HttpServletResponse response)
+    public boolean checkUserAuthorization(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
         Principal principal = request.getUserPrincipal();
         if (principal == null) {

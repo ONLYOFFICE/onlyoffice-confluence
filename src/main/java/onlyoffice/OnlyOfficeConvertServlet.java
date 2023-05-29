@@ -78,7 +78,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     @Override
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
         String pageIdString = request.getParameter("pageId");
@@ -123,7 +123,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     @Override
     public void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
 
