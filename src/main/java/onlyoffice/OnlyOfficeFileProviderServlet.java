@@ -62,8 +62,10 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
                 throw new SecurityException("Expected JWT");
             }
 
-            if (!jwtManager.verify(token)) {
-                throw new SecurityException("JWT verification failed");
+            try {
+                String payload = jwtManager.verify(token);
+            } catch (Exception e) {
+                throw new SecurityException("JWT verification failed!");
             }
         }
 

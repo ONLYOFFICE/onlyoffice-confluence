@@ -51,7 +51,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Base64;
 
 public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -132,6 +131,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
             if (jwtManager.jwtEnabled()) {
                 String token = jsonObj.optString("token");
+                String payload = null;
                 Boolean inBody = true;
 
                 if (token == null || token == "") {
@@ -147,12 +147,13 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     throw new SecurityException("Try save without JWT");
                 }
 
-                if (!jwtManager.verify(token)) {
+                try {
+                    payload = jwtManager.verify(token);
+                } catch (Exception e) {
                     throw new SecurityException("Try save with wrong JWT");
                 }
 
-                JSONObject bodyFromToken = new JSONObject(
-                        new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), "UTF-8"));
+                JSONObject bodyFromToken = new JSONObject(payload);
 
                 if (inBody) {
                     jsonObj = bodyFromToken;
