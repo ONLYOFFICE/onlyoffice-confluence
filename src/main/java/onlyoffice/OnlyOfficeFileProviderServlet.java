@@ -22,11 +22,8 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.spring.container.ContainerManager;
-import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -39,18 +36,14 @@ import java.io.OutputStream;
 
 public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFileProviderServlet");
     private static final int BUFFER_SIZE = 10240;
 
     private final AttachmentUtil attachmentUtil;
     private final JwtManager jwtManager;
-    private final DocumentManager documentManager;
 
-    public OnlyOfficeFileProviderServlet(final AttachmentUtil attachmentUtil, final JwtManager jwtManager,
-                                         final DocumentManager documentManager) {
+    public OnlyOfficeFileProviderServlet(final AttachmentUtil attachmentUtil, final JwtManager jwtManager) {
         this.attachmentUtil = attachmentUtil;
         this.jwtManager = jwtManager;
-        this.documentManager = documentManager;
     }
 
     @Override
