@@ -90,15 +90,20 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         response.setContentType("text/plain; charset=utf-8");
 
         String token = request.getParameter("token");
-        String payload = null;
+        String payload;
+        JSONObject bodyFromToken;
 
         try {
             payload = jwtManager.verifyInternalToken(token);
+            bodyFromToken = new JSONObject(payload);
+
+            if (!bodyFromToken.getString("action").equals("callback")) {
+                throw new SecurityException();
+            }
         } catch (Exception e) {
             throw new SecurityException("Invalid link token!");
         }
 
-        JSONObject bodyFromToken = new JSONObject(payload);
         String userKeyString = bodyFromToken.getString("userKey");
         String attachmentIdString = bodyFromToken.getString("attachmentId");
 

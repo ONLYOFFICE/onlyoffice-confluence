@@ -87,6 +87,7 @@ public class UrlManagerImpl implements UrlManager {
         Map<String, String> params = new HashMap<>();
         params.put("userKey", user.getKey().getStringValue());
         params.put("attachmentId", attachmentId.toString());
+        params.put("action", "download");
 
         String fileUri =
                 getConfluenceBaseUrl() + fileProviderServlet + "?token=" + jwtManager.createInternalToken(params);
@@ -142,6 +143,7 @@ public class UrlManagerImpl implements UrlManager {
         Map<String, String> params = new HashMap<>();
         params.put("userKey", user.getKey().getStringValue());
         params.put("attachmentId", attachmentId.toString());
+        params.put("action", "callback");
 
         String callbackUrl =
                 getConfluenceBaseUrl() + callbackServlet + "?token=" + jwtManager.createInternalToken(params);

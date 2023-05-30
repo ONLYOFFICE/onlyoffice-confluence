@@ -75,15 +75,20 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
         }
 
         String token = request.getParameter("token");
-        String payload = null;
+        String payload;
+        JSONObject bodyFromToken;
 
         try {
             payload = jwtManager.verifyInternalToken(token);
+            bodyFromToken = new JSONObject(payload);
+
+            if (!bodyFromToken.getString("action").equals("download")) {
+                throw new SecurityException();
+            }
         } catch (Exception e) {
             throw new SecurityException("Invalid link token!");
         }
 
-        JSONObject bodyFromToken = new JSONObject(payload);
         String userKeyString = bodyFromToken.getString("userKey");
         String attachmentIdString = bodyFromToken.getString("attachmentId");
 
