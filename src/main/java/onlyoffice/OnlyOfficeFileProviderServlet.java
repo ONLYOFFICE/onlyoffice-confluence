@@ -18,11 +18,13 @@
 
 package onlyoffice;
 
-import onlyoffice.managers.document.DocumentManager;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.sal.api.user.UserKey;
+import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,18 +36,14 @@ import java.io.OutputStream;
 
 public class OnlyOfficeFileProviderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFileProviderServlet");
     private static final int BUFFER_SIZE = 10240;
 
     private final AttachmentUtil attachmentUtil;
     private final JwtManager jwtManager;
-    private final DocumentManager documentManager;
 
-    public OnlyOfficeFileProviderServlet(final AttachmentUtil attachmentUtil, final JwtManager jwtManager,
-                                         final DocumentManager documentManager) {
+    public OnlyOfficeFileProviderServlet(final AttachmentUtil attachmentUtil, final JwtManager jwtManager) {
         this.attachmentUtil = attachmentUtil;
         this.jwtManager = jwtManager;
-        this.documentManager = documentManager;
     }
 
     @Override
@@ -69,12 +67,39 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
             }
         }
 
-        String vkey = request.getParameter("vkey");
-        log.info("vkey = " + vkey);
-        String attachmentIdString = documentManager.readHash(vkey);
+        String token = request.getParameter("token");
+        String payload;
+        JSONObject bodyFromToken;
 
+        try {
+            payload = jwtManager.verifyInternalToken(token);
+            bodyFromToken = new JSONObject(payload);
+
+            if (!bodyFromToken.getString("action").equals("download")) {
+                throw new SecurityException();
+            }
+        } catch (Exception e) {
+            throw new SecurityException("Invalid link token!");
+        }
+
+        String userKeyString = bodyFromToken.getString("userKey");
+        String attachmentIdString = bodyFromToken.getString("attachmentId");
+
+        UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+
+        UserKey userKey = new UserKey(userKeyString);
+        ConfluenceUser user = userAccessor.getUserByKey(userKey);
         Long attachmentId = Long.parseLong(attachmentIdString);
-        log.info("attachmentId " + attachmentId);
+
+        if (attachmentUtil.getAttachment(attachmentId) == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        if (!attachmentUtil.checkAccess(attachmentId, user, false)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
         String contentType = attachmentUtil.getMediaType(attachmentId);
         response.setContentType(contentType);

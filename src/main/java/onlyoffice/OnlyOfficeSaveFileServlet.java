@@ -20,6 +20,7 @@ package onlyoffice;
 
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
@@ -38,7 +39,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -89,13 +89,38 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/plain; charset=utf-8");
 
-        String vkey = request.getParameter("vkey");
-        log.info("vkey = " + vkey);
-        String attachmentIdString = documentManager.readHash(vkey);
+        String token = request.getParameter("token");
+        String payload;
+        JSONObject bodyFromToken;
+
+        try {
+            payload = jwtManager.verifyInternalToken(token);
+            bodyFromToken = new JSONObject(payload);
+
+            if (!bodyFromToken.getString("action").equals("callback")) {
+                throw new SecurityException();
+            }
+        } catch (Exception e) {
+            throw new SecurityException("Invalid link token!");
+        }
+
+        String userKeyString = bodyFromToken.getString("userKey");
+        String attachmentIdString = bodyFromToken.getString("attachmentId");
+
+        UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+
+        UserKey userKey = new UserKey(userKeyString);
+        ConfluenceUser user = userAccessor.getUserByKey(userKey);
+        Long attachmentId = Long.parseLong(attachmentIdString);
+
+        if (attachmentUtil.getAttachment(attachmentId) == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
         String error = "";
         try {
-            processData(attachmentIdString, request);
+            processData(attachmentId, user, request);
         } catch (Exception e) {
             error = e.getMessage();
         }
@@ -111,16 +136,12 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         log.info("error = " + error);
     }
 
-    private void processData(final String attachmentIdString, final HttpServletRequest request) throws Exception {
-        log.info("attachmentId = " + attachmentIdString);
+    private void processData(final Long attachmentId, final ConfluenceUser user, final HttpServletRequest request)
+            throws Exception {
+        log.info("attachmentId = " + attachmentId.toString());
         InputStream requestStream = request.getInputStream();
-        if (attachmentIdString.isEmpty()) {
-            throw new IllegalArgumentException("attachmentId is empty");
-        }
 
         try {
-            Long attachmentId = Long.parseLong(attachmentIdString);
-
             String body = parsingUtil.getBody(requestStream);
             log.info("body = " + body);
             if (body.isEmpty()) {
@@ -164,8 +185,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
             long status = jsonObj.getLong("status");
             log.info("status = " + status);
-
-            ConfluenceUser user = getConfluenceUserFromJSON(jsonObj);
             log.info("user = " + user);
 
             if (status == STATUS_EDITING) {
@@ -309,18 +328,5 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 }
             }
         }
-    }
-
-    private ConfluenceUser getConfluenceUserFromJSON(final JSONObject jsonObj) throws JSONException {
-        ConfluenceUser confluenceUser = null;
-        if (jsonObj.has("users")) {
-            JSONArray users = jsonObj.getJSONArray("users");
-            if (users.length() > 0) {
-                String userName = users.getString(0);
-                UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-                confluenceUser = userAccessor.getUserByName(userName);
-            }
-        }
-        return confluenceUser;
     }
 }
