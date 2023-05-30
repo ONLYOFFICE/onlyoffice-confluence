@@ -19,7 +19,6 @@
 package onlyoffice.managers.jwt;
 
 import com.atlassian.config.ApplicationConfiguration;
-import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.auth0.jwt.JWT;
@@ -31,23 +30,22 @@ import org.json.JSONObject;
 
 import java.util.Base64;
 import java.util.Map;
+import java.util.Random;
 
 public class JwtManagerImpl implements JwtManager {
 
     private static final long ACCEPT_LEEWAY = 3;
+    private static final int PLUGIN_SECRET_LENGTH = 32;
 
     private final ApplicationConfiguration applicationConfiguration;
-    private final SystemInformationService systemInformationService;
     private final ConfigurationManager configurationManager;
     private final PluginSettings settings;
 
     public JwtManagerImpl(final PluginSettingsFactory pluginSettingsFactory,
                           final ApplicationConfiguration applicationConfiguration,
-                          final SystemInformationService systemInformationService,
                           final ConfigurationManager configurationManager) {
         settings = pluginSettingsFactory.createGlobalSettings();
         this.applicationConfiguration = applicationConfiguration;
-        this.systemInformationService = systemInformationService;
         this.configurationManager = configurationManager;
     }
 
@@ -63,11 +61,11 @@ public class JwtManagerImpl implements JwtManager {
     }
 
     public String createInternalToken(final Map<String, ?> payloadMap) {
-        return createToken(payloadMap, systemInformationService.getConfluenceInfo().getServerId());
+        return createToken(payloadMap, getPluginSecret());
     }
 
     public String verifyInternalToken(final String token) {
-        return verifyToken(token, systemInformationService.getConfluenceInfo().getServerId());
+        return verifyToken(token, getPluginSecret());
     }
 
     public Boolean jwtEnabled() {
@@ -107,5 +105,25 @@ public class JwtManagerImpl implements JwtManager {
                 .verify(token);
 
         return new String(decoder.decode(jwt.getPayload()));
+    }
+
+    private String getPluginSecret() {
+        if (settings.get("onlyoffice.plugin-secret") == null || settings.get("onlyoffice.plugin-secret").equals("")) {
+            Random random = new Random();
+            char[] numbersAndLetters = ("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ").toCharArray();
+
+            char[] randBuffer = new char[PLUGIN_SECRET_LENGTH];
+            for (int i = 0; i < randBuffer.length; i++) {
+                randBuffer[i] = numbersAndLetters[random.nextInt(numbersAndLetters.length)];
+            }
+
+            String secret = new String(randBuffer);
+
+            settings.put("onlyoffice.plugin-secret", secret);
+
+            return secret;
+        } else {
+            return (String) settings.get("onlyoffice.plugin-secret");
+        }
     }
 }
