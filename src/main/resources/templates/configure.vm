@@ -293,32 +293,5 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.button.save')" class="button">
             </div>
         </form>
-
-        <div>
-            <h3>About app:</h3>
-            <div>
-                <h4>Supported formats:</h4>
-                <div style="margin-left: 40px">
-                    <span><b>For viewing:</b></span>
-                    <div style="margin-left: 30px;">
-                        <div><b>Word:</b> #foreach($format in $supportedFormats) #if($format.type == "WORD" && $format.actions.contains("view")) ${format.name} #end #end</div>
-                        <div><b>Cell:</b> #foreach($format in $supportedFormats) #if($format.type == "CELL" && $format.actions.contains("view")) ${format.name} #end #end</div>
-                        <div><b>Slide:</b> #foreach($format in $supportedFormats) #if($format.type == "SLIDE" && $format.actions.contains("view")) ${format.name} #end #end</div>
-                    </div>
-                    <span><b>For editing:</b></span>
-                    <div style="margin-left: 30px;">
-                        <div><b>Word:</b> #foreach($format in $supportedFormats) #if($format.type == "WORD" && $format.actions.contains("edit")) ${format.name} #end #end</div>
-                        <div><b>Cell:</b> #foreach($format in $supportedFormats) #if($format.type == "CELL" && $format.actions.contains("edit")) ${format.name} #end #end</div>
-                        <div><b>Slide:</b> #foreach($format in $supportedFormats) #if($format.type == "SLIDE" && $format.actions.contains("edit")) ${format.name} #end #end</div>
-                    </div>
-                    <span><b>For editing with possible loss of information:</b></span>
-                    <div style="margin-left: 30px;">
-                        <div><b>Word:</b> #foreach($format in $supportedFormats) #if($format.type == "WORD" && $format.actions.contains("lossy-edit")) ${format.name} #end #end</div>
-                        <div><b>Cell:</b> #foreach($format in $supportedFormats) #if($format.type == "CELL" && $format.actions.contains("lossy-edit")) ${format.name} #end #end</div>
-                        <div><b>Slide:</b> #foreach($format in $supportedFormats) #if($format.type == "SLIDE" && $format.actions.contains("lossy-edit")) ${format.name} #end #end</div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </body>
 </html>
