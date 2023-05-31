@@ -66,7 +66,7 @@ public class IsOfficeFileAttachment implements Condition {
 
         if (forEdit) {
             if (form) {
-                if (accessEdit && documentManager.isFillForm(ext) && !ext.equals("docx")) {
+                if (accessEdit && documentManager.isFillForm(ext)) {
                     return true;
                 }
             } else {
