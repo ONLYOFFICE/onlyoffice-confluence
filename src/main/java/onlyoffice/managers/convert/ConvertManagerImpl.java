@@ -24,6 +24,7 @@ import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
+import onlyoffice.model.Format;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
@@ -38,7 +39,6 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 
 public class ConvertManagerImpl implements ConvertManager {
@@ -58,38 +58,6 @@ public class ConvertManagerImpl implements ConvertManager {
         this.configurationManager = configurationManager;
         this.documentManager = documentManager;
         this.localeManager = localeManager;
-    }
-
-    public boolean isConvertable(final String ext) {
-        String convertableTypes = configurationManager.getProperty("docservice.type.convert");
-        if (convertableTypes == null) {
-            return false;
-        }
-        List<String> exts = Arrays.asList(convertableTypes.split("\\|"));
-        return exts.contains(ext);
-    }
-
-    public String convertsTo(final String ext) {
-        String docType = documentManager.getDocType(ext);
-        if (docType != null) {
-            if (ext.equals("docx")) {
-                return "docxf";
-            }
-            if (ext.equals("docxf")) {
-                return "oform";
-            }
-
-            if (docType.equals("word")) {
-                return "docx";
-            }
-            if (docType.equals("cell")) {
-                return "xlsx";
-            }
-            if (docType.equals("slide")) {
-                return "pptx";
-            }
-        }
-        return null;
     }
 
     public JSONObject convert(final Long attachmentId, final String ext, final String convertToExt,
@@ -152,7 +120,49 @@ public class ConvertManagerImpl implements ConvertManager {
         }
     }
 
-    private String trimDot(final String input) {
-        return input.startsWith(".") ? input.substring(1) : input;
+    public String getTargetExt(final String ext) {
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                switch (format.getType()) {
+                    case WORD:
+                        if (format.getName().equals("docxf") && format.getConvert().contains("oform")) {
+                            return "oform";
+                        }
+                        if (format.getConvert().contains("docx")) {
+                            return "docx";
+                        }
+                        break;
+                    case CELL:
+                        if (format.getConvert().contains("xlsx")) {
+                            return "xlsx";
+                        }
+                        break;
+                    case SLIDE:
+                        if (format.getConvert().contains("pptx")) {
+                            return "pptx";
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return null;
     }
+
+    public List<String> getTargetExtList(final String ext) {
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                return format.getConvert();
+            }
+        }
+
+        return null;
+    }
+
 }

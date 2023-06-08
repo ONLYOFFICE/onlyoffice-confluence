@@ -1,5 +1,6 @@
 package onlyoffice.managers.configuration;
 
+import onlyoffice.model.Format;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.IOException;
@@ -29,11 +30,9 @@ public interface ConfigurationManager extends Serializable {
 
     String getStringPluginSetting(String key, String defaultValue);
 
-    List<String> getDefaultEditingTypes();
-
-    List<String> getFillFormTypes();
-
     Map<String, Boolean> getCustomizableEditingTypes();
 
     CloseableHttpClient getHttpClient() throws Exception;
+
+    List<Format> getSupportedFormats();
 }
