@@ -26,7 +26,6 @@ import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.model.Format;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -43,6 +42,8 @@ import java.util.List;
 
 public class ConvertManagerImpl implements ConvertManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.convert.ConvertManager");
+
+    private static final int NOT_REACHED_STATUS = -10;
 
     private final LocaleManager localeManager;
     private final UrlManager urlManager;
@@ -68,7 +69,8 @@ public class ConvertManagerImpl implements ConvertManager {
     }
 
     public JSONObject convert(final Long attachmentId, final String currentExt, final String convertToExt,
-                              final String url, final String region, final boolean async, final String title) throws Exception {
+                              final String url, final String region, final boolean async,
+                              final String title) throws Exception {
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
             body.put("async", async);
@@ -81,7 +83,9 @@ public class ConvertManagerImpl implements ConvertManager {
             body.put("title", title);
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
-            String conversionServiceUrl =urlManager.getInnerDocEditorUrl() + configurationManager.getProperties().getProperty("files.docservice.url.convert");
+            String conversionServiceUrl = urlManager.getInnerDocEditorUrl() + configurationManager
+                    .getProperties()
+                    .getProperty("files.docservice.url.convert");
 
             HttpPost request = new HttpPost(conversionServiceUrl);
             request.setEntity(requestEntity);
@@ -105,7 +109,7 @@ public class ConvertManagerImpl implements ConvertManager {
 
                 if (status != HttpStatus.SC_OK) {
                     log.error("Conversion service returned code " + status + ". URL: " + conversionServiceUrl);
-                    callBackJson.put("error", -10);
+                    callBackJson.put("error", NOT_REACHED_STATUS);
                 } else {
                     InputStream is = response.getEntity().getContent();
                     String content = IOUtils.toString(is, StandardCharsets.UTF_8);

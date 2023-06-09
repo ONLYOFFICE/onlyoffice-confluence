@@ -29,7 +29,6 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.util.List;
@@ -44,14 +43,15 @@ public class DownloadAsAction extends ConfluenceActionSupport {
     private String targetFileType;
     private static final char[] INVALID_CHARS;
 
-    @Inject
     public DownloadAsAction(final AttachmentUtil attachmentUtil, final ConvertManager convertManager) {
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
     }
 
     @PermittedMethods({ HttpMethod.GET })
-    public String doDefault() { return ConfluenceActionSupport.INPUT; }
+    public String doDefault() {
+        return ConfluenceActionSupport.INPUT;
+    }
 
     @Override
     public void validate() {
@@ -62,32 +62,32 @@ public class DownloadAsAction extends ConfluenceActionSupport {
 
         if (!attachmentUtil.checkAccess(attachmentId, getAuthenticatedUser(), false)) {
             addActionError(getText("onlyoffice.connector.dialog.conversion.message.error.permission"));
-            ServletContextThreadLocal.getResponse().setStatus(403);
+            ServletContextThreadLocal.getResponse().setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
         if (fileName == null || fileName.isEmpty()) {
             addActionError(getText("onlyoffice.connector.error.Unknown"));
-            ServletContextThreadLocal.getResponse().setStatus(400);
+            ServletContextThreadLocal.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        if (StringUtils.containsAny((CharSequence)this.fileName, DownloadAsAction.INVALID_CHARS)) {
+        if (StringUtils.containsAny((CharSequence) this.fileName, DownloadAsAction.INVALID_CHARS)) {
             addActionError(getText("filename.contain.invalid.character"));
-            ServletContextThreadLocal.getResponse().setStatus(400);
+            ServletContextThreadLocal.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
 
         if (targetFileType == null || targetFileType.isEmpty()) {
             addActionError(getText("onlyoffice.connector.error.Unknown"));
-            ServletContextThreadLocal.getResponse().setStatus(400);
+            ServletContextThreadLocal.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        if (convertManager.getTargetExtList(ext) == null ||
-                convertManager.getTargetExtList(ext).isEmpty() ||
-                !convertManager.getTargetExtList(ext).contains(targetFileType)
+        if (convertManager.getTargetExtList(ext) == null
+                || convertManager.getTargetExtList(ext).isEmpty()
+                || !convertManager.getTargetExtList(ext).contains(targetFileType)
         ) {
             addActionError(getText("onlyoffice.connector.error.Unknown"));
-            ServletContextThreadLocal.getResponse().setStatus(415);
+            ServletContextThreadLocal.getResponse().setStatus(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
         }
     }
 
@@ -103,24 +103,25 @@ public class DownloadAsAction extends ConfluenceActionSupport {
 
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
-        JSONObject convertResult = convertManager.convert(attachmentId, ext, targetExt, user, this.fileName + "." + targetExt);
+        JSONObject convertResult =
+                convertManager.convert(attachmentId, ext, targetExt, user, this.fileName + "." + targetExt);
         HttpServletResponse response = ServletContextThreadLocal.getResponse();
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
         writer.write(convertResult.toString());
-        response.setStatus(200);
+        response.setStatus(HttpServletResponse.SC_OK);
         return "none";
     }
 
-    public void setAttachmentId(String attachmentId) {
+    public void setAttachmentId(final String attachmentId) {
         this.attachmentId = attachmentId;
     }
 
-    public void setFileName(String fileName) {
+    public void setFileName(final String fileName) {
         this.fileName = fileName;
     }
 
-    public void setTargetFileType(String targetFileType) {
+    public void setTargetFileType(final String targetFileType) {
         this.targetFileType = targetFileType;
     }
 
@@ -149,6 +150,6 @@ public class DownloadAsAction extends ConfluenceActionSupport {
     }
 
     static {
-        INVALID_CHARS = new char[] { '\\', '/', '\"', ':', '?', '*', '<', '|', '>' };
+        INVALID_CHARS = new char[] {'\\', '/', '\"', ':', '?', '*', '<', '|', '>'};
     }
 }

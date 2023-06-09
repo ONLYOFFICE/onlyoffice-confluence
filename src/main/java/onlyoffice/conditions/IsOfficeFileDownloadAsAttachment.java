@@ -26,8 +26,9 @@ import com.atlassian.plugin.web.Condition;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
-import javax.inject.Inject;
 import java.util.Map;
 
 public class IsOfficeFileDownloadAsAttachment implements Condition {
@@ -36,20 +37,20 @@ public class IsOfficeFileDownloadAsAttachment implements Condition {
     private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
 
-    @Inject
-    public IsOfficeFileDownloadAsAttachment(DocumentManager documentManager, AttachmentUtil attachmentUtil,
-                                            ConvertManager convertManager) {
+    public IsOfficeFileDownloadAsAttachment(final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                                            final ConvertManager convertManager) {
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.convertManager = convertManager;
     }
+    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
     @Override
-    public void init(Map<String, String> map) throws PluginParseException {
+    public void init(final Map<String, String> map) throws PluginParseException {
     }
 
     @Override
-    public boolean shouldDisplay(Map<String, Object> map) {
+    public boolean shouldDisplay(final Map<String, Object> map) {
         Attachment attachment = (Attachment) map.get("attachment");
 
         if (attachment == null) {
@@ -65,6 +66,6 @@ public class IsOfficeFileDownloadAsAttachment implements Condition {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean access = attachmentUtil.checkAccess(attachment, user, false);
 
-        return access &&  convertManager.getTargetExtList(ext).size() != 0;
+        return access && convertManager.getTargetExtList(ext).size() != 0;
     }
 }

@@ -100,7 +100,7 @@ public class DocumentManagerImpl implements DocumentManager {
             size = 0;
         }
 
-        return size > 0 ? size : 5 * 1024 * 1024;
+        return size > 0 ? size : DEFAULT_MAX_FILE_SIZE;
     }
 
     private String generateRevisionId(final String expectedKey) {
