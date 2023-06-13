@@ -1,8 +1,8 @@
 package onlyoffice.managers.document;
 
 import com.atlassian.confluence.user.ConfluenceUser;
-import onlyoffice.model.DocumentType;
-import onlyoffice.model.Type;
+import onlyoffice.model.config.DocumentType;
+import onlyoffice.model.config.Type;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -21,7 +21,9 @@ public interface DocumentManager extends Serializable {
 
     Long createDemo(String fileName, String fileExt, Long pageID, ConfluenceUser user) throws IOException;
 
-    String getDocType(String ext);
+    DocumentType getDocType(String ext);
+
+    String getDocTypeAsString(String ext);
 
     Type getEditorType(String userAgent);
 

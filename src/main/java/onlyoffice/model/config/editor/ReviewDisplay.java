@@ -16,13 +16,15 @@
  *
  */
 
-package onlyoffice.model.editor;
+package onlyoffice.model.config.editor;
 
 import com.google.gson.annotations.SerializedName;
 
-public enum Mode {
-    @SerializedName("view")
-    VIEW,
-    @SerializedName("edit")
-    EDIT
+public enum ReviewDisplay {
+    @SerializedName("markup")
+    MARKUP,
+    @SerializedName("final")
+    FINAL,
+    @SerializedName("original")
+    ORIGINAL
 }

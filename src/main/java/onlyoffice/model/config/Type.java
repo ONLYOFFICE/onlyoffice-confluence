@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice.model;
+package onlyoffice.model.config;
 
 import com.google.gson.annotations.SerializedName;
 

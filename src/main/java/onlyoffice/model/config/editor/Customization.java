@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice.model.editor;
+package onlyoffice.model.config.editor;
 
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.url.UrlManager;
@@ -42,9 +42,12 @@ public class Customization {
             switch (configurationManager.getStringPluginSetting("reviewDisplay", "original")) {
                 case "markup":
                     this.reviewDisplay = ReviewDisplay.MARKUP;
+                    break;
                 case "final":
                     this.reviewDisplay = ReviewDisplay.FINAL;
+                    break;
                 case "original":
+                default:
                     this.reviewDisplay = ReviewDisplay.ORIGINAL;
             }
         }

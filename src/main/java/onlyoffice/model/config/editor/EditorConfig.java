@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice.model.editor;
+package onlyoffice.model.config.editor;
 
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;

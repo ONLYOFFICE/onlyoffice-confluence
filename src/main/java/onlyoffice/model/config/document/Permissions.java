@@ -16,25 +16,18 @@
  *
  */
 
-package onlyoffice.model.document;
+package onlyoffice.model.config.document;
 
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import onlyoffice.managers.document.DocumentManager;
-import onlyoffice.managers.url.UrlManager;
-import onlyoffice.model.Type;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
-public class Document {
-    String key;
-    String title;
-    String url;
-    String fileType;
-    Permissions permissions;
+public class Permissions {
+    boolean edit;
 
-    public Document(DocumentManager documentManager, AttachmentUtil attachmentUtil, UrlManager urlManager, Long attachmentId, Type type) {
-        key = documentManager.getKeyOfFile(attachmentId, type.equals(Type.EMBEDDED));
-        title = attachmentUtil.getFileName(attachmentId);
-        fileType = attachmentUtil.getFileExt(attachmentId);
-        url = urlManager.getFileUri(attachmentId);
-        permissions = new Permissions(documentManager, attachmentUtil, attachmentId);
+    public Permissions (DocumentManager documentManager, AttachmentUtil attachmentUtil, Long attachmentId) {
+        String fileExt = attachmentUtil.getFileExt(attachmentId);
+        boolean isEditable = documentManager.isEditable(fileExt) || documentManager.isFillForm(fileExt);
+        edit = attachmentUtil.checkAccess(attachmentId,  AuthenticatedUserThreadLocal.get(), true) && isEditable;
     }
 }

@@ -16,15 +16,15 @@
  *
  */
 
-package onlyoffice.model;
+package onlyoffice.model.config;
 
 import com.atlassian.confluence.languages.LocaleManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.url.UrlManager;
-import onlyoffice.model.document.Document;
-import onlyoffice.model.editor.EditorConfig;
-import onlyoffice.model.editor.Mode;
+import onlyoffice.model.config.document.Document;
+import onlyoffice.model.config.editor.EditorConfig;
+import onlyoffice.model.config.editor.Mode;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.json.JSONObject;
 
@@ -41,7 +41,7 @@ public class Config {
                    UrlManager urlManager, ConfigurationManager configurationManager, Long attachmentId, Mode mode,
                    Type type, JSONObject actionLink, String referer) {
         this.type = type;
-        this.documentType = documentManager.getDocType(attachmentId);
+        this.documentType = documentManager.getDocType(attachmentUtil.getFileExt(attachmentId));
         this.document = new Document(documentManager, attachmentUtil, urlManager, attachmentId, type);
         this.editorConfig = new EditorConfig(
                 localeManager,

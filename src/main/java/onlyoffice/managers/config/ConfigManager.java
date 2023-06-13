@@ -1,7 +1,7 @@
 package onlyoffice.managers.config;
 
-import onlyoffice.model.Type;
-import onlyoffice.model.editor.Mode;
+import onlyoffice.model.config.Type;
+import onlyoffice.model.config.editor.Mode;
 import org.json.JSONObject;
 
 import java.io.Serializable;

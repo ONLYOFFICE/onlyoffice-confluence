@@ -16,15 +16,15 @@
  *
  */
 
-package onlyoffice.model.editor;
+package onlyoffice.model.config;
 
 import com.google.gson.annotations.SerializedName;
 
-public enum ReviewDisplay {
-    @SerializedName("markup")
-    MARKUP,
-    @SerializedName("final")
-    FINAL,
-    @SerializedName("original")
-    ORIGINAL
+public enum DocumentType {
+    @SerializedName("word")
+    WORD,
+    @SerializedName("cell")
+    CELL,
+    @SerializedName("slide")
+    SLIDE
 }

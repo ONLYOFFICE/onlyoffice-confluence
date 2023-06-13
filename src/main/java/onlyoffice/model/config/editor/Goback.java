@@ -16,7 +16,7 @@
  *
  */
 
-package onlyoffice.model.editor;
+package onlyoffice.model.config.editor;
 
 import onlyoffice.managers.url.UrlManager;
 

@@ -28,11 +28,10 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginAccessor;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
-import onlyoffice.model.DocumentType;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.model.Format;
-import onlyoffice.model.Type;
-import onlyoffice.model.Type;
+import onlyoffice.model.config.DocumentType;
+import onlyoffice.model.config.Type;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
@@ -212,7 +211,20 @@ public class DocumentManagerImpl implements DocumentManager {
         return attachment.getContentId().asLong();
     }
 
-    public String getDocType(final String ext) {
+    public DocumentType getDocType(final String ext) {
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+
+                return format.getType();
+            }
+        }
+
+        return null;
+    }
+
+    public String getDocTypeAsString(final String ext) {
         List<Format> supportedFormats = configurationManager.getSupportedFormats();
 
         for (Format format : supportedFormats) {
