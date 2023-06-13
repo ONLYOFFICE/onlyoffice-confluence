@@ -187,6 +187,9 @@
     <component name="Config Manager" key="onlyoffice-config-manager" class="onlyoffice.managers.config.ConfigManagerImpl" public="true">
         <interface>onlyoffice.managers.config.ConfigManager</interface>
     </component>
+    <component name="Content Resolver" key="onlyoffice-content-resolver" class="onlyoffice.macro.components.DefaultContentResolver" public="true">
+        <interface>onlyoffice.macro.components.ContentResolver</interface>
+    </component>
 
     <component-import key="applicationConfiguration" interface="com.atlassian.config.ApplicationConfiguration"/>
     <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
@@ -201,6 +204,7 @@
     <component-import key="webResourceUrlProvider" interface="com.atlassian.plugin.webresource.WebResourceUrlProvider"/>
     <component-import key="formatSettingsManager" interface="com.atlassian.confluence.core.FormatSettingsManager"/>
     <component-import key="sysInfoService" interface="com.atlassian.confluence.status.service.SystemInformationService"/>
+    <component-import key="velocityHelperService" interface="com.atlassian.confluence.plugin.services.VelocityHelperService"/>
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">
         <description>A full-featured editor for the most known formats of text documents, spreadsheets and presentations that can open these types of documents for editing or preview.</description>

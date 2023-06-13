@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,5 +22,6 @@ import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.macro.MacroExecutionException;
 
 public interface ContentResolver {
-    ContentEntityObject getContent(final String page, final String spaceKey, final String date, final ContentEntityObject context) throws MacroExecutionException;
+    ContentEntityObject getContent(String page, String spaceKey, String date,
+                                   ContentEntityObject context) throws MacroExecutionException;
 }

@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,24 @@ package onlyoffice.macro;
 import com.atlassian.confluence.content.render.image.ImageDimensions;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.core.ContentEntityObject;
-import com.atlassian.confluence.macro.*;
+
+import com.atlassian.confluence.macro.Macro;
+import com.atlassian.confluence.macro.EditorImagePlaceholder;
+import com.atlassian.confluence.macro.ResourceAware;
+import com.atlassian.confluence.macro.MacroExecutionException;
+import com.atlassian.confluence.macro.ImagePlaceholder;
+import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.plugin.services.VelocityHelperService;
 import com.atlassian.confluence.util.HtmlUtil;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import onlyoffice.macro.components.ContentResolver;
 import onlyoffice.managers.config.ConfigManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.url.UrlManager;
-import onlyoffice.model.DocumentType;
-import onlyoffice.model.Type;
-import onlyoffice.model.editor.Mode;
+import onlyoffice.model.config.DocumentType;
+import onlyoffice.model.config.Type;
+import onlyoffice.model.config.editor.Mode;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -42,23 +47,27 @@ import java.util.Map;
 
 public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, ResourceAware {
 
-    private static final Logger log = LogManager.getLogger("onlyoffice.macro.OnlyOfficePreviewMacro");
+    private final Logger log = LogManager.getLogger("onlyoffice.macro.OnlyOfficePreviewMacro");
 
+    public static final int DOT_INDEX = 46;
+    public static final int DEFAULT_PLACEHOLDER_WIDTH = 380;
+    public static final int DEFAULT_PLACEHOLDER_HEIGHT = 300;
     public static final String DEFAULT_WIDTH = "632";
     public static final String DEFAULT_HEIGHT = "507";
     private String resourcePath;
 
     private final AttachmentManager attachmentManager;
-    @ComponentImport
     private final VelocityHelperService velocityHelperService;
     private final ContentResolver contentResolver;
     private final ConfigManager configManager;
     private final UrlManager urlManager;
     private final DocumentManager documentManager;
 
-    public OnlyOfficePreviewMacro(AttachmentManager attachmentManager,
-                                  VelocityHelperService velocityHelperService, ContentResolver contentResolver,
-                                  ConfigManager configManager, UrlManager urlManager, DocumentManager documentManager) {
+    public OnlyOfficePreviewMacro(final AttachmentManager attachmentManager,
+                                  final VelocityHelperService velocityHelperService,
+                                  final ContentResolver contentResolver,
+                                  final ConfigManager configManager, final UrlManager urlManager,
+                                  final DocumentManager documentManager) {
         this.attachmentManager = attachmentManager;
         this.velocityHelperService = velocityHelperService;
         this.contentResolver = contentResolver;
@@ -68,7 +77,8 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
     }
 
     @Override
-    public String execute(Map<String, String> args, String s, ConversionContext conversionContext) throws MacroExecutionException {
+    public String execute(final Map<String, String> args, final String s, final ConversionContext conversionContext)
+            throws MacroExecutionException {
         final String file = this.getFileName(args);
         final String pageName = args.get("page");
         final String space = args.get("space");
@@ -76,11 +86,14 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
         String width = args.get("width");
         String height = args.get("height");
 
-        final ContentEntityObject page = this.contentResolver.getContent(pageName, space, date, conversionContext.getPageContext().getEntity());
+        final ContentEntityObject page = this.contentResolver.getContent(pageName, space, date,
+                conversionContext.getPageContext().getEntity());
         final Attachment attachment = this.attachmentManager.getAttachment(page, file);
 
         if (attachment == null) {
-            throw new MacroExecutionException("The viewfile macro is unable to locate the attachment \"" + file + "\" on " + ((pageName == null) ? "this page" : ("the page \"" + pageName + "\" in space \"" + space + "\"")));
+            throw new MacroExecutionException("The viewfile macro is unable to locate the attachment \""
+                    + file + "\" on " + ((pageName == null)
+                    ? "this page" : ("the page \"" + pageName + "\" in space \"" + space + "\"")));
         }
 
         width = normalizeSize((width == null) ? DEFAULT_WIDTH : width);
@@ -109,10 +122,14 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
     }
 
     @Override
-    public BodyType getBodyType() { return BodyType.NONE; }
+    public BodyType getBodyType() {
+        return BodyType.NONE;
+    }
 
     @Override
-    public OutputType getOutputType() { return OutputType.BLOCK; }
+    public OutputType getOutputType() {
+        return OutputType.BLOCK;
+    }
 
     @Override
     public String getResourcePath() {
@@ -120,31 +137,37 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
     }
 
     @Override
-    public void setResourcePath(String resourcePath) {
+    public void setResourcePath(final String resourcePath) {
         this.resourcePath = resourcePath;
     }
 
     @Override
-    public ImagePlaceholder getImagePlaceholder(Map<String, String> args, ConversionContext conversionContext) {
-        String name = (String)args.get("name");
+    public ImagePlaceholder getImagePlaceholder(final Map<String, String> args,
+                                                final ConversionContext conversionContext) {
+        String name = (String) args.get("name");
         if (name == null) {
-            name = (String)args.get("0");
+            name = (String) args.get("0");
         }
 
         DocumentType documentType = DocumentType.WORD;
 
         if (!StringUtils.isBlank(name)) {
-            int dotIdx = name.lastIndexOf(46);
+            int dotIdx = name.lastIndexOf(DOT_INDEX);
             if (dotIdx != -1) {
                 String fileExt = name.substring(dotIdx + 1).toLowerCase();
                 if (documentManager.getDocType(fileExt) != null) {
                     documentType = documentManager.getDocType(fileExt);
-                    if (fileExt.equals("oform")) documentType = DocumentType.FORM;
+                    if (fileExt.equals("oform")) {
+                        documentType = DocumentType.FORM;
+                    }
                 }
             }
         }
 
-        return new DefaultImagePlaceholder(this.resourcePath + "/images/preview-placeholder-" + documentType.name().toLowerCase() + ".svg", true, new ImageDimensions(380, 300));
+        return new DefaultImagePlaceholder(this.resourcePath + "/images/preview-placeholder-"
+                + documentType.name().toLowerCase()
+                + ".svg",
+                true, new ImageDimensions(DEFAULT_PLACEHOLDER_WIDTH, DEFAULT_PLACEHOLDER_HEIGHT));
     }
 
     private String getFileName(final Map<String, String> args) throws MacroExecutionException {
@@ -161,11 +184,12 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
         return file;
     }
 
-    private String normalizeSize(String attr) {
+    private String normalizeSize(final String attr) {
+        String size = attr;
         if (!attr.endsWith("px") && !attr.endsWith("%")) {
-            attr += "px";
+            size += "px";
         }
 
-        return HtmlUtil.htmlEncode(attr);
+        return HtmlUtil.htmlEncode(size);
     }
 }
