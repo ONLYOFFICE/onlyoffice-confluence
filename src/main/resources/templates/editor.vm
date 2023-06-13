@@ -53,7 +53,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     </div>
     <div class="form">
         <div id="iframeEditor"></div>
-        <span style="display:none;" id="editorConfig" aria-hidden="true">$jsonAsHtml</span>
+        <span style="display:none;" id="editorConfig" aria-hidden="true">$configAsHtml</span>
     </div>
 
     <script type="text/javascript" src="${docserviceApiUrl}"></script>
@@ -367,9 +367,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 },
             };
 
-            if (configAsHtml) {
-                Object.assign(config, JSON.parse(configAsHtml || "{}"));
-            }
             if (!AJS.Meta.get("is-blog-post")) {
                 config.events.onRequestSaveAs = onRequestSaveAs;
             }
