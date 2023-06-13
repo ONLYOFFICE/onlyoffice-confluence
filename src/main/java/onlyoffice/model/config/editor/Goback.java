@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,17 @@ package onlyoffice.model.config.editor;
 import onlyoffice.managers.url.UrlManager;
 
 public class Goback {
-    String url;
+    private String url;
 
-    public Goback (UrlManager urlManager, Long attachmentId, String referer) {
+    public Goback(final UrlManager urlManager, final Long attachmentId, final String referer) {
         this.url = urlManager.getGobackUrl(attachmentId, referer);
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(final String url) {
+        this.url = url;
     }
 }

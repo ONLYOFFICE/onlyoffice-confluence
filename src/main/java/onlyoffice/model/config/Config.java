@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,17 +29,18 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import org.json.JSONObject;
 
 public class Config {
-    Type type;
-    DocumentType documentType;
-    EditorConfig editorConfig;
-    Document document;
-    String token;
-    String height = "100%";
-    String width = "100%";
+    private Type type;
+    private DocumentType documentType;
+    private EditorConfig editorConfig;
+    private Document document;
+    private String token;
+    private String height = "100%";
+    private String width = "100%";
 
-    public Config (LocaleManager localeManager, DocumentManager documentManager, AttachmentUtil attachmentUtil,
-                   UrlManager urlManager, ConfigurationManager configurationManager, Long attachmentId, Mode mode,
-                   Type type, JSONObject actionLink, String referer) {
+    public Config(final LocaleManager localeManager, final DocumentManager documentManager,
+                  final AttachmentUtil attachmentUtil, final UrlManager urlManager,
+                  final ConfigurationManager configurationManager, final Long attachmentId, final Mode mode,
+                  final Type type, final JSONObject actionLink, final String referer) {
         this.type = type;
         this.documentType = documentManager.getDocType(attachmentUtil.getFileExt(attachmentId));
         this.document = new Document(documentManager, attachmentUtil, urlManager, attachmentId, type);
@@ -55,12 +56,59 @@ public class Config {
         );
     }
 
-    public void setToken(String token) {
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(final String token) {
         this.token = token;
     }
 
-    public void setHeight(String height) { this.height = height; }
+    public String getHeight() {
+        return height;
+    }
 
-    public void setWidth(String width) { this.width = width; }
+    public void setHeight(final String height) {
+        this.height = height;
+    }
 
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(final String width) {
+        this.width = width;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(final Type type) {
+        this.type = type;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(final DocumentType documentType) {
+        this.documentType = documentType;
+    }
+
+    public EditorConfig getEditorConfig() {
+        return editorConfig;
+    }
+
+    public void setEditorConfig(final EditorConfig editorConfig) {
+        this.editorConfig = editorConfig;
+    }
+
+    public Document getDocument() {
+        return document;
+    }
+
+    public void setDocument(final Document document) {
+        this.document = document;
+    }
 }

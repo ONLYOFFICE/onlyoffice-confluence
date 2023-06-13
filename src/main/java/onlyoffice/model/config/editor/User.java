@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,27 @@ package onlyoffice.model.config.editor;
 import com.atlassian.confluence.user.ConfluenceUser;
 
 public class User {
-    String id;
-    String name;
+    private String id;
+    private String name;
 
-    public User(ConfluenceUser user) {
+    public User(final ConfluenceUser user) {
         this.id = user.getName();
         this.name = user.getFullName();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 }

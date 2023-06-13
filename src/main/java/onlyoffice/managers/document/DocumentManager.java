@@ -23,8 +23,6 @@ public interface DocumentManager extends Serializable {
 
     DocumentType getDocType(String ext);
 
-    String getDocTypeAsString(String ext);
-
     Type getEditorType(String userAgent);
 
     String getMimeType(String name);

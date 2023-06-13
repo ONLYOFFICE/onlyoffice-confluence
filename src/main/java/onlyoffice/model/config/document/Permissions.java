@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,20 @@ import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 public class Permissions {
-    boolean edit;
+    private boolean edit;
 
-    public Permissions (DocumentManager documentManager, AttachmentUtil attachmentUtil, Long attachmentId) {
+    public Permissions(final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                        final Long attachmentId) {
         String fileExt = attachmentUtil.getFileExt(attachmentId);
         boolean isEditable = documentManager.isEditable(fileExt) || documentManager.isFillForm(fileExt);
         edit = attachmentUtil.checkAccess(attachmentId,  AuthenticatedUserThreadLocal.get(), true) && isEditable;
+    }
+
+    public boolean isEdit() {
+        return edit;
+    }
+
+    public void setEdit(final boolean edit) {
+        this.edit = edit;
     }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,58 @@ import onlyoffice.model.config.Type;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 public class Document {
-    String key;
-    String title;
-    String url;
-    String fileType;
-    Permissions permissions;
+    private String key;
+    private String title;
+    private String url;
+    private String fileType;
+    private Permissions permissions;
 
-    public Document(DocumentManager documentManager, AttachmentUtil attachmentUtil, UrlManager urlManager, Long attachmentId, Type type) {
+    public Document(final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                    final UrlManager urlManager, final Long attachmentId, final Type type) {
         key = documentManager.getKeyOfFile(attachmentId, type.equals(Type.EMBEDDED));
         title = attachmentUtil.getFileName(attachmentId);
         fileType = attachmentUtil.getFileExt(attachmentId);
         url = urlManager.getFileUri(attachmentId);
         permissions = new Permissions(documentManager, attachmentUtil, attachmentId);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(final String url) {
+        this.url = url;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(final String fileType) {
+        this.fileType = fileType;
+    }
+
+    public Permissions getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(final Permissions permissions) {
+        this.permissions = permissions;
     }
 }

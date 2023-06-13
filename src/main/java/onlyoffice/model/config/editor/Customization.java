@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,23 @@
  * limitations under the License.
  *
  */
-
 package onlyoffice.model.config.editor;
 
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.url.UrlManager;
 
 public class Customization {
-    boolean forcesave;
-    boolean chat;
-    boolean compactHeader;
-    boolean feedback;
-    boolean help;
-    boolean toolbarNoTabs;
-    ReviewDisplay reviewDisplay;
-    Goback goback;
+    private boolean forcesave;
+    private boolean chat;
+    private boolean compactHeader;
+    private boolean feedback;
+    private boolean help;
+    private boolean toolbarNoTabs;
+    private ReviewDisplay reviewDisplay;
+    private Goback goback;
 
-    public Customization(UrlManager urlManager, ConfigurationManager configurationManager, Long attachmentId, String referer) {
+    public Customization(final UrlManager urlManager, final ConfigurationManager configurationManager,
+                         final Long attachmentId, final String referer) {
         this.forcesave = configurationManager.forceSaveEnabled();
         this.chat = configurationManager.getBooleanPluginSetting("chat", true);
         this.compactHeader = configurationManager.getBooleanPluginSetting("compactHeader", false);
@@ -52,5 +52,69 @@ public class Customization {
             }
         }
         this.goback = new Goback(urlManager, attachmentId, referer);
+    }
+
+    public boolean isForcesave() {
+        return forcesave;
+    }
+
+    public void setForcesave(final boolean forcesave) {
+        this.forcesave = forcesave;
+    }
+
+    public boolean isChat() {
+        return chat;
+    }
+
+    public void setChat(final boolean chat) {
+        this.chat = chat;
+    }
+
+    public boolean isCompactHeader() {
+        return compactHeader;
+    }
+
+    public void setCompactHeader(final boolean compactHeader) {
+        this.compactHeader = compactHeader;
+    }
+
+    public boolean isFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(final boolean feedback) {
+        this.feedback = feedback;
+    }
+
+    public boolean isHelp() {
+        return help;
+    }
+
+    public void setHelp(final boolean help) {
+        this.help = help;
+    }
+
+    public boolean isToolbarNoTabs() {
+        return toolbarNoTabs;
+    }
+
+    public void setToolbarNoTabs(final boolean toolbarNoTabs) {
+        this.toolbarNoTabs = toolbarNoTabs;
+    }
+
+    public ReviewDisplay getReviewDisplay() {
+        return reviewDisplay;
+    }
+
+    public void setReviewDisplay(final ReviewDisplay reviewDisplay) {
+        this.reviewDisplay = reviewDisplay;
+    }
+
+    public Goback getGoback() {
+        return goback;
+    }
+
+    public void setGoback(final Goback goback) {
+        this.goback = goback;
     }
 }

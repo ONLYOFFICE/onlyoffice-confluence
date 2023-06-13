@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2022
+ * (c) Copyright Ascensio System SIA 2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,17 +27,17 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import org.json.JSONObject;
 
 public class EditorConfig {
-    Mode mode;
-    String createUrl;
-    String callbackUrl;
-    String lang;
-    JSONObject actionLink;
-    Customization customization;
-    User user;
+    private Mode mode;
+    private String createUrl;
+    private String callbackUrl;
+    private String lang;
+    private JSONObject actionLink;
+    private Customization customization;
+    private User user;
 
-    public EditorConfig (LocaleManager localeManager, AttachmentUtil attachmentUtil, UrlManager urlManager,
-                         ConfigurationManager configurationManager, Long attachmentId, Mode mode, JSONObject actionLink,
-                         String referer) {
+    public EditorConfig(final LocaleManager localeManager, final AttachmentUtil attachmentUtil,
+                         final UrlManager urlManager, final ConfigurationManager configurationManager,
+                         final Long attachmentId, final Mode mode, final JSONObject actionLink, final String referer) {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
         String fileExt = attachmentUtil.getFileExt(attachmentId);
@@ -58,5 +58,61 @@ public class EditorConfig {
         if (attachmentUtil.checkAccess(attachmentId, user, true)) {
             this.callbackUrl = urlManager.getCallbackUrl(attachmentId);
         }
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(final Mode mode) {
+        this.mode = mode;
+    }
+
+    public String getCreateUrl() {
+        return createUrl;
+    }
+
+    public void setCreateUrl(final String createUrl) {
+        this.createUrl = createUrl;
+    }
+
+    public String getCallbackUrl() {
+        return callbackUrl;
+    }
+
+    public void setCallbackUrl(final String callbackUrl) {
+        this.callbackUrl = callbackUrl;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(final String lang) {
+        this.lang = lang;
+    }
+
+    public JSONObject getActionLink() {
+        return actionLink;
+    }
+
+    public void setActionLink(final JSONObject actionLink) {
+        this.actionLink = actionLink;
+    }
+
+    public Customization getCustomization() {
+        return customization;
+    }
+
+    public void setCustomization(final Customization customization) {
+        this.customization = customization;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(final User user) {
+        this.user = user;
     }
 }

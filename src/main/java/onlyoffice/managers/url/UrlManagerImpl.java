@@ -47,13 +47,15 @@ public class UrlManagerImpl implements UrlManager {
     private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
     private final String apiServlet = "plugins/servlet/onlyoffice/api";
 
-    private final WebResourceUrlProvider webResourceUrlProvider;    private final SettingsManager settingsManager;
+    private final WebResourceUrlProvider webResourceUrlProvider;
+    private final SettingsManager settingsManager;
     private final PluginSettings pluginSettings;
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
     private final JwtManager jwtManager;
 
-    public UrlManagerImpl(final WebResourceUrlProvider webResourceUrlProvider, final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
+    public UrlManagerImpl(final WebResourceUrlProvider webResourceUrlProvider,
+                          final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
                           final ConfigurationManager configurationManager, final DocumentManager documentManager,
                           final JwtManager jwtManager) {
         this.webResourceUrlProvider = webResourceUrlProvider;        this.settingsManager = settingsManager;
@@ -217,17 +219,16 @@ public class UrlManagerImpl implements UrlManager {
         return getPublicDocEditorUrl() + configurationManager.getProperty("files.docservice.url.api");
     }
 
-    public String getFaviconUrl(Long attachmentId) {
+    public String getFaviconUrl(final DocumentType documentType) {
         String nameIcon = "word";
 
-        DocumentType documentType = documentManager.getDocType(attachmentId);
         if (documentType != null) {
             nameIcon = documentType.name().toLowerCase();
         }
 
         return webResourceUrlProvider.getStaticPluginResourceUrl(
                 "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
-                nameIcon +".ico",
+                nameIcon + ".ico",
                 UrlMode.ABSOLUTE
         );
     }

@@ -224,21 +224,6 @@ public class DocumentManagerImpl implements DocumentManager {
         return null;
     }
 
-    public String getDocTypeAsString(final String ext) {
-        List<Format> supportedFormats = configurationManager.getSupportedFormats();
-
-        for (Format format : supportedFormats) {
-            if (format.getName().equals(ext)) {
-
-                String type = format.getType().name().toLowerCase();
-
-                return type;
-            }
-        }
-
-        return null;
-    }
-
     public String getMimeType(final String name) {
         Path path = new File(name).toPath();
         String mimeType = null;
@@ -250,7 +235,7 @@ public class DocumentManagerImpl implements DocumentManager {
         return mimeType != null ? mimeType : "application/octet-stream";
     }
 
-    public Type getEditorType (final String userAgent) {
+    public Type getEditorType(final String userAgent) {
         Pattern pattern = Pattern.compile(USER_AGENT_MOBILE, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         if (userAgent != null && pattern.matcher(userAgent).find()) {
             return Type.MOBILE;
@@ -312,7 +297,7 @@ public class DocumentManagerImpl implements DocumentManager {
         List<String> result = new ArrayList<>();
 
         for (Format format : supportedFormats) {
-            if (format.getType().equals(Type.WORD)) {
+            if (format.getType().equals(DocumentType.WORD)) {
                 result.add(format.getName());
             }
         }
@@ -325,7 +310,7 @@ public class DocumentManagerImpl implements DocumentManager {
         List<String> result = new ArrayList<>();
 
         for (Format format : supportedFormats) {
-            if (format.getType().equals(Type.CELL)) {
+            if (format.getType().equals(DocumentType.CELL)) {
                 result.add(format.getName());
             }
         }

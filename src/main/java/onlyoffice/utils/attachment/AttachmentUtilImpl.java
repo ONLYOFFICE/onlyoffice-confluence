@@ -429,10 +429,4 @@ public class AttachmentUtilImpl implements AttachmentUtil {
 
         return container;
     }
-
-}
-    public Attachment getAttachment(Long attachmentId) {
-        return attachmentManager.getAttachment(attachmentId);
-    }
-
 }

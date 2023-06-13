@@ -75,5 +75,4 @@ public interface AttachmentUtil extends Serializable {
     File getConvertedFile(Long attachmentId);
 
     ContentEntityObject getContainer(Long containerId);
-    public Attachment getAttachment(Long attachmentId);
 }
