@@ -18,22 +18,21 @@
 
 package onlyoffice;
 
-import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
-import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.plugin.webresource.UrlMode;
-import com.atlassian.plugin.webresource.WebResourceUrlProvider;
+import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.atlassian.sal.api.message.I18nResolver;
 import onlyoffice.managers.auth.AuthContext;
 import com.atlassian.confluence.pages.Attachment;
-import com.atlassian.sal.api.message.I18nResolver;
 import onlyoffice.managers.config.ConfigManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.url.UrlManager;
+import onlyoffice.model.config.DocumentType;
 import onlyoffice.model.config.Type;
+import onlyoffice.model.config.editor.Mode;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -46,22 +45,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
-
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
     private final long serialVersionUID = 1L;
 
-    private final LocaleManager localeManager;
-    private final WebResourceUrlProvider webResourceUrlProvider;
     private final I18nResolver i18n;
-    private final SystemInformationService sysInfoService;
-
     private final UrlManager urlManager;
     private final ConfigurationManager configurationManager;
     private final AuthContext authContext;
@@ -69,21 +60,16 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final ConfigManager configManager;
 
-    public OnlyOfficeEditorServlet(final LocaleManager localeManager, final I18nResolver i18n,
-                                   final WebResourceUrlProvider webResourceUrlProvider,
-                                   final SystemInformationService sysInfoService,
-                                   final UrlManager urlManager, final JwtManager jwtManager,
-                                   final ConfigurationManager configurationManager,
-                                   final AuthContext authContext, final DocumentManager documentManager,
-                                   final AttachmentUtil attachmentUtil) {
-        this.localeManager = localeManager;
-        this.webResourceUrlProvider = webResourceUrlProvider;
+    public OnlyOfficeEditorServlet(final I18nResolver i18n, final UrlManager urlManager,
+                                   final ConfigurationManager configurationManager, final AuthContext authContext,
+                                   final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                                   final ConfigManager configManager) {
+        this.i18n = i18n;
         this.urlManager = urlManager;
         this.configurationManager = configurationManager;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
-        this.sysInfoService = sysInfoService;
         this.configManager = configManager;
     }
 
@@ -94,18 +80,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             return;
         }
 
-        String apiUrl = urlManager.getPublicDocEditorUrl();
-        if (apiUrl == null || apiUrl.isEmpty()) {
-            apiUrl = "";
-        }
-
-        String type = "";
-        String callbackUrl = "";
-        String fileUrl = "";
-        String gobackUrl = "";
-        String key = "";
-        String fileName = "";
-        String errorMessage = "";
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         String attachmentIdString = request.getParameter("attachmentId");
@@ -133,10 +107,13 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         try {
             Long attachmentId = Long.parseLong(attachmentIdString);
+            Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
             Attachment attachment = attachmentUtil.getAttachment(attachmentId);
+            String extension = attachmentUtil.getFileExt(attachmentId);
+            DocumentType documentType = documentManager.getDocType(extension);
 
             if (attachment == null) {
-                response.sendError(404);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
 
@@ -148,13 +125,14 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             Map<String, Object> context = MacroUtils.defaultVelocityContext();
             context.put("docserviceApiUrl", urlManager.getDocServiceApiUrl());
             context.put("docTitle", attachmentUtil.getFileName(attachmentId));
-            context.put("favicon", urlManager.getFaviconUrl(attachmentId));
-            context.put("pageId", attachment.getContainer().getId());
+            context.put("favicon", urlManager.getFaviconUrl(documentType));
+            context.put("pageId", pageId);
             context.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
             context.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
             context.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
+            context.put("isBlogPost", String.valueOf(attachmentUtil.getContainer(pageId) instanceof BlogPost));
 
-            if (documentManager.getDocType(attachmentId) != null) {
+            if (documentType != null) {
                 Type type = documentManager.getEditorType(request.getHeader("USER-AGENT"));
 
                 JSONObject actionData = null;
@@ -163,128 +141,28 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                     actionData = new JSONObject(actionDataString);
                 }
 
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter writer = response.getWriter();
-
-        writer.write(getTemplate(attachmentId, type, callbackUrl, fileUrl, key, fileName, user, gobackUrl,
-                actionData, errorMessage));
-    }
-
-    private String getTemplate(final Long attachmentId, final String type, final String apiUrl,
-                               final String callbackUrl, final String fileUrl, final String key, final String fileName,
-                               final ConfluenceUser user, final String gobackUrl, final String actionData,
-                               final String errorMessage) throws
-            UnsupportedEncodingException {
-        Map<String, Object> defaults = MacroUtils.defaultVelocityContext();
-        Map<String, String> config = new HashMap<String, String>();
-
-        String docTitle = fileName.trim();
-        String docExt = attachmentUtil.getFileExt(attachmentId);
-        boolean canEdit = documentManager.isEditable(docExt) || documentManager.isFillForm(docExt);
-        DocumentType documentType = documentManager.getDocType(docExt);
-        Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
-
-        config.put("docserviceApiUrl", urlManager.getDocServiceApiUrl());
-        config.put("errorMessage", errorMessage);
-        config.put("docTitle", docTitle);
-        config.put("favicon", webResourceUrlProvider.getStaticPluginResourceUrl(
-                "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
-                documentType + ".ico",
-                UrlMode.ABSOLUTE)
-        );
-
-        JSONObject responseJson = new JSONObject();
-        JSONObject documentObject = new JSONObject();
-        JSONObject editorConfigObject = new JSONObject();
-        JSONObject userObject = new JSONObject();
-        JSONObject permObject = new JSONObject();
-        JSONObject referenceData = new JSONObject();
-        JSONObject customizationObject = new JSONObject();
-        JSONObject gobackObject = new JSONObject();
-
-        try {
-            responseJson.put("type", type);
-            responseJson.put("width", "100%");
-            responseJson.put("height", "100%");
-            responseJson.put("documentType", documentType);
-
-            responseJson.put("document", documentObject);
-            documentObject.put("title", docTitle);
-            documentObject.put("url", fileUrl);
-            documentObject.put("fileType", docExt);
-            documentObject.put("key", key);
-            documentObject.put("permissions", permObject);
-            documentObject.put("referenceData", referenceData);
-            responseJson.put("editorConfig", editorConfigObject);
-
-            referenceData.put("fileKey", attachmentId);
-            referenceData.put("instanceId", sysInfoService.getConfluenceInfo().getBaseUrl());
-
-            if (canEdit && callbackUrl != null && !callbackUrl.isEmpty()) {
-                permObject.put("edit", true);
-                editorConfigObject.put("mode", "edit");
-                editorConfigObject.put("callbackUrl", callbackUrl);
+                String config = configManager.createConfig(attachmentId, Mode.EDIT, type, actionData, referer);
+                context.put("configAsHtml", config);
+                context.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
+                context.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
+                context.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
+                context.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
+                context.put("referenceDataUriAsHtml", urlManager.getReferenceDataUri(pageId));
+                context.put("insertImageTypesAsHtml", new JSONArray(documentManager.getInsertImageTypes()).toString());
+                context.put("compareFileTypesAsHtml", new JSONArray(documentManager.getCompareFileTypes()).toString());
+                context.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeTypes()).toString());
+                context.put("demo", configurationManager.demoActive());
             } else {
-                context.put("errorMessage", i18n.getText("onlyoffice.editor.message.error.unsupported") + "(." + attachmentUtil.getFileExt(attachmentId) + ")");
+                context.put("errorMessage", i18n.getText("onlyoffice.editor.message.error.unsupported") + "(."
+                        + attachmentUtil.getFileExt(attachmentId) + ")");
             }
 
-            if (actionData != null && !actionData.isEmpty()) {
-                editorConfigObject.put("actionLink", new JSONObject(actionData));
-            }
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
+            writer.write(VelocityUtils.getRenderedTemplate("templates/editor.vm", context));
 
-            if (attachmentUtil.checkAccessCreate(user, pageId)) {
-                editorConfigObject.put("createUrl", urlManager.getCreateUri(pageId, docExt));
-            }
-
-            editorConfigObject.put("lang", localeManager.getLocale(user).toLanguageTag());
-            editorConfigObject.put("customization", customizationObject);
-
-            customizationObject.put("forcesave", configurationManager.forceSaveEnabled());
-            customizationObject.put("chat", configurationManager.getBooleanPluginSetting("chat", true));
-            customizationObject.put("compactHeader",
-                    configurationManager.getBooleanPluginSetting("compactHeader", false));
-            customizationObject.put("feedback", configurationManager.getBooleanPluginSetting("feedback", false));
-            customizationObject.put("help", configurationManager.getBooleanPluginSetting("helpMenu", true));
-            customizationObject.put("toolbarNoTabs",
-                    configurationManager.getBooleanPluginSetting("toolbarNoTabs", false));
-            if (!configurationManager.getStringPluginSetting("reviewDisplay", "original").equals("original")) {
-                customizationObject.put("reviewDisplay",
-                        configurationManager.getStringPluginSetting("reviewDisplay", "original"));
-            }
-            customizationObject.put("goback", gobackObject);
-            gobackObject.put("url", gobackUrl);
-
-            if (user != null) {
-                editorConfigObject.put("user", userObject);
-                userObject.put("id", user.getName());
-                userObject.put("name", user.getFullName());
-            }
-
-            if (jwtManager.jwtEnabled()) {
-                responseJson.put("token", jwtManager.createToken(responseJson.toString()));
-            }
-
-            // AsHtml at the end disables automatic html encoding
-            config.put("jsonAsHtml", responseJson.toString());
-            config.put("pageId", pageId.toString());
-            config.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
-            config.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
-            config.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
-            config.put("isBlogPost", String.valueOf(attachmentUtil.getContainer(pageId) instanceof BlogPost));
-            config.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
-            config.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
-            config.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
-            config.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
-            config.put("referenceDataUriAsHtml", urlManager.getReferenceDataUri(pageId));
-            config.put("insertImageTypesAsHtml", new JSONArray(documentManager.getInsertImageTypes()).toString());
-            config.put("compareFileTypesAsHtml", new JSONArray(documentManager.getCompareFileTypes()).toString());
-            config.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeTypes()).toString());
-        } catch (Exception ex) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            ex.printStackTrace(pw);
-            String error = ex.toString() + "\n" + sw.toString();
-            log.error(error);
+        } catch (Exception e) {
+            throw new ServletException(e.getMessage(), e);
         }
     }
 }
