@@ -24,7 +24,6 @@ import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
-import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
@@ -64,19 +63,17 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final int STATUS_CORRUPTED_FORCE_SAVE = 7;
 
     private final JwtManager jwtManager;
-    private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
     private final ConfigurationManager configurationManager;
     private final ConvertManager convertManager;
 
-    public OnlyOfficeSaveFileServlet(final JwtManager jwtManager, final DocumentManager documentManager,
-                                     final AttachmentUtil attachmentUtil, final ParsingUtil parsingUtil,
-                                     final UrlManager urlManager, final ConfigurationManager configurationManager,
+    public OnlyOfficeSaveFileServlet(final JwtManager jwtManager, final AttachmentUtil attachmentUtil,
+                                     final ParsingUtil parsingUtil, final UrlManager urlManager,
+                                     final ConfigurationManager configurationManager,
                                      final ConvertManager convertManager) {
         this.jwtManager = jwtManager;
-        this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
@@ -303,7 +300,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
         if (!attachmentExt.equals(extDownloadUrl)) {
             JSONObject response =
-                    convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, null, false);
+                    convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, null, false, null);
             url = response.getString("fileUrl");
         }
 

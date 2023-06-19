@@ -6,10 +6,11 @@ import java.util.List;
 import java.io.Serializable;
 
 public interface ConvertManager extends Serializable {
-    JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user) throws Exception;
+    JSONObject convert(Long attachmentId, String ext, String convertToExt, ConfluenceUser user,
+                       String title) throws Exception;
 
     JSONObject convert(Long attachmentId, String currentExt, String convertToExt, String url, String region,
-                       boolean async) throws Exception;
+                       boolean async, String title) throws Exception;
 
     String getTargetExt(String ext);
 
