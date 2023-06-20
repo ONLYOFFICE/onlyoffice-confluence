@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.util.Map;
 
 public interface JwtManager extends Serializable {
+
+    String createToken(Object payload) throws Exception;
+
     String createToken(JSONObject payload) throws Exception;
 
     String verify(String token);

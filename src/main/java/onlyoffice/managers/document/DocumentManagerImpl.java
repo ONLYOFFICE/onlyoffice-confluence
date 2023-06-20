@@ -30,7 +30,8 @@ import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.model.Format;
-import onlyoffice.model.Type;
+import onlyoffice.model.config.DocumentType;
+import onlyoffice.model.config.Type;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
@@ -81,14 +82,14 @@ public class DocumentManagerImpl implements DocumentManager {
         return size > 0 ? size : DEFAULT_MAX_FILE_SIZE;
     }
 
-    public String getKeyOfFile(final Long attachmentId) {
+    public String getKeyOfFile(final Long attachmentId, final boolean embedded) {
         String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
         if (key == null) {
             String hashCode = attachmentUtil.getHashCode(attachmentId);
             key = generateRevisionId(hashCode);
         }
 
-        return key;
+        return embedded ? key : key + "_embedded";
     }
 
     public long getConvertationFileSizeMax() {
@@ -222,15 +223,13 @@ public class DocumentManagerImpl implements DocumentManager {
         return attachment.getContentId().asLong();
     }
 
-    public String getDocType(final String ext) {
+    public DocumentType getDocType(final String ext) {
         List<Format> supportedFormats = configurationManager.getSupportedFormats();
 
         for (Format format : supportedFormats) {
             if (format.getName().equals(ext)) {
 
-                String type = format.getType().name().toLowerCase();
-
-                return type;
+                return format.getType();
             }
         }
 
@@ -248,12 +247,12 @@ public class DocumentManagerImpl implements DocumentManager {
         return mimeType != null ? mimeType : "application/octet-stream";
     }
 
-    public String getEditorType(final String userAgent) {
+    public Type getEditorType(final String userAgent) {
         Pattern pattern = Pattern.compile(USER_AGENT_MOBILE, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         if (userAgent != null && pattern.matcher(userAgent).find()) {
-            return "mobile";
+            return Type.MOBILE;
         } else {
-            return "desktop";
+            return Type.DESKTOP;
         }
     }
 
@@ -310,7 +309,7 @@ public class DocumentManagerImpl implements DocumentManager {
         List<String> result = new ArrayList<>();
 
         for (Format format : supportedFormats) {
-            if (format.getType().equals(Type.WORD)) {
+            if (format.getType().equals(DocumentType.WORD)) {
                 result.add(format.getName());
             }
         }
@@ -323,7 +322,7 @@ public class DocumentManagerImpl implements DocumentManager {
         List<String> result = new ArrayList<>();
 
         for (Format format : supportedFormats) {
-            if (format.getType().equals(Type.CELL)) {
+            if (format.getType().equals(DocumentType.CELL)) {
                 result.add(format.getName());
             }
         }

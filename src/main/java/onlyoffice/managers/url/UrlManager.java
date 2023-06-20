@@ -1,6 +1,7 @@
 package onlyoffice.managers.url;
 
-import javax.servlet.http.HttpServletRequest;
+import onlyoffice.model.config.DocumentType;
+
 import java.io.Serializable;
 
 public interface UrlManager extends Serializable {
@@ -24,9 +25,13 @@ public interface UrlManager extends Serializable {
 
     String getCallbackUrl(Long attachmentId);
 
-    String getGobackUrl(Long attachmentId, HttpServletRequest request);
+    String getGobackUrl(Long attachmentId, String referer);
 
     String getCreateUri(Long pageId, String ext);
 
     String replaceDocEditorURLToInternal(String url);
+
+    String getDocServiceApiUrl();
+
+    String getFaviconUrl(DocumentType documentType);
 }

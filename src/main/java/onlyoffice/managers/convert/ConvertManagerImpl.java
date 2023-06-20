@@ -77,7 +77,7 @@ public class ConvertManagerImpl implements ConvertManager {
             body.put("embeddedfonts", true);
             body.put("filetype", currentExt);
             body.put("outputtype", convertToExt);
-            body.put("key", documentManager.getKeyOfFile(attachmentId));
+            body.put("key", documentManager.getKeyOfFile(attachmentId, false));
             body.put("url", url);
             body.put("region", region);
             body.put("title", title);
@@ -92,10 +92,10 @@ public class ConvertManagerImpl implements ConvertManager {
             request.setHeader("Accept", "application/json");
 
             if (jwtManager.jwtEnabled()) {
-                String token = jwtManager.createToken(body);
+                String token = jwtManager.createToken(body.toString());
                 JSONObject payloadBody = new JSONObject();
                 payloadBody.put("payload", body);
-                String headerToken = jwtManager.createToken(body);
+                String headerToken = jwtManager.createToken(body.toString());
                 body.put("token", token);
                 String header = jwtManager.getJwtHeader();
                 request.setHeader(header, "Bearer " + headerToken);

@@ -49,6 +49,13 @@ public class JwtManagerImpl implements JwtManager {
         this.configurationManager = configurationManager;
     }
 
+    public String createToken(final Object payload) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, ?> payloadMap = objectMapper.convertValue(payload, Map.class);
+
+        return createToken(payloadMap, getJwtSecret());
+    }
+
     public String createToken(final JSONObject payload) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, ?> payloadMap = objectMapper.readValue(payload.toString(), Map.class);

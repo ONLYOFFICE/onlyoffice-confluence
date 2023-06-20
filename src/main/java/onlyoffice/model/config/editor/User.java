@@ -16,15 +16,32 @@
  *
  */
 
-package onlyoffice.model;
+package onlyoffice.model.config.editor;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.atlassian.confluence.user.ConfluenceUser;
 
-public enum Type {
-    @JsonProperty("word")
-    WORD,
-    @JsonProperty("cell")
-    CELL,
-    @JsonProperty("slide")
-    SLIDE
+public class User {
+    private String id;
+    private String name;
+
+    public User(final ConfluenceUser user) {
+        this.id = user.getName();
+        this.name = user.getFullName();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
 }

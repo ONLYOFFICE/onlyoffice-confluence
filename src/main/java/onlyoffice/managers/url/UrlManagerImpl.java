@@ -20,6 +20,8 @@ package onlyoffice.managers.url;
 
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.plugin.webresource.UrlMode;
+import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -29,11 +31,11 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.model.config.DocumentType;
 import onlyoffice.managers.jwt.JwtManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,16 +47,18 @@ public class UrlManagerImpl implements UrlManager {
     private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
     private final String apiServlet = "plugins/servlet/onlyoffice/api";
 
+    private final WebResourceUrlProvider webResourceUrlProvider;
     private final SettingsManager settingsManager;
     private final PluginSettings pluginSettings;
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
     private final JwtManager jwtManager;
 
-    public UrlManagerImpl(final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
+    public UrlManagerImpl(final WebResourceUrlProvider webResourceUrlProvider,
+                          final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
                           final ConfigurationManager configurationManager, final DocumentManager documentManager,
                           final JwtManager jwtManager) {
-        this.settingsManager = settingsManager;
+        this.webResourceUrlProvider = webResourceUrlProvider;        this.settingsManager = settingsManager;
         this.configurationManager = configurationManager;
         this.documentManager = documentManager;
         this.jwtManager = jwtManager;
@@ -152,9 +156,8 @@ public class UrlManagerImpl implements UrlManager {
         return callbackUrl;
     }
 
-    public String getGobackUrl(final Long attachmentId, final HttpServletRequest request) {
+    public String getGobackUrl(final Long attachmentId, final String referer) {
         String gobackUrl = "";
-        String referer = request.getHeader("referer");
 
         if (referer != null && referer.contains("/display/")) {
             gobackUrl = referer;
@@ -177,13 +180,13 @@ public class UrlManagerImpl implements UrlManager {
         String targetExt = "docx";
 
         switch (documentManager.getDocType(ext)) {
-            case "word":
+            case WORD:
                 targetExt = ext.equals("docxf") ? "docxf" : "docx";
                 break;
-            case "cell":
+            case CELL:
                 targetExt = "xlsx";
                 break;
-            case "slide":
+            case SLIDE:
                 targetExt = "pptx";
                 break;
             default:
@@ -210,5 +213,23 @@ public class UrlManagerImpl implements UrlManager {
             result = result.replace(publicDocEditorUrl, innerDocEditorUrl);
         }
         return result;
+    }
+
+    public String getDocServiceApiUrl() {
+        return getPublicDocEditorUrl() + configurationManager.getProperty("files.docservice.url.api");
+    }
+
+    public String getFaviconUrl(final DocumentType documentType) {
+        String nameIcon = "word";
+
+        if (documentType != null) {
+            nameIcon = documentType.name().toLowerCase();
+        }
+
+        return webResourceUrlProvider.getStaticPluginResourceUrl(
+                "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
+                nameIcon + ".ico",
+                UrlMode.ABSOLUTE
+        );
     }
 }

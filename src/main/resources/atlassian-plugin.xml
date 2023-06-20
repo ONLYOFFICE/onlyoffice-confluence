@@ -173,6 +173,9 @@
     <component name="Parsing Util" key="onlyoffice-parsing-util" class="onlyoffice.utils.parsing.ParsingUtilImpl" public="true">
         <interface>onlyoffice.utils.parsing.ParsingUtil</interface>
     </component>
+    <component name="Config Manager" key="onlyoffice-config-manager" class="onlyoffice.managers.config.ConfigManagerImpl" public="true">
+        <interface>onlyoffice.managers.config.ConfigManager</interface>
+    </component>
 
     <component-import key="applicationConfiguration" interface="com.atlassian.config.ApplicationConfiguration"/>
     <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>

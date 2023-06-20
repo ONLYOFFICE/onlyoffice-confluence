@@ -18,11 +18,13 @@
 
 package onlyoffice.model;
 
+import onlyoffice.model.config.DocumentType;
+
 import java.util.List;
 
 public class Format {
     private String name;
-    private Type type;
+    private DocumentType type;
     private List<String>  actions;
     private List<String> convert;
     private List<String> mime;
@@ -31,7 +33,7 @@ public class Format {
         return name;
     }
 
-    public Type getType() {
+    public DocumentType getType() {
         return type;
     }
 
@@ -51,7 +53,7 @@ public class Format {
         this.name = name;
     }
 
-    public void setType(final Type type) {
+    public void setType(final DocumentType type) {
         this.type = type;
     }
 
