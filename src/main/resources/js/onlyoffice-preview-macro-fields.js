@@ -17,9 +17,7 @@
  */
 
 (function($) {
-    const wordFormats = ["djvu", "doc", "docm", "docx", "docxf", "oform", "dot", "dotm", "dotx", "epub", "fb2", "fodt", "html", "mht", "odt", "ott", "oxps", "pdf", "rtf", "txt"];
-    const cellFormats = ["xps", "xml", "csv", "fods","ods", "ots","xls","xlsb","xlsm", "xlsx", "xlt", "xltm", "xltx"];
-    const slideFormats = ["fodp", "odp", "otp", "pot", "potm", "potx", "pps", "ppsm", "ppsx", "ppt", "pptm", "pptx"];
-
-    AJS.MacroBrowser.activateSmartFieldsAttachmentsOnPage("onlyoffice-preview", [].concat(wordFormats, cellFormats, slideFormats));
+    $.getJSON("/plugins/servlet/onlyoffice/formats", function(data) {
+        AJS.MacroBrowser.activateSmartFieldsAttachmentsOnPage("onlyoffice-preview", data);
+    });
 })(AJS.$);

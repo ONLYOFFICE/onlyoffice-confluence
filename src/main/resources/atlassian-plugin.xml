@@ -255,6 +255,10 @@
         <description>Conditions for displaying ONLYOFFICE button in confluence preview.</description>
         <url-pattern>/onlyoffice/confluence/previews/plugin/access</url-pattern>
     </servlet>
+    <servlet key="OnlyOfficeFormats" class="onlyoffice.OnlyOfficeFormatsServlet" name="ONLYOFFICE Formats">
+        <description>The ONLYOFFICE Formats.</description>
+        <url-pattern>/onlyoffice/formats</url-pattern>
+    </servlet>
     <xwork key="onlyoffice-confluence-plugin-actions" name="ONLYOFFICE Actions">
         <default-interceptor-ref name="defaultStack"/>
         <package name="onlyoffice-confluence-plugin" extends="default" namespace="/plugins/onlyoffice-confluence-plugin">
