@@ -2,6 +2,7 @@
 
 ## 
 ## Added
+- improvement of jwt signature
 - download as
 - Paste Special to add a link between files
 
