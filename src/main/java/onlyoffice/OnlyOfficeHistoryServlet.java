@@ -276,7 +276,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                 if (jwtManager.jwtEnabled()) {
                     try {
                         JSONObject versionDataJSON = new JSONObject(gson.toJson(versionData));
-                        versionData.setToken(jwtManager.createToken(versionDataJSON.toString()));
+                        versionData.setToken(jwtManager.createToken(versionDataJSON));
                     } catch (Exception e) {
                         throw new IOException(e.getMessage());
                     }
