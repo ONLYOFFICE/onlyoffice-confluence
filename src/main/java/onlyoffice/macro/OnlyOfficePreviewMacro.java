@@ -149,24 +149,23 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
             name = (String) args.get("0");
         }
 
-        DocumentType documentType = DocumentType.WORD;
+        String documentType = DocumentType.WORD.name().toLowerCase();
 
         if (!StringUtils.isBlank(name)) {
             int dotIdx = name.lastIndexOf(DOT_INDEX);
             if (dotIdx != -1) {
                 String fileExt = name.substring(dotIdx + 1).toLowerCase();
                 if (documentManager.getDocType(fileExt) != null) {
-                    documentType = documentManager.getDocType(fileExt);
+                    documentType = documentManager.getDocType(fileExt).name().toLowerCase();
                     if (fileExt.equals("oform")) {
-                        documentType = DocumentType.FORM;
+                        documentType = "form";
                     }
                 }
             }
         }
 
         return new DefaultImagePlaceholder(this.resourcePath + "/images/preview-placeholder-"
-                + documentType.name().toLowerCase()
-                + ".svg",
+                + documentType + ".svg",
                 true, new ImageDimensions(DEFAULT_PLACEHOLDER_WIDTH, DEFAULT_PLACEHOLDER_HEIGHT));
     }
 

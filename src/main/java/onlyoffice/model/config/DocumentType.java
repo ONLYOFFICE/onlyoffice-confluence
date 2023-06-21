@@ -30,7 +30,5 @@ public enum DocumentType {
     CELL,
     @JsonProperty("slide")
     @SerializedName("slide")
-    SLIDE,
-    @SerializedName("form")
-    FORM
+    SLIDE
 }
