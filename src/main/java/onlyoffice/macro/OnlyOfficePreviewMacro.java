@@ -52,8 +52,8 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
     public static final int DOT_INDEX = 46;
     public static final int DEFAULT_PLACEHOLDER_WIDTH = 380;
     public static final int DEFAULT_PLACEHOLDER_HEIGHT = 300;
-    public static final String DEFAULT_WIDTH = "632";
-    public static final String DEFAULT_HEIGHT = "507";
+    public static final String DEFAULT_WIDTH = "100%";
+    public static final String DEFAULT_HEIGHT = "720";
     private String resourcePath;
 
     private final AttachmentManager attachmentManager;
