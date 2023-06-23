@@ -16,6 +16,11 @@
     </plugin-info>
 
     <resource type="i18n" name="i18n" location="lang-resource"/>
+    <resource type="download" name="images/preview-macros-logo.png" key="images" location="images/preview-macros-logo.png"/>
+    <resource type="download" name="images/preview-placeholder-word.svg" key="images" location="images/preview-placeholder-word.svg"/>
+    <resource type="download" name="images/preview-placeholder-cell.svg" key="images" location="images/preview-placeholder-cell.svg"/>
+    <resource type="download" name="images/preview-placeholder-slide.svg" key="images" location="images/preview-placeholder-slide.svg"/>
+    <resource type="download" name="images/preview-placeholder-form.svg" key="images" location="images/preview-placeholder-form.svg"/>
 
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for the main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
@@ -89,6 +94,29 @@
         <resource type="download" name="cell.ico" location="images/cell.ico"/>
         <resource type="download" name="slide.ico" location="images/slide.ico"/>
     </web-resource>
+
+    <web-resource key="macro-browser-smart-fields" name="Macro Browser Smart Fields">
+        <resource location="js/onlyoffice-preview-macro-fields.js" name="onlyoffice-preview-macro-fields.js" type="download"/>
+        <dependency>confluence.editor.actions:editor-macro-browser</dependency>
+        <context>macro-browser</context>
+    </web-resource>
+
+    <xhtml-macro name='onlyoffice-preview' class='onlyoffice.macro.OnlyOfficePreviewMacro' key='onlyoffice-preview'
+                 icon="/download/resources/${atlassian.plugin.key}/images/preview-macros-logo.png">
+        <description>onlyoffice.onlyoffice-confluence-plugin.onlyoffice-preview.desc</description>
+        <category name="confluence-content"/>
+        <category name="media"/>
+        <parameters>
+            <parameter name="page" type="confluence-content">
+                <option key="includeDatePath" value="true"/>
+            </parameter>
+            <parameter name="name" required="true" type="attachment">
+                <alias name=""/>
+            </parameter>
+            <parameter name="width" type="string"/>
+            <parameter name="height" type="string"/>
+        </parameters>
+    </xhtml-macro>
 
     <web-item key="onlyoffice-filecreate" name="New Document" section="system.content.button" weight="47">
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
@@ -176,6 +204,9 @@
     <component name="Config Manager" key="onlyoffice-config-manager" class="onlyoffice.managers.config.ConfigManagerImpl" public="true">
         <interface>onlyoffice.managers.config.ConfigManager</interface>
     </component>
+    <component name="Content Resolver" key="onlyoffice-content-resolver" class="onlyoffice.macro.components.DefaultContentResolver" public="true">
+        <interface>onlyoffice.macro.components.ContentResolver</interface>
+    </component>
 
     <component-import key="applicationConfiguration" interface="com.atlassian.config.ApplicationConfiguration"/>
     <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
@@ -190,6 +221,7 @@
     <component-import key="webResourceUrlProvider" interface="com.atlassian.plugin.webresource.WebResourceUrlProvider"/>
     <component-import key="formatSettingsManager" interface="com.atlassian.confluence.core.FormatSettingsManager"/>
     <component-import key="sysInfoService" interface="com.atlassian.confluence.status.service.SystemInformationService"/>
+    <component-import key="velocityHelperService" interface="com.atlassian.confluence.plugin.services.VelocityHelperService"/>
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">
         <description>A full-featured editor for the most known formats of text documents, spreadsheets and presentations that can open these types of documents for editing or preview.</description>
@@ -222,6 +254,10 @@
     <servlet key="OnlyOfficeButtonCondition" class="onlyoffice.conditions.confluence.previews.plugin.OnlyofficeButton" name="ONLYOFFICE Button Condition">
         <description>Conditions for displaying ONLYOFFICE button in confluence preview.</description>
         <url-pattern>/onlyoffice/confluence/previews/plugin/access</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeFormats" class="onlyoffice.OnlyOfficeFormatsServlet" name="ONLYOFFICE Formats">
+        <description>The ONLYOFFICE Formats.</description>
+        <url-pattern>/onlyoffice/formats</url-pattern>
     </servlet>
     <xwork key="onlyoffice-confluence-plugin-actions" name="ONLYOFFICE Actions">
         <default-interceptor-ref name="defaultStack"/>

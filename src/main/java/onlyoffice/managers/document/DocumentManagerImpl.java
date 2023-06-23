@@ -89,7 +89,7 @@ public class DocumentManagerImpl implements DocumentManager {
             key = generateRevisionId(hashCode);
         }
 
-        return embedded ? key : key + "_embedded";
+        return embedded ? key + "_embedded" : key;
     }
 
     public long getConvertationFileSizeMax() {

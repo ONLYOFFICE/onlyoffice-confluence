@@ -1,0 +1,9 @@
+<div>
+    <script type="text/javascript" src="${docServiceApiUrl}"></script>
+
+    <div id="iframeEditor_${id}"></div>
+
+    <script>
+        var docEditor = new DocsAPI.DocEditor("iframeEditor_${id}", JSON.parse('${configAsHtml}'));
+    </script>
+</div>
