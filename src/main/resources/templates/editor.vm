@@ -351,8 +351,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 return;
             }
 
-            var configAsHtml = '$!{configAsHtml}';
-
             var config = {
                 "events" : {
                     "onAppReady": onAppReady,

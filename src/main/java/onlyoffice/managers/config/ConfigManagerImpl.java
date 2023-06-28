@@ -19,6 +19,7 @@
 package onlyoffice.managers.config;
 
 import com.atlassian.confluence.languages.LocaleManager;
+import com.atlassian.confluence.status.service.SystemInformationService;
 import com.google.gson.Gson;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -36,6 +37,7 @@ public class ConfigManagerImpl implements ConfigManager {
     private final Logger log = LogManager.getLogger("onlyoffice.ConfigManagerImpl");
 
     private final LocaleManager localeManager;
+    private final SystemInformationService sysInfoService;
 
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
@@ -43,10 +45,12 @@ public class ConfigManagerImpl implements ConfigManager {
     private final ConfigurationManager configurationManager;
     private final JwtManager jwtManager;
 
-    public ConfigManagerImpl(final LocaleManager localeManager, final DocumentManager documentManager,
-                             final AttachmentUtil attachmentUtil, final UrlManager urlManager,
-                             final ConfigurationManager configurationManager, final JwtManager jwtManager) {
+    public ConfigManagerImpl(final LocaleManager localeManager, final SystemInformationService sysInfoService,
+                             final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                             final UrlManager urlManager, final ConfigurationManager configurationManager,
+                             final JwtManager jwtManager) {
         this.localeManager = localeManager;
+        this.sysInfoService = sysInfoService;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.urlManager = urlManager;
@@ -75,7 +79,8 @@ public class ConfigManagerImpl implements ConfigManager {
                 mode,
                 type,
                 actionLink,
-                referer
+                referer,
+                sysInfoService.getConfluenceInfo().getBaseUrl()
         );
 
         if (width != null) {

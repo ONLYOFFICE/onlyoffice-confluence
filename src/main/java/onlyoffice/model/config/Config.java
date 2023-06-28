@@ -40,10 +40,10 @@ public class Config {
     public Config(final LocaleManager localeManager, final DocumentManager documentManager,
                   final AttachmentUtil attachmentUtil, final UrlManager urlManager,
                   final ConfigurationManager configurationManager, final Long attachmentId, final Mode mode,
-                  final Type type, final JSONObject actionLink, final String referer) {
+                  final Type type, final JSONObject actionLink, final String referer, final String instanceId) {
         this.type = type;
         this.documentType = documentManager.getDocType(attachmentUtil.getFileExt(attachmentId));
-        this.document = new Document(documentManager, attachmentUtil, urlManager, attachmentId, type);
+        this.document = new Document(documentManager, attachmentUtil, urlManager, attachmentId, type, instanceId);
         this.editorConfig = new EditorConfig(
                 localeManager,
                 attachmentUtil,

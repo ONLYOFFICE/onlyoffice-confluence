@@ -29,14 +29,16 @@ public class Document {
     private String url;
     private String fileType;
     private Permissions permissions;
+    private ReferenceData referenceData;
 
     public Document(final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
-                    final UrlManager urlManager, final Long attachmentId, final Type type) {
+                    final UrlManager urlManager, final Long attachmentId, final Type type, final String instanceId) {
         key = documentManager.getKeyOfFile(attachmentId, type.equals(Type.EMBEDDED));
         title = attachmentUtil.getFileName(attachmentId);
         fileType = attachmentUtil.getFileExt(attachmentId);
         url = urlManager.getFileUri(attachmentId);
         permissions = new Permissions(documentManager, attachmentUtil, attachmentId);
+        referenceData = new ReferenceData(attachmentId, instanceId);
     }
 
     public String getKey() {
