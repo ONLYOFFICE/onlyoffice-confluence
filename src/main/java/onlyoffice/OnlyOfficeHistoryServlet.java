@@ -192,7 +192,9 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         try {
                             changesJSON = new JSONObject(changesString);
                             version.setServerVersion(changesJSON.getString("serverVersion"));
-                            version.setChanges(gson.fromJson(changesJSON.getString("changes"), Object.class));
+                            version.setChanges(
+                                    gson.fromJson(changesJSON.getJSONArray("changes").toString(), Object.class)
+                            );
                         } catch (JSONException e) {
                             throw new IOException(e.getMessage());
                         }

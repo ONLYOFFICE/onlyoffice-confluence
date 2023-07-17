@@ -210,8 +210,10 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                     log.info("downloadUri = " + downloadUrl);
 
-                    String history = jsonObj.getString("history");
-                    String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
+                    JSONObject history = jsonObj.getJSONObject("history");
+                    String changesUrl = !jsonObj.isNull("changesurl")
+                            ? urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"))
+                            : null;
                     log.info("changesUri = " + changesUrl);
 
                     Boolean forceSaveVersion =
@@ -232,7 +234,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
                     }
 
-                    attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
+                    attachmentUtil.saveAttachmentChanges(attachmentId, history.toString(), changesUrl);
                 } else {
                     throw new SecurityException("Try save without access: " + user);
                 }
@@ -249,8 +251,10 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                         downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                         log.info("downloadUri = " + downloadUrl);
 
-                        String history = jsonObj.getString("history");
-                        String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
+                        JSONObject history = jsonObj.getJSONObject("history");
+                        String changesUrl = !jsonObj.isNull("changesurl")
+                                ? urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"))
+                                : null;
                         log.info("changesUri = " + downloadUrl);
 
                         Boolean forceSaveVersion =
@@ -268,7 +272,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                             attachmentUtil.setProperty(attachmentId, "onlyoffice-force-save", "true");
                         }
 
-                        attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
+                        attachmentUtil.saveAttachmentChanges(attachmentId, history.toString(), changesUrl);
 
                         File convertedFile = attachmentUtil.getConvertedFile(attachmentId);
                         if (convertedFile.exists()) {
