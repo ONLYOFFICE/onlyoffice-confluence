@@ -66,6 +66,10 @@ define('cp/component/onlyoffice-button', [
                 if ($.fn.tooltip) {
                     this.$('a').tooltip({gravity: 'n'});
                 }
+
+                this.$('a').on("click", function() {
+                    this.blur();
+                });
             }
 
             return this;
