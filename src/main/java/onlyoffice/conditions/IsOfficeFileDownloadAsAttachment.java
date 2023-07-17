@@ -66,6 +66,8 @@ public class IsOfficeFileDownloadAsAttachment implements Condition {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean access = attachmentUtil.checkAccess(attachment, user, false);
 
-        return access && convertManager.getTargetExtList(ext).size() != 0;
+        return access
+                && convertManager.getTargetExtList(ext) != null
+                && convertManager.getTargetExtList(ext).size() >= 0;
     }
 }
