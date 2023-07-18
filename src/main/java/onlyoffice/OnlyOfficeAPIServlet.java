@@ -188,8 +188,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 if (attachmentUtil.checkAccess(attachmentId, user, false)) {
                     Map<String, String> data = new HashMap<>();
 
-                    String fileName = attachmentUtil.getFileName(attachmentId);
-                    String fileType = fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
+                    String fileType = attachmentUtil.getFileExt(attachmentId);
 
                     if (bodyJson.has("command")) {
                         data.put("command", bodyJson.getString("command"));
