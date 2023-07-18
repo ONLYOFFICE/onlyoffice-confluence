@@ -2,6 +2,7 @@
 
 ## 
 ## Added
+- document server v6.4 and earlier is no longer supported
 - macros for view documents
 - improvement of jwt signature
 - download as

@@ -206,6 +206,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
             if (status == STATUS_MUST_SAVE || status == STATUS_CORRUPTED) {
                 if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
+                    String fileType = jsonObj.getString("filetype");
                     String downloadUrl = jsonObj.getString("url");
                     downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                     log.info("downloadUri = " + downloadUrl);
@@ -222,7 +223,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
 
                     if (forceSaveVersion) {
-                        saveAttachmentFromUrl(attachmentId, downloadUrl, user, false);
+                        saveAttachmentFromUrl(attachmentId, downloadUrl, fileType, user, false);
                         attachmentUtil.removeProperty(attachmentId, "onlyoffice-force-save");
                         attachmentUtil.removeAttachmentChanges(attachmentId);
 
@@ -231,7 +232,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                             convertedFile.delete();
                         }
                     } else {
-                        saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
+                        saveAttachmentFromUrl(attachmentId, downloadUrl, fileType, user, true);
                     }
 
                     attachmentUtil.saveAttachmentChanges(attachmentId, history.toString(), changesUrl);
@@ -247,6 +248,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             if (status == STATUS_FORCE_SAVE || status == STATUS_CORRUPTED_FORCE_SAVE) {
                 if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
                     if (configurationManager.forceSaveEnabled()) {
+                        String fileType = jsonObj.getString("filetype");
                         String downloadUrl = jsonObj.getString("url");
                         downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                         log.info("downloadUri = " + downloadUrl);
@@ -261,13 +263,13 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                                 attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
 
                         if (forceSaveVersion) {
-                            saveAttachmentFromUrl(attachmentId, downloadUrl, user, false);
+                            saveAttachmentFromUrl(attachmentId, downloadUrl, fileType, user, false);
                             attachmentUtil.removeAttachmentChanges(attachmentId);
                         } else {
                             String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
                             attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
 
-                            saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
+                            saveAttachmentFromUrl(attachmentId, downloadUrl, fileType, user, true);
                             attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
                             attachmentUtil.setProperty(attachmentId, "onlyoffice-force-save", "true");
                         }
@@ -296,15 +298,14 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private void saveAttachmentFromUrl(final Long attachmentId, final String downloadUrl, final ConfluenceUser user,
-                                       final boolean newVersion) throws Exception {
+    private void saveAttachmentFromUrl(final Long attachmentId, final String downloadUrl, final String fileType,
+                                       final ConfluenceUser user, final boolean newVersion) throws Exception {
         String attachmentExt = attachmentUtil.getFileExt(attachmentId);
-        String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
         String url = downloadUrl;
 
-        if (!attachmentExt.equals(extDownloadUrl)) {
+        if (!attachmentExt.equals(fileType)) {
             JSONObject response =
-                    convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, null, false, null);
+                    convertManager.convert(attachmentId, fileType, attachmentExt, downloadUrl, null, false, null);
             url = response.getString("fileUrl");
         }
 
