@@ -38,6 +38,7 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 public class ConvertManagerImpl implements ConvertManager {
@@ -81,6 +82,12 @@ public class ConvertManagerImpl implements ConvertManager {
             body.put("url", url);
             body.put("region", region);
             body.put("title", title);
+
+            if (Arrays.asList("bmp", "gif", "jpg", "png").contains(convertToExt)) {
+                JSONObject thumbnail = new JSONObject();
+                thumbnail.put("first", false);
+                body.put("thumbnail", thumbnail);
+            }
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
             String conversionServiceUrl = urlManager.getInnerDocEditorUrl() + configurationManager
