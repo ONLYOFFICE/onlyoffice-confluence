@@ -68,6 +68,6 @@ public class IsOfficeFileDownloadAsAttachment implements Condition {
 
         return access
                 && convertManager.getTargetExtList(ext) != null
-                && convertManager.getTargetExtList(ext).size() >= 0;
+                && convertManager.getTargetExtList(ext).size() > 0;
     }
 }
