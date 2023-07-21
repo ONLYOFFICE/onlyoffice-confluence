@@ -1,5 +1,9 @@
 # Change Log
 
+## 4.3.1
+## Changed
+- vulnerability dependency update
+
 ## 4.3.0
 ## Added
 - compatible with Confluence 8.4.0
