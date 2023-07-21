@@ -1,6 +1,6 @@
 # Change Log
 
-## 
+## 4.3.0
 ## Added
 - compatible with Confluence 8.4.0
 - extended list of supported formats
