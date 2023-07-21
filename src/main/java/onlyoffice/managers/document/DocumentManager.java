@@ -1,6 +1,8 @@
 package onlyoffice.managers.document;
 
 import com.atlassian.confluence.user.ConfluenceUser;
+import onlyoffice.model.config.DocumentType;
+import onlyoffice.model.config.Type;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -9,7 +11,9 @@ import java.util.List;
 public interface DocumentManager extends Serializable {
     long getMaxFileSize();
 
-    String getKeyOfFile(Long attachmentId);
+    long getConvertationFileSizeMax();
+
+    String getKeyOfFile(Long attachmentId, boolean embedded);
 
     String createHash(String str);
 
@@ -19,9 +23,9 @@ public interface DocumentManager extends Serializable {
 
     Long createDemo(String fileName, String fileExt, Long pageID, ConfluenceUser user) throws IOException;
 
-    String getDocType(String ext);
+    DocumentType getDocType(String ext);
 
-    String getEditorType(String userAgent);
+    Type getEditorType(String userAgent);
 
     String getMimeType(String name);
 

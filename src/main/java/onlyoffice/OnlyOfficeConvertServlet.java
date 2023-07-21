@@ -24,7 +24,7 @@ import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
@@ -40,7 +40,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -57,16 +56,13 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
 
-    @ComponentImport
     private final AttachmentManager attachmentManager;
-
     private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final ConfigurationManager configurationManager;
 
-    @Inject
     public OnlyOfficeConvertServlet(final AttachmentManager attachmentManager, final AttachmentUtil attachmentUtil,
                                     final ConvertManager convertManager, final AuthContext authContext,
                                     final DocumentManager documentManager,
@@ -82,7 +78,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     @Override
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
         String pageIdString = request.getParameter("pageId");
@@ -99,7 +95,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         Long pageId = attachment.getContainer().getId();
         String fileName = attachment.getFileName();
         String ext = attachment.getFileExtension();
-        String newExt = convertManager.convertsTo(ext);
+        String newExt = convertManager.getTargetExt(ext);
         String title = fileName.substring(0, fileName.lastIndexOf("."));
 
         if (pageIdString != null && !pageIdString.isEmpty()) {
@@ -127,7 +123,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     @Override
     public void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
 
@@ -163,11 +159,12 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                 pageId = attachment.getContainer().getId();
             }
 
+            String convertToExt = convertManager.getTargetExt(ext);
+
             if (attachmentUtil.checkAccess(attachmentId, user, false)
                     && attachmentUtil.checkAccessCreate(user, pageId)) {
-                if (convertManager.isConvertable(ext)) {
-                    String convertToExt = convertManager.convertsTo(ext);
-                    json = convertManager.convert(attachmentId, ext, convertToExt, user);
+                if (convertToExt != null) {
+                    json = convertManager.convert(attachmentId, ext, convertToExt, user, null);
 
                     if (json.has("endConvert") && json.getBoolean("endConvert")) {
                         String newFileName = documentManager.getCorrectName(title, convertToExt, pageId);

@@ -16,23 +16,21 @@
  *
  */
 
-package onlyoffice;
+package onlyoffice.managers.auth;
 
 import com.atlassian.confluence.util.GeneralUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
 
-@Named
-public class AuthContext {
-    private final Logger log = LogManager.getLogger("onlyoffice.AuthContext");
+public class AuthContextImpl implements AuthContext {
+    private final Logger log = LogManager.getLogger("onlyoffice.managers.auth.AuthContext");
 
-    public boolean checkUserAuthorisation(final HttpServletRequest request, final HttpServletResponse response)
+    public boolean checkUserAuthorization(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
         Principal principal = request.getUserPrincipal();
         if (principal == null) {

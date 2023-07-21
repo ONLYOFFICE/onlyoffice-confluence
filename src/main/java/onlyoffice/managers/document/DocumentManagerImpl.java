@@ -26,32 +26,30 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
+import onlyoffice.model.Format;
+import onlyoffice.model.config.DocumentType;
+import onlyoffice.model.config.Type;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@Named
-@Default
 public class DocumentManagerImpl implements DocumentManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.document.DocumentManager");
     private static final String USER_AGENT_MOBILE = "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec"
@@ -61,15 +59,13 @@ public class DocumentManagerImpl implements DocumentManager {
     private static final int DEFAULT_MAX_FILE_SIZE = 5242880;
     private static final int MAX_KEY_LENGTH = 20;
 
-    @ComponentImport
-    private final I18nResolver i18n;
+    private final I18nResolver i18nResolver;
     private final ConfigurationManager configurationManager;
     private final AttachmentUtil attachmentUtil;
 
-    @Inject
-    public DocumentManagerImpl(final I18nResolver i18n, final ConfigurationManager configurationManager,
+    public DocumentManagerImpl(final I18nResolver i18nResolver, final ConfigurationManager configurationManager,
                                final AttachmentUtil attachmentUtil) {
-        this.i18n = i18n;
+        this.i18nResolver = i18nResolver;
         this.configurationManager = configurationManager;
         this.attachmentUtil = attachmentUtil;
     }
@@ -86,14 +82,26 @@ public class DocumentManagerImpl implements DocumentManager {
         return size > 0 ? size : DEFAULT_MAX_FILE_SIZE;
     }
 
-    public String getKeyOfFile(final Long attachmentId) {
+    public String getKeyOfFile(final Long attachmentId, final boolean embedded) {
         String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
         if (key == null) {
             String hashCode = attachmentUtil.getHashCode(attachmentId);
             key = generateRevisionId(hashCode);
         }
 
-        return key;
+        return embedded ? key + "_embedded" : key;
+    }
+
+    public long getConvertationFileSizeMax() {
+        long size;
+        try {
+            String filesizeMax = configurationManager.getProperty("convertation-filesize-max");
+            size = Long.parseLong(filesizeMax);
+        } catch (Exception ex) {
+            size = 0;
+        }
+
+        return size > 0 ? size : DEFAULT_MAX_FILE_SIZE;
     }
 
     private String generateRevisionId(final String expectedKey) {
@@ -183,7 +191,10 @@ public class DocumentManagerImpl implements DocumentManager {
         LocaleManager localeManager = (LocaleManager) ContainerManager.getComponent("localeManager");
         PluginAccessor pluginAccessor = (PluginAccessor) ContainerManager.getComponent("pluginAccessor");
 
-        String pathToDemoFile = "app_data/" + localeManager.getLocale(user).toString().replace("_", "-");
+        String pathToDemoFile = "app_data/document-templates/" + localeManager
+                .getLocale(user)
+                .toString()
+                .replace("_", "-");
 
         if (pluginAccessor.getDynamicResourceAsStream(pathToDemoFile) == null) {
             pathToDemoFile = "app_data/en-US";
@@ -199,7 +210,7 @@ public class DocumentManagerImpl implements DocumentManager {
                 fileExt == null || !fileExt.equals("xlsx") && !fileExt.equals("pptx") && !fileExt.equals("docxf")
                         ? "docx" : fileExt.trim();
         String name = fileName == null || fileName.equals("")
-                ? i18n.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
+                ? i18nResolver.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
 
         InputStream demoFile = getDemoFile(user, extension);
 
@@ -212,20 +223,14 @@ public class DocumentManagerImpl implements DocumentManager {
         return attachment.getContentId().asLong();
     }
 
-    public String getDocType(final String ext) {
-        List<String> wordFormats = Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
-        List<String> cellFormats = Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
-        List<String> slideFormats =
-                Arrays.asList(configurationManager.getProperty("docservice.type.slide").split("\\|"));
+    public DocumentType getDocType(final String ext) {
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
 
-        if (wordFormats.contains(ext)) {
-            return "word";
-        }
-        if (cellFormats.contains(ext)) {
-            return "cell";
-        }
-        if (slideFormats.contains(ext)) {
-            return "slide";
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+
+                return format.getType();
+            }
         }
 
         return null;
@@ -242,37 +247,57 @@ public class DocumentManagerImpl implements DocumentManager {
         return mimeType != null ? mimeType : "application/octet-stream";
     }
 
-    public String getEditorType(final String userAgent) {
+    public Type getEditorType(final String userAgent) {
         Pattern pattern = Pattern.compile(USER_AGENT_MOBILE, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         if (userAgent != null && pattern.matcher(userAgent).find()) {
-            return "mobile";
+            return Type.MOBILE;
         } else {
-            return "desktop";
+            return Type.DESKTOP;
         }
     }
 
-    public boolean isEditable(final String fileExtension) {
-        List<String> editingTypes = configurationManager.getDefaultEditingTypes();
+    public boolean isEditable(final String ext) {
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext) && format.getActions().contains("edit")) {
+                return true;
+            }
+        }
 
         Map<String, Boolean> customizableEditingTypes = configurationManager.getCustomizableEditingTypes();
 
         for (Map.Entry<String, Boolean> customizableEditingType : customizableEditingTypes.entrySet()) {
-            if (customizableEditingType.getValue()) {
-                editingTypes.add(customizableEditingType.getKey());
+            if (customizableEditingType.getKey().equals(ext) && customizableEditingType.getValue()) {
+                return true;
             }
         }
 
-        return editingTypes.contains(fileExtension);
+        return false;
     }
 
-    public boolean isFillForm(final String fileExtension) {
-        List<String> fillFormTypes = configurationManager.getFillFormTypes();
-        return configurationManager.getFillFormTypes().contains(fileExtension);
+    public boolean isFillForm(final String ext) {
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext) && format.getActions().contains("fill")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean isViewable(final String fileExtension) {
-        String docType = getDocType(fileExtension);
-        return docType != null;
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(fileExtension) && format.getActions().contains("view")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public List<String> getInsertImageTypes() {
@@ -280,10 +305,28 @@ public class DocumentManagerImpl implements DocumentManager {
     }
 
     public List<String> getCompareFileTypes() {
-        return Arrays.asList(configurationManager.getProperty("docservice.type.word").split("\\|"));
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+        List<String> result = new ArrayList<>();
+
+        for (Format format : supportedFormats) {
+            if (format.getType().equals(DocumentType.WORD)) {
+                result.add(format.getName());
+            }
+        }
+
+        return result;
     }
 
     public List<String> getMailMergeTypes() {
-        return Arrays.asList(configurationManager.getProperty("docservice.type.cell").split("\\|"));
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+        List<String> result = new ArrayList<>();
+
+        for (Format format : supportedFormats) {
+            if (format.getType().equals(DocumentType.CELL)) {
+                result.add(format.getName());
+            }
+        }
+
+        return result;
     }
 }

@@ -20,24 +20,25 @@ package onlyoffice.managers.url;
 
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.plugin.webresource.UrlMode;
+import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.model.config.DocumentType;
+import onlyoffice.managers.jwt.JwtManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
-@Named
-@Default
 public class UrlManagerImpl implements UrlManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.url.UrlManager");
     private final String docEditorServlet = "plugins/servlet/onlyoffice/doceditor";
@@ -46,22 +47,21 @@ public class UrlManagerImpl implements UrlManager {
     private final String fileProviderServlet = "plugins/servlet/onlyoffice/file-provider";
     private final String apiServlet = "plugins/servlet/onlyoffice/api";
 
-    @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
-    @ComponentImport
+    private final WebResourceUrlProvider webResourceUrlProvider;
     private final SettingsManager settingsManager;
-
     private final PluginSettings pluginSettings;
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
+    private final JwtManager jwtManager;
 
-    @Inject
-    public UrlManagerImpl(final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
-                          final ConfigurationManager configurationManager, final DocumentManager documentManager) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
-        this.settingsManager = settingsManager;
+    public UrlManagerImpl(final WebResourceUrlProvider webResourceUrlProvider,
+                          final PluginSettingsFactory pluginSettingsFactory, final SettingsManager settingsManager,
+                          final ConfigurationManager configurationManager, final DocumentManager documentManager,
+                          final JwtManager jwtManager) {
+        this.webResourceUrlProvider = webResourceUrlProvider;        this.settingsManager = settingsManager;
         this.configurationManager = configurationManager;
         this.documentManager = documentManager;
+        this.jwtManager = jwtManager;
         pluginSettings = pluginSettingsFactory.createGlobalSettings();
     }
 
@@ -86,10 +86,15 @@ public class UrlManagerImpl implements UrlManager {
     }
 
     public String getFileUri(final Long attachmentId) {
-        String hash = documentManager.createHash(Long.toString(attachmentId));
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
-        String fileUri = getConfluenceBaseUrl() + fileProviderServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
-        log.info("fileUrl " + fileUri);
+        Map<String, String> params = new HashMap<>();
+        params.put("userKey", user.getKey().getStringValue());
+        params.put("attachmentId", attachmentId.toString());
+        params.put("action", "download");
+
+        String fileUri =
+                getConfluenceBaseUrl() + fileProviderServlet + "?token=" + jwtManager.createInternalToken(params);
 
         return fileUri;
     }
@@ -130,18 +135,29 @@ public class UrlManagerImpl implements UrlManager {
         return saveAsUri;
     }
 
-    public String getCallbackUrl(final Long attachmentId) {
-        String hash = documentManager.createHash(Long.toString(attachmentId));
+    public String getReferenceDataUri(final Long pageId) {
+        String referenceDataUri = getConfluenceBaseUrl() + apiServlet + "?type=reference-data&pageId=" + pageId;
 
-        String callbackUrl = getConfluenceBaseUrl() + callbackServlet + "?vkey=" + GeneralUtil.urlEncode(hash);
+        return referenceDataUri;
+    }
+
+    public String getCallbackUrl(final Long attachmentId) {
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+
+        Map<String, String> params = new HashMap<>();
+        params.put("userKey", user.getKey().getStringValue());
+        params.put("attachmentId", attachmentId.toString());
+        params.put("action", "callback");
+
+        String callbackUrl =
+                getConfluenceBaseUrl() + callbackServlet + "?token=" + jwtManager.createInternalToken(params);
         log.info("callbackUrl " + callbackUrl);
 
         return callbackUrl;
     }
 
-    public String getGobackUrl(final Long attachmentId, final HttpServletRequest request) {
+    public String getGobackUrl(final Long attachmentId, final String referer) {
         String gobackUrl = "";
-        String referer = request.getHeader("referer");
 
         if (referer != null && referer.contains("/display/")) {
             gobackUrl = referer;
@@ -164,13 +180,13 @@ public class UrlManagerImpl implements UrlManager {
         String targetExt = "docx";
 
         switch (documentManager.getDocType(ext)) {
-            case "word":
+            case WORD:
                 targetExt = ext.equals("docxf") ? "docxf" : "docx";
                 break;
-            case "cell":
+            case CELL:
                 targetExt = "xlsx";
                 break;
-            case "slide":
+            case SLIDE:
                 targetExt = "pptx";
                 break;
             default:
@@ -197,5 +213,23 @@ public class UrlManagerImpl implements UrlManager {
             result = result.replace(publicDocEditorUrl, innerDocEditorUrl);
         }
         return result;
+    }
+
+    public String getDocServiceApiUrl() {
+        return getPublicDocEditorUrl() + configurationManager.getProperty("files.docservice.url.api");
+    }
+
+    public String getFaviconUrl(final DocumentType documentType) {
+        String nameIcon = "word";
+
+        if (documentType != null) {
+            nameIcon = documentType.name().toLowerCase();
+        }
+
+        return webResourceUrlProvider.getStaticPluginResourceUrl(
+                "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
+                nameIcon + ".ico",
+                UrlMode.ABSOLUTE
+        );
     }
 }

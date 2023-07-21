@@ -20,10 +20,10 @@ package onlyoffice;
 
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.spring.container.ContainerManager;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.convert.ConvertManager;
-import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
@@ -38,10 +38,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +50,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Base64;
 
 public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -66,21 +63,17 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final int STATUS_CORRUPTED_FORCE_SAVE = 7;
 
     private final JwtManager jwtManager;
-    private final DocumentManager documentManager;
-
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
     private final ConfigurationManager configurationManager;
     private final ConvertManager convertManager;
 
-    @Inject
-    public OnlyOfficeSaveFileServlet(final JwtManager jwtManager, final DocumentManager documentManager,
-                                     final AttachmentUtil attachmentUtil, final ParsingUtil parsingUtil,
-                                     final UrlManager urlManager, final ConfigurationManager configurationManager,
+    public OnlyOfficeSaveFileServlet(final JwtManager jwtManager, final AttachmentUtil attachmentUtil,
+                                     final ParsingUtil parsingUtil, final UrlManager urlManager,
+                                     final ConfigurationManager configurationManager,
                                      final ConvertManager convertManager) {
         this.jwtManager = jwtManager;
-        this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
@@ -93,13 +86,38 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/plain; charset=utf-8");
 
-        String vkey = request.getParameter("vkey");
-        log.info("vkey = " + vkey);
-        String attachmentIdString = documentManager.readHash(vkey);
+        String token = request.getParameter("token");
+        String payload;
+        JSONObject bodyFromToken;
+
+        try {
+            payload = jwtManager.verifyInternalToken(token);
+            bodyFromToken = new JSONObject(payload);
+
+            if (!bodyFromToken.getString("action").equals("callback")) {
+                throw new SecurityException();
+            }
+        } catch (Exception e) {
+            throw new SecurityException("Invalid link token!");
+        }
+
+        String userKeyString = bodyFromToken.getString("userKey");
+        String attachmentIdString = bodyFromToken.getString("attachmentId");
+
+        UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
+
+        UserKey userKey = new UserKey(userKeyString);
+        ConfluenceUser user = userAccessor.getUserByKey(userKey);
+        Long attachmentId = Long.parseLong(attachmentIdString);
+
+        if (attachmentUtil.getAttachment(attachmentId) == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
         String error = "";
         try {
-            processData(attachmentIdString, request);
+            processData(attachmentId, user, request);
         } catch (Exception e) {
             error = e.getMessage();
         }
@@ -115,16 +133,12 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         log.info("error = " + error);
     }
 
-    private void processData(final String attachmentIdString, final HttpServletRequest request) throws Exception {
-        log.info("attachmentId = " + attachmentIdString);
+    private void processData(final Long attachmentId, final ConfluenceUser user, final HttpServletRequest request)
+            throws Exception {
+        log.info("attachmentId = " + attachmentId.toString());
         InputStream requestStream = request.getInputStream();
-        if (attachmentIdString.isEmpty()) {
-            throw new IllegalArgumentException("attachmentId is empty");
-        }
 
         try {
-            Long attachmentId = Long.parseLong(attachmentIdString);
-
             String body = parsingUtil.getBody(requestStream);
             log.info("body = " + body);
             if (body.isEmpty()) {
@@ -135,6 +149,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
             if (jwtManager.jwtEnabled()) {
                 String token = jsonObj.optString("token");
+                String payload = null;
                 Boolean inBody = true;
 
                 if (token == null || token == "") {
@@ -150,12 +165,13 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     throw new SecurityException("Try save without JWT");
                 }
 
-                if (!jwtManager.verify(token)) {
+                try {
+                    payload = jwtManager.verify(token);
+                } catch (Exception e) {
                     throw new SecurityException("Try save with wrong JWT");
                 }
 
-                JSONObject bodyFromToken = new JSONObject(
-                        new String(Base64.getUrlDecoder().decode(token.split("\\.")[1]), "UTF-8"));
+                JSONObject bodyFromToken = new JSONObject(payload);
 
                 if (inBody) {
                     jsonObj = bodyFromToken;
@@ -166,8 +182,6 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
             long status = jsonObj.getLong("status");
             log.info("status = " + status);
-
-            ConfluenceUser user = getConfluenceUserFromJSON(jsonObj);
             log.info("user = " + user);
 
             if (status == STATUS_EDITING) {
@@ -192,12 +206,15 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
 
             if (status == STATUS_MUST_SAVE || status == STATUS_CORRUPTED) {
                 if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
+                    String fileType = jsonObj.getString("filetype");
                     String downloadUrl = jsonObj.getString("url");
                     downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                     log.info("downloadUri = " + downloadUrl);
 
-                    String history = jsonObj.getString("history");
-                    String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
+                    JSONObject history = jsonObj.getJSONObject("history");
+                    String changesUrl = !jsonObj.isNull("changesurl")
+                            ? urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"))
+                            : null;
                     log.info("changesUri = " + changesUrl);
 
                     Boolean forceSaveVersion =
@@ -206,7 +223,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                     attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
 
                     if (forceSaveVersion) {
-                        saveAttachmentFromUrl(attachmentId, downloadUrl, user, false);
+                        saveAttachmentFromUrl(attachmentId, downloadUrl, fileType, user, false);
                         attachmentUtil.removeProperty(attachmentId, "onlyoffice-force-save");
                         attachmentUtil.removeAttachmentChanges(attachmentId);
 
@@ -215,10 +232,10 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                             convertedFile.delete();
                         }
                     } else {
-                        saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
+                        saveAttachmentFromUrl(attachmentId, downloadUrl, fileType, user, true);
                     }
 
-                    attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
+                    attachmentUtil.saveAttachmentChanges(attachmentId, history.toString(), changesUrl);
                 } else {
                     throw new SecurityException("Try save without access: " + user);
                 }
@@ -231,30 +248,33 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
             if (status == STATUS_FORCE_SAVE || status == STATUS_CORRUPTED_FORCE_SAVE) {
                 if (user != null && attachmentUtil.checkAccess(attachmentId, user, true)) {
                     if (configurationManager.forceSaveEnabled()) {
+                        String fileType = jsonObj.getString("filetype");
                         String downloadUrl = jsonObj.getString("url");
                         downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
                         log.info("downloadUri = " + downloadUrl);
 
-                        String history = jsonObj.getString("history");
-                        String changesUrl = urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"));
+                        JSONObject history = jsonObj.getJSONObject("history");
+                        String changesUrl = !jsonObj.isNull("changesurl")
+                                ? urlManager.replaceDocEditorURLToInternal(jsonObj.getString("changesurl"))
+                                : null;
                         log.info("changesUri = " + downloadUrl);
 
                         Boolean forceSaveVersion =
                                 attachmentUtil.getPropertyAsBoolean(attachmentId, "onlyoffice-force-save");
 
                         if (forceSaveVersion) {
-                            saveAttachmentFromUrl(attachmentId, downloadUrl, user, false);
+                            saveAttachmentFromUrl(attachmentId, downloadUrl, fileType, user, false);
                             attachmentUtil.removeAttachmentChanges(attachmentId);
                         } else {
                             String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
                             attachmentUtil.setCollaborativeEditingKey(attachmentId, null);
 
-                            saveAttachmentFromUrl(attachmentId, downloadUrl, user, true);
+                            saveAttachmentFromUrl(attachmentId, downloadUrl, fileType, user, true);
                             attachmentUtil.setCollaborativeEditingKey(attachmentId, key);
                             attachmentUtil.setProperty(attachmentId, "onlyoffice-force-save", "true");
                         }
 
-                        attachmentUtil.saveAttachmentChanges(attachmentId, history, changesUrl);
+                        attachmentUtil.saveAttachmentChanges(attachmentId, history.toString(), changesUrl);
 
                         File convertedFile = attachmentUtil.getConvertedFile(attachmentId);
                         if (convertedFile.exists()) {
@@ -278,15 +298,14 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
         }
     }
 
-    private void saveAttachmentFromUrl(final Long attachmentId, final String downloadUrl, final ConfluenceUser user,
-                                       final boolean newVersion) throws Exception {
+    private void saveAttachmentFromUrl(final Long attachmentId, final String downloadUrl, final String fileType,
+                                       final ConfluenceUser user, final boolean newVersion) throws Exception {
         String attachmentExt = attachmentUtil.getFileExt(attachmentId);
-        String extDownloadUrl = downloadUrl.substring(downloadUrl.lastIndexOf(".") + 1);
         String url = downloadUrl;
 
-        if (!attachmentExt.equals(extDownloadUrl)) {
+        if (!attachmentExt.equals(fileType)) {
             JSONObject response =
-                    convertManager.convert(attachmentId, extDownloadUrl, attachmentExt, downloadUrl, null, false);
+                    convertManager.convert(attachmentId, fileType, attachmentExt, downloadUrl, null, false, null);
             url = response.getString("fileUrl");
         }
 
@@ -311,18 +330,5 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
                 }
             }
         }
-    }
-
-    private ConfluenceUser getConfluenceUserFromJSON(final JSONObject jsonObj) throws JSONException {
-        ConfluenceUser confluenceUser = null;
-        if (jsonObj.has("users")) {
-            JSONArray users = jsonObj.getJSONArray("users");
-            if (users.length() > 0) {
-                String userName = users.getString(0);
-                UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
-                confluenceUser = userAccessor.getUserByName(userName);
-            }
-        }
-        return confluenceUser;
     }
 }

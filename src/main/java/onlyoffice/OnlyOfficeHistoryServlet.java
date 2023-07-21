@@ -26,9 +26,9 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.spring.container.ContainerManager;
 import com.google.gson.Gson;
+import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
@@ -39,7 +39,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -59,11 +58,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
     private static final int BUFFER_SIZE = 10240;
 
-    @ComponentImport
     private final LocaleManager localeManager;
-    @ComponentImport
     private final FormatSettingsManager formatSettingsManager;
-
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
@@ -71,7 +67,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final JwtManager jwtManager;
     private final ParsingUtil parsingUtil;
 
-    @Inject
     public OnlyOfficeHistoryServlet(final LocaleManager localeManager,
                                     final FormatSettingsManager formatSettingsManager,
                                     final AuthContext authContext, final DocumentManager documentManager,
@@ -151,7 +146,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentHistoryInfo(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
 
@@ -184,7 +179,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             for (Attachment attachment : attachments) {
                 Version version = new Version();
                 version.setVersion(attachment.getVersion());
-                version.setKey(documentManager.getKeyOfFile(attachment.getId()));
+                version.setKey(documentManager.getKeyOfFile(attachment.getId(), false));
                 version.setCreated(dateFormatter.formatDateTime(attachment.getCreationDate()));
                 version.setUser(attachment.getCreator().getName(), attachment.getCreator().getFullName());
 
@@ -197,7 +192,9 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         try {
                             changesJSON = new JSONObject(changesString);
                             version.setServerVersion(changesJSON.getString("serverVersion"));
-                            version.setChanges(gson.fromJson(changesJSON.getString("changes"), Object.class));
+                            version.setChanges(
+                                    gson.fromJson(changesJSON.getJSONArray("changes").toString(), Object.class)
+                            );
                         } catch (JSONException e) {
                             throw new IOException(e.getMessage());
                         }
@@ -225,7 +222,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
-        if (!authContext.checkUserAuthorisation(request, response)) {
+        if (!authContext.checkUserAuthorization(request, response)) {
             return;
         }
 
@@ -259,7 +256,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                 if (attachment.getVersion() == version) {
                     versionData = new VersionData();
                     versionData.setVersion(attachment.getVersion());
-                    versionData.setKey(documentManager.getKeyOfFile(attachment.getId()));
+                    versionData.setKey(documentManager.getKeyOfFile(attachment.getId(), false));
                     versionData.setUrl(urlManager.getFileUri(attachment.getId()));
                     versionData.setFileType(attachment.getFileExtension());
 
@@ -268,7 +265,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         boolean adjacentVersions = (attachment.getVersion() - prevVersion.getVersion()) == 1;
                         if (adjacentVersions) {
                             versionData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
-                            versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId()),
+                            versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId(), false),
                                     urlManager.getFileUri(prevVersion.getId()), prevVersion.getFileExtension());
                         }
                     }

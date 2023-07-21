@@ -12,6 +12,10 @@ import java.io.Serializable;
 import java.util.List;
 
 public interface AttachmentUtil extends Serializable {
+    Attachment getAttachment(Long attachmentId);
+
+    Attachment getAttachmentByName(String fileName, Long pageId);
+
     boolean checkAccess(Long attachmentId, User user, boolean forEdit);
 
     boolean checkAccess(Attachment attachment, User user, boolean forEdit);

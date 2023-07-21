@@ -1,5 +1,15 @@
 # Change Log
 
+## 4.3.0
+## Added
+- compatible with Confluence 8.4.0
+- extended list of supported formats
+- document server v6.4 and earlier is no longer supported
+- macros for view documents
+- improvement of jwt signature
+- download as
+- Paste Special to add a link between files
+
 ## 4.2.0
 ## Changed
 - compatible with Confluence 8.1.1

@@ -27,7 +27,6 @@ import onlyoffice.managers.convert.ConvertManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
-import javax.inject.Inject;
 import java.util.Map;
 
 public class IsOfficeFileConvertAttachment implements Condition {
@@ -38,7 +37,6 @@ public class IsOfficeFileConvertAttachment implements Condition {
     private final AttachmentUtil attachmentUtil;
     private final ConvertManager convertManager;
 
-    @Inject
     public IsOfficeFileConvertAttachment(final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
                                          final ConvertManager convertManager) {
         this.documentManager = documentManager;
@@ -67,7 +65,7 @@ public class IsOfficeFileConvertAttachment implements Condition {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
 
-        if (!accessEdit || !convertManager.isConvertable(ext) || ext.equals("docx")) {
+        if (!accessEdit || convertManager.getTargetExt(ext) == null || ext.equals("docx")) {
             return false;
         }
 

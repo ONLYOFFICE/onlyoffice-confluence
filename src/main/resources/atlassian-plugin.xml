@@ -16,6 +16,11 @@
     </plugin-info>
 
     <resource type="i18n" name="i18n" location="lang-resource"/>
+    <resource type="download" name="images/preview-macros-logo.png" key="images" location="images/preview-macros-logo.png"/>
+    <resource type="download" name="images/preview-placeholder-word.svg" key="images" location="images/preview-placeholder-word.svg"/>
+    <resource type="download" name="images/preview-placeholder-cell.svg" key="images" location="images/preview-placeholder-cell.svg"/>
+    <resource type="download" name="images/preview-placeholder-slide.svg" key="images" location="images/preview-placeholder-slide.svg"/>
+    <resource type="download" name="images/preview-placeholder-form.svg" key="images" location="images/preview-placeholder-form.svg"/>
 
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for the main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
@@ -27,6 +32,16 @@
         <resource type="download" name="configure.css" location="css/configure.css"/>
         <resource type="download" name="icon_view.svg" location="images/icon_view.svg"/>
         <resource type="download" name="icon_hide.svg" location="images/icon_hide.svg"/>
+    </web-resource>
+
+    <web-resource key="onlyoffice-confluence-plugin-resources-download-as" name="Web Resources container for the download file popup">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:dialog2</dependency>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <resource type="download" name="onlyoffice-download-as.js" location="js/onlyoffice-download-as.js"/>
+        <context>page</context>
     </web-resource>
 
     <web-resource key="onlyoffice-confluence-plugin-resources-filecreate" name="Web Resources container for the file creation dialog">
@@ -80,6 +95,29 @@
         <resource type="download" name="slide.ico" location="images/slide.ico"/>
     </web-resource>
 
+    <web-resource key="macro-browser-smart-fields" name="Macro Browser Smart Fields">
+        <resource location="js/onlyoffice-preview-macro-fields.js" name="onlyoffice-preview-macro-fields.js" type="download"/>
+        <dependency>confluence.editor.actions:editor-macro-browser</dependency>
+        <context>macro-browser</context>
+    </web-resource>
+
+    <xhtml-macro name='onlyoffice-preview' class='onlyoffice.macro.OnlyOfficePreviewMacro' key='onlyoffice-preview'
+                 icon="/download/resources/${atlassian.plugin.key}/images/preview-macros-logo.png">
+        <description>onlyoffice.onlyoffice-confluence-plugin.onlyoffice-preview.desc</description>
+        <category name="confluence-content"/>
+        <category name="media"/>
+        <parameters>
+            <parameter name="page" type="confluence-content">
+                <option key="includeDatePath" value="true"/>
+            </parameter>
+            <parameter name="name" required="true" type="attachment">
+                <alias name=""/>
+            </parameter>
+            <parameter name="width" type="string"/>
+            <parameter name="height" type="string"/>
+        </parameters>
+    </xhtml-macro>
+
     <web-item key="onlyoffice-filecreate" name="New Document" section="system.content.button" weight="47">
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <icon height="16" width="16">
@@ -131,6 +169,59 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
+    <web-item key="onlyoffice-download-as" name="Link to download as attachment" section="system.attachment" weight="35">
+        <condition class="onlyoffice.conditions.IsOfficeFileDownloadAsAttachment"/>
+        <description>Link and text for this link used to where a document is available for download in various formats.</description>
+        <label key="onlyoffice.connector.download-as.link"/>
+        <link linkId="onlyoffice-download-as-link"><![CDATA[/plugins/onlyoffice-confluence-plugin/onlyoffice-download-as-view.action?attachmentId=$attachment.id]]></link>
+        <styleClass>onlyoffice-download-as-action</styleClass>
+    </web-item>
+
+    <component name="Auth Context" key="onlyoffice-auth-context" class="onlyoffice.managers.auth.AuthContextImpl" public="true">
+        <interface>onlyoffice.managers.auth.AuthContext</interface>
+    </component>
+    <component name="Configuration Manager" key="onlyoffice-configuration-manager" class="onlyoffice.managers.configuration.ConfigurationManagerImpl" public="true">
+        <interface>onlyoffice.managers.configuration.ConfigurationManager</interface>
+    </component>
+    <component name="Convert Manager" key="onlyoffice-convert-manager" class="onlyoffice.managers.convert.ConvertManagerImpl" public="true">
+        <interface>onlyoffice.managers.convert.ConvertManager</interface>
+    </component>
+    <component name="Document Manager" key="onlyoffice-document-manager" class="onlyoffice.managers.document.DocumentManagerImpl" public="true">
+        <interface>onlyoffice.managers.document.DocumentManager</interface>
+    </component>
+    <component name="JWT Manager" key="onlyoffice-jwt-manager" class="onlyoffice.managers.jwt.JwtManagerImpl" public="true">
+        <interface>onlyoffice.managers.jwt.JwtManager</interface>
+    </component>
+    <component name="URL Manager" key="onlyoffice-url-manager" class="onlyoffice.managers.url.UrlManagerImpl" public="true">
+        <interface>onlyoffice.managers.url.UrlManager</interface>
+    </component>
+    <component name="Attachment Util" key="onlyoffice-attachment-util" class="onlyoffice.utils.attachment.AttachmentUtilImpl" public="true">
+        <interface>onlyoffice.utils.attachment.AttachmentUtil</interface>
+    </component>
+    <component name="Parsing Util" key="onlyoffice-parsing-util" class="onlyoffice.utils.parsing.ParsingUtilImpl" public="true">
+        <interface>onlyoffice.utils.parsing.ParsingUtil</interface>
+    </component>
+    <component name="Config Manager" key="onlyoffice-config-manager" class="onlyoffice.managers.config.ConfigManagerImpl" public="true">
+        <interface>onlyoffice.managers.config.ConfigManager</interface>
+    </component>
+    <component name="Content Resolver" key="onlyoffice-content-resolver" class="onlyoffice.macro.components.DefaultContentResolver" public="true">
+        <interface>onlyoffice.macro.components.ContentResolver</interface>
+    </component>
+
+    <component-import key="applicationConfiguration" interface="com.atlassian.config.ApplicationConfiguration"/>
+    <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
+    <component-import key="localeManager" interface="com.atlassian.confluence.languages.LocaleManager"/>
+    <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
+    <component-import key="settingsManager" interface="com.atlassian.confluence.setup.settings.SettingsManager"/>
+    <component-import key="attachmentManager" interface="com.atlassian.confluence.pages.AttachmentManager"/>
+    <component-import key="pageManager" interface="com.atlassian.confluence.pages.PageManager"/>
+    <component-import key="transactionTemplate" interface="com.atlassian.sal.api.transaction.TransactionTemplate"/>
+    <component-import key="bootstrapManager" interface="com.atlassian.confluence.setup.BootstrapManager"/>
+    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+    <component-import key="webResourceUrlProvider" interface="com.atlassian.plugin.webresource.WebResourceUrlProvider"/>
+    <component-import key="formatSettingsManager" interface="com.atlassian.confluence.core.FormatSettingsManager"/>
+    <component-import key="sysInfoService" interface="com.atlassian.confluence.status.service.SystemInformationService"/>
+    <component-import key="velocityHelperService" interface="com.atlassian.confluence.plugin.services.VelocityHelperService"/>
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">
         <description>A full-featured editor for the most known formats of text documents, spreadsheets and presentations that can open these types of documents for editing or preview.</description>
@@ -164,4 +255,24 @@
         <description>Conditions for displaying ONLYOFFICE button in confluence preview.</description>
         <url-pattern>/onlyoffice/confluence/previews/plugin/access</url-pattern>
     </servlet>
+    <servlet key="OnlyOfficeFormats" class="onlyoffice.OnlyOfficeFormatsServlet" name="ONLYOFFICE Formats">
+        <description>The ONLYOFFICE Formats.</description>
+        <url-pattern>/onlyoffice/formats</url-pattern>
+    </servlet>
+    <xwork key="onlyoffice-confluence-plugin-actions" name="ONLYOFFICE Actions">
+        <default-interceptor-ref name="defaultStack"/>
+        <package name="onlyoffice-confluence-plugin" extends="default" namespace="/plugins/onlyoffice-confluence-plugin">
+            <action name="onlyoffice-download-as-view" class="onlyoffice.action.DownloadAsAction" method="doDefault">
+                <result name="input" type="velocity">/templates/download-as.vm</result>
+                <result name="error" type="velocity">/templates/download-as.vm</result>
+            </action>
+            <action name="onlyoffice-download-as" class="onlyoffice.action.DownloadAsAction">
+                <interceptor-ref name="validatingStack" />
+                <result name="success" type="json"/>
+                <result name="error" type="json"/>
+                <result name="input" type="json"/>
+                <result name="cancel" type="json"/>
+            </action>
+        </package>
+    </xwork>
 </atlassian-plugin>

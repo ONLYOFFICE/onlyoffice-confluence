@@ -19,86 +19,65 @@
 package onlyoffice.managers.jwt;
 
 import com.atlassian.config.ApplicationConfiguration;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import org.json.JSONObject;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Base64;
-import java.util.Base64.Encoder;
+import java.util.Map;
+import java.util.Random;
 
-@Named
-@Default
 public class JwtManagerImpl implements JwtManager {
 
-    private static final int NUMBER_PARTS_TOKEN = 3;
+    private static final long ACCEPT_LEEWAY = 3;
+    private static final int PLUGIN_SECRET_LENGTH = 32;
 
-    @ComponentImport
-    private final PluginSettingsFactory pluginSettingsFactory;
-    @ComponentImport
     private final ApplicationConfiguration applicationConfiguration;
-
     private final ConfigurationManager configurationManager;
     private final PluginSettings settings;
 
-    @Inject
     public JwtManagerImpl(final PluginSettingsFactory pluginSettingsFactory,
                           final ApplicationConfiguration applicationConfiguration,
                           final ConfigurationManager configurationManager) {
-        this.pluginSettingsFactory = pluginSettingsFactory;
         settings = pluginSettingsFactory.createGlobalSettings();
         this.applicationConfiguration = applicationConfiguration;
         this.configurationManager = configurationManager;
     }
 
-    public Boolean jwtEnabled() {
-        return configurationManager.demoActive() || settings.get("onlyoffice.jwtSecret") != null
-                && !((String) settings.get("onlyoffice.jwtSecret")).isEmpty();
+    public String createToken(final Object payload) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, ?> payloadMap = objectMapper.convertValue(payload, Map.class);
+
+        return createToken(payloadMap, getJwtSecret());
     }
 
     public String createToken(final JSONObject payload) throws Exception {
-        JSONObject header = new JSONObject();
-        header.put("alg", "HS256");
-        header.put("typ", "JWT");
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, ?> payloadMap = objectMapper.readValue(payload.toString(), Map.class);
 
-        Encoder enc = Base64.getUrlEncoder();
-
-        String encHeader = enc.encodeToString(header.toString().getBytes("UTF-8"))
-                .replace("=", "");
-        String encPayload = enc.encodeToString(payload.toString().getBytes("UTF-8"))
-                .replace("=", "");
-
-        String hash = calculateHash(encHeader, encPayload);
-
-        return encHeader + "." + encPayload + "." + hash;
+        return createToken(payloadMap, getJwtSecret());
     }
 
-    public Boolean verify(final String token) {
-        if (!jwtEnabled()) {
-            return false;
-        }
+    public String verify(final String token) {
+        return verifyToken(token, getJwtSecret());
+    }
 
-        String[] jwt = token.split("\\.");
-        if (jwt.length != NUMBER_PARTS_TOKEN) {
-            return false;
-        }
+    public String createInternalToken(final Map<String, ?> payloadMap) {
+        return createToken(payloadMap, getPluginSecret());
+    }
 
-        try {
-            String hash = calculateHash(jwt[0], jwt[1]);
-            if (!hash.equals(jwt[2])) {
-                return false;
-            }
-        } catch (Exception ex) {
-            return false;
-        }
+    public String verifyInternalToken(final String token) {
+        return verifyToken(token, getPluginSecret());
+    }
 
-        return true;
+    public Boolean jwtEnabled() {
+        return configurationManager.demoActive() || settings.get("onlyoffice.jwtSecret") != null
+                && !((String) settings.get("onlyoffice.jwtSecret")).isEmpty();
     }
 
     public String getJwtHeader() {
@@ -108,20 +87,50 @@ public class JwtManagerImpl implements JwtManager {
         return header == null || header.isEmpty() ? "Authorization" : header;
     }
 
-    private String calculateHash(final String header, final String payload) throws Exception {
-        Mac hasher = getHasher();
-        return Base64.getUrlEncoder().encodeToString(hasher.doFinal((header + "." + payload).getBytes("UTF-8")))
-                .replace("=", "");
+    private String getJwtSecret() {
+        return configurationManager.demoActive()
+                ? configurationManager.getDemo("secret") : (String) settings.get("onlyoffice.jwtSecret");
     }
 
-    private Mac getHasher() throws Exception {
-        String jwts = configurationManager.demoActive()
-                ? configurationManager.getDemo("secret") : (String) settings.get("onlyoffice.jwtSecret");
+    private String createToken(final Map<String, ?> payloadMap, final String key) {
+        Algorithm algorithm = Algorithm.HMAC256(key);
 
-        Mac sha256 = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKey = new SecretKeySpec(jwts.getBytes("UTF-8"), "HmacSHA256");
-        sha256.init(secretKey);
+        String token = JWT.create()
+                .withPayload(payloadMap)
+                .sign(algorithm);
 
-        return sha256;
+        return token;
+    }
+
+    private String verifyToken(final String token, final String key) {
+        Algorithm algorithm = Algorithm.HMAC256(key);
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+
+        DecodedJWT jwt = JWT.require(algorithm)
+                .acceptLeeway(ACCEPT_LEEWAY)
+                .build()
+                .verify(token);
+
+        return new String(decoder.decode(jwt.getPayload()));
+    }
+
+    private String getPluginSecret() {
+        if (settings.get("onlyoffice.plugin-secret") == null || settings.get("onlyoffice.plugin-secret").equals("")) {
+            Random random = new Random();
+            char[] numbersAndLetters = ("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ").toCharArray();
+
+            char[] randBuffer = new char[PLUGIN_SECRET_LENGTH];
+            for (int i = 0; i < randBuffer.length; i++) {
+                randBuffer[i] = numbersAndLetters[random.nextInt(numbersAndLetters.length)];
+            }
+
+            String secret = new String(randBuffer);
+
+            settings.put("onlyoffice.plugin-secret", secret);
+
+            return secret;
+        } else {
+            return (String) settings.get("onlyoffice.plugin-secret");
+        }
     }
 }

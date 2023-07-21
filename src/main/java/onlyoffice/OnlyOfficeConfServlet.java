@@ -21,7 +21,6 @@ package onlyoffice;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.user.UserManager;
@@ -42,7 +41,6 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -58,18 +56,12 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     private final long serialVersionUID = 1L;
     private static final int ERROR_INVALID_TOKEN = 6;
 
-    @ComponentImport
     private final UserManager userManager;
-    @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
-
     private final JwtManager jwtManager;
     private final ConfigurationManager configurationManager;
-
     private final ParsingUtil parsingUtil;
 
-
-    @Inject
     public OnlyOfficeConfServlet(final UserManager userManager, final PluginSettingsFactory pluginSettingsFactory,
                                  final JwtManager jwtManager, final ConfigurationManager configurationManager,
                                  final ParsingUtil parsingUtil) {

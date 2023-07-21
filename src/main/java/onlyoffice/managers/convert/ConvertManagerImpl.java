@@ -20,13 +20,12 @@ package onlyoffice.managers.convert;
 
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import onlyoffice.managers.configuration.ConfigurationManager;
 import onlyoffice.managers.document.DocumentManager;
 import onlyoffice.managers.jwt.JwtManager;
 import onlyoffice.managers.url.UrlManager;
+import onlyoffice.model.Format;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -37,28 +36,22 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-@Named
-@Default
 public class ConvertManagerImpl implements ConvertManager {
     private final Logger log = LogManager.getLogger("onlyoffice.managers.convert.ConvertManager");
 
-    @ComponentImport
-    private final LocaleManager localeManager;
+    private static final int NOT_REACHED_STATUS = -10;
 
+    private final LocaleManager localeManager;
     private final UrlManager urlManager;
     private final JwtManager jwtManager;
     private final ConfigurationManager configurationManager;
     private final DocumentManager documentManager;
 
-    @Inject
     public ConvertManagerImpl(final UrlManager urlManager, final JwtManager jwtManager,
                               final ConfigurationManager configurationManager,
                               final DocumentManager documentManager, final LocaleManager localeManager) {
@@ -69,60 +62,39 @@ public class ConvertManagerImpl implements ConvertManager {
         this.localeManager = localeManager;
     }
 
-    public boolean isConvertable(final String ext) {
-        String convertableTypes = configurationManager.getProperty("docservice.type.convert");
-        if (convertableTypes == null) {
-            return false;
-        }
-        List<String> exts = Arrays.asList(convertableTypes.split("\\|"));
-        return exts.contains(ext);
-    }
-
-    public String convertsTo(final String ext) {
-        String docType = documentManager.getDocType(ext);
-        if (docType != null) {
-            if (ext.equals("docx")) {
-                return "docxf";
-            }
-            if (ext.equals("docxf")) {
-                return "oform";
-            }
-
-            if (docType.equals("word")) {
-                return "docx";
-            }
-            if (docType.equals("cell")) {
-                return "xlsx";
-            }
-            if (docType.equals("slide")) {
-                return "pptx";
-            }
-        }
-        return null;
-    }
-
     public JSONObject convert(final Long attachmentId, final String ext, final String convertToExt,
-                              final ConfluenceUser user) throws Exception {
+                              final ConfluenceUser user, final String title) throws Exception {
         String url = urlManager.getFileUri(attachmentId);
         String region = localeManager.getLocale(user).toLanguageTag();
-        return convert(attachmentId, ext, convertToExt, url, region, true);
+        return convert(attachmentId, ext, convertToExt, url, region, true, title);
     }
 
     public JSONObject convert(final Long attachmentId, final String currentExt, final String convertToExt,
-                              final String url, final String region, final boolean async) throws Exception {
+                              final String url, final String region, final boolean async,
+                              final String title) throws Exception {
         try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
             JSONObject body = new JSONObject();
             body.put("async", async);
             body.put("embeddedfonts", true);
             body.put("filetype", currentExt);
             body.put("outputtype", convertToExt);
-            body.put("key", documentManager.getKeyOfFile(attachmentId));
+            body.put("key", documentManager.getKeyOfFile(attachmentId, false));
             body.put("url", url);
             body.put("region", region);
+            body.put("title", title);
+
+            if (Arrays.asList("bmp", "gif", "jpg", "png").contains(convertToExt)) {
+                JSONObject thumbnail = new JSONObject();
+                thumbnail.put("first", false);
+                body.put("thumbnail", thumbnail);
+            }
 
             StringEntity requestEntity = new StringEntity(body.toString(), ContentType.APPLICATION_JSON);
-            HttpPost request = new HttpPost(urlManager.getInnerDocEditorUrl()
-                    + configurationManager.getProperties().getProperty("files.docservice.url.convert"));
+            String conversionServiceUrl = urlManager.getInnerDocEditorUrl() + configurationManager
+                    .getProperties()
+                    .getProperty("files.docservice.url.convert");
+
+            HttpPost request = new HttpPost(conversionServiceUrl);
             request.setEntity(requestEntity);
             request.setHeader("Accept", "application/json");
 
@@ -137,31 +109,75 @@ public class ConvertManagerImpl implements ConvertManager {
             }
 
             log.debug("Sending POST to Docserver: " + body.toString());
+            JSONObject callBackJson = new JSONObject();
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 int status = response.getStatusLine().getStatusCode();
 
                 if (status != HttpStatus.SC_OK) {
-                    throw new HttpException("Docserver returned code " + status);
+                    log.error("Conversion service returned code " + status + ". URL: " + conversionServiceUrl);
+                    callBackJson.put("error", NOT_REACHED_STATUS);
                 } else {
                     InputStream is = response.getEntity().getContent();
                     String content = IOUtils.toString(is, StandardCharsets.UTF_8);
 
                     log.debug("Docserver returned: " + content);
-                    JSONObject callBackJson = null;
+
                     try {
                         callBackJson = new JSONObject(content);
                     } catch (Exception e) {
                         throw new Exception("Couldn't convert JSON from docserver: " + e.getMessage());
                     }
-
-                    return callBackJson;
                 }
+
+                return callBackJson;
             }
         }
     }
 
-    private String trimDot(final String input) {
-        return input.startsWith(".") ? input.substring(1) : input;
+    public String getTargetExt(final String ext) {
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                switch (format.getType()) {
+                    case WORD:
+                        if (format.getName().equals("docxf") && format.getConvert().contains("oform")) {
+                            return "oform";
+                        }
+                        if (format.getConvert().contains("docx")) {
+                            return "docx";
+                        }
+                        break;
+                    case CELL:
+                        if (format.getConvert().contains("xlsx")) {
+                            return "xlsx";
+                        }
+                        break;
+                    case SLIDE:
+                        if (format.getConvert().contains("pptx")) {
+                            return "pptx";
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return null;
     }
+
+    public List<String> getTargetExtList(final String ext) {
+        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+
+        for (Format format : supportedFormats) {
+            if (format.getName().equals(ext)) {
+                return format.getConvert();
+            }
+        }
+
+        return null;
+    }
+
 }

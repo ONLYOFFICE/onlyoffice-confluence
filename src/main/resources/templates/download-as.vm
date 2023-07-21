@@ -1,0 +1,47 @@
+<section role="dialog" id="onlyoffice-download-as-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true" data-aui-remove-on-hide="true">
+    <form action="plugins/onlyoffice-confluence-plugin/onlyoffice-download-as.action?attachmentId=$action.getAttachmentId()" method="get" class="aui">
+
+        <header class="aui-dialog2-header">
+            <h2 class="aui-dialog2-header-main">$i18n.getText("onlyoffice.connector.dialog.conversion.header.title")</h2>
+        </header>
+
+        <div class="aui-dialog2-content" id="onlyoffice-download-as-binder">
+            <div class="aui-message-context">
+                #if ($action.hasAnyErrors())
+                    #foreach ($error in $action.getErrorMessages())
+                        <div class="aui-message aui-message-error">$textutils.htmlEncode(${error})</div>
+                    #end
+                    #foreach ($error in $action.errors)
+                        <div class="aui-message aui-message-error">$textutils.htmlEncode(${error})</div>
+                    #end
+                #end
+            </div>
+
+            <div class="field-group">
+                <label for="file-name">$i18n.getText('file.name')</label>
+                <input class="text autocomplete-space" type="text" id="file-name" name="file-name" value="$action.getFileName()" required>
+            </div>
+
+            <div class="field-group">
+                <label for="current-type">$i18n.getText("onlyoffice.connector.dialog.conversion.field.current-type")</label>
+                <input class="text autocomplete-space" type="text" id="current-type"name="current-type" value="$action.getFileType()" disabled="disabled">
+            </div>
+
+            <div class="field-group">
+                <label for="target-file-type">$i18n.getText("onlyoffice.connector.dialog.conversion.field.target-type")</label>
+                <select class="select" id="target-file-type" name="targetFileType">
+                    #foreach($type in $action.getTargetFileTypeList())
+                        <option value="$type">$type</option>
+                    #end
+                </select>
+            </div>
+        </div>
+
+        <footer class="aui-dialog2-footer">
+            <div class="aui-dialog2-footer-actions">
+                <button id="dialog-download-as-button" class="aui-button aui-button-primary">$i18n.getText("download.name")</button>
+                <button id="dialog-close-button" class="aui-button aui-button-link">$i18n.getText("cancel.name")</button>
+            </div>
+        </footer>
+    </form>
+</section>
