@@ -3,6 +3,7 @@
 ## 
 ## Added
 - access to editor for anonymous user
+- edit button in ONLYOFFICE preview macro
 - link to docs cloud
 
 ## 4.3.1
