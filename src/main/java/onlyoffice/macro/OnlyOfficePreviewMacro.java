@@ -31,6 +31,7 @@ import com.atlassian.confluence.macro.DefaultImagePlaceholder;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.plugin.services.VelocityHelperService;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.util.HtmlUtil;
 import onlyoffice.macro.components.ContentResolver;
 import onlyoffice.managers.config.ConfigManager;
@@ -39,6 +40,7 @@ import onlyoffice.managers.url.UrlManager;
 import onlyoffice.model.config.DocumentType;
 import onlyoffice.model.config.Type;
 import onlyoffice.model.config.editor.Mode;
+import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -62,18 +64,20 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
     private final ConfigManager configManager;
     private final UrlManager urlManager;
     private final DocumentManager documentManager;
+    private final AttachmentUtil attachmentUtil;
 
     public OnlyOfficePreviewMacro(final AttachmentManager attachmentManager,
                                   final VelocityHelperService velocityHelperService,
                                   final ContentResolver contentResolver,
                                   final ConfigManager configManager, final UrlManager urlManager,
-                                  final DocumentManager documentManager) {
+                                  final DocumentManager documentManager, final AttachmentUtil attachmentUtil) {
         this.attachmentManager = attachmentManager;
         this.velocityHelperService = velocityHelperService;
         this.contentResolver = contentResolver;
         this.configManager = configManager;
         this.urlManager = urlManager;
         this.documentManager = documentManager;
+        this.attachmentUtil = attachmentUtil;
     }
 
     @Override
@@ -110,8 +114,21 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
                     height
             );
 
+            String extension = attachmentUtil.getFileExt(attachment.getId());
+            String action = "";
+
+            if (attachmentUtil.checkAccess(attachment.getId(),  AuthenticatedUserThreadLocal.get(), true)) {
+                if (documentManager.isEditable(extension)) {
+                    action = "edit";
+                } else if (documentManager.isFillForm(extension)) {
+                    action = "fill";
+                }
+            }
+
             final Map<String, Object> context = this.velocityHelperService.createDefaultVelocityContext();
             context.put("id", documentManager.getKeyOfFile(attachment.getId(), true));
+            context.put("attachmentId", attachment.getId());
+            context.put("action", action);
             context.put("docServiceApiUrl", urlManager.getDocServiceApiUrl());
             context.put("configAsHtml", config);
 
