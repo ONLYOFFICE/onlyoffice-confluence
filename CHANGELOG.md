@@ -1,5 +1,9 @@
 # Change Log
 
+## 
+## Added
+- edit button in ONLYOFFICE preview macro
+
 ## 4.3.1
 ## Changed
 - vulnerability dependency update
