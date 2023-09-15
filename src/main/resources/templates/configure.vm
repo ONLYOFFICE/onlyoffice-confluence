@@ -293,5 +293,18 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.button.save')" class="button">
             </div>
         </form>
+
+        <div class="onlyoffice-docs-cloud-banner-main" >
+            <div class="onlyoffice-docs-cloud-banner-section">
+                <p class="onlyoffice-docs-cloud-banner-image"></p>
+            </div>
+            <div class="onlyoffice-docs-cloud-banner-section">
+                <h3>ONLYOFFICE Docs Cloud</h3>
+                 <p>$i18n.getText('onlyoffice.configuration.banner.message')</p>
+            </div>
+            <div class="onlyoffice-docs-cloud-banner-section">
+                <a class="aui-button aui-button-primary default-submit" href="https://www.onlyoffice.com/docs-registration.aspx?referer=confluence" target="_blank">$i18n.getText('onlyoffice.configuration.banner.button')</a>
+            </div>
+        </div>
     </body>
 </html>
