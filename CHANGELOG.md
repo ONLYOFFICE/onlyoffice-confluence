@@ -1,5 +1,9 @@
 # Change Log
 
+## 
+## Added
+- access to editor for anonymous user
+
 ## 4.3.1
 ## Changed
 - vulnerability dependency update

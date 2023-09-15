@@ -82,12 +82,12 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
             throw new SecurityException("Invalid link token!");
         }
 
-        String userKeyString = bodyFromToken.getString("userKey");
+        String userKeyString = bodyFromToken.has("userKey") ? bodyFromToken.getString("userKey") : null;
         String attachmentIdString = bodyFromToken.getString("attachmentId");
 
         UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
 
-        UserKey userKey = new UserKey(userKeyString);
+        UserKey userKey = userKeyString == null || userKeyString.equals("") ? null : new UserKey(userKeyString);
         ConfluenceUser user = userAccessor.getUserByKey(userKey);
         Long attachmentId = Long.parseLong(attachmentIdString);
 
