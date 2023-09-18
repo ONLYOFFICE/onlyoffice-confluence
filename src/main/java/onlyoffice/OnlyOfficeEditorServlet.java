@@ -76,10 +76,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     @Override
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        if (!authContext.checkUserAuthorization(request, response)) {
-            return;
-        }
-
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         String attachmentIdString = request.getParameter("attachmentId");
@@ -87,6 +83,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         String referer = request.getHeader("referer");
 
         if (attachmentIdString == null || attachmentIdString.isEmpty()) {
+            if (!authContext.checkUserAuthorization(request, response)) {
+                return;
+            }
+
             String fileName = request.getParameter("fileName");
             String fileExt = request.getParameter("fileExt");
             String pageId = request.getParameter("pageId");
@@ -118,7 +118,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
 
             if (!attachmentUtil.checkAccess(attachmentId, user, false)) {
-                response.sendRedirect(attachment.getContainer().getUrlPath());
+                response.sendRedirect(authContext.getLoginUrl(request));
                 return;
             }
 

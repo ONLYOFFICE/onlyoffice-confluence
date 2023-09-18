@@ -89,7 +89,10 @@ public class UrlManagerImpl implements UrlManager {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
         Map<String, String> params = new HashMap<>();
-        params.put("userKey", user.getKey().getStringValue());
+
+        if (user != null) {
+            params.put("userKey", user.getKey().getStringValue());
+        }
         params.put("attachmentId", attachmentId.toString());
         params.put("action", "download");
 

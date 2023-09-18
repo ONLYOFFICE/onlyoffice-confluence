@@ -2,6 +2,7 @@
 
 ## 
 ## Added
+- opening documents for viewing by an anonymous user
 - edit button in ONLYOFFICE preview macro
 - link to docs cloud
 

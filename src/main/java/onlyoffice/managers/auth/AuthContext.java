@@ -6,4 +6,5 @@ import java.io.IOException;
 
 public interface AuthContext {
     boolean checkUserAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    String getLoginUrl(HttpServletRequest request) throws IOException;
 }
