@@ -2,6 +2,7 @@
 
 ## 
 ## Added
+- compatible with Confluence 8.5.1
 - opening documents for viewing by an anonymous user
 - edit button in ONLYOFFICE preview macro
 - link to docs cloud
