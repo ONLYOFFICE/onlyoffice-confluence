@@ -145,6 +145,9 @@ public class ConvertManagerImpl implements ConvertManager {
                         if (format.getName().equals("docxf") && format.getConvert().contains("oform")) {
                             return "oform";
                         }
+                        if (format.getName().equals("docx") && format.getConvert().contains("docxf")) {
+                            return "docxf";
+                        }
                         if (format.getConvert().contains("docx")) {
                             return "docx";
                         }
