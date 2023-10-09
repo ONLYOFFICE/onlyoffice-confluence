@@ -117,7 +117,10 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
             String extension = attachmentUtil.getFileExt(attachment.getId());
             String action = "";
 
-            if (attachmentUtil.checkAccess(attachment.getId(),  AuthenticatedUserThreadLocal.get(), true)) {
+            final boolean isPreview = conversionContext.getOutputType().equals("preview");
+
+            if (attachmentUtil.checkAccess(attachment.getId(),  AuthenticatedUserThreadLocal.get(), true)
+                    && !isPreview) {
                 if (documentManager.isEditable(extension)) {
                     action = "edit";
                 } else if (documentManager.isFillForm(extension)) {
