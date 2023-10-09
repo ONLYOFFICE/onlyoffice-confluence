@@ -45,6 +45,7 @@
         </transformation>
         <resource type="download" name="onlyoffice-download-as.js" location="js/onlyoffice-download-as.js"/>
         <context>page</context>
+        <context>blogpost</context>
     </web-resource>
 
     <web-resource key="onlyoffice-confluence-plugin-resources-filecreate" name="Web Resources container for the file creation dialog">
