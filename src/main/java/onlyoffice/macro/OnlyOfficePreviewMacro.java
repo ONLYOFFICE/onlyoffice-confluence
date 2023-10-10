@@ -129,7 +129,7 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
             }
 
             final Map<String, Object> context = this.velocityHelperService.createDefaultVelocityContext();
-            context.put("id", documentManager.getKeyOfFile(attachment.getId(), true));
+            context.put("id", System.currentTimeMillis());
             context.put("attachmentId", attachment.getId());
             context.put("action", action);
             context.put("docServiceApiUrl", urlManager.getDocServiceApiUrl());
