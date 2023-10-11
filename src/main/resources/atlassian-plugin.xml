@@ -29,6 +29,9 @@
     </web-resource>
 
     <web-resource key="onlyoffice-confluence-plugin-resources-configure" name="Web Resources container for the configuration page">
+        <resource type="download" name="banner.css" location="css/banner/banner.css"/>
+        <resource type="download" name="background.svg" location="images/banner/background.svg"/>
+        <resource type="download" name="logo.svg" location="images/banner/logo.svg"/>
         <resource type="download" name="configure.css" location="css/configure.css"/>
         <resource type="download" name="icon_view.svg" location="images/icon_view.svg"/>
         <resource type="download" name="icon_hide.svg" location="images/icon_hide.svg"/>
@@ -42,6 +45,7 @@
         </transformation>
         <resource type="download" name="onlyoffice-download-as.js" location="js/onlyoffice-download-as.js"/>
         <context>page</context>
+        <context>blogpost</context>
     </web-resource>
 
     <web-resource key="onlyoffice-confluence-plugin-resources-filecreate" name="Web Resources container for the file creation dialog">

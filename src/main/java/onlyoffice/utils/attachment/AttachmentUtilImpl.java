@@ -102,20 +102,12 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public boolean checkAccess(final Long attachmentId, final User user, final boolean forEdit) {
-        if (user == null) {
-            return false;
-        }
-
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         return checkAccess(attachment, user, forEdit);
     }
 
     public boolean checkAccess(final Attachment attachment, final User user, final boolean forEdit) {
-        if (user == null) {
-            return false;
-        }
-
         PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
 
         if (forEdit) {

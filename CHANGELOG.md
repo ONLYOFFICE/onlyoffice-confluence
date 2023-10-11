@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.4.0
+## Added
+- compatible with Confluence 8.6
+- opening documents for viewing by an anonymous user
+- edit button in ONLYOFFICE preview macro
+- link to docs cloud
+
 ## 4.3.1
 ## Changed
 - vulnerability dependency update
