@@ -1,6 +1,6 @@
 # Change Log
 
-## 
+## 4.4.0
 ## Added
 - compatible with Confluence 8.6
 - opening documents for viewing by an anonymous user
