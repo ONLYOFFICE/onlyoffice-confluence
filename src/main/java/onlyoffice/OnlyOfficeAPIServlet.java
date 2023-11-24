@@ -23,19 +23,15 @@ import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.google.gson.Gson;
-import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.document.DocumentManager;
-import onlyoffice.managers.jwt.JwtManager;
-import onlyoffice.managers.url.UrlManager;
+import com.onlyoffice.manager.request.RequestManager;
+import com.onlyoffice.manager.settings.SettingsManager;
+import com.onlyoffice.manager.security.JwtManager;
+import com.onlyoffice.manager.url.UrlManager;
+import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -59,24 +55,26 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
 
     private final SystemInformationService sysInfoService;
+    private final SettingsManager settingsManager;
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
-    private final ConfigurationManager configurationManager;
+    private final RequestManager requestManager;
 
-    public OnlyOfficeAPIServlet(final SystemInformationService sysInfoService, final JwtManager jwtManager,
-                                final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
-                                final ParsingUtil parsingUtil, final UrlManager urlManager,
-                                final ConfigurationManager configurationManager) {
+    public OnlyOfficeAPIServlet(final SystemInformationService sysInfoService, final SettingsManager settingsManager,
+                                final JwtManager jwtManager, final DocumentManager documentManager,
+                                final AttachmentUtil attachmentUtil, final ParsingUtil parsingUtil,
+                                final UrlManager urlManager, final RequestManager requestManager) {
         this.sysInfoService = sysInfoService;
+        this.settingsManager = settingsManager;
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
-        this.configurationManager = configurationManager;
+        this.requestManager = requestManager;
     }
 
     @Override
@@ -134,30 +132,23 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 return;
             }
 
-            downloadUrl = urlManager.replaceDocEditorURLToInternal(downloadUrl);
+            downloadUrl = urlManager.replaceToInnerDocumentServerUrl(downloadUrl);
 
-            try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
-                HttpGet httpGet = new HttpGet(downloadUrl);
+            requestManager.executeGetRequest(downloadUrl, new RequestManager.Callback<Void>() {
+                @Override
+                public Void doWork(final Object response) throws Exception {
+                    byte[] bytes = IOUtils.toByteArray(((HttpEntity) response).getContent());
+                    InputStream inputStream = new ByteArrayInputStream(bytes);
 
-                try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
-                    int status = httpResponse.getStatusLine().getStatusCode();
-                    HttpEntity entity = httpResponse.getEntity();
+                    log.info("size = " + bytes.length);
 
-                    if (status == HttpStatus.SC_OK) {
-                        byte[] bytes = IOUtils.toByteArray(entity.getContent());
-                        InputStream inputStream = new ByteArrayInputStream(bytes);
+                    String fileName = attachmentUtil.getCorrectName(title, ext, pageId);
+                    String mimeType = documentManager.getMimeType(fileName);
 
-                        log.info("size = " + bytes.length);
-
-                        String fileName = documentManager.getCorrectName(title, ext, pageId);
-                        String mimeType = documentManager.getMimeType(fileName);
-
-                        attachmentUtil.createNewAttachment(fileName, mimeType, inputStream, bytes.length, pageId, user);
-                    } else {
-                        throw new HttpException("Document Server returned code " + status);
-                    }
+                    attachmentUtil.createNewAttachment(fileName, mimeType, inputStream, bytes.length, pageId, user);
+                    return null;
                 }
-            }
+            });
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
@@ -188,14 +179,15 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 if (attachmentUtil.checkAccess(attachmentId, user, false)) {
                     Map<String, String> data = new HashMap<>();
 
-                    String fileType = attachmentUtil.getFileExt(attachmentId);
+                    String documentName = documentManager.getDocumentName(String.valueOf(attachmentId));
+                    String fileType = documentManager.getExtension(documentName);
 
                     if (bodyJson.has("command")) {
                         data.put("command", bodyJson.getString("command"));
                     }
                     data.put("fileType", fileType);
-                    data.put("url", urlManager.getFileUri(attachmentId));
-                    if (jwtManager.jwtEnabled()) {
+                    data.put("url", urlManager.getFileUrl(String.valueOf(attachmentId)));
+                    if (settingsManager.isSecurityEnabled()) {
                         JSONObject dataJSON = new JSONObject(gson.toJson(data));
                         data.put("token", jwtManager.createToken(dataJSON));
                     }
@@ -264,12 +256,15 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
 
             JSONObject responseJson = new JSONObject();
 
-            responseJson.put("fileType", attachmentUtil.getFileExt(attachmentId));
-            responseJson.put("path", attachmentUtil.getFileName(attachmentId));
-            responseJson.put("referenceData", referenceData);
-            responseJson.put("url", urlManager.getFileUri(attachmentId));
+            String documentName = documentManager.getDocumentName(String.valueOf(attachmentId));
+            String extension = documentManager.getExtension(documentName);
 
-            if (jwtManager.jwtEnabled()) {
+            responseJson.put("fileType", extension);
+            responseJson.put("path", documentName);
+            responseJson.put("referenceData", referenceData);
+            responseJson.put("url", urlManager.getFileUrl(String.valueOf(attachmentId)));
+
+            if (settingsManager.isSecurityEnabled()) {
                 responseJson.put("token", jwtManager.createToken(responseJson));
             }
 

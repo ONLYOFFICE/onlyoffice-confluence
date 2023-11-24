@@ -22,7 +22,9 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.spring.container.ContainerManager;
-import onlyoffice.managers.jwt.JwtManager;
+
+import com.onlyoffice.manager.settings.SettingsManager;
+import onlyoffice.sdk.manager.security.JwtManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.json.JSONObject;
 
@@ -40,19 +42,22 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
 
     private final AttachmentUtil attachmentUtil;
     private final JwtManager jwtManager;
+    private final SettingsManager settingsManager;
 
-    public OnlyOfficeFileProviderServlet(final AttachmentUtil attachmentUtil, final JwtManager jwtManager) {
+    public OnlyOfficeFileProviderServlet(final AttachmentUtil attachmentUtil, final JwtManager jwtManager,
+                                         final SettingsManager settingsManager) {
         this.attachmentUtil = attachmentUtil;
         this.jwtManager = jwtManager;
+        this.settingsManager = settingsManager;
     }
 
     @Override
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        if (jwtManager.jwtEnabled()) {
-            String jwth = jwtManager.getJwtHeader();
+        if (settingsManager.isSecurityEnabled()) {
+            String jwth = settingsManager.getSecurityHeader();
             String header = request.getHeader(jwth);
-            String authorizationPrefix = "Bearer ";
+            String authorizationPrefix = settingsManager.getSecurityPrefix();
             String token = (header != null && header.startsWith(authorizationPrefix))
                     ? header.substring(authorizationPrefix.length()) : header;
 
