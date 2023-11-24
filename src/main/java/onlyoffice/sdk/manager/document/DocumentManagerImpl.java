@@ -73,8 +73,8 @@ public class DocumentManagerImpl extends DefaultDocumentManager implements Docum
 
         return null;
     }
-    @Override
 
+    @Override
     public String getCorrectNewFileName(final String fileName, final String fileExtension, final Long pageID) {
         ContentEntityManager contentEntityManager =
                 (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
@@ -101,6 +101,7 @@ public class DocumentManagerImpl extends DefaultDocumentManager implements Docum
         return name;
     }
 
+    @Override
     public String getMimeType(final String name) {
         Path path = new File(name).toPath();
         String mimeType = null;
