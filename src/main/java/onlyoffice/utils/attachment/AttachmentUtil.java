@@ -45,17 +45,11 @@ public interface AttachmentUtil extends Serializable {
 
     void updateAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user);
 
-    void saveAttachmentChanges(Long attachmentId, String history, String changesUrl) throws Exception;
-
     void removeAttachmentChanges(Long attachmentId);
 
     InputStream getAttachmentData(Long attachmentId);
 
     String getMediaType(Long attachmentId);
-
-    String getFileName(Long attachmentId);
-
-    String getFileExt(Long attachmentId);
 
     String getHashCode(Long attachmentId);
 
@@ -93,4 +87,6 @@ public interface AttachmentUtil extends Serializable {
     File getConvertedFile(Long attachmentId);
 
     ContentEntityObject getContainer(Long containerId);
+
+    String getCorrectName(String fileName, String fileExt, Long pageID);
 }
