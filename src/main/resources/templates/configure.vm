@@ -25,171 +25,15 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         <meta name="decorator" content="atl.admin" />
     </head>
     <body>
-        <script type="text/javascript" language="javascript">
-            (function (jq) {
-                var url = AJS.contextPath() + "/plugins/servlet/onlyoffice/configure";
-
-                jq(document).ready(function() {
-                    var msgBox = jq("#onlyofficeMsg");
-                    var submitBtn = jq("#onlyofficeSubmitBtn");
-                    var lastMsg;
-
-                    var messages = {
-                        success: "$i18n.getText('onlyoffice.configuration.message.success')",
-                        mixedcontent: "$i18n.getText('onlyoffice.configuration.message.error.mixedcontent')",
-                        jsonparse: "$i18n.getText('onlyoffice.configuration.message.error.jsonparse')",
-                        docservunreachable: "$i18n.getText('onlyoffice.configuration.message.error.docservunreachable')",
-                        docservcommand: "$i18n.getText('onlyoffice.configuration.message.error.docservcommand')",
-                        jwterror: "$i18n.getText('onlyoffice.configuration.message.error.jwterror')"
-                    };
-
-                    function updateConfig() {
-                        var editingTypes = new Array();
-                        jq(".editing-types").each(function () {
-                            if ($(this).is(":checked")) editingTypes.push($(this).attr("id"));
-                        });
-
-                        var data = {
-                            "apiUrl": jq("#apiUrlField").attr("value"),
-                            "docInnerUrl": jq("#docInnerUrlField").attr("value"),
-                            "confUrl": jq("#confUrlField").attr("value"),
-                            "jwtSecret": jq("#jwtSecretField").attr("value"),
-                            "verifyCertificate": jq("#verifyCertificate").is(":checked"),
-                            "forceSave": jq("#forceSave").is(":checked"),
-                            "demo": jq("#onlyofficeDemo").is(":checked"),
-                            "chat": jq("#chat").is(":checked"),
-                            "compactHeader": jq("#compactHeader").is(":checked"),
-                            "feedback": jq("#feedback").is(":checked"),
-                            "helpMenu": jq("#helpMenu").is(":checked"),
-                            "toolbarNoTabs": jq("#toolbarNoTabs").is(":checked"),
-                            "reviewDisplay": jq("input[name='reviewDisplay']:checked").attr("id").replace("reviewDisplay_", ""),
-                            "editingTypes": editingTypes
-                        };
-
-                        jq.ajax({
-                            url: url,
-                            type: "POST",
-                            contentType: "application/json",
-                            data: JSON.stringify(data),
-                            processData: false,
-                            success: function (response) { onResponse(response, data); },
-                            error: function (response) { onResponse(response, data); }
-                        });
-                    };
-
-                    function onResponse(response, data) {
-                        submitBtn.attr("disabled", false);
-                        if (response) {
-                            var json = JSON.parse(response);
-                            var msg;
-                            var error = true;
-
-                            if (json.success) {
-                                if (window.location.protocol == "https:" && data.apiUrl.startsWith("http:")) {
-                                    msg = "mixedcontent"
-                                } else {
-                                    msg = "success";
-                                    error = false;
-                                }
-                            } else {
-                                msg = json.message;
-                            }
-
-                            if (lastMsg) lastMsg.remove();
-                            if (error) {
-                                lastMsg = AJS.messages.error(msgBox, { body: messages[msg] });
-                            } else {
-                                lastMsg = AJS.messages.success(msgBox, { body: messages[msg] });
-                            }
-                        }
-                    };
-
-                    var testDocServiceApi = function () {
-                        var testApiResult = function () {
-                            var result = typeof DocsAPI != "undefined";
-
-                            if (result) {
-                                updateConfig();
-                            } else {
-                                submitBtn.attr("disabled", false);
-                                if (lastMsg) lastMsg.remove();
-                                lastMsg = AJS.messages.error(msgBox, { body: messages["docservunreachable"] });
-                            }
-                        };
-
-                        delete DocsAPI;
-
-                        jq("#scripDocServiceAddress").remove();
-
-                        var js = document.createElement("script");
-                        js.setAttribute("type", "text/javascript");
-                        js.setAttribute("id", "scripDocServiceAddress");
-                        document.getElementsByTagName("head")[0].appendChild(js);
-
-                        var scriptAddress = jq("#scripDocServiceAddress");
-
-                        scriptAddress.on("load", testApiResult).on("error", testApiResult);
-
-                        var docServiceUrlApi = jq("#apiUrlField").val();
-
-                        if (!docServiceUrlApi.endsWith("/")) {
-                            docServiceUrlApi += "/";
-                        }
-                        docServiceUrlApi += "${pathApiUrl}";
-
-                        scriptAddress.attr("src", docServiceUrlApi);
-                    };
-
-                    jq("#onlyofficeConf").submit(function(e) {
-                        submitBtn.attr("disabled", true);
-                        e.preventDefault();
-                        if (jq("#onlyofficeDemo").is(":checked") && !jq("#onlyofficeDemo").prop("disabled")) {
-                            updateConfig();
-                        } else {
-                            testDocServiceApi();
-                        }
-                    });
-
-                    jq("#onlyofficeConf").on("click", ".view-control", function(){
-                        if (jq("#jwtSecretField").attr("type") == "password"){
-                            jq(this).addClass("view");
-                            jq("#jwtSecretField").attr("type", "text");
-                        } else {
-                            jq(this).removeClass("view");
-                            jq("#jwtSecretField").attr("type", "password");
-                        }
-                        return false;
-                    });
-
-                    var demoToggle = function () {
-                        if (!jq("#onlyofficeDemo").prop("disabled")) {
-                            jq("#apiUrlField, #jwtSecretField, #docInnerUrlField, #verifyCertificate").prop("disabled", jq("#onlyofficeDemo").prop("checked"));
-                            if (jq("#onlyofficeDemo").prop("checked")) {
-                                jq(".view-control").css("pointer-events", "none");
-                                jq(".view-control").removeClass("view");
-                                jq("#jwtSecretField").attr("type", "password");
-                            } else {
-                                jq(".view-control").css("pointer-events", "");
-                            }
-                        }
-                    };
-
-                    jq("#onlyofficeDemo").click(demoToggle);
-                    demoToggle();
-
-                    AJS.$(".onlyoffice-tooltip").tooltip();
-                });
-
-            })(jQuery);
-        </script>
         <div id="onlyofficeMsg"></div>
+        <div id="pathApiUrl" hidden>${pathApiUrl}</div>
         <form id="onlyofficeConf" class="aui long-label">
             <h3>$i18n.getText('onlyoffice.configuration.section.server')</h3>
             <div class="field-group">
                 <label for="apiUrlField">$i18n.getText('onlyoffice.configuration.doc-url')</label>
-                <input type="text" id="apiUrlField" value="${docserviceApiUrl}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url.tooltip')">
+                <input type="text" id="apiUrlField" value="$!{settings.get('url')}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url.tooltip')">
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="verifyCertificate" #if($verifyCertificate) checked="checked" #end />
+                    <input type="checkbox" class="checkbox" id="verifyCertificate" #if($!settings.get('security.ignoreSSLCertificate') == "true") checked="checked" #end />
                     <label for="verifyCertificate">$i18n.getText('onlyoffice.configuration.verify-certificate')</label>
                 </div>
             </div>
@@ -197,17 +41,17 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <label for="jwtSecretField">$i18n.getText('onlyoffice.configuration.jwt-secret')</label>
                 <div class="secretFiled">
                     <a href="#" class="view-control"></a>
-                    <input type="password" id="jwtSecretField" value="${docserviceJwtSecret}" name="jwtSecretField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.jwt-secret.tooltip')" style="padding-right: 30px;">
+                    <input type="password" id="jwtSecretField" value="$!{settings.get('security.key')}" name="jwtSecretField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.jwt-secret.tooltip')" style="padding-right: 30px;">
                 </div>
             </div>
             <div class="field-group">
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="onlyofficeDemo" #if($docserviceDemo) checked="checked" #end
-                                                                                #if(!$docserviceDemoAvailable) disabled="disabled" #end/>
+                    <input type="checkbox" class="checkbox" id="onlyofficeDemo" #if($!settings.get('demo') == "true") checked="checked" #end
+                                                                                #if(!$demoAvailable) disabled="disabled" #end/>
                     <label for="onlyofficeDemo">$i18n.getText('onlyoffice.configuration.demo.connect')</label>
 
                     <br/>
-                    #if($docserviceDemoAvailable)
+                    #if($demoAvailable)
                         <div class="description">$i18n.getText('onlyoffice.configuration.demo.trial')</div>
                     #else
                         <div class="description">$i18n.getText('onlyoffice.configuration.demo.trial-is-over')</div>
@@ -218,11 +62,11 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             <h3>$i18n.getText('onlyoffice.configuration.advanced-section')</h3>
             <div class="field-group">
                 <label for="confUrlField">$i18n.getText('onlyoffice.configuration.conf-url')</label>
-                <input type="text" id="confUrlField" value="${docserviceConfUrl}" name="confUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.conf-url.tooltip')">
+                <input type="text" id="confUrlField" value="$!{settings.get('productInnerUrl')}" name="confUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.conf-url.tooltip')">
             </div>
             <div class="field-group">
                 <label for="docInnerUrlField">$i18n.getText('onlyoffice.configuration.doc-url-inner')</label>
-                <input type="text" id="docInnerUrlField" value="${docserviceInnerUrl}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner.tooltip')">
+                <input type="text" id="docInnerUrlField" value="$!{settings.get('innerUrl')}" name="docInnerUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url-inner.tooltip')">
             </div>
 
             <h3>$i18n.getText('onlyoffice.configuration.section.common')</h3>
@@ -241,7 +85,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             <div class="field-group">
                 <label>$i18n.getText('onlyoffice.configuration.force-save.label')</label>
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="forceSave" #if($forceSave) checked="checked" #end />
+                    <input type="checkbox" class="checkbox" id="forceSave" #if($!settings.get('customization.forcesave') == "true") checked="checked" #end />
                     <label for="forceSave">$i18n.getText('onlyoffice.configuration.force-save.enable')</label>
                 </div>
                 <div class="description">$i18n.getText('onlyoffice.configuration.force-save.description')</div>
@@ -250,23 +94,23 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             <div class="field-group">
                 <label>$i18n.getText('onlyoffice.configuration.interface.label')</label>
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="chat" #if($chat) checked="checked" #end />
+                    <input type="checkbox" class="checkbox" id="chat" #if($!settings.get('customization.chat') == "true") checked="checked" #end />
                     <label for="chat">$i18n.getText('onlyoffice.configuration.interface.chat')</label>
                 </div>
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="compactHeader" #if($compactHeader) checked="checked" #end />
+                    <input type="checkbox" class="checkbox" id="compactHeader" #if($!settings.get('customization.compactHeader') == "true") checked="checked" #end />
                     <label for="compactHeader">$i18n.getText('onlyoffice.configuration.interface.compactHeader')</label>
                 </div>
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="feedback" #if($feedback) checked="checked" #end />
+                    <input type="checkbox" class="checkbox" id="feedback" #if($!settings.get('customization.feedback') == "true") checked="checked" #end />
                     <label for="feedback">$i18n.getText('onlyoffice.configuration.interface.feedback')</label>
                 </div>
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="helpMenu" #if($helpMenu) checked="checked" #end />
+                    <input type="checkbox" class="checkbox" id="helpMenu" #if($!settings.get('customization.help') == "true") checked="checked" #end />
                     <label for="helpMenu">$i18n.getText('onlyoffice.configuration.interface.helpMenu')</label>
                 </div>
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="toolbarNoTabs" #if($toolbarNoTabs) checked="checked" #end />
+                    <input type="checkbox" class="checkbox" id="toolbarNoTabs" #if($!settings.get('customization.toolbarNoTabs') == "true") checked="checked" #end />
                     <label for="toolbarNoTabs">$i18n.getText('onlyoffice.configuration.interface.toolbarNoTabs')</label>
                 </div>
                 <div class="description">$i18n.getText('onlyoffice.configuration.interface.description')</div>
@@ -275,22 +119,22 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             <div class="field-group">
                 <label>$i18n.getText('onlyoffice.configuration.reviewDisplay.label')</label>
                 <div class="radio inline">
-                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_markup" #if($reviewDisplay == "markup") checked="checked" #end />
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_markup" #if($!settings.get('customization.review.reviewDisplay') == "MARKUP") checked="checked" #end />
                     <label for="reviewDisplay_markup">$i18n.getText('onlyoffice.configuration.reviewDisplay.markup')</label>
                 </div>
                 <div class="radio inline">
-                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_final" #if($reviewDisplay == "final") checked="checked" #end />
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_final" #if($!settings.get('customization.review.reviewDisplay') == "FINAL") checked="checked" #end />
                     <label for="reviewDisplay_final">$i18n.getText('onlyoffice.configuration.reviewDisplay.final')</label>
                 </div>
                 <div class="radio inline">
-                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_original" #if($reviewDisplay == "original") checked="checked" #end />
+                    <input type="radio" class="radio" name="reviewDisplay" id="reviewDisplay_original" #if($!settings.get('customization.review.reviewDisplay') == "ORIGINAL") checked="checked" #end />
                     <label for="reviewDisplay_original">$i18n.getText('onlyoffice.configuration.reviewDisplay.original')</label>
                 </div>
                 <div class="description">$i18n.getText('onlyoffice.configuration.reviewDisplay.description')</div>
             </div>
 
             <div class="field-group">
-                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.button.save')" class="button">
+                <input id="onlyofficeSubmitBtn" type="submit" value="$i18n.getText('onlyoffice.configuration.button.save')" class="aui-button">
             </div>
         </form>
 
@@ -305,6 +149,10 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             <div class="onlyoffice-docs-cloud-banner-section">
                 <a class="aui-button aui-button-primary default-submit" href="https://www.onlyoffice.com/docs-registration.aspx?referer=confluence" target="_blank">$i18n.getText('onlyoffice.configuration.banner.button')</a>
             </div>
+        </div>
+
+        <div id="onlyoffice-loader" aria-hidden="true" class="aui-blanket" tabindex="0" style="z-index: 2980; display: none;">
+            <aui-spinner size="large" style="top:50%; left: 50%"></aui-spinner>
         </div>
     </body>
 </html>
