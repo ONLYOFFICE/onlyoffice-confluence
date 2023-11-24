@@ -22,7 +22,7 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import onlyoffice.managers.document.DocumentManager;
+import com.onlyoffice.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.json.JSONObject;
@@ -70,10 +70,10 @@ public class OnlyofficeButton extends HttpServlet {
 
             if (accessEdit && documentManager.isEditable(ext)) {
                 access = "edit";
-            } else if (accessEdit && documentManager.isFillForm(ext)) {
+            } else if (accessEdit && documentManager.isFillable(ext)) {
                 access = "fillform";
             } else if (accessView && documentManager.isViewable(ext)
-                    && !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
+                    && !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillable(ext)))) {
                 access = "view";
             }
 

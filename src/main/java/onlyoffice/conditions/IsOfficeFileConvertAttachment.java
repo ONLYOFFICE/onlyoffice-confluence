@@ -23,8 +23,7 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
-import onlyoffice.managers.convert.ConvertManager;
-import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 import java.util.Map;
@@ -32,16 +31,12 @@ import java.util.Map;
 public class IsOfficeFileConvertAttachment implements Condition {
 
     private boolean form;
-
-    private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
-    private final ConvertManager convertManager;
+    private final DocumentManager documentManager;
 
-    public IsOfficeFileConvertAttachment(final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
-                                         final ConvertManager convertManager) {
-        this.documentManager = documentManager;
+    public IsOfficeFileConvertAttachment(final AttachmentUtil attachmentUtil, final DocumentManager documentManager) {
         this.attachmentUtil = attachmentUtil;
-        this.convertManager = convertManager;
+        this.documentManager = documentManager;
     }
 
     public void init(final Map<String, String> params) throws PluginParseException {
@@ -65,7 +60,7 @@ public class IsOfficeFileConvertAttachment implements Condition {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
 
-        if (!accessEdit || convertManager.getTargetExt(ext) == null || ext.equals("docx")) {
+        if (!accessEdit || documentManager.getDefaultConvertExtension(attachment.getFileName()) == null) {
             return false;
         }
 
