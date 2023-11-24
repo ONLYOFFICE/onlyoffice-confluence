@@ -294,6 +294,10 @@
         <description>The ONLYOFFICE Formats.</description>
         <url-pattern>/onlyoffice/formats</url-pattern>
     </servlet>
+    <servlet key="OnlyOfficeTest" class="onlyoffice.OnlyOfficeTestServlet" name="ONLYOFFICE Test">
+        <description>The ONLYOFFICE Test.</description>
+        <url-pattern>/onlyoffice/test</url-pattern>
+    </servlet>
     <xwork key="onlyoffice-confluence-plugin-actions" name="ONLYOFFICE Actions">
         <default-interceptor-ref name="defaultStack"/>
         <package name="onlyoffice-confluence-plugin" extends="default" namespace="/plugins/onlyoffice-confluence-plugin">
