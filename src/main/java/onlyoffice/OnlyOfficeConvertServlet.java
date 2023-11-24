@@ -27,6 +27,7 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.onlyoffice.manager.request.RequestManager;
 import com.onlyoffice.model.common.CommonResponse;
+import com.onlyoffice.model.common.Format;
 import com.onlyoffice.model.convertservice.ConvertRequest;
 import com.onlyoffice.model.convertservice.ConvertResponse;
 import com.onlyoffice.service.convert.ConvertService;
@@ -96,6 +97,19 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         String fileName = attachment.getFileName();
         String newFileExtension = documentManager.getDefaultConvertExtension(fileName);
 
+        String extension = documentManager.getExtension(fileName);
+        Format docx = documentManager.getFormats().stream()
+                .filter(format -> format.getName().equals("docx"))
+                .findFirst()
+                .get();
+
+        if (docx != null
+                && extension.equals(docx.getName())
+                && docx.getConvert() != null
+                && docx.getConvert().contains("docxf")) {
+            newFileExtension = "docxf";
+        }
+
         String title = fileName.substring(0, fileName.lastIndexOf("."));
 
         if (pageIdString != null && !pageIdString.isEmpty()) {
@@ -160,13 +174,26 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
         String convertToExt = documentManager.getDefaultConvertExtension(fileName);
 
+        String extension = documentManager.getExtension(fileName);
+        Format docx = documentManager.getFormats().stream()
+                .filter(format -> format.getName().equals("docx"))
+                .findFirst()
+                .get();
+
+        if (docx != null
+                && extension.equals(docx.getName())
+                && docx.getConvert() != null
+                && docx.getConvert().contains("docxf")) {
+            convertToExt = "docxf";
+        }
+
         if (!attachmentUtil.checkAccess(attachmentId, user, false)
                 || !attachmentUtil.checkAccessCreate(user, pageId)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
-        if (documentManager.getDefaultConvertExtension(fileName) == null) {
+        if (convertToExt == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -179,6 +206,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
             ConvertRequest convertRequest = ConvertRequest.builder()
                     .async(true)
+                    .outputtype(convertToExt)
                     .region(region)
                     .build();
 
