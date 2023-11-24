@@ -215,29 +215,11 @@
     <component name="Auth Context" key="onlyoffice-auth-context" class="onlyoffice.managers.auth.AuthContextImpl" public="true">
         <interface>onlyoffice.managers.auth.AuthContext</interface>
     </component>
-    <component name="Configuration Manager" key="onlyoffice-configuration-manager" class="onlyoffice.managers.configuration.ConfigurationManagerImpl" public="true">
-        <interface>onlyoffice.managers.configuration.ConfigurationManager</interface>
-    </component>
-    <component name="Convert Manager" key="onlyoffice-convert-manager" class="onlyoffice.managers.convert.ConvertManagerImpl" public="true">
-        <interface>onlyoffice.managers.convert.ConvertManager</interface>
-    </component>
-    <component name="Document Manager" key="onlyoffice-document-manager" class="onlyoffice.managers.document.DocumentManagerImpl" public="true">
-        <interface>onlyoffice.managers.document.DocumentManager</interface>
-    </component>
-    <component name="JWT Manager" key="onlyoffice-jwt-manager" class="onlyoffice.managers.jwt.JwtManagerImpl" public="true">
-        <interface>onlyoffice.managers.jwt.JwtManager</interface>
-    </component>
-    <component name="URL Manager" key="onlyoffice-url-manager" class="onlyoffice.managers.url.UrlManagerImpl" public="true">
-        <interface>onlyoffice.managers.url.UrlManager</interface>
-    </component>
     <component name="Attachment Util" key="onlyoffice-attachment-util" class="onlyoffice.utils.attachment.AttachmentUtilImpl" public="true">
         <interface>onlyoffice.utils.attachment.AttachmentUtil</interface>
     </component>
     <component name="Parsing Util" key="onlyoffice-parsing-util" class="onlyoffice.utils.parsing.ParsingUtilImpl" public="true">
         <interface>onlyoffice.utils.parsing.ParsingUtil</interface>
-    </component>
-    <component name="Config Manager" key="onlyoffice-config-manager" class="onlyoffice.managers.config.ConfigManagerImpl" public="true">
-        <interface>onlyoffice.managers.config.ConfigManager</interface>
     </component>
     <component name="Content Resolver" key="onlyoffice-content-resolver" class="onlyoffice.macro.components.DefaultContentResolver" public="true">
         <interface>onlyoffice.macro.components.ContentResolver</interface>
