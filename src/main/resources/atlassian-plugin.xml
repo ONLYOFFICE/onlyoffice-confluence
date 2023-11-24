@@ -197,6 +197,19 @@
     <component name="ONLYOFFICE Settings Manager" key="onlyoffice-sdk-settings-manager" class="onlyoffice.sdk.manager.settings.SettingsManagerImpl" public="true">
         <interface>com.onlyoffice.manager.settings.SettingsManager</interface>
     </component>
+
+    <component name="ONLYOFFICE Config Service" key="onlyoffice-sdk-config-service" class="onlyoffice.sdk.service.ConfigServiceImpl" public="true">
+        <interface>com.onlyoffice.service.documenteditor.config.ConfigService</interface>
+    </component>
+    <component name="ONLYOFFICE Convert Service" key="onlyoffice-sdk-convert-service" class="com.onlyoffice.service.convert.DefaultConvertService" public="true">
+        <interface>com.onlyoffice.service.convert.ConvertService</interface>
+    </component>
+    <component name="ONLYOFFICE Validation Settings Service" key="onlyoffice-sdk-validation-settings-service" class="onlyoffice.sdk.service.SettingsValidationServiceImpl" public="true">
+        <interface>onlyoffice.sdk.service.SettingsValidationService</interface>
+    </component>
+    <component name="ONLYOFFICE Callback Service" key="onlyoffice-sdk-callback-service" class="onlyoffice.sdk.service.CallbackServiceImpl" public="true">
+        <interface>com.onlyoffice.service.documenteditor.callback.CallbackService</interface>
+    </component>
     <!--ONLYOFFICE SDK-->
 
     <component name="Auth Context" key="onlyoffice-auth-context" class="onlyoffice.managers.auth.AuthContextImpl" public="true">
