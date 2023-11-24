@@ -1,18 +1,26 @@
 Confluence ONLYOFFICE integration app uses code from the following 3rd party projects:
 
 
-com.auth0.java-jwt  - Java implementation of JSON Web Token (JWT) (https://github.com/auth0/java-jwt/blob/master/LICENSE)
-License:              MIT License
-License File:         com.auth0.java-jwt.license
-
-com.fasterxml.jackson.core.jackson-databind - General data-binding functionality for Jackson: works on core streaming API (https://github.com/FasterXML/jackson-databind/blob/2.16/LICENSE)
+com.atlassian.confluence.confluence - Confluence Core
 License:              Apache License 2.0
-License File:         com.fasterxml.jackson.core.jackson-databind.license
+License File:         com.atlassian.confluence.confluence.licence
 
 javax.servlet-api   - Java Servlet API (https://opensource.org/licenses/CDDL-1.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 License:              CDDL, GPL 2.0
 License File:         javax.servlet-api.license
 
-JSON                - JSON is a light-weight, language independent, data interchange format. See http://www.JSON.org/ The files in this package implement JSON encoders/decoders in Java. It also includes the capability to convert between JSON and XML, HTTP headers, Cookies, and CDL. This is a reference implementation. (http://json.org/license.html)
-License:              JSON
-License File:         JSON.license
+org.json.json       - JSON is a light-weight, language independent, data interchange format. See http://www.JSON.org/ The files in this package implement JSON encoders/decoders in Java. It also includes the capability to convert between JSON and XML, HTTP headers, Cookies, and CDL. This is a reference implementation. (https://github.com/stleary/JSON-java/blob/master/LICENSE)
+License:              Public Domain
+License File:         org.json.json.license
+
+com.fasterxml.jackson.core.jackson-databind - General data-binding functionality for Jackson: works on core streaming API (https://github.com/FasterXML/jackson-databind/blob/2.16/LICENSE)
+License:              Apache License 2.0
+License File:         com.fasterxml.jackson.core.jackson-databind.license
+
+org.apache.httpcomponents.httpclient - HTTPClient provides an efficient, up-to-date, and feature-rich package implementing the client side of the most recent HTTP standards and recommendations. (https://www.apache.org/licenses/LICENSE-2.0.txt)
+License:              Apache License 2.0
+License File:         org.apache.httpcomponents.httpclient.license
+
+commons-io.commons-io - The Apache Commons IO library contains utility classes, stream implementations, file filters, file comparators, endian transformation classes, and much more. (https://www.apache.org/licenses/LICENSE-2.0.txt)
+License:              Apache License 2.0
+License File:         commons-io.commons-io.license
