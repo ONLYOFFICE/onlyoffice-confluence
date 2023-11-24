@@ -181,6 +181,24 @@
         <styleClass>onlyoffice-download-as-action</styleClass>
     </web-item>
 
+    <!--ONLYOFFICE SDK-->
+    <component name="ONLYOFFICE Request Manager" key="onlyoffice-sdk-request-manager" class="com.onlyoffice.manager.request.DefaultRequestManager" public="true">
+        <interface>com.onlyoffice.manager.request.RequestManager</interface>
+    </component>
+    <component name="ONLYOFFICE JWT Manager" key="onlyoffice-sdk-jwt-manager" class="onlyoffice.sdk.manager.security.JwtManagerImpl" public="true">
+        <interface>onlyoffice.sdk.manager.security.JwtManager</interface>
+    </component>
+    <component name="ONLYOFFICE URL Manager" key="onlyoffice-sdk-url-manager" class="onlyoffice.sdk.manager.url.UrlManagerImpl" public="true">
+        <interface>onlyoffice.sdk.manager.url.UrlManager</interface>
+    </component>
+    <component name="ONLYOFFICE Document Manager" key="onlyoffice-sdk-document-manager" class="onlyoffice.sdk.manager.document.DocumentManagerImpl" public="true">
+        <interface>onlyoffice.sdk.manager.document.DocumentManager</interface>
+    </component>
+    <component name="ONLYOFFICE Settings Manager" key="onlyoffice-sdk-settings-manager" class="onlyoffice.sdk.manager.settings.SettingsManagerImpl" public="true">
+        <interface>com.onlyoffice.manager.settings.SettingsManager</interface>
+    </component>
+    <!--ONLYOFFICE SDK-->
+
     <component name="Auth Context" key="onlyoffice-auth-context" class="onlyoffice.managers.auth.AuthContextImpl" public="true">
         <interface>onlyoffice.managers.auth.AuthContext</interface>
     </component>
