@@ -152,6 +152,8 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
         if (settings.getDemo() != null && settings.getDemo()) {
             settingsManager.enableDemo();
+        } else {
+            settingsManager.disableDemo();
         }
 
         if (settingsManager.isDemoActive()) {
