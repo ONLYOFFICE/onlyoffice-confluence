@@ -185,7 +185,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                     String documentName = documentManager.getDocumentName(String.valueOf(attachmentId));
                     String fileType = documentManager.getExtension(documentName);
 
-                    if (bodyJson.has("command")) {
+                    if (!bodyJson.get("command").equals(null)) {
                         data.put("command", bodyJson.getString("command"));
                     }
                     data.put("fileType", fileType);
