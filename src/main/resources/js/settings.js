@@ -34,8 +34,8 @@
                 "productInnerUrl": $("#confUrlField").attr("value"),
                 "security": {
                     "key": $("#jwtSecretField").attr("value"),
-                    "ignoreSSLCertificate": $("#verifyCertificate").is(":checked")
                 },
+                "ignoreSSLCertificate": $("#verifyCertificate").is(":checked"),
                 "customization": {
                     "forcesave": $("#forceSave").is(":checked"),
                     "chat": $("#chat").is(":checked"),

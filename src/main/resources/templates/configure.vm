@@ -33,7 +33,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 <label for="apiUrlField">$i18n.getText('onlyoffice.configuration.doc-url')</label>
                 <input type="text" id="apiUrlField" value="$!{settings.get('url')}" name="apiUrlField" class="text onlyoffice-tooltip" title="$i18n.getText('onlyoffice.configuration.doc-url.tooltip')">
                 <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="verifyCertificate" #if($!settings.get('security.ignoreSSLCertificate') == "true") checked="checked" #end />
+                    <input type="checkbox" class="checkbox" id="verifyCertificate" #if($!settings.get('ignoreSSLCertificate') == "true") checked="checked" #end />
                     <label for="verifyCertificate">$i18n.getText('onlyoffice.configuration.verify-certificate')</label>
                 </div>
             </div>
