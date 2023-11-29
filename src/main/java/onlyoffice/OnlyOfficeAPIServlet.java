@@ -22,6 +22,7 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.onlyoffice.manager.request.RequestManager;
 import com.onlyoffice.manager.settings.SettingsManager;
@@ -62,6 +63,8 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
     private final RequestManager requestManager;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public OnlyOfficeAPIServlet(final SystemInformationService sysInfoService, final SettingsManager settingsManager,
                                 final JwtManager jwtManager, final DocumentManager documentManager,
@@ -253,23 +256,23 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 return;
             }
 
-            JSONObject responseJson = new JSONObject();
+            Map<String, Object> responseMap = new HashMap<>();
 
             String documentName = documentManager.getDocumentName(String.valueOf(attachmentId));
             String extension = documentManager.getExtension(documentName);
 
-            responseJson.put("fileType", extension);
-            responseJson.put("path", documentName);
-            responseJson.put("referenceData", referenceData);
-            responseJson.put("url", urlManager.getFileUrl(String.valueOf(attachmentId)));
+            responseMap.put("fileType", extension);
+            responseMap.put("path", documentName);
+            responseMap.put("referenceData", referenceData);
+            responseMap.put("url", urlManager.getFileUrl(String.valueOf(attachmentId)));
 
             if (settingsManager.isSecurityEnabled()) {
-                responseJson.put("token", jwtManager.createToken(responseJson));
+                responseMap.put("token", jwtManager.createToken(responseMap));
             }
 
             response.setContentType("application/json");
             PrintWriter writer = response.getWriter();
-            writer.write(responseJson.toString());
+            writer.write(objectMapper.writeValueAsString(responseMap));
         } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
         }
