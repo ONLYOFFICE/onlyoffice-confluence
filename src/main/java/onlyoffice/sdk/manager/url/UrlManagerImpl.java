@@ -77,7 +77,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         params.put("action", "download");
 
         String fileUri =
-                getConfluenceBaseUrl() + fileProviderServlet + "?token=" + jwtManager.createInternalToken(params);
+                getConfluenceBaseUrl(true) + fileProviderServlet + "?token=" + jwtManager.createInternalToken(params);
 
         return fileUri;
     }
@@ -91,7 +91,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         params.put("attachmentId", fileId);
         params.put("action", "callback");
 
-        String callbackUrl = getConfluenceBaseUrl()
+        String callbackUrl = getConfluenceBaseUrl(true)
                 + callbackServlet
                 + "?token="
                 + jwtManager.createInternalToken(params);
@@ -124,7 +124,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
                 extension = documentManager.getDefaultExtension(documentType);
             }
 
-            return getConfluenceBaseUrl() + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + extension;
+            return getConfluenceBaseUrl(false) + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + extension;
         } else {
             return null;
         }
@@ -132,13 +132,13 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
 
     @Override
     public String getTestConvertUrl(final String url) {
-        return getConfluenceBaseUrl() + "/plugins/servlet/onlyoffice/test";
+        return getConfluenceBaseUrl(true) + "/plugins/servlet/onlyoffice/test";
     }
 
     public String getAttachmentDiffUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String diffAttachmentUrl =
-                getConfluenceBaseUrl() + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(false) + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
 
         return diffAttachmentUrl;
     }
@@ -146,7 +146,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
     public String getHistoryInfoUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String historyInfoUri =
-                getConfluenceBaseUrl() + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(false) + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
 
         return historyInfoUri;
     }
@@ -154,24 +154,24 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
     public String getHistoryDataUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String historyDataUri =
-                getConfluenceBaseUrl() + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(false) + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
 
         return historyDataUri;
     }
     public String getAttachmentDataUri() {
-        String attachmentDataUri = getConfluenceBaseUrl() + apiServlet + "?type=attachment-data";
+        String attachmentDataUri = getConfluenceBaseUrl(false) + apiServlet + "?type=attachment-data";
 
         return attachmentDataUri;
     }
 
     public String getSaveAsUri() {
-        String saveAsUri = getConfluenceBaseUrl() + apiServlet + "?type=save-as";
+        String saveAsUri = getConfluenceBaseUrl(false) + apiServlet + "?type=save-as";
 
         return saveAsUri;
     }
 
     public String getReferenceDataUri(final Long pageId) {
-        String referenceDataUri = getConfluenceBaseUrl() + apiServlet + "?type=reference-data&pageId=" + pageId;
+        String referenceDataUri = getConfluenceBaseUrl(false) + apiServlet + "?type=reference-data&pageId=" + pageId;
 
         return referenceDataUri;
     }
@@ -190,12 +190,13 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         );
     }
 
-    private String getConfluenceBaseUrl() {
-        String url = getSettingsManager().getSetting(SettingsConstants.PRODUCT_INNER_URL);
-        if (url == null || url.isEmpty()) {
-            return sanitizeUrl(settingsManager.getGlobalSettings().getBaseUrl());
+    private String getConfluenceBaseUrl(final Boolean inner) {
+        String productInnerUrl = getSettingsManager().getSetting(SettingsConstants.PRODUCT_INNER_URL);
+
+        if (inner && productInnerUrl != null && !productInnerUrl.isEmpty()) {
+            return sanitizeUrl(productInnerUrl);
         } else {
-            return sanitizeUrl(url);
+            return sanitizeUrl(settingsManager.getGlobalSettings().getBaseUrl());
         }
     }
 }
