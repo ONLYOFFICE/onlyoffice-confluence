@@ -135,7 +135,7 @@ public class CallbackServiceImpl extends DefaultCallbackService {
     public void handlerForcesave(final Callback callback, final String fileId) throws Exception {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         if (user != null && attachmentUtil.checkAccess(Long.valueOf(fileId), user, true)) {
-            if (settingsManager.getSettingBoolean("forcesave", false)) {
+            if (settingsManager.getSettingBoolean("customization.forcesave", false)) {
                 String fileType = callback.getFiletype();
                 String downloadUrl = callback.getUrl();
                 History history = callback.getHistory();
