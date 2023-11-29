@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>com.onlyoffice</groupId>
-            <artifactId>core-integration-sdk</artifactId>
+            <artifactId>docs-integration-sdk</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
