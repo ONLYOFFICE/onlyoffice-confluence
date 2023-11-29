@@ -169,7 +169,9 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                         request.getHeader("USER-AGENT")
                 );
 
+                config.getEditorConfig().setLang(localeManager.getLocale(user).toLanguageTag());
                 config.getEditorConfig().setActionLink(actionData);
+
                 ObjectMapper mapper = new ObjectMapper();
 
                 context.put("configAsHtml", mapper.writeValueAsString(config));

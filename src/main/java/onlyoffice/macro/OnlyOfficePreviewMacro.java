@@ -22,6 +22,7 @@ import com.atlassian.confluence.content.render.image.ImageDimensions;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.core.ContentEntityObject;
 
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ResourceAware;
@@ -32,6 +33,7 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.plugin.services.VelocityHelperService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.HtmlUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.manager.document.DocumentManager;
@@ -63,6 +65,7 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
     private final AttachmentManager attachmentManager;
     private final VelocityHelperService velocityHelperService;
     private final ContentResolver contentResolver;
+    private final LocaleManager localeManager;
     private final UrlManager urlManager;
     private final AttachmentUtil attachmentUtil;
     private final ConfigService configSevice;
@@ -70,12 +73,13 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
 
     public OnlyOfficePreviewMacro(final AttachmentManager attachmentManager,
                                   final VelocityHelperService velocityHelperService,
-                                  final ContentResolver contentResolver, final UrlManager urlManager,
-                                  final AttachmentUtil attachmentUtil, final ConfigService configSevice,
-                                  final DocumentManager documentManager) {
+                                  final ContentResolver contentResolver, final LocaleManager localeManager,
+                                  final UrlManager urlManager, final AttachmentUtil attachmentUtil,
+                                  final ConfigService configSevice, final DocumentManager documentManager) {
         this.attachmentManager = attachmentManager;
         this.velocityHelperService = velocityHelperService;
         this.contentResolver = contentResolver;
+        this.localeManager = localeManager;
         this.urlManager = urlManager;
         this.attachmentUtil = attachmentUtil;
         this.configSevice = configSevice;
@@ -105,18 +109,21 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
         width = normalizeSize((width == null) ? DEFAULT_WIDTH : width);
         height = normalizeSize((height == null) ? DEFAULT_HEIGHT : height);
 
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+
         try {
             Config config = configSevice.createConfig(String.valueOf(attachment.getId()), Mode.EDIT, Type.EMBEDDED);
 
             config.setWidth(width);
             config.setHeight(height);
+            config.getEditorConfig().setLang(localeManager.getLocale(user).toLanguageTag());
 
             String fileName = attachment.getFileName();
             String action = "";
 
             final boolean isPreview = conversionContext.getOutputType().equals("preview");
 
-            if (attachmentUtil.checkAccess(attachment.getId(),  AuthenticatedUserThreadLocal.get(), true)
+            if (attachmentUtil.checkAccess(attachment.getId(),  user, true)
                     && !isPreview) {
                 if (documentManager.isEditable(fileName)) {
                     action = "edit";
