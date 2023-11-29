@@ -65,15 +65,16 @@ public class OnlyofficeButton extends HttpServlet {
             boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
             boolean accessView = attachmentUtil.checkAccess(attachment, user, false);
 
-            String ext = attachment.getFileExtension();
+            String fileName = attachment.getFileName();
             String access = null;
 
-            if (accessEdit && documentManager.isEditable(ext)) {
+            if (accessEdit && documentManager.isEditable(fileName)) {
                 access = "edit";
-            } else if (accessEdit && documentManager.isFillable(ext)) {
+            } else if (accessEdit && documentManager.isFillable(fileName)) {
                 access = "fillform";
-            } else if (accessView && documentManager.isViewable(ext)
-                    && !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillable(ext)))) {
+            } else if (accessView && documentManager.isViewable(fileName)
+                    && !(accessEdit
+                    && (documentManager.isEditable(fileName) || documentManager.isFillable(fileName)))) {
                 access = "view";
             }
 
