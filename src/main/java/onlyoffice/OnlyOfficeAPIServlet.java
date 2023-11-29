@@ -188,8 +188,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                     data.put("fileType", fileType);
                     data.put("url", urlManager.getFileUrl(String.valueOf(attachmentId)));
                     if (settingsManager.isSecurityEnabled()) {
-                        JSONObject dataJSON = new JSONObject(gson.toJson(data));
-                        data.put("token", jwtManager.createToken(dataJSON));
+                        data.put("token", jwtManager.createToken(data));
                     }
 
                     responseJson.add(data);
