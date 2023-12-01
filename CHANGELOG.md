@@ -1,5 +1,9 @@
 # Change Log
 
+##
+## Added
+- core of the plugin has been moved to com.onlyoffice.docs-integration-sdk (https://github.com/ONLYOFFICE/docs-integration-sdk-java)
+
 ## 4.4.0
 ## Added
 - compatible with Confluence 8.6
