@@ -16,15 +16,13 @@
  *
  */
 
-package onlyoffice.model.config;
+package onlyoffice.sdk.manager.security;
 
-import com.google.gson.annotations.SerializedName;
+import java.util.Map;
 
-public enum Type {
-    @SerializedName("desktop")
-    DESKTOP,
-    @SerializedName("mobile")
-    MOBILE,
-    @SerializedName("embedded")
-    EMBEDDED
+public interface JwtManager extends com.onlyoffice.manager.security.JwtManager {
+    String createInternalToken(Map<String, ?> payloadMap);
+    String verifyInternalToken(String token);
+    String createHash(String str);
+    String readHash(String base64);
 }

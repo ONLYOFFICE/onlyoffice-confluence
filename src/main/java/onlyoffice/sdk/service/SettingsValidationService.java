@@ -16,13 +16,12 @@
  *
  */
 
-package onlyoffice.model.config.editor;
+package onlyoffice.sdk.service;
 
-import com.google.gson.annotations.SerializedName;
+import com.onlyoffice.model.settings.validation.ValidationResult;
 
-public enum Mode {
-    @SerializedName("view")
-    VIEW,
-    @SerializedName("edit")
-    EDIT
+import java.util.Map;
+
+public interface SettingsValidationService extends com.onlyoffice.service.settings.SettingsValidationService {
+    Map<String, ValidationResult> validateSettings();
 }

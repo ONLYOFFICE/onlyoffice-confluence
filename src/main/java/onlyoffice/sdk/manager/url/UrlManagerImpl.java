@@ -1,0 +1,202 @@
+/**
+ *
+ * (c) Copyright Ascensio System SIA 2023
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package onlyoffice.sdk.manager.url;
+
+import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.setup.settings.SettingsManager;
+import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.plugin.webresource.UrlMode;
+import com.atlassian.plugin.webresource.WebResourceUrlProvider;
+import com.atlassian.spring.container.ContainerManager;
+import com.onlyoffice.manager.document.DocumentManager;
+import com.onlyoffice.manager.url.DefaultUrlManager;
+import com.onlyoffice.model.documenteditor.config.document.DocumentType;
+import com.onlyoffice.model.settings.SettingsConstants;
+import onlyoffice.sdk.manager.security.JwtManager;
+import onlyoffice.utils.attachment.AttachmentUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
+
+    private final String apiServlet = "/plugins/servlet/onlyoffice/api";
+    private final String docEditorServlet = "/plugins/servlet/onlyoffice/doceditor";
+    private final String fileProviderServlet = "/plugins/servlet/onlyoffice/file-provider";
+    private final String callbackServlet = "/plugins/servlet/onlyoffice/save";
+    private final String historyServlet = "/plugins/servlet/onlyoffice/history";
+
+    private final WebResourceUrlProvider webResourceUrlProvider;
+    private final SettingsManager settingsManager;
+
+    private final JwtManager jwtManager;
+    private final AttachmentUtil attachmentUtil;
+    private final DocumentManager documentManager;
+
+    public UrlManagerImpl(final WebResourceUrlProvider webResourceUrlProvider, final SettingsManager settingsManager,
+                          final JwtManager jwtManager, final AttachmentUtil attachmentUtil,
+                          final DocumentManager documentManager,
+                          final com.onlyoffice.manager.settings.SettingsManager settingsManagerSdk) {
+        super(settingsManagerSdk);
+        this.webResourceUrlProvider = webResourceUrlProvider;
+        this.settingsManager = settingsManager;
+        this.jwtManager = jwtManager;
+        this.attachmentUtil = attachmentUtil;
+        this.documentManager = documentManager;
+    }
+
+    @Override
+    public String getFileUrl(final String fileId) {
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+
+        Map<String, String> params = new HashMap<>();
+
+        if (user != null) {
+            params.put("userKey", user.getKey().getStringValue());
+        }
+        params.put("attachmentId", fileId);
+        params.put("action", "download");
+
+        String fileUri =
+                getConfluenceBaseUrl(true) + fileProviderServlet + "?token=" + jwtManager.createInternalToken(params);
+
+        return fileUri;
+    }
+
+    @Override
+    public String getCallbackUrl(final String fileId) {
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+
+        Map<String, String> params = new HashMap<>();
+        params.put("userKey", user.getKey().getStringValue());
+        params.put("attachmentId", fileId);
+        params.put("action", "callback");
+
+        String callbackUrl = getConfluenceBaseUrl(true)
+                + callbackServlet
+                + "?token="
+                + jwtManager.createInternalToken(params);
+
+        return callbackUrl;
+    }
+
+    @Override
+    public String getGobackUrl(final String fileId) {
+        String viewPageAttachments = "/pages/viewpageattachments.action?pageId=";
+        AttachmentManager attachmentManager =
+                (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        Attachment attachment = attachmentManager.getAttachment(Long.parseLong(fileId));
+        return settingsManager.getGlobalSettings().getBaseUrl()
+                + viewPageAttachments
+                + attachment.getContainer().getContentId().asLong();
+    }
+
+    @Override
+    public String getCreateUrl(final String fileId) {
+        Long pageId = attachmentUtil.getAttachmentPageId(Long.parseLong(fileId));
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
+
+        if (attachmentUtil.checkAccessCreate(user, pageId)) {
+            String fileName = documentManager.getDocumentName(fileId);
+            String extension = documentManager.getExtension(fileName);
+            DocumentType documentType = documentManager.getDocumentType(fileName);
+
+            if (!extension.equals("docxf")) {
+                extension = documentManager.getDefaultExtension(documentType);
+            }
+
+            return getConfluenceBaseUrl(false) + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + extension;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String getTestConvertUrl(final String url) {
+        return getConfluenceBaseUrl(true) + "/plugins/servlet/onlyoffice/test";
+    }
+
+    public String getAttachmentDiffUri(final Long attachmentId) {
+        String hash = jwtManager.createHash(Long.toString(attachmentId));
+        String diffAttachmentUrl =
+                getConfluenceBaseUrl(false) + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return diffAttachmentUrl;
+    }
+
+    public String getHistoryInfoUri(final Long attachmentId) {
+        String hash = jwtManager.createHash(Long.toString(attachmentId));
+        String historyInfoUri =
+                getConfluenceBaseUrl(false) + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return historyInfoUri;
+    }
+
+    public String getHistoryDataUri(final Long attachmentId) {
+        String hash = jwtManager.createHash(Long.toString(attachmentId));
+        String historyDataUri =
+                getConfluenceBaseUrl(false) + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
+
+        return historyDataUri;
+    }
+    public String getAttachmentDataUri() {
+        String attachmentDataUri = getConfluenceBaseUrl(false) + apiServlet + "?type=attachment-data";
+
+        return attachmentDataUri;
+    }
+
+    public String getSaveAsUri() {
+        String saveAsUri = getConfluenceBaseUrl(false) + apiServlet + "?type=save-as";
+
+        return saveAsUri;
+    }
+
+    public String getReferenceDataUri(final Long pageId) {
+        String referenceDataUri = getConfluenceBaseUrl(false) + apiServlet + "?type=reference-data&pageId=" + pageId;
+
+        return referenceDataUri;
+    }
+
+    public String getFaviconUrl(final DocumentType documentType) {
+        String nameIcon = "word";
+
+        if (documentType != null) {
+            nameIcon = documentType.name().toLowerCase();
+        }
+
+        return webResourceUrlProvider.getStaticPluginResourceUrl(
+                "onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor",
+                nameIcon + ".ico",
+                UrlMode.ABSOLUTE
+        );
+    }
+
+    private String getConfluenceBaseUrl(final Boolean inner) {
+        String productInnerUrl = getSettingsManager().getSetting(SettingsConstants.PRODUCT_INNER_URL);
+
+        if (inner && productInnerUrl != null && !productInnerUrl.isEmpty()) {
+            return sanitizeUrl(productInnerUrl);
+        } else {
+            return sanitizeUrl(settingsManager.getGlobalSettings().getBaseUrl());
+        }
+    }
+}

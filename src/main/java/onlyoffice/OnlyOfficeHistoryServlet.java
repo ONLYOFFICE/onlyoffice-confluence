@@ -27,17 +27,23 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.spring.container.ContainerManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.onlyoffice.model.common.User;
+import com.onlyoffice.model.documenteditor.HistoryData;
+import com.onlyoffice.model.documenteditor.callback.History;
+import com.onlyoffice.model.documenteditor.history.Version;
+import com.onlyoffice.model.documenteditor.historydata.Previous;
+import onlyoffice.sdk.manager.security.JwtManager;
+import com.onlyoffice.manager.settings.SettingsManager;
+import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.managers.auth.AuthContext;
-import onlyoffice.managers.document.DocumentManager;
-import onlyoffice.managers.jwt.JwtManager;
-import onlyoffice.managers.url.UrlManager;
+import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -64,6 +70,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
     private final UrlManager urlManager;
+    private final SettingsManager settingsManager;
     private final JwtManager jwtManager;
     private final ParsingUtil parsingUtil;
 
@@ -71,13 +78,15 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                                     final FormatSettingsManager formatSettingsManager,
                                     final AuthContext authContext, final DocumentManager documentManager,
                                     final AttachmentUtil attachmentUtil, final UrlManager urlManager,
-                                    final JwtManager jwtManager, final ParsingUtil parsingUtil) {
+                                    final SettingsManager settingsManager, final JwtManager jwtManager,
+                                    final ParsingUtil parsingUtil) {
         this.localeManager = localeManager;
         this.formatSettingsManager = formatSettingsManager;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.urlManager = urlManager;
+        this.settingsManager = settingsManager;
         this.jwtManager = jwtManager;
         this.parsingUtil = parsingUtil;
     }
@@ -110,7 +119,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private void getAttachmentDiff(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
         String vkey = request.getParameter("vkey");
-        String attachmentIdString = documentManager.readHash(vkey);
+        String attachmentIdString = jwtManager.readHash(vkey);
 
         if (attachmentIdString.isEmpty()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -122,7 +131,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
         if (diff != null) {
             InputStream inputStream = attachmentUtil.getAttachmentData(diff.getId());
-            String publicDocEditorUrl = urlManager.getPublicDocEditorUrl();
+            String publicDocEditorUrl = urlManager.getDocumentServerUrl();
 
             if (publicDocEditorUrl.endsWith("/")) {
                 publicDocEditorUrl = publicDocEditorUrl.substring(0, publicDocEditorUrl.length() - 1);
@@ -151,7 +160,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
 
         String vkey = request.getParameter("vkey");
-        String attachmentIdString = documentManager.readHash(vkey);
+        String attachmentIdString = jwtManager.readHash(vkey);
 
         if (attachmentIdString.isEmpty()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -177,24 +186,26 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             Collections.reverse(attachments);
             List<Version> history = new ArrayList<>();
             for (Attachment attachment : attachments) {
-                Version version = new Version();
-                version.setVersion(attachment.getVersion());
-                version.setKey(documentManager.getKeyOfFile(attachment.getId(), false));
-                version.setCreated(dateFormatter.formatDateTime(attachment.getCreationDate()));
-                version.setUser(attachment.getCreator().getName(), attachment.getCreator().getFullName());
+                Version version = Version.builder()
+                        .version(String.valueOf(attachment.getVersion()))
+                        .key(documentManager.getDocumentKey(String.valueOf(attachment.getId()), false))
+                        .created(dateFormatter.formatDateTime(attachment.getCreationDate()))
+                        .user(User.builder()
+                                .id(attachment.getCreator().getName())
+                                .name(attachment.getCreator().getFullName())
+                                .build()
+                        )
+                        .build();
 
-                Attachment changes = attachmentUtil.getAttachmentChanges(attachment.getId());
-                if (changes != null) {
+                Attachment changesAttachment = attachmentUtil.getAttachmentChanges(attachment.getId());
+                if (changesAttachment != null) {
                     if (prevVersion != null && (attachment.getVersion() - prevVersion.getVersion()) == 1) {
-                        InputStream changesSteam = attachmentUtil.getAttachmentData(changes.getId());
-                        String changesString = parsingUtil.getBody(changesSteam);
-                        JSONObject changesJSON = null;
+                        InputStream changesSteam = attachmentUtil.getAttachmentData(changesAttachment.getId());
+                        ObjectMapper mapper = new ObjectMapper();
+                        History changes = mapper.readValue(changesSteam, History.class);
                         try {
-                            changesJSON = new JSONObject(changesString);
-                            version.setServerVersion(changesJSON.getString("serverVersion"));
-                            version.setChanges(
-                                    gson.fromJson(changesJSON.getJSONArray("changes").toString(), Object.class)
-                            );
+                            version.setServerVersion(changes.getServerVersion());
+                            version.setChanges(changes.getChanges());
                         } catch (JSONException e) {
                             throw new IOException(e.getMessage());
                         }
@@ -227,7 +238,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         }
 
         String vkey = request.getParameter("vkey");
-        String attachmentIdString = documentManager.readHash(vkey);
+        String attachmentIdString = jwtManager.readHash(vkey);
         String versionString = request.getParameter("version");
 
         if (attachmentIdString.isEmpty() || versionString == null || versionString.isEmpty()) {
@@ -248,25 +259,35 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
         if (attachments != null) {
             Gson gson = new Gson();
-            VersionData versionData = null;
+            HistoryData historyData = null;
 
             Attachment prevVersion = null;
             Collections.reverse(attachments);
             for (Attachment attachment : attachments) {
                 if (attachment.getVersion() == version) {
-                    versionData = new VersionData();
-                    versionData.setVersion(attachment.getVersion());
-                    versionData.setKey(documentManager.getKeyOfFile(attachment.getId(), false));
-                    versionData.setUrl(urlManager.getFileUri(attachment.getId()));
-                    versionData.setFileType(attachment.getFileExtension());
+                    historyData = HistoryData.builder()
+                            .version(String.valueOf(attachment.getVersion()))
+                            .key(documentManager.getDocumentKey(String.valueOf(attachment.getId()), false))
+                            .url(urlManager.getFileUrl(String.valueOf(attachment.getId())))
+                            .fileType(attachment.getFileExtension())
+                            .build();
 
                     Attachment diff = attachmentUtil.getAttachmentDiff(attachment.getId());
                     if (prevVersion != null && diff != null) {
                         boolean adjacentVersions = (attachment.getVersion() - prevVersion.getVersion()) == 1;
                         if (adjacentVersions) {
-                            versionData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
-                            versionData.setPrevious(documentManager.getKeyOfFile(prevVersion.getId(), false),
-                                    urlManager.getFileUri(prevVersion.getId()), prevVersion.getFileExtension());
+                            historyData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
+                            historyData.setPrevious(Previous.builder()
+                                            .key(
+                                                    documentManager.getDocumentKey(
+                                                            String.valueOf(prevVersion.getId()),
+                                                            false
+                                                    )
+                                            )
+                                            .url(urlManager.getFileUrl(String.valueOf(prevVersion.getId())))
+                                            .fileType(prevVersion.getFileExtension())
+                                            .build()
+                            );
                         }
                     }
                     break;
@@ -274,11 +295,10 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                 prevVersion = attachment;
             }
 
-            if (versionData != null) {
-                if (jwtManager.jwtEnabled()) {
+            if (historyData != null) {
+                if (settingsManager.isSecurityEnabled()) {
                     try {
-                        JSONObject versionDataJSON = new JSONObject(gson.toJson(versionData));
-                        versionData.setToken(jwtManager.createToken(versionDataJSON));
+                        historyData.setToken(jwtManager.createToken(historyData));
                     } catch (Exception e) {
                         throw new IOException(e.getMessage());
                     }
@@ -286,7 +306,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
                 response.setContentType("application/json");
                 PrintWriter writer = response.getWriter();
-                writer.write(gson.toJson(versionData));
+                writer.write(gson.toJson(historyData));
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
@@ -294,105 +314,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
-        }
-    }
-
-    public class Version {
-        private int version;
-        private String key;
-        private Object changes;
-        private String created;
-        private User user;
-        private String serverVersion;
-
-        public Version() {
-        }
-
-        public void setVersion(final int version) {
-            this.version = version;
-        }
-
-        public void setKey(final String key) {
-            this.key = key;
-        }
-
-        public void setChanges(final Object changes) {
-            this.changes = changes;
-        }
-
-        public void setCreated(final String created) {
-            this.created = created;
-        }
-
-        public void setUser(final String id, final String name) {
-            this.user = new User(id, name);
-        }
-
-        public void setServerVersion(final String serverVersion) {
-            this.serverVersion = serverVersion;
-        }
-
-        public class User {
-            private String id;
-            private String name;
-
-            public User(final String id, final String name) {
-                this.id = id;
-                this.name = name;
-            }
-        }
-    }
-
-    public class VersionData {
-        private int version;
-        private String key;
-        private String url;
-        private String fileType;
-        private String changesUrl;
-        private Previous previous;
-        private String token;
-
-        public VersionData() {
-        }
-
-        public void setVersion(final int version) {
-            this.version = version;
-        }
-
-        public void setKey(final String key) {
-            this.key = key;
-        }
-
-        public void setUrl(final String url) {
-            this.url = url;
-        }
-
-        public void setFileType(final String fileType) {
-            this.fileType = fileType;
-        }
-
-        public void setChangesUrl(final String changesUrl) {
-            this.changesUrl = changesUrl;
-        }
-
-        public void setPrevious(final String key, final String url, final String fileType) {
-            this.previous = new Previous(key, url, fileType);
-        }
-
-        public void setToken(final String token) {
-            this.token = token;
-        }
-
-        public class Previous {
-            private String key;
-            private String url;
-            private String fileType;
-
-            public Previous(final String key, final String url, final String fileType) {
-                this.key = key;
-                this.url = url;
-                this.fileType = fileType;
-            }
         }
     }
 }

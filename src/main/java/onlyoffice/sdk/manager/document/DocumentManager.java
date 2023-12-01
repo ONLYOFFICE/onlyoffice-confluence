@@ -16,32 +16,9 @@
  *
  */
 
-package onlyoffice.model.config.editor;
+package onlyoffice.sdk.manager.document;
 
-import com.atlassian.confluence.user.ConfluenceUser;
-
-public class User {
-    private String id;
-    private String name;
-
-    public User(final ConfluenceUser user) {
-        this.id = user.getName();
-        this.name = user.getFullName();
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setId(final String id) {
-        this.id = id;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
+public interface DocumentManager extends com.onlyoffice.manager.document.DocumentManager {
+    String getCorrectNewFileName(String fileName, String fileExt, Long pageID);
+    String getMimeType(String name);
 }

@@ -22,6 +22,7 @@ import com.atlassian.confluence.content.render.image.ImageDimensions;
 import com.atlassian.confluence.content.render.xhtml.ConversionContext;
 import com.atlassian.confluence.core.ContentEntityObject;
 
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.macro.Macro;
 import com.atlassian.confluence.macro.EditorImagePlaceholder;
 import com.atlassian.confluence.macro.ResourceAware;
@@ -32,14 +33,17 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.plugin.services.VelocityHelperService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
+import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.HtmlUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onlyoffice.manager.document.DocumentManager;
+import com.onlyoffice.manager.url.UrlManager;
+import com.onlyoffice.model.documenteditor.Config;
+import com.onlyoffice.model.documenteditor.config.document.DocumentType;
+import com.onlyoffice.model.documenteditor.config.document.Type;
+import com.onlyoffice.model.documenteditor.config.editorconfig.Mode;
+import com.onlyoffice.service.documenteditor.config.ConfigService;
 import onlyoffice.macro.components.ContentResolver;
-import onlyoffice.managers.config.ConfigManager;
-import onlyoffice.managers.document.DocumentManager;
-import onlyoffice.managers.url.UrlManager;
-import onlyoffice.model.config.DocumentType;
-import onlyoffice.model.config.Type;
-import onlyoffice.model.config.editor.Mode;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -61,23 +65,25 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
     private final AttachmentManager attachmentManager;
     private final VelocityHelperService velocityHelperService;
     private final ContentResolver contentResolver;
-    private final ConfigManager configManager;
+    private final LocaleManager localeManager;
     private final UrlManager urlManager;
-    private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
+    private final ConfigService configSevice;
+    private final DocumentManager documentManager;
 
     public OnlyOfficePreviewMacro(final AttachmentManager attachmentManager,
                                   final VelocityHelperService velocityHelperService,
-                                  final ContentResolver contentResolver,
-                                  final ConfigManager configManager, final UrlManager urlManager,
-                                  final DocumentManager documentManager, final AttachmentUtil attachmentUtil) {
+                                  final ContentResolver contentResolver, final LocaleManager localeManager,
+                                  final UrlManager urlManager, final AttachmentUtil attachmentUtil,
+                                  final ConfigService configSevice, final DocumentManager documentManager) {
         this.attachmentManager = attachmentManager;
         this.velocityHelperService = velocityHelperService;
         this.contentResolver = contentResolver;
-        this.configManager = configManager;
+        this.localeManager = localeManager;
         this.urlManager = urlManager;
-        this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
+        this.configSevice = configSevice;
+        this.documentManager = documentManager;
     }
 
     @Override
@@ -103,37 +109,37 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
         width = normalizeSize((width == null) ? DEFAULT_WIDTH : width);
         height = normalizeSize((height == null) ? DEFAULT_HEIGHT : height);
 
-        try {
-            String config = configManager.createConfig(
-                    attachment.getId(),
-                    Mode.VIEW,
-                    Type.EMBEDDED,
-                    null,
-                    null,
-                    width,
-                    height
-            );
+        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
 
-            String extension = attachmentUtil.getFileExt(attachment.getId());
+        try {
+            Config config = configSevice.createConfig(String.valueOf(attachment.getId()), Mode.EDIT, Type.EMBEDDED);
+
+            config.setWidth(width);
+            config.setHeight(height);
+            config.getEditorConfig().setLang(localeManager.getLocale(user).toLanguageTag());
+
+            String fileName = attachment.getFileName();
             String action = "";
 
             final boolean isPreview = conversionContext.getOutputType().equals("preview");
 
-            if (attachmentUtil.checkAccess(attachment.getId(),  AuthenticatedUserThreadLocal.get(), true)
+            if (attachmentUtil.checkAccess(attachment.getId(),  user, true)
                     && !isPreview) {
-                if (documentManager.isEditable(extension)) {
+                if (documentManager.isEditable(fileName)) {
                     action = "edit";
-                } else if (documentManager.isFillForm(extension)) {
+                } else if (documentManager.isFillable(fileName)) {
                     action = "fill";
                 }
             }
+
+            ObjectMapper mapper = new ObjectMapper();
 
             final Map<String, Object> context = this.velocityHelperService.createDefaultVelocityContext();
             context.put("id", System.currentTimeMillis());
             context.put("attachmentId", attachment.getId());
             context.put("action", action);
-            context.put("docServiceApiUrl", urlManager.getDocServiceApiUrl());
-            context.put("configAsHtml", config);
+            context.put("docServiceApiUrl", urlManager.getDocumentServerApiUrl());
+            context.put("configAsHtml", mapper.writeValueAsString(config));
 
             return this.velocityHelperService.getRenderedTemplate("templates/preview.vm", context);
         } catch (Exception e) {
@@ -175,8 +181,8 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
             int dotIdx = name.lastIndexOf(DOT_INDEX);
             if (dotIdx != -1) {
                 String fileExt = name.substring(dotIdx + 1).toLowerCase();
-                if (documentManager.getDocType(fileExt) != null) {
-                    documentType = documentManager.getDocType(fileExt).name().toLowerCase();
+                if (documentManager.getDocumentType(name) != null) {
+                    documentType = documentManager.getDocumentType(name).name().toLowerCase();
                     if (fileExt.equals("oform")) {
                         documentType = "form";
                     }

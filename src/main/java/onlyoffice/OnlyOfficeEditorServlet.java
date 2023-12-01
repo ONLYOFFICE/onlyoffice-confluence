@@ -18,21 +18,23 @@
 
 package onlyoffice;
 
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.sal.api.message.I18nResolver;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onlyoffice.manager.settings.SettingsManager;
+import com.onlyoffice.model.documenteditor.Config;
+import com.onlyoffice.model.documenteditor.config.document.DocumentType;
+import com.onlyoffice.model.documenteditor.config.editorconfig.Mode;
+import com.onlyoffice.service.documenteditor.config.ConfigService;
 import onlyoffice.managers.auth.AuthContext;
 import com.atlassian.confluence.pages.Attachment;
-import onlyoffice.managers.config.ConfigManager;
-import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.document.DocumentManager;
-import onlyoffice.managers.url.UrlManager;
-import onlyoffice.model.config.DocumentType;
-import onlyoffice.model.config.Type;
-import onlyoffice.model.config.editor.Mode;
+import onlyoffice.sdk.manager.document.DocumentManager;
+import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -44,6 +46,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -54,23 +57,26 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
     private final I18nResolver i18n;
     private final UrlManager urlManager;
-    private final ConfigurationManager configurationManager;
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
-    private final ConfigManager configManager;
+    private final ConfigService configService;
+    private final SettingsManager settingsManager;
 
-    public OnlyOfficeEditorServlet(final I18nResolver i18n, final UrlManager urlManager,
-                                   final ConfigurationManager configurationManager, final AuthContext authContext,
+    private final LocaleManager localeManager;
+
+    public OnlyOfficeEditorServlet(final I18nResolver i18n, final UrlManager urlManager, final AuthContext authContext,
                                    final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
-                                   final ConfigManager configManager) {
+                                   final ConfigService configService, final SettingsManager settingsManager,
+                                   final LocaleManager localeManager) {
         this.i18n = i18n;
         this.urlManager = urlManager;
-        this.configurationManager = configurationManager;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
-        this.configManager = configManager;
+        this.configService = configService;
+        this.settingsManager = settingsManager;
+        this.localeManager = localeManager;
     }
 
     @Override
@@ -80,8 +86,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         String attachmentIdString = request.getParameter("attachmentId");
         String actionDataString = request.getParameter("actionData");
-        String referer = request.getHeader("referer");
-
         if (attachmentIdString == null || attachmentIdString.isEmpty()) {
             if (!authContext.checkUserAuthorization(request, response)) {
                 return;
@@ -97,10 +101,30 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                     return;
                 }
 
-                Long attachmentId = documentManager.createDemo(fileName, fileExt, Long.parseLong(pageId), user);
+                String extension = fileExt == null
+                        || !fileExt.equals("xlsx")
+                        && !fileExt.equals("pptx")
+                        && !fileExt.equals("docxf")
+                        ? "docx" : fileExt.trim();
+
+                String name = fileName == null || fileName.equals("")
+                        ? i18n.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
+
+                name = attachmentUtil.getCorrectName(name, extension, Long.parseLong(pageId));
+                String mimeType = documentManager.getMimeType(name);
+                InputStream newBlankFile = documentManager.getNewBlankFile(extension, localeManager.getLocale(user));
+
+                Attachment attachment = attachmentUtil.createNewAttachment(
+                        name,
+                        mimeType,
+                        newBlankFile,
+                        newBlankFile.available(),
+                        Long.parseLong(pageId),
+                        user
+                );
 
                 response.sendRedirect(request.getContextPath() + "?attachmentId="
-                        + URLEncoder.encode(attachmentId.toString(), "UTF-8"));
+                        + URLEncoder.encode(String.valueOf(attachment.getId()), "UTF-8"));
                 return;
             }
         }
@@ -109,8 +133,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             Long attachmentId = Long.parseLong(attachmentIdString);
             Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
             Attachment attachment = attachmentUtil.getAttachment(attachmentId);
-            String extension = attachmentUtil.getFileExt(attachmentId);
-            DocumentType documentType = documentManager.getDocType(extension);
+            String fileName = documentManager.getDocumentName(String.valueOf(attachmentId));
+            DocumentType documentType = documentManager.getDocumentType(fileName);
 
             if (attachment == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -123,8 +147,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
 
             Map<String, Object> context = MacroUtils.defaultVelocityContext();
-            context.put("docserviceApiUrl", urlManager.getDocServiceApiUrl());
-            context.put("docTitle", attachmentUtil.getFileName(attachmentId));
+            context.put("docserviceApiUrl", urlManager.getDocumentServerApiUrl());
+            context.put("docTitle", documentManager.getDocumentName(String.valueOf(attachmentId)));
             context.put("favicon", urlManager.getFaviconUrl(documentType));
             context.put("pageId", pageId);
             context.put("pageTitle", attachmentUtil.getAttachmentPageTitle(attachmentId));
@@ -133,28 +157,38 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             context.put("isBlogPost", String.valueOf(attachmentUtil.getContainer(pageId) instanceof BlogPost));
 
             if (documentType != null) {
-                Type type = documentManager.getEditorType(request.getHeader("USER-AGENT"));
-
                 JSONObject actionData = null;
 
                 if (actionDataString != null && !actionDataString.isEmpty()) {
                     actionData = new JSONObject(actionDataString);
                 }
 
-                String config = configManager.createConfig(attachmentId, Mode.EDIT, type, actionData, referer);
-                context.put("configAsHtml", config);
+                Config config = configService.createConfig(
+                        attachmentId.toString(),
+                        Mode.EDIT,
+                        request.getHeader("USER-AGENT")
+                );
+
+                config.getEditorConfig().setLang(localeManager.getLocale(user).toLanguageTag());
+                config.getEditorConfig().setActionLink(actionData);
+
+                ObjectMapper mapper = new ObjectMapper();
+
+                context.put("configAsHtml", mapper.writeValueAsString(config));
                 context.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
                 context.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
                 context.put("attachmentDataAsHtml", urlManager.getAttachmentDataUri());
                 context.put("saveAsUriAsHtml", urlManager.getSaveAsUri());
                 context.put("referenceDataUriAsHtml", urlManager.getReferenceDataUri(pageId));
-                context.put("insertImageTypesAsHtml", new JSONArray(documentManager.getInsertImageTypes()).toString());
-                context.put("compareFileTypesAsHtml", new JSONArray(documentManager.getCompareFileTypes()).toString());
-                context.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeTypes()).toString());
-                context.put("demo", configurationManager.demoActive());
+                context.put("insertImageTypesAsHtml",
+                        new JSONArray(documentManager.getInsertImageExtensions()).toString());
+                context.put("compareFileTypesAsHtml",
+                        new JSONArray(documentManager.getCompareFileExtensions()).toString());
+                context.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeExtensions()).toString());
+                context.put("demo", settingsManager.isDemoActive());
             } else {
                 context.put("errorMessage", i18n.getText("onlyoffice.editor.message.error.unsupported") + "(."
-                        + attachmentUtil.getFileExt(attachmentId) + ")");
+                        + documentManager.getExtension(fileName) + ")");
             }
 
             response.setContentType("text/html;charset=UTF-8");

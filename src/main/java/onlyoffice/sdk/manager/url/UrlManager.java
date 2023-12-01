@@ -16,30 +16,16 @@
  *
  */
 
-package onlyoffice.model.config.document;
+package onlyoffice.sdk.manager.url;
 
-public class ReferenceData {
-    private long fileKey;
-    private String instanceId;
+import com.onlyoffice.model.documenteditor.config.document.DocumentType;
 
-    public ReferenceData(final long fileKey, final String instanceId) {
-        this.fileKey = fileKey;
-        this.instanceId = instanceId;
-    }
-
-    public long getFileKey() {
-        return fileKey;
-    }
-
-    public void setFileKey(final long fileKey) {
-        this.fileKey = fileKey;
-    }
-
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(final String instanceId) {
-        this.instanceId = instanceId;
-    }
+public interface UrlManager extends com.onlyoffice.manager.url.UrlManager {
+    String getAttachmentDiffUri(Long attachmentId);
+    String getHistoryInfoUri(Long attachmentId);
+    String getHistoryDataUri(Long attachmentId);
+    String getAttachmentDataUri();
+    String getSaveAsUri();
+    String getReferenceDataUri(Long pageId);
+    String getFaviconUrl(DocumentType documentType);
 }

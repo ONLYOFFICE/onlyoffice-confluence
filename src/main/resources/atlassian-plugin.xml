@@ -29,6 +29,12 @@
     </web-resource>
 
     <web-resource key="onlyoffice-confluence-plugin-resources-configure" name="Web Resources container for the configuration page">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:aui-spinner</dependency>
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+        <resource type="download" name="settings.js" location="js/settings.js"/>
         <resource type="download" name="banner.css" location="css/banner/banner.css"/>
         <resource type="download" name="background.svg" location="images/banner/background.svg"/>
         <resource type="download" name="logo.svg" location="images/banner/logo.svg"/>
@@ -181,32 +187,45 @@
         <styleClass>onlyoffice-download-as-action</styleClass>
     </web-item>
 
+    <!--ONLYOFFICE SDK-->
+    <component name="ONLYOFFICE Request Manager" key="onlyoffice-sdk-request-manager" class="com.onlyoffice.manager.request.DefaultRequestManager" public="true">
+        <interface>com.onlyoffice.manager.request.RequestManager</interface>
+    </component>
+    <component name="ONLYOFFICE JWT Manager" key="onlyoffice-sdk-jwt-manager" class="onlyoffice.sdk.manager.security.JwtManagerImpl" public="true">
+        <interface>onlyoffice.sdk.manager.security.JwtManager</interface>
+    </component>
+    <component name="ONLYOFFICE URL Manager" key="onlyoffice-sdk-url-manager" class="onlyoffice.sdk.manager.url.UrlManagerImpl" public="true">
+        <interface>onlyoffice.sdk.manager.url.UrlManager</interface>
+    </component>
+    <component name="ONLYOFFICE Document Manager" key="onlyoffice-sdk-document-manager" class="onlyoffice.sdk.manager.document.DocumentManagerImpl" public="true">
+        <interface>onlyoffice.sdk.manager.document.DocumentManager</interface>
+    </component>
+    <component name="ONLYOFFICE Settings Manager" key="onlyoffice-sdk-settings-manager" class="onlyoffice.sdk.manager.settings.SettingsManagerImpl" public="true">
+        <interface>com.onlyoffice.manager.settings.SettingsManager</interface>
+    </component>
+
+    <component name="ONLYOFFICE Config Service" key="onlyoffice-sdk-config-service" class="onlyoffice.sdk.service.ConfigServiceImpl" public="true">
+        <interface>com.onlyoffice.service.documenteditor.config.ConfigService</interface>
+    </component>
+    <component name="ONLYOFFICE Convert Service" key="onlyoffice-sdk-convert-service" class="com.onlyoffice.service.convert.DefaultConvertService" public="true">
+        <interface>com.onlyoffice.service.convert.ConvertService</interface>
+    </component>
+    <component name="ONLYOFFICE Validation Settings Service" key="onlyoffice-sdk-validation-settings-service" class="onlyoffice.sdk.service.SettingsValidationServiceImpl" public="true">
+        <interface>onlyoffice.sdk.service.SettingsValidationService</interface>
+    </component>
+    <component name="ONLYOFFICE Callback Service" key="onlyoffice-sdk-callback-service" class="onlyoffice.sdk.service.CallbackServiceImpl" public="true">
+        <interface>com.onlyoffice.service.documenteditor.callback.CallbackService</interface>
+    </component>
+    <!--ONLYOFFICE SDK-->
+
     <component name="Auth Context" key="onlyoffice-auth-context" class="onlyoffice.managers.auth.AuthContextImpl" public="true">
         <interface>onlyoffice.managers.auth.AuthContext</interface>
-    </component>
-    <component name="Configuration Manager" key="onlyoffice-configuration-manager" class="onlyoffice.managers.configuration.ConfigurationManagerImpl" public="true">
-        <interface>onlyoffice.managers.configuration.ConfigurationManager</interface>
-    </component>
-    <component name="Convert Manager" key="onlyoffice-convert-manager" class="onlyoffice.managers.convert.ConvertManagerImpl" public="true">
-        <interface>onlyoffice.managers.convert.ConvertManager</interface>
-    </component>
-    <component name="Document Manager" key="onlyoffice-document-manager" class="onlyoffice.managers.document.DocumentManagerImpl" public="true">
-        <interface>onlyoffice.managers.document.DocumentManager</interface>
-    </component>
-    <component name="JWT Manager" key="onlyoffice-jwt-manager" class="onlyoffice.managers.jwt.JwtManagerImpl" public="true">
-        <interface>onlyoffice.managers.jwt.JwtManager</interface>
-    </component>
-    <component name="URL Manager" key="onlyoffice-url-manager" class="onlyoffice.managers.url.UrlManagerImpl" public="true">
-        <interface>onlyoffice.managers.url.UrlManager</interface>
     </component>
     <component name="Attachment Util" key="onlyoffice-attachment-util" class="onlyoffice.utils.attachment.AttachmentUtilImpl" public="true">
         <interface>onlyoffice.utils.attachment.AttachmentUtil</interface>
     </component>
     <component name="Parsing Util" key="onlyoffice-parsing-util" class="onlyoffice.utils.parsing.ParsingUtilImpl" public="true">
         <interface>onlyoffice.utils.parsing.ParsingUtil</interface>
-    </component>
-    <component name="Config Manager" key="onlyoffice-config-manager" class="onlyoffice.managers.config.ConfigManagerImpl" public="true">
-        <interface>onlyoffice.managers.config.ConfigManager</interface>
     </component>
     <component name="Content Resolver" key="onlyoffice-content-resolver" class="onlyoffice.macro.components.DefaultContentResolver" public="true">
         <interface>onlyoffice.macro.components.ContentResolver</interface>
@@ -262,6 +281,10 @@
     <servlet key="OnlyOfficeFormats" class="onlyoffice.OnlyOfficeFormatsServlet" name="ONLYOFFICE Formats">
         <description>The ONLYOFFICE Formats.</description>
         <url-pattern>/onlyoffice/formats</url-pattern>
+    </servlet>
+    <servlet key="OnlyOfficeTest" class="onlyoffice.OnlyOfficeTestServlet" name="ONLYOFFICE Test">
+        <description>The ONLYOFFICE Test.</description>
+        <url-pattern>/onlyoffice/test</url-pattern>
     </servlet>
     <xwork key="onlyoffice-confluence-plugin-actions" name="ONLYOFFICE Actions">
         <default-interceptor-ref name="defaultStack"/>
