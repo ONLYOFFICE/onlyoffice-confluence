@@ -39,7 +39,7 @@ define('cp/component/onlyoffice-button', [
 
             var xhr = new XMLHttpRequest();
 
-            xhr.open("POST", "/plugins/servlet/onlyoffice/confluence/previews/plugin/access", false);
+            xhr.open("POST", AJS.contextPath() + "/plugins/servlet/onlyoffice/confluence/previews/plugin/access", false);
             xhr.send(JSON.stringify({
                  attachmentId: attachmentId
             }));
