@@ -45,7 +45,7 @@
         <dependency>
             <groupId>com.onlyoffice</groupId>
             <artifactId>docs-integration-sdk</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -132,10 +132,6 @@
             </snapshots>
             <id>atlassian-public</id>
             <url>https://maven.atlassian.com/repository/public</url>
-        </repository>
-        <repository>
-            <id>ossrh</id>
-            <url>http://192.168.4.26:8081/repository/maven-public</url>
         </repository>
     </repositories>
     <pluginRepositories>
