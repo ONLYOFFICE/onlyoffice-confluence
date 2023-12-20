@@ -39,11 +39,11 @@ import java.util.Map;
 
 public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
 
-    private final String apiServlet = "/plugins/servlet/onlyoffice/api";
-    private final String docEditorServlet = "/plugins/servlet/onlyoffice/doceditor";
-    private final String fileProviderServlet = "/plugins/servlet/onlyoffice/file-provider";
-    private final String callbackServlet = "/plugins/servlet/onlyoffice/save";
-    private final String historyServlet = "/plugins/servlet/onlyoffice/history";
+    public static final String API_SERVLET = "/plugins/servlet/onlyoffice/api";
+    public static final String DOC_EDITOR_SERVLET = "/plugins/servlet/onlyoffice/doceditor";
+    public static final String FILE_PROVIDER_SERVLET = "/plugins/servlet/onlyoffice/file-provider";
+    public static final String CALLBACK_SERVLET = "/plugins/servlet/onlyoffice/save";
+    public static final String HISTORY_SERVLET = "/plugins/servlet/onlyoffice/history";
 
     private final WebResourceUrlProvider webResourceUrlProvider;
     private final SettingsManager settingsManager;
@@ -77,7 +77,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         params.put("action", "download");
 
         String fileUri =
-                getConfluenceBaseUrl(true) + fileProviderServlet + "?token=" + jwtManager.createInternalToken(params);
+                getConfluenceBaseUrl(true) + FILE_PROVIDER_SERVLET + "?token=" + jwtManager.createInternalToken(params);
 
         return fileUri;
     }
@@ -92,7 +92,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         params.put("action", "callback");
 
         String callbackUrl = getConfluenceBaseUrl(true)
-                + callbackServlet
+                + CALLBACK_SERVLET
                 + "?token="
                 + jwtManager.createInternalToken(params);
 
@@ -124,7 +124,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
                 extension = documentManager.getDefaultExtension(documentType);
             }
 
-            return getConfluenceBaseUrl(false) + docEditorServlet + "?pageId=" + pageId + "&fileExt=" + extension;
+            return getConfluenceBaseUrl(false) + DOC_EDITOR_SERVLET + "?pageId=" + pageId + "&fileExt=" + extension;
         } else {
             return null;
         }
@@ -138,7 +138,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
     public String getAttachmentDiffUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String diffAttachmentUrl =
-                getConfluenceBaseUrl(false) + historyServlet + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(false) + HISTORY_SERVLET + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
 
         return diffAttachmentUrl;
     }
@@ -146,7 +146,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
     public String getHistoryInfoUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String historyInfoUri =
-                getConfluenceBaseUrl(false) + historyServlet + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(false) + HISTORY_SERVLET + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
 
         return historyInfoUri;
     }
@@ -154,24 +154,24 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
     public String getHistoryDataUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String historyDataUri =
-                getConfluenceBaseUrl(false) + historyServlet + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(false) + HISTORY_SERVLET + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
 
         return historyDataUri;
     }
     public String getAttachmentDataUri() {
-        String attachmentDataUri = getConfluenceBaseUrl(false) + apiServlet + "?type=attachment-data";
+        String attachmentDataUri = getConfluenceBaseUrl(false) + API_SERVLET + "?type=attachment-data";
 
         return attachmentDataUri;
     }
 
     public String getSaveAsUri() {
-        String saveAsUri = getConfluenceBaseUrl(false) + apiServlet + "?type=save-as";
+        String saveAsUri = getConfluenceBaseUrl(false) + API_SERVLET + "?type=save-as";
 
         return saveAsUri;
     }
 
     public String getReferenceDataUri(final Long pageId) {
-        String referenceDataUri = getConfluenceBaseUrl(false) + apiServlet + "?type=reference-data&pageId=" + pageId;
+        String referenceDataUri = getConfluenceBaseUrl(false) + API_SERVLET + "?type=reference-data&pageId=" + pageId;
 
         return referenceDataUri;
     }
