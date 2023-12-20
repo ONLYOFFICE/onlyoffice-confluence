@@ -51,6 +51,8 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.Map;
 
+import static onlyoffice.sdk.manager.url.UrlManagerImpl.DOC_EDITOR_SERVLET;
+
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
     private final long serialVersionUID = 1L;
@@ -123,7 +125,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                         user
                 );
 
-                response.sendRedirect(request.getContextPath() + "?attachmentId="
+                response.sendRedirect(request.getContextPath() + DOC_EDITOR_SERVLET + "?attachmentId="
                         + URLEncoder.encode(String.valueOf(attachment.getId()), "UTF-8"));
                 return;
             }
