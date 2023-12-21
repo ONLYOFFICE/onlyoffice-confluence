@@ -2,7 +2,7 @@
 
 
 ####  替换前
-![替换前](./i18n-zh_cn/before.png)
+![替换前](./before.png)
 
 #### 替换后
-![替换后](./i18n-zh_cn/after.png)
+![替换后](./after.png)
