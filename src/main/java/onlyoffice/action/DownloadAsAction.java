@@ -30,6 +30,7 @@ import com.onlyoffice.model.convertservice.ConvertRequest;
 import com.onlyoffice.model.convertservice.ConvertResponse;
 import com.onlyoffice.service.convert.ConvertService;
 import onlyoffice.sdk.manager.document.DocumentManager;
+import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import com.atlassian.confluence.user.ConfluenceUser;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +50,7 @@ public class DownloadAsAction extends ConfluenceActionSupport {
     private ConvertService convertService;
     private DocumentManager documentManager;
     private final LocaleManager localeManager;
+    private final UrlManager urlManager;
 
     private String attachmentId;
     private String fileName;
@@ -56,11 +58,13 @@ public class DownloadAsAction extends ConfluenceActionSupport {
     private static final char[] INVALID_CHARS;
 
     public DownloadAsAction(final AttachmentUtil attachmentUtil, final ConvertService convertService,
-                            final LocaleManager localeManager, final DocumentManager documentManager) {
+                            final LocaleManager localeManager, final DocumentManager documentManager,
+                            final UrlManager urlManager) {
         this.attachmentUtil = attachmentUtil;
         this.convertService = convertService;
         this.documentManager = documentManager;
         this.localeManager = localeManager;
+        this.urlManager = urlManager;
     }
 
     @PermittedMethods({ HttpMethod.GET })
@@ -133,6 +137,20 @@ public class DownloadAsAction extends ConfluenceActionSupport {
 
         try {
             ConvertResponse convertResponse = convertService.processConvert(convertRequest, this.attachmentId);
+
+            if (convertResponse.getEndConvert() != null && convertResponse.getEndConvert()) {
+                String fileUrl = convertResponse.getFileUrl();
+
+                String documentServerUrl = urlManager.getDocumentServerUrl();
+                String innerDocumentServerUrl = urlManager.getInnerDocumentServerUrl();
+
+                if (!documentServerUrl.equals(innerDocumentServerUrl)) {
+                    return fileUrl.replace(innerDocumentServerUrl, documentServerUrl);
+                }
+
+                convertResponse.setFileUrl(fileUrl);
+            }
+
             writer.write(mapper.writeValueAsString(convertResponse));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
