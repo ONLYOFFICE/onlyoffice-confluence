@@ -22,6 +22,8 @@
 ### todo
 替换部分翻译
 
+## 下载替换图标后的onlyoffice插件jar包
+https://github.com/lumos0/onlyoffice-confluence_zh_cn_localized/releases/tag/4.4.1
 
 
 
