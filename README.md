@@ -1,14 +1,18 @@
 # Confluence  ONLYOFFICE 插件中文本地化简单适配
 
-### 1 替换预览界面的编辑入口图标
+## 1 替换预览界面的编辑入口图标
 替换Confluence preview预览界面中的ONLYOFFICE自带图标
 
-####  替换前
+###  替换前
 ![替换前](./i18n-zh_cn/before.png)
 
-#### 替换后
+### 替换后
+#### 效果1 粗暴的四个字“在线编辑”
+
 ![替换后](./i18n-zh_cn/after.png)
 
+#### 效果2 易于理解的在线编辑图标+文字
+![替换后](./i18n-zh_cn/after2.png)
 
 ### 替换你想要的图标
 替换插件jar包中 \images\confluence-previews-plugin\onlyoffice-button.svg 这个svg即可。 svg大小50*50
