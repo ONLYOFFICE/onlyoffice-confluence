@@ -60,6 +60,7 @@ define('cp/component/onlyoffice-button', [
 
             if (title) {
                 this.$el.html(templateStore.get('controlOnlyofficeButton')({
+                    contextPath: AJS.contextPath(),
                     attachmentId: attachmentId,
                     title: title
                 }));

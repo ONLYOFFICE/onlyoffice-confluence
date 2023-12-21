@@ -17,7 +17,7 @@
  */
 
 (function($) {
-    $.getJSON("/plugins/servlet/onlyoffice/formats", function(data) {
+    $.getJSON(AJS.contextPath() + "/plugins/servlet/onlyoffice/formats", function(data) {
         AJS.MacroBrowser.activateSmartFieldsAttachmentsOnPage("onlyoffice-preview", data);
     });
 })(AJS.$);

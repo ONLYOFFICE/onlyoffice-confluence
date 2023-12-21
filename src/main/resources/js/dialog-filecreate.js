@@ -85,7 +85,7 @@ AJS.toInit(function ($) {
             var insertImageDialog = AJS.Editor.ImageDialog.insertImageDialog(function(a) {
                 var fileExt = a.selectItems[0].attributes.fileName.split(".").pop();
                 if (fileExt == "docx") {
-                    window.open("/plugins/servlet/onlyoffice/convert?attachmentId=" + a.selectItems[0].attributes.id +
+                    window.open(AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId=" + a.selectItems[0].attributes.id +
                             "&pageId=" + AJS.params.pageId + "&newTitle=" +  $("#view-input-docxf").attr("value")
                     )
                     setTimeout(function () { document.location.reload(); }, 1000);
