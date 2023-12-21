@@ -28,6 +28,7 @@ import com.onlyoffice.manager.request.RequestManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import com.onlyoffice.manager.security.JwtManager;
 import com.onlyoffice.manager.url.UrlManager;
+import com.onlyoffice.model.documenteditor.config.document.ReferenceData;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
@@ -220,13 +221,14 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
 
         try {
             JSONObject bodyJson = new JSONObject(body);
-            JSONObject referenceData = new JSONObject();
+            ReferenceData referenceData = new ReferenceData();
             Long attachmentId = null;
 
             if (bodyJson.has("referenceData")) {
-                referenceData = bodyJson.getJSONObject("referenceData");
-                if (referenceData.getString("instanceId").equals(sysInfoService.getConfluenceInfo().getBaseUrl())) {
-                    attachmentId = referenceData.getLong("fileKey");
+                String referenceDataString = bodyJson.getJSONObject("referenceData").toString();
+                referenceData = objectMapper.readValue(referenceDataString, ReferenceData.class);
+                if (referenceData.getInstanceId().equals(sysInfoService.getConfluenceInfo().getBaseUrl())) {
+                    attachmentId = Long.valueOf(referenceData.getFileKey());
                 }
             }
 
@@ -240,8 +242,8 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                     attachment = attachmentUtil.getAttachmentByName(bodyJson.getString("path"), pageId);
                     if (attachment != null) {
                         attachmentId = attachment.getId();
-                        referenceData.put("fileKey", attachment.getId());
-                        referenceData.put("instanceId", sysInfoService.getConfluenceInfo().getBaseUrl());
+                        referenceData.setFileKey(String.valueOf(attachment.getId()));
+                        referenceData.setInstanceId(sysInfoService.getConfluenceInfo().getBaseUrl());
                     }
                 }
             }
