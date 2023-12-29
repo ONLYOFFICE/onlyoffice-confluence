@@ -145,7 +145,7 @@ public class DownloadAsAction extends ConfluenceActionSupport {
                 String innerDocumentServerUrl = urlManager.getInnerDocumentServerUrl();
 
                 if (!documentServerUrl.equals(innerDocumentServerUrl)) {
-                    return fileUrl.replace(innerDocumentServerUrl, documentServerUrl);
+                    fileUrl = fileUrl.replace(innerDocumentServerUrl, documentServerUrl);
                 }
 
                 convertResponse.setFileUrl(fileUrl);
