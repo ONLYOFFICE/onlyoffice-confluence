@@ -118,6 +118,24 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentDiff(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
+        if (settingsManager.isSecurityEnabled()) {
+            String securityHeader = settingsManager.getSecurityHeader();
+            String bodySecurityHeader = request.getHeader(securityHeader);
+            String authorizationPrefix = settingsManager.getSecurityPrefix();
+            String token = (bodySecurityHeader != null && bodySecurityHeader.startsWith(authorizationPrefix))
+                    ? bodySecurityHeader.substring(authorizationPrefix.length()) : bodySecurityHeader;
+
+            if (token == null || token == "") {
+                throw new SecurityException("Expected JWT");
+            }
+
+            try {
+                String payload = jwtManager.verify(token);
+            } catch (Exception e) {
+                throw new SecurityException("JWT verification failed!");
+            }
+        }
+
         String vkey = request.getParameter("vkey");
         String attachmentIdString = jwtManager.readHash(vkey);
 
@@ -131,15 +149,9 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
         if (diff != null) {
             InputStream inputStream = attachmentUtil.getAttachmentData(diff.getId());
-            String publicDocEditorUrl = urlManager.getDocumentServerUrl();
-
-            if (publicDocEditorUrl.endsWith("/")) {
-                publicDocEditorUrl = publicDocEditorUrl.substring(0, publicDocEditorUrl.length() - 1);
-            }
 
             response.setContentType(diff.getMediaType());
             response.setContentLength(inputStream.available());
-            response.addHeader("Access-Control-Allow-Origin", publicDocEditorUrl);
 
             byte[] buffer = new byte[BUFFER_SIZE];
 
