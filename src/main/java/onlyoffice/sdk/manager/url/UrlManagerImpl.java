@@ -138,7 +138,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
     public String getAttachmentDiffUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String diffAttachmentUrl =
-                getConfluenceBaseUrl(false) + HISTORY_SERVLET + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(true) + HISTORY_SERVLET + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
 
         return diffAttachmentUrl;
     }

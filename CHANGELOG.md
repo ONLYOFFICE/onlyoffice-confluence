@@ -4,6 +4,7 @@
 ## Added
 - core of the plugin has been moved to com.onlyoffice.docs-integration-sdk (https://github.com/ONLYOFFICE/docs-integration-sdk-java)
 - improved connection settings validation
+- improved history servlet security
 
 ## 4.4.0
 ## Added
