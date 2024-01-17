@@ -116,6 +116,24 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.rudikershaw.gitbuildhook</groupId>
+                <artifactId>git-build-hook-maven-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <gitConfig>
+                        <core.hooksPath>.git-hooks/</core.hooksPath>
+                    </gitConfig>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>configure</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

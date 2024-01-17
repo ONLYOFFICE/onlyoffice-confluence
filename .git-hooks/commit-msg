@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+if ! node --version &> /dev/null
+then
+	echo "Node.js is not installed! Please install Node.js to add commit into this repository. (https://nodejs.org/en/download)"
+	exit 1
+fi
+
+if [ `npm list -g | grep -c '@commitlint/cli\|@commitlint/config-conventional'` -lt 2 ]; then
+	echo "Installing modules(@commitlint/cli and @commitlint/config-conventional modules)..."
+	npm install -g @commitlint/cli @commitlint/config-conventional
+	echo -e "\nModules installed successfully!\n"
+fi
+
+echo "Commit message verification process started..."
+npm exec commitlint -- --config ".git-hooks/commitlint.config.js" --edit "$1"
