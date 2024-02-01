@@ -45,6 +45,10 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 </div>
             </div>
             <div class="field-group">
+                <label for="securityHeader">$i18n.getText('onlyoffice.configuration.security.header')</label>
+                <input type="text" id="securityHeader" value="$!{settings.get('security.header')}" name="securityHeader" class="text onlyoffice-tooltip" />
+            </div>
+            <div class="field-group">
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="onlyofficeDemo" #if($!settings.get('demo') == "true") checked="checked" #end
                                                                                 #if(!$demoAvailable) disabled="disabled" #end/>

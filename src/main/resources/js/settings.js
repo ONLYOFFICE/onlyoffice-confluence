@@ -34,6 +34,7 @@
                 "productInnerUrl": $("#confUrlField").attr("value"),
                 "security": {
                     "key": $("#jwtSecretField").attr("value"),
+                    "header": $("#securityHeader").attr("value")
                 },
                 "ignoreSSLCertificate": $("#verifyCertificate").is(":checked"),
                 "customization": {
