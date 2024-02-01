@@ -91,7 +91,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
         contextMap.put("demoAvailable", demoAvailable);
-        contextMap.put("pathApiUrl", settingsManager.getSDKSetting("integration-sdk.api.url"));
+        contextMap.put("pathApiUrl", settingsManager.getDocsIntegrationSdkProperties().getDocumentServer().getApiUrl());
 
         if (settingsManager.getSetting(SettingsConstants.LOSSY_EDIT) == null
                 || settingsManager.getSetting(SettingsConstants.LOSSY_EDIT).isEmpty()) {
