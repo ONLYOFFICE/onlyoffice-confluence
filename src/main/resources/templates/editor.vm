@@ -338,6 +338,34 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             }
         };
 
+
+            var onRequestUsers = function(event) {
+                switch (event.data.c) {
+                    case "info":
+                        var users = [];
+                        for (var i = 0; i < event.data.id.length; i++) {
+                            var xhr = new XMLHttpRequest();
+                            xhr.open("GET", AJS.contextPath() + "/rest/api/user?key=" + event.data.id[i], false);
+                            xhr.send();
+
+                            if (xhr.status == 200) {
+                                const user = JSON.parse(xhr.responseText);
+                                users.push({
+                                    "id": user.username,
+                                    "name": user.displayName,
+                                    "image": document.location.origin + user.profilePicture.path
+                                });
+                            }
+                        }
+
+                        docEditor.setUsers({
+                            "c": event.data.c,
+                            "users": users,
+                        });
+                        break;
+                }
+            }
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.editor.message.docs-api-undefined')");
@@ -361,7 +389,8 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestCompareFile": onRequestCompareFile,
                     "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
                     "onMakeActionLink": onMakeActionLink,
-                    "onRequestReferenceData": onRequestReferenceData
+                    "onRequestReferenceData": onRequestReferenceData,
+                    "onRequestUsers": onRequestUsers
                 },
             };
 
