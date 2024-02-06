@@ -76,7 +76,7 @@ public class ConfigServiceImpl extends DefaultConfigService {
 
         if (user != null) {
             return User.builder()
-                    .id(user.getName())
+                    .id(user.getKey().getStringValue())
                     .name(user.getFullName())
                     .build();
         } else {
