@@ -6,6 +6,7 @@
 - improved connection settings validation
 - improved history servlet security
 - setting authorization header on settings page
+- user image in editor
 
 ## 4.4.0
 ## Added
