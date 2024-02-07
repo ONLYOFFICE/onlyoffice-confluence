@@ -6,6 +6,7 @@
 - improved connection settings validation
 - improved history servlet security
 - setting authorization header on settings page
+- user image in editor
 
 ## Changed
 - improved date formatting in history changes
