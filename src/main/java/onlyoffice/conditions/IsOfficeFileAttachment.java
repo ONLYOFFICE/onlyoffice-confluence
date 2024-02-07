@@ -77,7 +77,7 @@ public class IsOfficeFileAttachment implements Condition {
         } else {
             if (accessView
                     && documentManager.isViewable(fileName)
-                    && !(accessEdit && (documentManager.isEditable(fileName) || documentManager.isFillable(fileName)))
+                    && !(accessEdit && documentManager.isEditable(fileName))
             ) {
                 return true;
             }
