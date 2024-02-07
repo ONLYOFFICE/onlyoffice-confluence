@@ -71,8 +71,7 @@ public class ConfigServiceImpl extends DefaultConfigService {
         String fileName = getDocumentManager().getDocumentName(fileId);
 
         Boolean editPermission = attachmentUtil.checkAccess(Long.parseLong(fileId), user, true);
-        Boolean isEditable = super.getDocumentManager().isEditable(fileName)
-                || super.getDocumentManager().isFillable(fileName);
+        Boolean isEditable = super.getDocumentManager().isEditable(fileName);
 
         return Permissions.builder()
                 .edit(editPermission && isEditable)
