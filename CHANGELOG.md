@@ -7,6 +7,9 @@
 - improved history servlet security
 - setting authorization header on settings page
 
+## Changed
+- improved date formatting in history changes
+
 ## 4.4.0
 ## Added
 - compatible with Confluence 8.6
