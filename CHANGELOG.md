@@ -7,9 +7,12 @@
 - improved history servlet security
 - setting authorization header on settings page
 - user image in editor
+- filling pdf
 
 ## Changed
 - improved date formatting in history changes
+- default conversion format (from docxf to pdf instead oform)
+- remove filling for oform
 
 ## 4.4.0
 ## Added
