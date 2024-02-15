@@ -88,6 +88,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         String attachmentIdString = request.getParameter("attachmentId");
         String actionDataString = request.getParameter("actionData");
+        String modeString = request.getParameter("mode");
         if (attachmentIdString == null || attachmentIdString.isEmpty()) {
             if (!authContext.checkUserAuthorization(request, response)) {
                 return;
@@ -165,9 +166,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                     actionData = new JSONObject(actionDataString);
                 }
 
+                Mode mode = Mode.EDIT;
+
+                if (modeString != null && modeString.equals("view")) {
+                    mode = Mode.VIEW;
+                }
+
                 Config config = configService.createConfig(
                         attachmentId.toString(),
-                        Mode.EDIT,
+                        mode,
                         request.getHeader("USER-AGENT")
                 );
 
