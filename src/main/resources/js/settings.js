@@ -203,7 +203,7 @@
 
         var demoToggle = function () {
             if (!$("#onlyofficeDemo").prop("disabled")) {
-                $("#apiUrlField, #jwtSecretField, #docInnerUrlField, #verifyCertificate").prop("disabled", $("#onlyofficeDemo").prop("checked"));
+                $("#apiUrlField, #jwtSecretField, #docInnerUrlField, #verifyCertificate, #securityHeader").prop("disabled", $("#onlyofficeDemo").prop("checked"));
                 if ($("#onlyofficeDemo").prop("checked")) {
                     $(".view-control").css("pointer-events", "none");
                     $(".view-control").removeClass("view");
