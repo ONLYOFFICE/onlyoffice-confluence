@@ -250,6 +250,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                 copy.setMediaType(documentManager.getMimeType(newName));
 
                 attachmentManager.saveAttachment(copy, null, inputStream);
+                attachmentUtil.setCollaborativeEditingKey(copy.getLatestVersionId(), null);
 
                 return copy.getLatestVersionId();
             }
