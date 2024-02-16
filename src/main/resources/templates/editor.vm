@@ -167,7 +167,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
             dialog.find(".file-list").on("DOMNodeInserted", function(event) {
                 var fileExt = event.srcElement.dataset.fileName.split(".").pop();
-                if (!fileTypes.includes(fileExt)) $(event.srcElement).hide();
+                if (!fileTypes.includes(fileExt)) $(event.srcElement).remove();
             });
         };
 

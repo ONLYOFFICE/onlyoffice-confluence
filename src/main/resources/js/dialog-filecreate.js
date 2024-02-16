@@ -101,7 +101,7 @@ AJS.toInit(function ($) {
 
             dialog.find(".file-list").on("DOMNodeInserted", function(event) {
                 var fileExt = event.srcElement.dataset.fileName.split(".").pop();
-                if (fileExt != "docx") $(event.srcElement).hide();
+                if (fileExt != "docx") $(event.srcElement).remove();
             });
 
             var buttonPanel = dialog.find(".dialog-button-panel");
