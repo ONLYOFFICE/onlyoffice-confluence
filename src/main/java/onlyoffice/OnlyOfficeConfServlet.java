@@ -99,7 +99,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             defaultCustomizableEditingTypes.put("csv", true);
         }
 
-        contextMap.put("defaultCustomizableEditingTypes", documentManager.getLossyEditableMap());
+        contextMap.put("defaultCustomizableEditingTypes", defaultCustomizableEditingTypes);
 
         try {
             Map<String, String> settings = settingsManager.getSettings();
