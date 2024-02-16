@@ -23,6 +23,7 @@ import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.core.filters.ServletContextThreadLocal;
 import com.atlassian.xwork.HttpMethod;
+import com.atlassian.xwork.ParameterSafe;
 import com.atlassian.xwork.PermittedMethods;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.model.common.CommonResponse;
@@ -164,14 +165,17 @@ public class DownloadAsAction extends ConfluenceActionSupport {
         return "none";
     }
 
+    @ParameterSafe
     public void setAttachmentId(final String attachmentId) {
         this.attachmentId = attachmentId;
     }
 
+    @ParameterSafe
     public void setFileName(final String fileName) {
         this.fileName = fileName;
     }
 
+    @ParameterSafe
     public void setTargetFileType(final String targetFileType) {
         this.targetFileType = targetFileType;
     }
