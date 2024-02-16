@@ -29,9 +29,9 @@
             });
 
             var data = {
-                "url": $("#apiUrlField").attr("value"),
-                "innerUrl": $("#docInnerUrlField").attr("value"),
-                "productInnerUrl": $("#confUrlField").attr("value"),
+                "url": $("#apiUrlField").attr("value").trim(),
+                "innerUrl": $("#docInnerUrlField").attr("value").trim(),
+                "productInnerUrl": $("#confUrlField").attr("value").trim(),
                 "security": {
                     "key": $("#jwtSecretField").attr("value"),
                     "header": $("#securityHeader").attr("value")
@@ -166,7 +166,7 @@
 
             scriptAddress.on("load", testApiResult).on("error", testApiResult);
 
-            var docServiceUrlApi = $("#apiUrlField").val();
+            var docServiceUrlApi = $("#apiUrlField").val().trim();
 
             if (docServiceUrlApi.endsWith("/")) {
                 docServiceUrlApi = docServiceUrlApi.slice(0, -1);
