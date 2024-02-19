@@ -203,7 +203,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         .key(documentManager.getDocumentKey(String.valueOf(attachment.getId()), false))
                         .created(dateFormatter.formatDateTime(attachment.getCreationDate()))
                         .user(User.builder()
-                                .id(attachment.getCreator().getName())
+                                .id(attachment.getCreator().getKey().getStringValue())
                                 .name(attachment.getCreator().getFullName())
                                 .build()
                         )
