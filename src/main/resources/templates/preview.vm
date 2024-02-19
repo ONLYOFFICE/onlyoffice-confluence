@@ -8,8 +8,9 @@
     #end
 
     <div id="iframeEditor_${id}"></div>
+    <span style="display:none;" id="editorConfig_iframeEditor_${id}" aria-hidden="true">$configAsHtml</span>
 
     <script>
-        var docEditor = new DocsAPI.DocEditor("iframeEditor_${id}", JSON.parse('${configAsHtml}'));
+        var docEditor = new DocsAPI.DocEditor("iframeEditor_${id}", JSON.parse($("#editorConfig_iframeEditor_${id}").html().replaceAll("&amp;", "&") || "{}"));
     </script>
 </div>
