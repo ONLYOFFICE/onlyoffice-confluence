@@ -6,7 +6,6 @@
 - improved connection settings validation
 - improved history servlet security
 - setting authorization header on settings page
-- user image in editor
 - filling pdf
 
 ## Changed
