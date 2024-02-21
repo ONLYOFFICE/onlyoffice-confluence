@@ -16,17 +16,18 @@
  *
  */
 
-package onlyoffice.sdk.manager.url;
+package onlyoffice.model.dto;
 
-import com.onlyoffice.model.documenteditor.config.document.DocumentType;
+import java.util.ArrayList;
+import java.util.List;
+public class UsersInfoRequest {
+    private List<String> ids = new ArrayList<>();
 
-public interface UrlManager extends com.onlyoffice.manager.url.UrlManager {
-    String getAttachmentDiffUri(Long attachmentId);
-    String getHistoryInfoUri(Long attachmentId);
-    String getHistoryDataUri(Long attachmentId);
-    String getAttachmentDataUri();
-    String getSaveAsUri();
-    String getReferenceDataUri(Long pageId);
-    String getFaviconUrl(DocumentType documentType);
-    String getUsersInfoUrl();
+    public List<String> getIds() {
+        return ids;
+    }
+
+    public void setIds(final List<String> ids) {
+        this.ids = ids;
+    }
 }

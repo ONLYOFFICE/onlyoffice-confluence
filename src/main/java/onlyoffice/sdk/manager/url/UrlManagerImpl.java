@@ -190,6 +190,12 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         );
     }
 
+    public String getUsersInfoUrl() {
+        String usersInfoUrl = getConfluenceBaseUrl(false) + API_SERVLET + "?type=users-info";
+
+        return usersInfoUrl;
+    }
+
     private String getConfluenceBaseUrl(final Boolean inner) {
         String productInnerUrl = getSettingsManager().getSetting(SettingsConstants.PRODUCT_INNER_URL);
 
