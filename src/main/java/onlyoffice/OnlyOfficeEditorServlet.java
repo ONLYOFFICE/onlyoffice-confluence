@@ -195,6 +195,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                         new JSONArray(documentManager.getCompareFileExtensions()).toString());
                 context.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeExtensions()).toString());
                 context.put("demo", settingsManager.isDemoActive());
+                context.put("usersInfoUrlAsHtml", urlManager.getUsersInfoUrl());
             } else {
                 context.put("errorMessage", i18n.getText("onlyoffice.editor.message.error.unsupported") + "(."
                         + documentManager.getExtension(fileName) + ")");
