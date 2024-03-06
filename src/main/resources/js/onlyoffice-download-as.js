@@ -10,22 +10,28 @@
 
             var link = AJS.$(this);
 
-            AJS.$.get(link.attr('href'), function (response) {
-                AJS.$('.aui-page-panel').after(response);
-                AJS.dialog2(dialogId).show();
+            AJS.safe.ajax({
+                url: link.attr('href'),
+                type: "GET",
+                cache: false,
+                data: {},
+                success: function (response) {
+                    AJS.$('.aui-page-panel').after(response);
+                    AJS.dialog2(dialogId).show();
 
-                Confluence.Binder.autocompletePage(AJS.$("#onlyoffice-download-as-binder"));
-                $(".aui-message-context").html("");
+                    Confluence.Binder.autocompletePage(AJS.$("#onlyoffice-download-as-binder"));
+                    $(".aui-message-context").html("");
 
-                AJS.$(buttonCloseId).bind("click", function (e) {
-                    e.preventDefault();
-                    AJS.dialog2(dialogId).hide();
-                });
+                    AJS.$(buttonCloseId).bind("click", function (e) {
+                        e.preventDefault();
+                        AJS.dialog2(dialogId).hide();
+                    });
 
-                AJS.$(buttonDownloadAsId).bind("click", function (e) {
-                    e.preventDefault();
-                    downloadAsAction();
-                });
+                    AJS.$(buttonDownloadAsId).bind("click", function (e) {
+                        e.preventDefault();
+                        downloadAsAction();
+                    });
+                }
             });
 
             return false;
@@ -72,7 +78,7 @@
             return;
         }
 
-        $.ajax({
+        AJS.safe.ajax({
             type: "POST",
             url: url,
             data: data,

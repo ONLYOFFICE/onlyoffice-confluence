@@ -287,14 +287,15 @@
         <url-pattern>/onlyoffice/test</url-pattern>
     </servlet>
     <xwork key="onlyoffice-confluence-plugin-actions" name="ONLYOFFICE Actions">
-        <default-interceptor-ref name="defaultStack"/>
+        <default-interceptor-ref name="validatingStack"/>
         <package name="onlyoffice-confluence-plugin" extends="default" namespace="/plugins/onlyoffice-confluence-plugin">
             <action name="onlyoffice-download-as-view" class="onlyoffice.action.DownloadAsAction" method="doDefault">
+                <param name="RequireSecurityToken">true</param>
                 <result name="input" type="velocity">/templates/download-as.vm</result>
                 <result name="error" type="velocity">/templates/download-as.vm</result>
             </action>
             <action name="onlyoffice-download-as" class="onlyoffice.action.DownloadAsAction">
-                <interceptor-ref name="validatingStack" />
+                <param name="RequireSecurityToken">true</param>
                 <result name="success" type="json"/>
                 <result name="error" type="json"/>
                 <result name="input" type="json"/>
