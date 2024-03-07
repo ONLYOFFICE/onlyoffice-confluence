@@ -8,6 +8,7 @@
 - setting authorization header on settings page
 - user image in editor
 - filling pdf
+- translations (zh_CN)
 
 ## Changed
 - improved date formatting in history changes
