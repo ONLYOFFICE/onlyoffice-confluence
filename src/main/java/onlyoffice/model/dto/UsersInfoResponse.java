@@ -16,13 +16,20 @@
  *
  */
 
-package onlyoffice.sdk.manager.security;
+package onlyoffice.model.dto;
 
-import java.util.Map;
+import com.onlyoffice.model.common.User;
 
-public interface JwtManager extends com.onlyoffice.manager.security.JwtManager {
-    String createInternalToken(Map<String, ?> payloadMap);
-    String verifyInternalToken(String token);
-    String createHash(String str);
-    String readHash(String base64);
+import java.util.List;
+
+public class UsersInfoResponse {
+    private List<User> users;
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(final List<User> users) {
+        this.users = users;
+    }
 }

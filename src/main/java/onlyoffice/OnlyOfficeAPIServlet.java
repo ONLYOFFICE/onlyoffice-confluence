@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,20 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
+import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.confluence.user.actions.ProfilePictureInfo;
+import com.atlassian.sal.api.user.UserKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.onlyoffice.manager.request.RequestManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import com.onlyoffice.manager.security.JwtManager;
-import com.onlyoffice.manager.url.UrlManager;
+import com.onlyoffice.model.common.User;
 import com.onlyoffice.model.documenteditor.config.document.ReferenceData;
+import onlyoffice.model.dto.UsersInfoRequest;
+import onlyoffice.model.dto.UsersInfoResponse;
 import onlyoffice.sdk.manager.document.DocumentManager;
+import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.commons.io.IOUtils;
@@ -48,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +64,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
 
     private final SystemInformationService sysInfoService;
+    private final UserAccessor userAccessor;
     private final SettingsManager settingsManager;
     private final JwtManager jwtManager;
     private final DocumentManager documentManager;
@@ -67,11 +75,13 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public OnlyOfficeAPIServlet(final SystemInformationService sysInfoService, final SettingsManager settingsManager,
-                                final JwtManager jwtManager, final DocumentManager documentManager,
-                                final AttachmentUtil attachmentUtil, final ParsingUtil parsingUtil,
-                                final UrlManager urlManager, final RequestManager requestManager) {
+    public OnlyOfficeAPIServlet(final SystemInformationService sysInfoService, final UserAccessor userAccessor,
+                                final SettingsManager settingsManager, final JwtManager jwtManager,
+                                final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                                final ParsingUtil parsingUtil, final UrlManager urlManager,
+                                final RequestManager requestManager) {
         this.sysInfoService = sysInfoService;
+        this.userAccessor = userAccessor;
         this.settingsManager = settingsManager;
         this.jwtManager = jwtManager;
         this.documentManager = documentManager;
@@ -95,6 +105,9 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                     break;
                 case "reference-data":
                     referenceData(request, response);
+                    break;
+                case "users-info":
+                    usersInfo(request, response);
                     break;
                 default:
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -278,5 +291,63 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
         }
+    }
+
+    private void usersInfo(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+        ConfluenceUser currentUser = AuthenticatedUserThreadLocal.get();
+
+        if (currentUser == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        UsersInfoRequest usersInfoRequest = new UsersInfoRequest();
+
+        try (InputStream requestStream = request.getInputStream()) {
+            String bodyString = parsingUtil.getBody(requestStream);
+
+            if (bodyString.isEmpty()) {
+                throw new IllegalArgumentException("requestBody is empty");
+            }
+
+            usersInfoRequest = objectMapper.readValue(bodyString, UsersInfoRequest.class);
+        } catch (IOException e) {
+            throw e;
+        }
+
+        List<User> users = new ArrayList<>();
+
+        for (String userKeyString : usersInfoRequest.getIds()) {
+            UserKey userKey = new UserKey(userKeyString);
+            ConfluenceUser confluenceUser = userAccessor.getUserByKey(userKey);
+
+            if (confluenceUser != null) {
+                User user = User.builder()
+                        .id(confluenceUser.getKey().getStringValue())
+                        .name(confluenceUser.getFullName())
+                        .build();
+
+                ProfilePictureInfo profilePictureInfo = userAccessor.getUserProfilePicture(confluenceUser);
+
+                if (profilePictureInfo != null && !profilePictureInfo.isDefault()) {
+                    try (InputStream pictureInputStream = profilePictureInfo.getBytes()) {
+                        byte[] pictureByteArray = IOUtils.toByteArray(pictureInputStream);
+                        String pictureBase64 = Base64.getEncoder().encodeToString(pictureByteArray);
+                        String contentType = profilePictureInfo.getContentType();
+
+                        user.setImage("data:" + contentType + ";base64," + pictureBase64);
+                    }
+                }
+
+                users.add(user);
+            }
+        }
+
+        UsersInfoResponse usersInfoResponse = new UsersInfoResponse();
+        usersInfoResponse.setUsers(users);
+
+        response.setContentType("application/json");
+        PrintWriter writer = response.getWriter();
+        writer.write(objectMapper.writeValueAsString(usersInfoResponse));
     }
 }

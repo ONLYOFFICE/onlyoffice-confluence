@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ AJS.toInit(function ($) {
 
             dialog.find(".file-list").on("DOMNodeInserted", function(event) {
                 var fileExt = event.srcElement.dataset.fileName.split(".").pop();
-                if (fileExt != "docx") $(event.srcElement).hide();
+                if (fileExt != "docx") $(event.srcElement).remove();
             });
 
             var buttonPanel = dialog.find(".dialog-button-panel");

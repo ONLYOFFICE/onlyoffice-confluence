@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,4 +28,5 @@ public interface UrlManager extends com.onlyoffice.manager.url.UrlManager {
     String getSaveAsUri();
     String getReferenceDataUri(Long pageId);
     String getFaviconUrl(DocumentType documentType);
+    String getUsersInfoUrl();
 }

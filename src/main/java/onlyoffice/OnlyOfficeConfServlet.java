@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
 
         contextMap.put("demoAvailable", demoAvailable);
-        contextMap.put("pathApiUrl", settingsManager.getSDKSetting("integration-sdk.api.url"));
+        contextMap.put("pathApiUrl", settingsManager.getDocsIntegrationSdkProperties().getDocumentServer().getApiUrl());
 
         if (settingsManager.getSetting(SettingsConstants.LOSSY_EDIT) == null
                 || settingsManager.getSetting(SettingsConstants.LOSSY_EDIT).isEmpty()) {
@@ -99,7 +99,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
             defaultCustomizableEditingTypes.put("csv", true);
         }
 
-        contextMap.put("defaultCustomizableEditingTypes", documentManager.getLossyEditableMap());
+        contextMap.put("defaultCustomizableEditingTypes", defaultCustomizableEditingTypes);
 
         try {
             Map<String, String> settings = settingsManager.getSettings();

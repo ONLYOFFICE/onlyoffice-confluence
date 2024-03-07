@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         String attachmentIdString = request.getParameter("attachmentId");
         String actionDataString = request.getParameter("actionData");
+        String modeString = request.getParameter("mode");
         if (attachmentIdString == null || attachmentIdString.isEmpty()) {
             if (!authContext.checkUserAuthorization(request, response)) {
                 return;
@@ -165,9 +166,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                     actionData = new JSONObject(actionDataString);
                 }
 
+                Mode mode = Mode.EDIT;
+
+                if (modeString != null && modeString.equals("view")) {
+                    mode = Mode.VIEW;
+                }
+
                 Config config = configService.createConfig(
                         attachmentId.toString(),
-                        Mode.EDIT,
+                        mode,
                         request.getHeader("USER-AGENT")
                 );
 
@@ -188,6 +195,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                         new JSONArray(documentManager.getCompareFileExtensions()).toString());
                 context.put("mailMergeTypesAsHtml", new JSONArray(documentManager.getMailMergeExtensions()).toString());
                 context.put("demo", settingsManager.isDemoActive());
+                context.put("usersInfoUrlAsHtml", urlManager.getUsersInfoUrl());
             } else {
                 context.put("errorMessage", i18n.getText("onlyoffice.editor.message.error.unsupported") + "(."
                         + documentManager.getExtension(fileName) + ")");

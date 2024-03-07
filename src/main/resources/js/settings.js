@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,12 @@
             });
 
             var data = {
-                "url": $("#apiUrlField").attr("value"),
-                "innerUrl": $("#docInnerUrlField").attr("value"),
-                "productInnerUrl": $("#confUrlField").attr("value"),
+                "url": $("#apiUrlField").attr("value").trim(),
+                "innerUrl": $("#docInnerUrlField").attr("value").trim(),
+                "productInnerUrl": $("#confUrlField").attr("value").trim(),
                 "security": {
                     "key": $("#jwtSecretField").attr("value"),
+                    "header": $("#securityHeader").attr("value")
                 },
                 "ignoreSSLCertificate": $("#verifyCertificate").is(":checked"),
                 "customization": {
@@ -165,7 +166,7 @@
 
             scriptAddress.on("load", testApiResult).on("error", testApiResult);
 
-            var docServiceUrlApi = $("#apiUrlField").val();
+            var docServiceUrlApi = $("#apiUrlField").val().trim();
 
             if (docServiceUrlApi.endsWith("/")) {
                 docServiceUrlApi = docServiceUrlApi.slice(0, -1);
@@ -202,7 +203,7 @@
 
         var demoToggle = function () {
             if (!$("#onlyofficeDemo").prop("disabled")) {
-                $("#apiUrlField, #jwtSecretField, #docInnerUrlField, #verifyCertificate").prop("disabled", $("#onlyofficeDemo").prop("checked"));
+                $("#apiUrlField, #jwtSecretField, #docInnerUrlField, #verifyCertificate, #securityHeader").prop("disabled", $("#onlyofficeDemo").prop("checked"));
                 if ($("#onlyofficeDemo").prop("checked")) {
                     $(".view-control").css("pointer-events", "none");
                     $(".view-control").removeClass("view");

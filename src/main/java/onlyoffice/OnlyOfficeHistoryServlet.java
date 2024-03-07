@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
-import com.atlassian.spring.container.ContainerManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.onlyoffice.model.common.Changes;
 import com.onlyoffice.model.common.User;
 import com.onlyoffice.model.documenteditor.HistoryData;
 import com.onlyoffice.model.documenteditor.callback.History;
@@ -40,10 +40,8 @@ import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -53,8 +51,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,29 +68,28 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private final LocaleManager localeManager;
     private final FormatSettingsManager formatSettingsManager;
+    private final UserAccessor userAccessor;
     private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
     private final UrlManager urlManager;
     private final SettingsManager settingsManager;
     private final JwtManager jwtManager;
-    private final ParsingUtil parsingUtil;
 
     public OnlyOfficeHistoryServlet(final LocaleManager localeManager,
-                                    final FormatSettingsManager formatSettingsManager,
+                                    final FormatSettingsManager formatSettingsManager, final UserAccessor userAccessor,
                                     final AuthContext authContext, final DocumentManager documentManager,
                                     final AttachmentUtil attachmentUtil, final UrlManager urlManager,
-                                    final SettingsManager settingsManager, final JwtManager jwtManager,
-                                    final ParsingUtil parsingUtil) {
+                                    final SettingsManager settingsManager, final JwtManager jwtManager) {
         this.localeManager = localeManager;
         this.formatSettingsManager = formatSettingsManager;
+        this.userAccessor = userAccessor;
         this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.urlManager = urlManager;
         this.settingsManager = settingsManager;
         this.jwtManager = jwtManager;
-        this.parsingUtil = parsingUtil;
     }
 
     @Override
@@ -189,7 +190,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
         List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
         if (attachments != null) {
-            UserAccessor userAccessor = (UserAccessor) ContainerManager.getComponent("userAccessor");
             ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
             DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
             Gson gson = new Gson();
@@ -203,7 +203,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         .key(documentManager.getDocumentKey(String.valueOf(attachment.getId()), false))
                         .created(dateFormatter.formatDateTime(attachment.getCreationDate()))
                         .user(User.builder()
-                                .id(attachment.getCreator().getName())
+                                .id(attachment.getCreator().getKey().getStringValue())
                                 .name(attachment.getCreator().getFullName())
                                 .build()
                         )
@@ -213,14 +213,13 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                 if (changesAttachment != null) {
                     if (prevVersion != null && (attachment.getVersion() - prevVersion.getVersion()) == 1) {
                         InputStream changesSteam = attachmentUtil.getAttachmentData(changesAttachment.getId());
+
                         ObjectMapper mapper = new ObjectMapper();
                         History changes = mapper.readValue(changesSteam, History.class);
-                        try {
-                            version.setServerVersion(changes.getServerVersion());
-                            version.setChanges(changes.getChanges());
-                        } catch (JSONException e) {
-                            throw new IOException(e.getMessage());
-                        }
+                        changes.setChanges(formatChanges(changes.getChanges(), user));
+
+                        version.setServerVersion(changes.getServerVersion());
+                        version.setChanges(changes.getChanges());
                     } else {
                         attachmentUtil.removeAttachmentChanges(attachment.getId());
                     }
@@ -241,6 +240,23 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
+    }
+
+    private List<Changes> formatChanges(final List<Changes> changes, final ConfluenceUser user) {
+        ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
+        DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        for (Changes changesEntity : changes) {
+            try {
+                Date created = dateFormat.parse(changesEntity.getCreated());
+                changesEntity.setCreated(dateFormatter.formatDateTime(created));
+            } catch (ParseException e) {
+                log.error(e);
+            }
+        }
+
+        return changes;
     }
 
     private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response)

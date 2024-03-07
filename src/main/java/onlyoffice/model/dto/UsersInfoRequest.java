@@ -16,13 +16,18 @@
  *
  */
 
-package onlyoffice.sdk.manager.security;
+package onlyoffice.model.dto;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+public class UsersInfoRequest {
+    private List<String> ids = new ArrayList<>();
 
-public interface JwtManager extends com.onlyoffice.manager.security.JwtManager {
-    String createInternalToken(Map<String, ?> payloadMap);
-    String verifyInternalToken(String token);
-    String createHash(String str);
-    String readHash(String base64);
+    public List<String> getIds() {
+        return ids;
+    }
+
+    public void setIds(final List<String> ids) {
+        this.ids = ids;
+    }
 }

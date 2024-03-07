@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,11 +62,12 @@ public class ConfigServiceImpl extends DefaultConfigService {
         String fileName = getDocumentManager().getDocumentName(fileId);
 
         Boolean editPermission = attachmentUtil.checkAccess(Long.parseLong(fileId), user, true);
-        Boolean isEditable = super.getDocumentManager().isEditable(fileName)
-                || super.getDocumentManager().isFillable(fileName);
+        Boolean isEditable = super.getDocumentManager().isEditable(fileName);
+        Boolean isFillable = super.getDocumentManager().isFillable(fileName);
 
         return Permissions.builder()
                 .edit(editPermission && isEditable)
+                .fillForms(editPermission && isFillable)
                 .build();
     }
 
@@ -76,7 +77,7 @@ public class ConfigServiceImpl extends DefaultConfigService {
 
         if (user != null) {
             return User.builder()
-                    .id(user.getName())
+                    .id(user.getKey().getStringValue())
                     .name(user.getFullName())
                     .build();
         } else {
