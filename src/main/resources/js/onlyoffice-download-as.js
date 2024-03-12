@@ -10,22 +10,28 @@
 
             var link = AJS.$(this);
 
-            AJS.$.get(link.attr('href'), function (response) {
-                AJS.$('.aui-page-panel').after(response);
-                AJS.dialog2(dialogId).show();
+            AJS.safe.ajax({
+                url: link.attr('href'),
+                type: "GET",
+                cache: false,
+                data: {},
+                success: function (response) {
+                    AJS.$('.aui-page-panel').after(response);
+                    AJS.dialog2(dialogId).show();
 
-                Confluence.Binder.autocompletePage(AJS.$("#onlyoffice-download-as-binder"));
-                $(".aui-message-context").html("");
+                    Confluence.Binder.autocompletePage(AJS.$("#onlyoffice-download-as-binder"));
+                    $(".aui-message-context").html("");
 
-                AJS.$(buttonCloseId).bind("click", function (e) {
-                    e.preventDefault();
-                    AJS.dialog2(dialogId).hide();
-                });
+                    AJS.$(buttonCloseId).bind("click", function (e) {
+                        e.preventDefault();
+                        AJS.dialog2(dialogId).hide();
+                    });
 
-                AJS.$(buttonDownloadAsId).bind("click", function (e) {
-                    e.preventDefault();
-                    downloadAsAction();
-                });
+                    AJS.$(buttonDownloadAsId).bind("click", function (e) {
+                        e.preventDefault();
+                        downloadAsAction();
+                    });
+                }
             });
 
             return false;
@@ -72,7 +78,7 @@
             return;
         }
 
-        $.ajax({
+        AJS.safe.ajax({
             type: "POST",
             url: url,
             data: data,
@@ -106,40 +112,41 @@
         var servicePrefix = false;
 
         switch (response.error) {
-            case -1:
-                 errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.unknown");
+            case "UNKNOWN":
+                 errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.unknown");
                  servicePrefix = true;
                  break;
-            case -2:
-                errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.timeout");
+            case "TIMEOUT":
+                errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.timeout");
                 servicePrefix = true;
                 break;
-            case -3:
-                errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.conversion");
+            case "CONVERSION":
+                errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.conversion");
                 servicePrefix = true;
                 break;
-            case -4:
-                errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.download");
+            case "DOWNLOADING":
+                errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.downloading");
                 servicePrefix = true;
                 break;
-            case -5:
-                errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.password");
+            case "PASSWORD":
+                errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.password");
                 servicePrefix = true;
                 break;
-            case -6:
-                errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.database");
+            case "DATABASE":
+                errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.database");
                 servicePrefix = true;
                 break;
-            case -7:
-                errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.input");
+            case "INPUT":
+                errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.input");
                 servicePrefix = true;
                 break;
-            case -8:
-                errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.token");
+            case "TOKEN":
+                errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.token");
                 servicePrefix = true;
                 break;
-            case -10:
-                errorMessage = AJS.I18n.getText("onlyoffice.connector.dialog.conversion.message.error.not-reached");
+            case "CONNECTION":
+                errorMessage = AJS.I18n.getText("onlyoffice.service.convert.error.connection");
+                servicePrefix = true;
                 break;
             default:
                 errorMessage = AJS.I18n.getText("onlyoffice.connector.error.Unknown");

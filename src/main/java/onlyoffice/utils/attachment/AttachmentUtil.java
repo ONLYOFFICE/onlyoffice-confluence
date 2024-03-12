@@ -1,3 +1,21 @@
+/**
+ *
+ * (c) Copyright Ascensio System SIA 2024
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package onlyoffice.utils.attachment;
 
 import com.atlassian.confluence.core.ContentEntityObject;
@@ -27,17 +45,11 @@ public interface AttachmentUtil extends Serializable {
 
     void updateAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user);
 
-    void saveAttachmentChanges(Long attachmentId, String history, String changesUrl) throws Exception;
-
     void removeAttachmentChanges(Long attachmentId);
 
     InputStream getAttachmentData(Long attachmentId);
 
     String getMediaType(Long attachmentId);
-
-    String getFileName(Long attachmentId);
-
-    String getFileExt(Long attachmentId);
 
     String getHashCode(Long attachmentId);
 
@@ -75,4 +87,6 @@ public interface AttachmentUtil extends Serializable {
     File getConvertedFile(Long attachmentId);
 
     ContentEntityObject getContainer(Long containerId);
+
+    String getCorrectName(String fileName, String fileExt, Long pageID);
 }

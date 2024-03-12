@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ define('cp/component/onlyoffice-button', [
 
             var xhr = new XMLHttpRequest();
 
-            xhr.open("POST", "/plugins/servlet/onlyoffice/confluence/previews/plugin/access", false);
+            xhr.open("POST", AJS.contextPath() + "/plugins/servlet/onlyoffice/confluence/previews/plugin/access", false);
             xhr.send(JSON.stringify({
                  attachmentId: attachmentId
             }));
@@ -60,6 +60,7 @@ define('cp/component/onlyoffice-button', [
 
             if (title) {
                 this.$el.html(templateStore.get('controlOnlyofficeButton')({
+                    contextPath: AJS.contextPath(),
                     attachmentId: attachmentId,
                     title: title
                 }));

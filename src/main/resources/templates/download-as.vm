@@ -1,5 +1,6 @@
 <section role="dialog" id="onlyoffice-download-as-dialog" class="aui-layer aui-dialog2 aui-dialog2-medium" aria-hidden="true" data-aui-remove-on-hide="true">
     <form action="plugins/onlyoffice-confluence-plugin/onlyoffice-download-as.action?attachmentId=$action.getAttachmentId()" method="get" class="aui">
+        #form_xsrfToken()
 
         <header class="aui-dialog2-header">
             <h2 class="aui-dialog2-header-main">$i18n.getText("onlyoffice.connector.dialog.conversion.header.title")</h2>

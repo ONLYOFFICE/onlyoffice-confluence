@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ AJS.toInit(function ($) {
             var insertImageDialog = AJS.Editor.ImageDialog.insertImageDialog(function(a) {
                 var fileExt = a.selectItems[0].attributes.fileName.split(".").pop();
                 if (fileExt == "docx") {
-                    window.open("/plugins/servlet/onlyoffice/convert?attachmentId=" + a.selectItems[0].attributes.id +
+                    window.open(AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId=" + a.selectItems[0].attributes.id +
                             "&pageId=" + AJS.params.pageId + "&newTitle=" +  $("#view-input-docxf").attr("value")
                     )
                     setTimeout(function () { document.location.reload(); }, 1000);
@@ -101,7 +101,7 @@ AJS.toInit(function ($) {
 
             dialog.find(".file-list").on("DOMNodeInserted", function(event) {
                 var fileExt = event.srcElement.dataset.fileName.split(".").pop();
-                if (fileExt != "docx") $(event.srcElement).hide();
+                if (fileExt != "docx") $(event.srcElement).remove();
             });
 
             var buttonPanel = dialog.find(".dialog-button-panel");

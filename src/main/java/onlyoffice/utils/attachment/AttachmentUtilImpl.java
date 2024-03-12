@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,22 +35,12 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
-import onlyoffice.managers.configuration.ConfigurationManager;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -65,14 +55,10 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     private final PageManager pageManager;
     private final BootstrapManager bootstrapManager;
 
-    private final ConfigurationManager configurationManager;
-
     public AttachmentUtilImpl(final AttachmentManager attachmentManager, final TransactionTemplate transactionTemplate,
-                              final ConfigurationManager configurationManager, final PageManager pageManager,
-                              final BootstrapManager bootstrapManager) {
+                              final PageManager pageManager, final BootstrapManager bootstrapManager) {
         this.attachmentManager = attachmentManager;
         this.transactionTemplate = transactionTemplate;
-        this.configurationManager = configurationManager;
         this.pageManager = pageManager;
         this.bootstrapManager = bootstrapManager;
     }
@@ -166,53 +152,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         });
     }
 
-    public void saveAttachmentChanges(final Long attachmentId, final String history, final String changesUrl)
-            throws Exception {
-        Attachment attachment = attachmentManager.getAttachment(attachmentId);
-
-        if (history != null && !history.isEmpty() && changesUrl != null && !changesUrl.isEmpty()) {
-            InputStream changesStream = new ByteArrayInputStream(history.getBytes(StandardCharsets.UTF_8));
-            Attachment changes =
-                    new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
-            changes.setContainer(attachment.getContainer());
-            changes.setHidden(true);
-
-            try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
-                HttpGet request = new HttpGet(changesUrl);
-
-                try (CloseableHttpResponse response = httpClient.execute(request)) {
-                    int status = response.getStatusLine().getStatusCode();
-                    HttpEntity entity = response.getEntity();
-
-                    if (status == HttpStatus.SC_OK) {
-                        byte[] bytes = IOUtils.toByteArray(entity.getContent());
-                        InputStream streamDiff = new ByteArrayInputStream(bytes);
-
-                        Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", bytes.length, "");
-                        diff.setContainer(attachment.getContainer());
-                        diff.setHidden(true);
-
-                        attachment.addAttachment(changes);
-                        attachment.addAttachment(diff);
-
-                        AttachmentDao attDao = attachmentManager.getAttachmentDao();
-                        Object result = transactionTemplate.execute(new TransactionCallback() {
-                            @Override
-                            public Object doInTransaction() {
-                                attDao.saveNewAttachment(changes, changesStream);
-                                attDao.saveNewAttachment(diff, streamDiff);
-                                attDao.updateAttachment(attachment);
-                                return null;
-                            }
-                        });
-                    } else {
-                        throw new HttpException("Docserver returned code " + status);
-                    }
-                }
-            }
-        }
-    }
-
     public void removeAttachmentChanges(final Long attachmentId) {
         Attachment changes = getAttachmentChanges(attachmentId);
         Attachment diff = getAttachmentDiff(attachmentId);
@@ -240,16 +179,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     public String getMediaType(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getMediaType();
-    }
-
-    public String getFileName(final Long attachmentId) {
-        Attachment attachment = attachmentManager.getAttachment(attachmentId);
-        return attachment.getFileName();
-    }
-
-    public String getFileExt(final Long attachmentId) {
-        String fileName = getFileName(attachmentId);
-        return fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
     }
 
     public String getHashCode(final Long attachmentId) {
@@ -420,5 +349,31 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         }
 
         return container;
+    }
+
+    public String getCorrectName(final String fileName, final String fileExt, final Long pageID) {
+        ContentEntityManager contentEntityManager =
+                (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
+        AttachmentManager attachmentManager = (AttachmentManager) ContainerManager.getComponent("attachmentManager");
+        ContentEntityObject contentEntityObject = contentEntityManager.getById(pageID);
+
+        List<Attachment> attachments = attachmentManager.getLatestVersionsOfAttachments(contentEntityObject);
+        String name = (fileName + "." + fileExt).replaceAll("[*?:\"<>/|\\\\]", "_");
+        int count = 0;
+        Boolean flag = true;
+
+        while (flag) {
+            flag = false;
+            for (Attachment attachment : attachments) {
+                if (attachment.getFileName().equals(name)) {
+                    count++;
+                    name = fileName + " (" + count + ")." + fileExt;
+                    flag = true;
+                    break;
+                }
+            }
+        }
+
+        return name;
     }
 }

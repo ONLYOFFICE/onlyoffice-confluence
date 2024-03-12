@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
-import onlyoffice.managers.document.DocumentManager;
+import com.onlyoffice.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
 import java.util.Map;
@@ -62,21 +62,23 @@ public class IsOfficeFileAttachment implements Condition {
         ConfluenceUser user = AuthenticatedUserThreadLocal.get();
         boolean accessEdit = attachmentUtil.checkAccess(attachment, user, true);
         boolean accessView = attachmentUtil.checkAccess(attachment, user, false);
-        String ext = attachment.getFileExtension();
+        String fileName = attachment.getFileName();
 
         if (forEdit) {
             if (form) {
-                if (accessEdit && documentManager.isFillForm(ext)) {
+                if (accessEdit && documentManager.isFillable(fileName)) {
                     return true;
                 }
             } else {
-                if (accessEdit && documentManager.isEditable(ext)) {
+                if (accessEdit && documentManager.isEditable(fileName)) {
                     return true;
                 }
             }
         } else {
-            if (accessView && documentManager.isViewable(ext)
-                    && !(accessEdit && (documentManager.isEditable(ext) || documentManager.isFillForm(ext)))) {
+            if (accessView
+                    && documentManager.isViewable(fileName)
+                    && !(accessEdit && documentManager.isEditable(fileName))
+            ) {
                 return true;
             }
         }

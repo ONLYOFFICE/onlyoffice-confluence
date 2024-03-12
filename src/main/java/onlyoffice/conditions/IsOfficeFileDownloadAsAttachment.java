@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
-import onlyoffice.managers.convert.ConvertManager;
-import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -32,16 +31,13 @@ import org.apache.log4j.Logger;
 import java.util.Map;
 
 public class IsOfficeFileDownloadAsAttachment implements Condition {
-
-    private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
-    private final ConvertManager convertManager;
+    private final DocumentManager documentManager;
 
-    public IsOfficeFileDownloadAsAttachment(final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
-                                            final ConvertManager convertManager) {
-        this.documentManager = documentManager;
+    public IsOfficeFileDownloadAsAttachment(final AttachmentUtil attachmentUtil,
+                                            final DocumentManager documentManager) {
         this.attachmentUtil = attachmentUtil;
-        this.convertManager = convertManager;
+        this.documentManager = documentManager;
     }
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
@@ -57,9 +53,7 @@ public class IsOfficeFileDownloadAsAttachment implements Condition {
             return false;
         }
 
-        String ext = attachment.getFileExtension();
-
-        if (attachment.getFileSize() > documentManager.getConvertationFileSizeMax()) {
+        if (attachment.getFileSize() > documentManager.getMaxConversionFileSize()) {
             return false;
         }
 
@@ -67,7 +61,7 @@ public class IsOfficeFileDownloadAsAttachment implements Condition {
         boolean access = attachmentUtil.checkAccess(attachment, user, false);
 
         return access
-                && convertManager.getTargetExtList(ext) != null
-                && convertManager.getTargetExtList(ext).size() > 0;
+                && documentManager.getConvertExtensionList(attachment.getFileName()) != null
+                && documentManager.getConvertExtensionList(attachment.getFileName()).size() > 0;
     }
 }

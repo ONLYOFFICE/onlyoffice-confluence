@@ -2,14 +2,15 @@
     <script type="text/javascript" src="${docServiceApiUrl}"></script>
 
     #if($action == "edit")
-      <a class="aui-button" target="_blank" style="color: var(--aui-btn-text); margin-bottom: 2px;" href="/plugins/servlet/onlyoffice/doceditor?attachmentId=${attachmentId}">$i18n.getText('onlyoffice.editor.editlink')</a>
+      <a class="aui-button" target="_blank" style="color: var(--aui-btn-text); margin-bottom: 2px;" href="$req.contextPath/plugins/servlet/onlyoffice/doceditor?attachmentId=${attachmentId}">$i18n.getText('onlyoffice.editor.editlink')</a>
     #elseif($action == "fill")
-      <a class="aui-button" target="_blank" style="color: var(--aui-btn-text); margin-bottom: 2px;" href="/plugins/servlet/onlyoffice/doceditor?attachmentId=${attachmentId}">$i18n.getText('onlyoffice.editor.fillFormlink')</a>
+      <a class="aui-button" target="_blank" style="color: var(--aui-btn-text); margin-bottom: 2px;" href="$req.contextPath/plugins/servlet/onlyoffice/doceditor?attachmentId=${attachmentId}">$i18n.getText('onlyoffice.editor.fillFormlink')</a>
     #end
 
     <div id="iframeEditor_${id}"></div>
+    <span style="display:none;" id="editorConfig_iframeEditor_${id}" aria-hidden="true">$configAsHtml</span>
 
     <script>
-        var docEditor = new DocsAPI.DocEditor("iframeEditor_${id}", JSON.parse('${configAsHtml}'));
+        var docEditor = new DocsAPI.DocEditor("iframeEditor_${id}", JSON.parse($("#editorConfig_iframeEditor_${id}").html().replaceAll("&amp;", "&") || "{}"));
     </script>
 </div>

@@ -1,5 +1,21 @@
 # Change Log
 
+## 5.0.0
+## Added
+- compatible with Confluence 8.8
+- core of the plugin has been moved to com.onlyoffice.docs-integration-sdk (https://github.com/ONLYOFFICE/docs-integration-sdk-java)
+- improved connection settings validation
+- improved history servlet security
+- setting authorization header on settings page
+- user image in editor
+- filling pdf
+- translations (zh_CN)
+
+## Changed
+- improved date formatting in history changes
+- default conversion format (from docxf to pdf instead oform)
+- remove filling for oform
+
 ## 4.4.0
 ## Added
 - compatible with Confluence 8.6

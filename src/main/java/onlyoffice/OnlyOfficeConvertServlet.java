@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,24 @@
 
 package onlyoffice;
 
+import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
+import com.onlyoffice.manager.request.RequestManager;
+import com.onlyoffice.model.common.CommonResponse;
+import com.onlyoffice.model.common.Format;
+import com.onlyoffice.model.convertservice.ConvertRequest;
+import com.onlyoffice.model.convertservice.ConvertResponse;
+import com.onlyoffice.service.convert.ConvertService;
 import onlyoffice.managers.auth.AuthContext;
-import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.managers.convert.ConvertManager;
-import onlyoffice.managers.document.DocumentManager;
+import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -48,7 +48,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
@@ -56,23 +55,25 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
 
+    private final LocaleManager localeManager;
     private final AttachmentManager attachmentManager;
     private final AttachmentUtil attachmentUtil;
-    private final ConvertManager convertManager;
+    private final ConvertService convertService;
     private final AuthContext authContext;
     private final DocumentManager documentManager;
-    private final ConfigurationManager configurationManager;
+    private final RequestManager requestManager;
 
-    public OnlyOfficeConvertServlet(final AttachmentManager attachmentManager, final AttachmentUtil attachmentUtil,
-                                    final ConvertManager convertManager, final AuthContext authContext,
-                                    final DocumentManager documentManager,
-                                    final ConfigurationManager configurationManager) {
+    public OnlyOfficeConvertServlet(final LocaleManager localeManager, final AttachmentManager attachmentManager,
+                                    final AttachmentUtil attachmentUtil, final ConvertService convertService,
+                                    final AuthContext authContext, final DocumentManager documentManager,
+                                    final RequestManager requestManager) {
+        this.localeManager = localeManager;
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
-        this.convertManager = convertManager;
+        this.convertService = convertService;
         this.authContext = authContext;
         this.documentManager = documentManager;
-        this.configurationManager = configurationManager;
+        this.requestManager = requestManager;
     }
 
     @Override
@@ -94,8 +95,21 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
         Long pageId = attachment.getContainer().getId();
         String fileName = attachment.getFileName();
-        String ext = attachment.getFileExtension();
-        String newExt = convertManager.getTargetExt(ext);
+        String newFileExtension = documentManager.getDefaultConvertExtension(fileName);
+
+        String extension = documentManager.getExtension(fileName);
+        Format docx = documentManager.getFormats().stream()
+                .filter(format -> format.getName().equals("docx"))
+                .findFirst()
+                .get();
+
+        if (docx != null
+                && extension.equals(docx.getName())
+                && docx.getConvert() != null
+                && docx.getConvert().contains("docxf")) {
+            newFileExtension = "docxf";
+        }
+
         String title = fileName.substring(0, fileName.lastIndexOf("."));
 
         if (pageIdString != null && !pageIdString.isEmpty()) {
@@ -108,7 +122,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             title = newTitle;
         }
 
-        String newName = documentManager.getCorrectName(title, newExt, pageId);
+        String newName = documentManager.getCorrectNewFileName(title, newFileExtension, pageId);
 
         contextMap.put("attachmentId", attachmentIdString);
         contextMap.put("oldName", fileName);
@@ -132,69 +146,89 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         String errorMessage = null;
         JSONObject json = null;
 
-        try {
-            Long attachmentId = Long.parseLong(attachmentIdString);
-            log.info("attachmentId " + attachmentId);
 
-            Attachment attachment = attachmentManager.getAttachment(attachmentId);
+        Long attachmentId = Long.parseLong(attachmentIdString);
+        log.info("attachmentId " + attachmentId);
 
-            user = AuthenticatedUserThreadLocal.get();
-            log.info("user " + user);
+        Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
-            String fileName = attachment.getFileName();
-            String ext = attachment.getFileExtension();
-            String title = fileName.substring(0, fileName.lastIndexOf("."));
+        user = AuthenticatedUserThreadLocal.get();
+        log.info("user " + user);
 
-            String pageIdAsString = request.getParameter("pageId");
-            String newTitle = request.getParameter("newTitle");
+        String fileName = attachment.getFileName();
+        String title = fileName.substring(0, fileName.lastIndexOf("."));
 
-            if (newTitle != null && !newTitle.isEmpty()) {
-                title = newTitle;
-            }
+        String pageIdAsString = request.getParameter("pageId");
+        String newTitle = request.getParameter("newTitle");
 
-            Long pageId = null;
-            if (pageIdAsString != null && !pageIdAsString.isEmpty()) {
-                pageId = Long.parseLong(pageIdAsString);
-            } else {
-                pageId = attachment.getContainer().getId();
-            }
+        if (newTitle != null && !newTitle.isEmpty()) {
+            title = newTitle;
+        }
 
-            String convertToExt = convertManager.getTargetExt(ext);
+        Long pageId = null;
+        if (pageIdAsString != null && !pageIdAsString.isEmpty()) {
+            pageId = Long.parseLong(pageIdAsString);
+        } else {
+            pageId = attachment.getContainer().getId();
+        }
 
-            if (attachmentUtil.checkAccess(attachmentId, user, false)
-                    && attachmentUtil.checkAccessCreate(user, pageId)) {
-                if (convertToExt != null) {
-                    json = convertManager.convert(attachmentId, ext, convertToExt, user, null);
+        String convertToExt = documentManager.getDefaultConvertExtension(fileName);
 
-                    if (json.has("endConvert") && json.getBoolean("endConvert")) {
-                        String newFileName = documentManager.getCorrectName(title, convertToExt, pageId);
-                        Long newAttachmentId = savefile(attachment, json.getString("fileUrl"), newFileName, pageId);
-                        json.put("attachmentId", newAttachmentId);
-                    } else if (json.has("error")) {
-                        errorMessage = "Unknown conversion error";
-                    }
-                } else {
-                    errorMessage = "Files of " + ext + " format cannot be converted";
-                }
-            } else {
-                log.error("access deny");
-                errorMessage = "You don not have enough permission to convert the file";
-            }
-        } catch (Exception ex) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            ex.printStackTrace(pw);
-            String error = ex.toString() + "\n" + sw.toString();
-            log.error(error);
-            errorMessage = ex.toString();
+        String extension = documentManager.getExtension(fileName);
+        Format docx = documentManager.getFormats().stream()
+                .filter(format -> format.getName().equals("docx"))
+                .findFirst()
+                .get();
+
+        if (docx != null
+                && extension.equals(docx.getName())
+                && docx.getConvert() != null
+                && docx.getConvert().contains("docxf")) {
+            convertToExt = "docxf";
+        }
+
+        if (!attachmentUtil.checkAccess(attachmentId, user, false)
+                || !attachmentUtil.checkAccessCreate(user, pageId)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        if (convertToExt == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         }
 
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
-        if (errorMessage != null) {
-            writer.write("{\"error\":\"" + errorMessage + "\"}");
-        } else {
+
+        try {
+            String region = localeManager.getLocale(user).toLanguageTag();
+
+            ConvertRequest convertRequest = ConvertRequest.builder()
+                    .async(true)
+                    .outputtype(convertToExt)
+                    .region(region)
+                    .build();
+
+            ConvertResponse convertResponse = convertService.processConvert(convertRequest,
+                    String.valueOf(attachmentId));
+
+            json = new JSONObject(convertResponse);
+
+            if (convertResponse.getEndConvert() != null && convertResponse.getEndConvert()) {
+                String newFileName = documentManager.getCorrectNewFileName(title, convertToExt, pageId);
+                Long newAttachmentId = savefile(attachment, convertResponse.getFileUrl(), newFileName, pageId);
+                json.put("attachmentId", newAttachmentId);
+            }
+
             writer.write(json.toString());
+        } catch (IOException e) {
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setError(CommonResponse.Error.CONNECTION);
+            json = new JSONObject(commonResponse);
+            writer.write(json.toString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -202,33 +236,25 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             throws Exception {
         log.info("downloadUri = " + fileUrl);
 
-        try (CloseableHttpClient httpClient = configurationManager.getHttpClient()) {
-            HttpGet request = new HttpGet(fileUrl);
+        return requestManager.executeGetRequest(fileUrl, new RequestManager.Callback<Long>() {
+            @Override
+            public Long doWork(final Object response) throws Exception {
+                byte[] bytes = IOUtils.toByteArray(((HttpEntity) response).getContent());
+                InputStream inputStream = new ByteArrayInputStream(bytes);
 
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                Attachment copy = attachment.copyLatestVersion();
 
-                int status = response.getStatusLine().getStatusCode();
-                HttpEntity entity = response.getEntity();
+                copy.setContainer(attachmentUtil.getContainer(pageId));
+                copy.setFileName(newName);
+                copy.setFileSize(bytes.length);
+                copy.setMediaType(documentManager.getMimeType(newName));
 
-                if (status == HttpStatus.SC_OK) {
-                    byte[] bytes = IOUtils.toByteArray(entity.getContent());
-                    InputStream inputStream = new ByteArrayInputStream(bytes);
+                attachmentManager.saveAttachment(copy, null, inputStream);
+                attachmentUtil.setCollaborativeEditingKey(copy.getLatestVersionId(), null);
 
-                    Attachment copy = attachment.copyLatestVersion();
-
-                    copy.setContainer(attachmentUtil.getContainer(pageId));
-                    copy.setFileName(newName);
-                    copy.setFileSize(bytes.length);
-                    copy.setMediaType(documentManager.getMimeType(newName));
-
-                    attachmentManager.saveAttachment(copy, null, inputStream);
-
-                    return copy.getLatestVersionId();
-                } else {
-                    throw new HttpException("Document Server returned code " + status);
-                }
+                return copy.getLatestVersionId();
             }
-        }
+        });
     }
 
 }

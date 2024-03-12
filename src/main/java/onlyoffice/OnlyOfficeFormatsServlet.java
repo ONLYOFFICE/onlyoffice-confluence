@@ -1,6 +1,6 @@
 /**
  *
- * (c) Copyright Ascensio System SIA 2023
+ * (c) Copyright Ascensio System SIA 2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 package onlyoffice;
 
 import com.google.gson.Gson;
-import onlyoffice.managers.configuration.ConfigurationManager;
-import onlyoffice.model.Format;
+import com.onlyoffice.model.common.Format;
+import onlyoffice.sdk.manager.document.DocumentManager;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -36,15 +36,15 @@ public class OnlyOfficeFormatsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFormatsServlet");
 
-    private final ConfigurationManager configurationManager;
+    private final DocumentManager documentManager;
 
-    public OnlyOfficeFormatsServlet(final ConfigurationManager configurationManager) {
-        this.configurationManager = configurationManager;
+    public OnlyOfficeFormatsServlet(final DocumentManager documentManager) {
+        this.documentManager = documentManager;
     }
 
     @Override
     public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-        List<Format> supportedFormats = configurationManager.getSupportedFormats();
+        List<Format> supportedFormats = documentManager.getFormats();
         List<String> result = new ArrayList<>();
 
         for (Format format : supportedFormats) {

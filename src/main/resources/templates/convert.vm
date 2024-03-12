@@ -8,7 +8,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
 
     <!--
     *
-    * (c) Copyright Ascensio System SIA 2023
+    * (c) Copyright Ascensio System SIA 2024
     *
     * Licensed under the Apache License, Version 2.0 (the "License");
     * you may not use this file except in compliance with the License.
@@ -66,34 +66,41 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
                         url: url,
                         type: "POST",
                         cache: false,
-                        success: function (data) { onResponse(data); },
-                        error: function (data) { onError(data.status); }
+                        success: function (response) { onResponse(response); },
+                        error: function (response) {
+                            if (response.status == 403) {
+                                onError("$i18n.getText('onlyoffice.connector.dialog.conversion.message.error.permission')");
+                            } else {
+                                onError("$i18n.getText('onlyoffice.connector.error.Unknown')");
+                            }
+                        }
                     });
                 };
 
-                function onError(error) {
+                function onError(errorMessage) {
                     thumb.css("background", "#de350b");
-                    msg.text("$i18n.getText('onlyoffice.convert.message.error') " + error);
+                    msg.text(errorMessage);
                     btn.removeAttr("disabled");
                 }
 
-                function onResponse(data) {
-                    if (data.error) {
-                        onError(data.error);
+                function onResponse(response) {
+                    if (response.error) {
+                        var errorMessage = getErrorMessage(response);
+                        onError(errorMessage);
                         return;
                     }
 
-                    if (data.percent != null) {
-                        var perc = data.percent / 100;
+                    if (response.percent != null) {
+                        var perc = response.percent / 100;
                         if (perc > 0) {
                             AJS.progressBars.update(progress, perc);
                         }
                     }
 
-                    if (!data.endConvert) {
+                    if (!response.endConvert) {
                         setTimeout(poll, 1000);
                     } else {
-                        window.location = editorUrl + data.attachmentId;
+                        window.location = editorUrl + response.attachmentId;
                     }
                 };
 
@@ -104,6 +111,58 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
                 AJS.progressBars.update(progress, 0.1);
                 poll();
             });
+
+            function getErrorMessage(response) {
+                var errorMessage;
+                var servicePrefix = false;
+
+                switch (response.error) {
+                    case "UNKNOWN":
+                         errorMessage = "$i18n.getText('onlyoffice.service.convert.error.unknown')";
+                         servicePrefix = true;
+                         break;
+                    case "TIMEOUT":
+                        errorMessage = "$i18n.getText('onlyoffice.service.convert.error.timeout')";
+                        servicePrefix = true;
+                        break;
+                    case "CONVERSION":
+                        errorMessage = "$i18n.getText('onlyoffice.service.convert.error.conversion')";
+                        servicePrefix = true;
+                        break;
+                    case "DOWNLOADING":
+                        errorMessage = "$i18n.getText('onlyoffice.service.convert.error.downloading')";
+                        servicePrefix = true;
+                        break;
+                    case "PASSWORD":
+                        errorMessage = "$i18n.getText('onlyoffice.service.convert.error.password')";
+                        servicePrefix = true;
+                        break;
+                    case "DATABASE":
+                        errorMessage = "$i18n.getText('onlyoffice.service.convert.error.database')";
+                        servicePrefix = true;
+                        break;
+                    case "INPUT":
+                        errorMessage = "$i18n.getText('onlyoffice.service.convert.error.input')";
+                        servicePrefix = true;
+                        break;
+                    case "TOKEN":
+                        errorMessage = "$i18n.getText('onlyoffice.service.convert.error.token')";
+                        servicePrefix = true;
+                        break;
+                    case "CONNECTION":
+                        errorMessage = "$i18n.getText('onlyoffice.service.convert.error.connection')";
+                        servicePrefix = true;
+                        break;
+                    default:
+                        errorMessage = "$i18n.getText('onlyoffice.connector.error.Unknown')";
+                }
+
+                if (servicePrefix) {
+                   errorMessage ="$i18n.getText('onlyoffice.connector.dialog.conversion.message.error.service-prefix')".replace("$", errorMessage);
+                }
+
+                return errorMessage;
+            }
         })(jQuery);
     </script>
 </body>
