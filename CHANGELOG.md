@@ -1,5 +1,9 @@
 # Change Log
 
+##
+## Changed
+- delete dependency com.fasterxml.jackson.core (CVE-2023-35116)
+
 ## 5.0.0
 ## Added
 - compatible with Confluence 8.8
