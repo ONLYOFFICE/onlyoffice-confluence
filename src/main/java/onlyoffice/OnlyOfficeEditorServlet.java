@@ -183,6 +183,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
                 ObjectMapper mapper = new ObjectMapper();
 
+                context.put("request", request);
                 context.put("configAsHtml", mapper.writeValueAsString(config));
                 context.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
                 context.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));
