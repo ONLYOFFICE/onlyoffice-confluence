@@ -20,3 +20,19 @@ License File:         org.apache.httpcomponents.httpclient.license
 org.json.json       - JSON is a light-weight, language independent, data interchange format. See http://www.JSON.org/ The files in this package implement JSON encoders/decoders in Java. It also includes the capability to convert between JSON and XML, HTTP headers, Cookies, and CDL. This is a reference implementation. (https://github.com/stleary/JSON-java/blob/master/LICENSE)
 License:              Public Domain
 License File:         org.json.json.license
+
+com.fasterxml.jackson.core.jackson-core - Core Jackson processing abstractions (aka Streaming API), implementation for JSON. (https://github.com/FasterXML/jackson-core/blob/master/LICENSE)
+License:              Apache 2.0
+License File:         com.fasterxml.jackson.core.jackson-core.license
+
+com.fasterxml.jackson.core.jackson-databind - General data-binding functionality for Jackson: works on core streaming API. (https://github.com/FasterXML/jackson-databind/blob/master/LICENSE)
+License:              Apache 2.0
+License File:         com.fasterxml.jackson.core.jackson-databind.license
+
+com.fasterxml.jackson.core.jackson-annotations - Core annotations used for value types, used by Jackson data binding package. (https://github.com/FasterXML/jackson-annotations/blob/master/LICENSE)
+License:              Apache 2.0
+License File:         com.fasterxml.jackson.core.jackson-annotations.license
+
+com.fasterxml.jackson.core.jackson-dataformat-properties - Support for reading and writing content of "Java Properties" style configuration files as if there was implied nesting structure (by default using dots as separators). (https://github.com/FasterXML/jackson-dataformats-text/blob/master/LICENSE)
+License:              Apache 2.0
+License File:         com.fasterxml.jackson.core.jackson-dataformat-properties.license
