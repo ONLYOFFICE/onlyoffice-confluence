@@ -1,5 +1,10 @@
 # Change Log
 
+
+## 5.0.2
+## Changed
+- redefine dependencies com.fasterxml.jackson
+
 ## 5.0.1
 ## Added
 - compatible with Confluence 8.9
