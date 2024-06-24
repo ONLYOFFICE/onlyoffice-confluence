@@ -110,7 +110,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 String extension = fileExt == null
                         || !fileExt.equals("xlsx")
                         && !fileExt.equals("pptx")
-                        && !fileExt.equals("docxf")
+                        && !fileExt.equals("pdf")
                         ? "docx" : fileExt.trim();
 
                 String name = fileName == null || fileName.equals("")

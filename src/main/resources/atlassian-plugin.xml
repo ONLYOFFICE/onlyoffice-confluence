@@ -70,7 +70,7 @@
         <resource type="download" name="new-docx.svg" location="images/new-docx.svg"/>
         <resource type="download" name="new-xlsx.svg" location="images/new-xlsx.svg"/>
         <resource type="download" name="new-pptx.svg" location="images/new-pptx.svg"/>
-        <resource type="download" name="new-docxf.svg" location="images/new-docxf.svg"/>
+        <resource type="download" name="new-pdf.svg" location="images/new-pdf.svg"/>
         <resource type="download" name="confirm.svg" location="images/confirm.svg"/>
         <resource type="download" name="16.svg" location="images/16.svg"/>
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
@@ -170,13 +170,13 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
-    <web-item key="onlyoffice-doc-create-form" name="Link for create oform from docxf" section="system.attachment" weight="11">
+    <web-item key="onlyoffice-doc-create-form" name="Link for create pdf from docxf" section="system.attachment" weight="11">
         <condition class="onlyoffice.conditions.IsOfficeFileConvertAttachment">
             <param name="form">true</param>
         </condition>
         <description>The link and the text for it which is used to convert the docx to oform</description>
         <label key="onlyoffice.form.create.link"/>
-        <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
+        <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id&createFrom=true]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
     <web-item key="onlyoffice-download-as" name="Link to download as attachment" section="system.attachment" weight="35">

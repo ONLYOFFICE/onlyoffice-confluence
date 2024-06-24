@@ -26,7 +26,7 @@ AJS.toInit(function ($) {
             "docx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.docx"),
             "xlsx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.xlsx"),
             "pptx" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.pptx"),
-            "docxf" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.docxf")
+            "pdf" : AJS.I18n.getText ("onlyoffice.editor.dialog.filecreate.pdf")
         }
     };
 
@@ -70,7 +70,7 @@ AJS.toInit(function ($) {
     });
 
     $(document).on("submit", ".filenameform", function(event) {
-        if (event.currentTarget.id == "form-docxf") {
+        if (event.currentTarget.id == "form-pdf") {
             if (AJS.Editor.ImageDialog.panelComponent.length == 0) {
                 var attachmentsPanelView = new AJS.Editor.FileDialog.AttachmentsPanelView({
                     eventListener: AJS.Editor.FileDialog.eventListener
@@ -85,8 +85,11 @@ AJS.toInit(function ($) {
             var insertImageDialog = AJS.Editor.ImageDialog.insertImageDialog(function(a) {
                 var fileExt = a.selectItems[0].attributes.fileName.split(".").pop();
                 if (fileExt == "docx") {
-                    window.open(AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId=" + a.selectItems[0].attributes.id +
-                            "&pageId=" + AJS.params.pageId + "&newTitle=" +  $("#view-input-docxf").attr("value")
+                    window.open(AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId="
+                    + a.selectItems[0].attributes.id
+                    +"&pageId=" + AJS.params.pageId
+                    + "&newTitle=" +  $("#view-input-pdf").attr("value")
+                    + "&createForm=true"
                     )
                     setTimeout(function () { document.location.reload(); }, 1000);
                 } else {
