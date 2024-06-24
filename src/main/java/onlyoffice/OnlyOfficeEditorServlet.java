@@ -34,6 +34,7 @@ import com.onlyoffice.service.documenteditor.config.ConfigService;
 import onlyoffice.managers.auth.AuthContext;
 import com.atlassian.confluence.pages.Attachment;
 import onlyoffice.sdk.manager.document.DocumentManager;
+import onlyoffice.sdk.manager.security.JwtManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.log4j.LogManager;
@@ -64,13 +65,14 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final ConfigService configService;
     private final SettingsManager settingsManager;
+    private final JwtManager jwtManager;
 
     private final LocaleManager localeManager;
 
     public OnlyOfficeEditorServlet(final I18nResolver i18n, final UrlManager urlManager, final AuthContext authContext,
                                    final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
                                    final ConfigService configService, final SettingsManager settingsManager,
-                                   final LocaleManager localeManager) {
+                                   final JwtManager jwtManager, final LocaleManager localeManager) {
         this.i18n = i18n;
         this.urlManager = urlManager;
         this.authContext = authContext;
@@ -78,6 +80,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.attachmentUtil = attachmentUtil;
         this.configService = configService;
         this.settingsManager = settingsManager;
+        this.jwtManager = jwtManager;
         this.localeManager = localeManager;
     }
 
@@ -178,8 +181,19 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                         request.getHeader("USER-AGENT")
                 );
 
+                if (modeString != null
+                        && modeString.equals("fillForms")
+                        && config.getDocument().getPermissions().getFillForms()
+                ) {
+                    config.getDocument().getPermissions().setEdit(false);
+                }
+
                 config.getEditorConfig().setLang(localeManager.getLocale(user).toLanguageTag());
                 config.getEditorConfig().setActionLink(actionData);
+
+                if (settingsManager.isSecurityEnabled()) {
+                    config.setToken(jwtManager.createToken(config));
+                }
 
                 ObjectMapper mapper = new ObjectMapper();
 

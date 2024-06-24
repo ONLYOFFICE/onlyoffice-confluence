@@ -125,10 +125,10 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
 
             if (attachmentUtil.checkAccess(attachment.getId(),  user, true)
                     && !isPreview) {
-                if (documentManager.isEditable(fileName)) {
-                    action = "edit";
-                } else if (documentManager.isFillable(fileName)) {
+                if (documentManager.isFillable(fileName)) {
                     action = "fill";
+                } else if (documentManager.isEditable(fileName)) {
+                    action = "edit";
                 }
             }
 

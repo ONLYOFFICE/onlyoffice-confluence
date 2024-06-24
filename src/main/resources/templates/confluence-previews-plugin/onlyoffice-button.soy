@@ -4,7 +4,8 @@
 * Onlyoffice button for opening editor.
 * @param attachmentId The id attachment.
 * @param title The title ONLYOFFICE button.
+* @param mode The mode for open editor.
 */
 {template .controlOnlyofficeButton}
-    <a role="button" target="_blank" tabindex=58" aria-haspopup="true" id="cp-control-panel-onlyoffice" href="{contextPath()}/plugins/servlet/onlyoffice/doceditor?attachmentId={$attachmentId}" title="{$title}" class="cp-icon"></a>
+    <a role="button" target="_blank" tabindex=58" aria-haspopup="true" id="cp-control-panel-onlyoffice" href="{contextPath()}/plugins/servlet/onlyoffice/doceditor?attachmentId={$attachmentId}{if $mode}&mode={$mode}{/if}" title="{$title}" class="cp-icon"></a>
 {/template}

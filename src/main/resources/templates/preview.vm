@@ -4,7 +4,7 @@
     #if($action == "edit")
       <a class="aui-button" target="_blank" style="color: var(--aui-btn-text); margin-bottom: 2px;" href="$req.contextPath/plugins/servlet/onlyoffice/doceditor?attachmentId=${attachmentId}">$i18n.getText('onlyoffice.editor.editlink')</a>
     #elseif($action == "fill")
-      <a class="aui-button" target="_blank" style="color: var(--aui-btn-text); margin-bottom: 2px;" href="$req.contextPath/plugins/servlet/onlyoffice/doceditor?attachmentId=${attachmentId}">$i18n.getText('onlyoffice.editor.fillFormlink')</a>
+      <a class="aui-button" target="_blank" style="color: var(--aui-btn-text); margin-bottom: 2px;" href="$req.contextPath/plugins/servlet/onlyoffice/doceditor?attachmentId=${attachmentId}&mode=fillForms">$i18n.getText('onlyoffice.editor.fillFormlink')</a>
     #end
 
     <div id="iframeEditor_${id}"></div>

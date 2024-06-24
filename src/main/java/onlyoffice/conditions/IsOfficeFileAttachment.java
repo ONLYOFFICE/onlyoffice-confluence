@@ -70,7 +70,7 @@ public class IsOfficeFileAttachment implements Condition {
                     return true;
                 }
             } else {
-                if (accessEdit && documentManager.isEditable(fileName)) {
+                if (accessEdit && documentManager.isEditable(fileName) && !documentManager.isFillable(fileName)) {
                     return true;
                 }
             }
@@ -78,6 +78,7 @@ public class IsOfficeFileAttachment implements Condition {
             if (accessView
                     && documentManager.isViewable(fileName)
                     && !(accessEdit && documentManager.isEditable(fileName))
+                    && !(accessEdit && documentManager.isFillable(fileName))
             ) {
                 return true;
             }
