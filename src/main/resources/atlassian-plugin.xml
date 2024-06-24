@@ -103,6 +103,7 @@
         <resource type="download" name="word.ico" location="images/word.ico"/>
         <resource type="download" name="cell.ico" location="images/cell.ico"/>
         <resource type="download" name="slide.ico" location="images/slide.ico"/>
+        <resource type="download" name="pdf.ico" location="images/pdf.ico"/>
     </web-resource>
 
     <web-resource key="macro-browser-smart-fields" name="Macro Browser Smart Fields">
