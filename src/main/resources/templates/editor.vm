@@ -364,7 +364,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
         }
 
         var onRequestEditRights = function() {
-            location.href.replace(RegExp("&mode=\\w+\&?", "i"), "");
+            location.href = location.href.replace(RegExp("&mode=\\w+\&?", "i"), "");
         }
 
         var connectEditor = function () {
