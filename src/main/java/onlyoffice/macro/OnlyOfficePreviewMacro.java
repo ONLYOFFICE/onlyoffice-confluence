@@ -183,9 +183,6 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
                 String fileExt = name.substring(dotIdx + 1).toLowerCase();
                 if (documentManager.getDocumentType(name) != null) {
                     documentType = documentManager.getDocumentType(name).name().toLowerCase();
-                    if (fileExt.equals("oform")) {
-                        documentType = "form";
-                    }
                 }
             }
         }
