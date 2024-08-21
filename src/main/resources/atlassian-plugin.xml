@@ -73,7 +73,6 @@
         <resource type="download" name="new-pdf.svg" location="images/new-pdf.svg"/>
         <resource type="download" name="confirm.svg" location="images/confirm.svg"/>
         <resource type="download" name="16.svg" location="images/16.svg"/>
-        <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <context>page</context>
         <context>blogpost</context>
     </web-resource>
