@@ -29,12 +29,12 @@
             });
 
             var data = {
-                "url": $("#apiUrlField").attr("value").trim(),
-                "innerUrl": $("#docInnerUrlField").attr("value").trim(),
-                "productInnerUrl": $("#confUrlField").attr("value").trim(),
+                "url": $("#apiUrlField").val().trim(),
+                "innerUrl": $("#docInnerUrlField").val().trim(),
+                "productInnerUrl": $("#confUrlField").val().trim(),
                 "security": {
-                    "key": $("#jwtSecretField").attr("value"),
-                    "header": $("#securityHeader").attr("value")
+                    "key": $("#jwtSecretField").val(),
+                    "header": $("#securityHeader").val()
                 },
                 "ignoreSSLCertificate": $("#verifyCertificate").is(":checked"),
                 "customization": {
