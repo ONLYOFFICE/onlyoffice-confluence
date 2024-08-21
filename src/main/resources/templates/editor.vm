@@ -210,6 +210,16 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                 );
             };
 
+            var waitLoading = function (dialog, callback) {
+                if (dialog.find(".tree").first().hasClass('loading')) {
+                    setTimeout(function() {
+                        waitLoading(dialog, callback)
+                    }, 100);
+                } else {
+                    callback();
+                }
+            }
+
             var moveHandler = function () {
                 $("#move-page-dialog").find("#move-errors").remove();
                 $("#move-page-dialog").find(".error").remove();
@@ -285,7 +295,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             AJS.Confluence.MovePageDialog(paramsDialog);
             var dialog = $("#move-page-dialog");
 
-            dialog.find(".tree").on("DOMNodeInserted", function() {
+            waitLoading(dialog, function() {
                 if (dialog.find("form.aui").length != 0 && dialog.find("#file-name-input").length == 0) {
                     dialog.find("form.aui").prepend($(
                         '<div class="field-group">' +
