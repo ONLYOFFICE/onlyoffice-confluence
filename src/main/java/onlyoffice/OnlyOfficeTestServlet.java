@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.UnrestrictedAccess;
 import com.onlyoffice.manager.settings.SettingsManager;
 import onlyoffice.sdk.manager.security.JwtManager;
 import org.apache.logging.log4j.LogManager;
@@ -42,6 +43,7 @@ public class OnlyOfficeTestServlet extends HttpServlet {
     }
 
     @Override
+    @UnrestrictedAccess
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         if (settingsManager.isSecurityEnabled()) {

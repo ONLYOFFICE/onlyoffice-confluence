@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.UnrestrictedAccess;
 import com.atlassian.confluence.core.DateFormatter;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -94,6 +95,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     }
 
     @Override
+    @UnrestrictedAccess
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         String type = request.getParameter("type");

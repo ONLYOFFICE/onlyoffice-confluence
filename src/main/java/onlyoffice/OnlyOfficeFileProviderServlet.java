@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.UnrestrictedAccess;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.sal.api.user.UserKey;
@@ -52,6 +53,7 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
     }
 
     @Override
+    @UnrestrictedAccess
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         if (settingsManager.isSecurityEnabled()) {
