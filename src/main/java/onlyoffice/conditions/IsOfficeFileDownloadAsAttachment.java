@@ -25,8 +25,8 @@ import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 

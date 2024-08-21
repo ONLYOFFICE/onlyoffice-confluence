@@ -35,8 +35,8 @@ import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import com.atlassian.confluence.user.ConfluenceUser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

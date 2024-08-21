@@ -21,8 +21,8 @@ package onlyoffice;
 import com.google.gson.Gson;
 import com.onlyoffice.model.common.Format;
 import onlyoffice.sdk.manager.document.DocumentManager;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

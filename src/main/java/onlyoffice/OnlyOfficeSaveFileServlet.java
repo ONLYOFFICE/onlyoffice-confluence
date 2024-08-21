@@ -30,8 +30,8 @@ import onlyoffice.sdk.manager.security.JwtManager;
 import com.onlyoffice.service.documenteditor.callback.CallbackService;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
