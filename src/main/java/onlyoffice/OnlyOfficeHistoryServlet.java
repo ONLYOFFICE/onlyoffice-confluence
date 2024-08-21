@@ -27,7 +27,6 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.onlyoffice.model.common.Changes;
 import com.onlyoffice.model.common.User;
 import com.onlyoffice.model.documenteditor.HistoryData;
@@ -75,6 +74,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     private final UrlManager urlManager;
     private final SettingsManager settingsManager;
     private final JwtManager jwtManager;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public OnlyOfficeHistoryServlet(final LocaleManager localeManager,
                                     final FormatSettingsManager formatSettingsManager, final UserAccessor userAccessor,
@@ -192,7 +193,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         if (attachments != null) {
             ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
             DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
-            Gson gson = new Gson();
 
             Attachment prevVersion = null;
             Collections.reverse(attachments);
@@ -235,7 +235,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
             response.setContentType("application/json");
             PrintWriter writer = response.getWriter();
-            writer.write(gson.toJson(historyInfo));
+            writer.write(objectMapper.writeValueAsString(historyInfo));
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -286,7 +286,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
         List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
         if (attachments != null) {
-            Gson gson = new Gson();
             HistoryData historyData = null;
 
             Attachment prevVersion = null;
@@ -334,7 +333,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
                 response.setContentType("application/json");
                 PrintWriter writer = response.getWriter();
-                writer.write(gson.toJson(historyData));
+                writer.write(objectMapper.writeValueAsString(historyData));
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;

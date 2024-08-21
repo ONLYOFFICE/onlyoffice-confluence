@@ -26,7 +26,6 @@ import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.confluence.user.actions.ProfilePictureInfo;
 import com.atlassian.sal.api.user.UserKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.onlyoffice.manager.request.RequestManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import com.onlyoffice.manager.security.JwtManager;
@@ -188,7 +187,6 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
             JSONArray attachments = bodyJson.getJSONArray("attachments");
 
             List<Object> responseJson = new ArrayList<>();
-            Gson gson = new Gson();
 
             for (int i = 0; i < attachments.length(); i++) {
                 Long attachmentId = attachments.getLong(i);
@@ -214,7 +212,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
 
             response.setContentType("application/json");
             PrintWriter writer = response.getWriter();
-            writer.write(gson.toJson(responseJson));
+            writer.write(objectMapper.writeValueAsString(responseJson));
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
