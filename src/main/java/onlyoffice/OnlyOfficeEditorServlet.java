@@ -25,7 +25,11 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.sal.api.message.I18nResolver;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.onlyoffice.manager.settings.SettingsManager;
 import com.onlyoffice.model.documenteditor.Config;
 import com.onlyoffice.model.documenteditor.config.document.DocumentType;
@@ -195,7 +199,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                     config.setToken(jwtManager.createToken(config));
                 }
 
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = createObjectMapper();
 
                 context.put("request", request);
                 context.put("configAsHtml", mapper.writeValueAsString(config));
@@ -223,5 +227,20 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException(e.getMessage(), e);
         }
+    }
+
+    private ObjectMapper createObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(JSONObject.class, new JsonSerializer<JSONObject>() {
+            @Override
+            public void serialize(final JSONObject jsonObject, final JsonGenerator jsonGenerator,
+                                  final SerializerProvider serializerProvider) throws IOException {
+                jsonGenerator.writeObject(jsonObject.toMap());
+            }
+        });
+        objectMapper.registerModule(module);
+
+        return objectMapper;
     }
 }
