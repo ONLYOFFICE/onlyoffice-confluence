@@ -18,9 +18,9 @@
 
 package onlyoffice;
 
+import com.atlassian.confluence.plugin.services.VelocityHelperService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.setup.settings.SettingsManager;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.sal.api.user.UserManager;
 import com.atlassian.spring.container.ContainerManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,17 +53,20 @@ public class OnlyOfficeConfServlet extends HttpServlet {
 
     private final long serialVersionUID = 1L;
 
+    private final VelocityHelperService velocityHelperService;
+
     private final UserManager userManager;
     private final com.onlyoffice.manager.settings.SettingsManager settingsManager;
     private final DocumentManager documentManager;
     private final ParsingUtil parsingUtil;
     private final SettingsValidationService settingsValidationService;
 
-    public OnlyOfficeConfServlet(final UserManager userManager,
+    public OnlyOfficeConfServlet(final VelocityHelperService velocityHelperService, final UserManager userManager,
                                  final com.onlyoffice.manager.settings.SettingsManager settingsManager,
                                  final DocumentManager documentManager, final UrlManager urlManager,
                                  final ParsingUtil parsingUtil,
                                  final SettingsValidationService settingsValidationService) {
+        this.velocityHelperService = velocityHelperService;
         this.userManager = userManager;
         this.settingsManager = settingsManager;
         this.documentManager = documentManager;
@@ -130,7 +133,7 @@ public class OnlyOfficeConfServlet extends HttpServlet {
     }
 
     private String getTemplate(final Map<String, Object> map) throws UnsupportedEncodingException {
-        return VelocityUtils.getRenderedTemplate("templates/configure.vm", map);
+        return velocityHelperService.getRenderedTemplate("templates/configure.vm", map);
     }
 
     @Override
