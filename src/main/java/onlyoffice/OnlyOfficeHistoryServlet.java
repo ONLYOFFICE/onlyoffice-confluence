@@ -28,12 +28,9 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onlyoffice.model.common.Changes;
 import com.onlyoffice.model.common.User;
 import com.onlyoffice.model.documenteditor.HistoryData;
-import com.onlyoffice.model.documenteditor.callback.History;
 import com.onlyoffice.model.documenteditor.history.Version;
-import com.onlyoffice.model.documenteditor.historydata.Previous;
 import onlyoffice.sdk.manager.security.JwtManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import onlyoffice.sdk.manager.url.UrlManager;
@@ -48,15 +45,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +55,6 @@ import java.util.Map;
 public class OnlyOfficeHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
-    private static final int BUFFER_SIZE = 10240;
 
     private final LocaleManager localeManager;
     private final FormatSettingsManager formatSettingsManager;
@@ -101,9 +91,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         String type = request.getParameter("type");
         if (type != null) {
             switch (type.toLowerCase()) {
-                case "diff":
-                    getAttachmentDiff(request, response);
-                    break;
                 case "info":
                     getAttachmentHistoryInfo(request, response);
                     break;
@@ -113,55 +100,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                 default:
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                     return;
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-    }
-
-    private void getAttachmentDiff(final HttpServletRequest request, final HttpServletResponse response)
-            throws IOException {
-        if (settingsManager.isSecurityEnabled()) {
-            String securityHeader = settingsManager.getSecurityHeader();
-            String bodySecurityHeader = request.getHeader(securityHeader);
-            String authorizationPrefix = settingsManager.getSecurityPrefix();
-            String token = (bodySecurityHeader != null && bodySecurityHeader.startsWith(authorizationPrefix))
-                    ? bodySecurityHeader.substring(authorizationPrefix.length()) : bodySecurityHeader;
-
-            if (token == null || token == "") {
-                throw new SecurityException("Expected JWT");
-            }
-
-            try {
-                String payload = jwtManager.verify(token);
-            } catch (Exception e) {
-                throw new SecurityException("JWT verification failed!");
-            }
-        }
-
-        String vkey = request.getParameter("vkey");
-        String attachmentIdString = jwtManager.readHash(vkey);
-
-        if (attachmentIdString.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
-        Long attachmentId = Long.parseLong(attachmentIdString);
-        Attachment diff = attachmentUtil.getAttachmentDiff(attachmentId);
-
-        if (diff != null) {
-            InputStream inputStream = attachmentUtil.getAttachmentData(diff.getId());
-
-            response.setContentType(diff.getMediaType());
-            response.setContentLength(inputStream.available());
-
-            byte[] buffer = new byte[BUFFER_SIZE];
-
-            OutputStream output = response.getOutputStream();
-            for (int length = 0; (length = inputStream.read(buffer)) > 0;) {
-                output.write(buffer, 0, length);
             }
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -196,7 +134,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
             DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
 
-            Attachment prevVersion = null;
             Collections.reverse(attachments);
             List<Version> history = new ArrayList<>();
             for (Attachment attachment : attachments) {
@@ -211,22 +148,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         )
                         .build();
 
-                Attachment changesAttachment = attachmentUtil.getAttachmentChanges(attachment.getId());
-                if (changesAttachment != null) {
-                    if (prevVersion != null && (attachment.getVersion() - prevVersion.getVersion()) == 1) {
-                        InputStream changesSteam = attachmentUtil.getAttachmentData(changesAttachment.getId());
-
-                        ObjectMapper mapper = new ObjectMapper();
-                        History changes = mapper.readValue(changesSteam, History.class);
-                        changes.setChanges(formatChanges(changes.getChanges(), user));
-
-                        version.setServerVersion(changes.getServerVersion());
-                        version.setChanges(changes.getChanges());
-                    } else {
-                        attachmentUtil.removeAttachmentChanges(attachment.getId());
-                    }
-                }
-                prevVersion = attachment;
                 history.add(version);
             }
 
@@ -242,23 +163,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-    }
-
-    private List<Changes> formatChanges(final List<Changes> changes, final ConfluenceUser user) {
-        ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
-        DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        for (Changes changesEntity : changes) {
-            try {
-                Date created = dateFormat.parse(changesEntity.getCreated());
-                changesEntity.setCreated(dateFormatter.formatDateTime(created));
-            } catch (ParseException e) {
-                log.error(e);
-            }
-        }
-
-        return changes;
     }
 
     private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response)
@@ -290,7 +194,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         if (attachments != null) {
             HistoryData historyData = null;
 
-            Attachment prevVersion = null;
             Collections.reverse(attachments);
             for (Attachment attachment : attachments) {
                 if (attachment.getVersion() == version) {
@@ -300,28 +203,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                             .url(urlManager.getFileUrl(String.valueOf(attachment.getId())))
                             .fileType(attachment.getFileExtension())
                             .build();
-
-                    Attachment diff = attachmentUtil.getAttachmentDiff(attachment.getId());
-                    if (prevVersion != null && diff != null) {
-                        boolean adjacentVersions = (attachment.getVersion() - prevVersion.getVersion()) == 1;
-                        if (adjacentVersions) {
-                            historyData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
-                            historyData.setPrevious(Previous.builder()
-                                            .key(
-                                                    documentManager.getDocumentKey(
-                                                            String.valueOf(prevVersion.getId()),
-                                                            false
-                                                    )
-                                            )
-                                            .url(urlManager.getFileUrl(String.valueOf(prevVersion.getId())))
-                                            .fileType(prevVersion.getFileExtension())
-                                            .build()
-                            );
-                        }
-                    }
                     break;
                 }
-                prevVersion = attachment;
             }
 
             if (historyData != null) {

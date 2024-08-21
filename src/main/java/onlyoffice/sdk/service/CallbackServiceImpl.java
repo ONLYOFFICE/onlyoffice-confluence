@@ -18,14 +18,8 @@
 
 package onlyoffice.sdk.service;
 
-import com.atlassian.confluence.pages.Attachment;
-import com.atlassian.confluence.pages.AttachmentManager;
-import com.atlassian.confluence.pages.persistence.dao.AttachmentDao;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.sal.api.transaction.TransactionCallback;
-import com.atlassian.sal.api.transaction.TransactionTemplate;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.manager.request.RequestManager;
 import com.onlyoffice.manager.security.JwtManager;
 import com.onlyoffice.manager.settings.SettingsManager;
@@ -34,7 +28,6 @@ import com.onlyoffice.model.convertservice.ConvertRequest;
 import com.onlyoffice.model.convertservice.ConvertResponse;
 import com.onlyoffice.model.documenteditor.Callback;
 import com.onlyoffice.model.documenteditor.callback.Action;
-import com.onlyoffice.model.documenteditor.callback.History;
 import com.onlyoffice.model.documenteditor.callback.action.Type;
 import com.onlyoffice.service.documenteditor.callback.DefaultCallbackService;
 import com.onlyoffice.service.convert.ConvertService;
@@ -47,23 +40,19 @@ import org.apache.http.HttpEntity;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class CallbackServiceImpl extends DefaultCallbackService {
     private final AttachmentUtil attachmentUtil;
     private final ConvertService convertService;
     private final RequestManager requestManager;
-    private final TransactionTemplate transactionTemplate;
-    private final AttachmentManager attachmentManager;
     private final SettingsManager settingsManager;
     private final UrlManager urlManager;
     private final DocumentManager documentManager;
 
     public CallbackServiceImpl(final JwtManager jwtManager, final AttachmentUtil attachmentUtil,
                                final ConvertService convertService, final RequestManager requestManager,
-                               final SettingsManager settingsManager, final TransactionTemplate transactionTemplate,
-                               final AttachmentManager attachmentManager, final UrlManager urlManager,
+                               final SettingsManager settingsManager, final UrlManager urlManager,
                                final DocumentManager documentManager) {
         super(jwtManager, settingsManager);
         this.settingsManager = settingsManager;
@@ -71,8 +60,6 @@ public class CallbackServiceImpl extends DefaultCallbackService {
         this.convertService = convertService;
         this.requestManager = requestManager;
         this.urlManager = urlManager;
-        this.transactionTemplate = transactionTemplate;
-        this.attachmentManager = attachmentManager;
         this.documentManager = documentManager;
     }
 
@@ -103,8 +90,6 @@ public class CallbackServiceImpl extends DefaultCallbackService {
         if (user != null && attachmentUtil.checkAccess(Long.valueOf(fileId), user, true)) {
             String fileType = callback.getFiletype();
             String downloadUrl = callback.getUrl();
-            History history = callback.getHistory();
-            String changesUrl = callback.getChangesurl();
 
             Boolean forceSaveVersion =
                     attachmentUtil.getPropertyAsBoolean(Long.valueOf(fileId), "onlyoffice-force-save");
@@ -114,7 +99,6 @@ public class CallbackServiceImpl extends DefaultCallbackService {
             if (forceSaveVersion) {
                 saveAttachmentFromUrl(Long.valueOf(fileId), downloadUrl, fileType, user, false);
                 attachmentUtil.removeProperty(Long.valueOf(fileId), "onlyoffice-force-save");
-                attachmentUtil.removeAttachmentChanges(Long.valueOf(fileId));
 
                 File convertedFile = attachmentUtil.getConvertedFile(Long.valueOf(fileId));
                 if (convertedFile.exists()) {
@@ -123,10 +107,6 @@ public class CallbackServiceImpl extends DefaultCallbackService {
             } else {
                 saveAttachmentFromUrl(Long.valueOf(fileId), downloadUrl, fileType, user, true);
             }
-
-            ObjectMapper mapper = new ObjectMapper();
-
-            saveAttachmentChanges(Long.valueOf(fileId), mapper.writeValueAsString(history), changesUrl);
         } else {
             throw new SecurityException("Try save without access: " + user);
         }
@@ -138,15 +118,12 @@ public class CallbackServiceImpl extends DefaultCallbackService {
             if (settingsManager.getSettingBoolean("customization.forcesave", false)) {
                 String fileType = callback.getFiletype();
                 String downloadUrl = callback.getUrl();
-                History history = callback.getHistory();
-                String changesUrl = callback.getChangesurl();
 
                 Boolean forceSaveVersion =
                         attachmentUtil.getPropertyAsBoolean(Long.valueOf(fileId), "onlyoffice-force-save");
 
                 if (forceSaveVersion) {
                     saveAttachmentFromUrl(Long.valueOf(fileId), downloadUrl, fileType, user, false);
-                    attachmentUtil.removeAttachmentChanges(Long.valueOf(fileId));
                 } else {
                     String key = attachmentUtil.getCollaborativeEditingKey(Long.valueOf(fileId));
                     attachmentUtil.setCollaborativeEditingKey(Long.valueOf(fileId), null);
@@ -155,11 +132,6 @@ public class CallbackServiceImpl extends DefaultCallbackService {
                     attachmentUtil.setCollaborativeEditingKey(Long.valueOf(fileId), key);
                     attachmentUtil.setProperty(Long.valueOf(fileId), "onlyoffice-force-save", "true");
                 }
-
-                ObjectMapper mapper = new ObjectMapper();
-
-                saveAttachmentChanges(Long.valueOf(fileId), mapper.writeValueAsString(history),
-                        changesUrl);
 
                 File convertedFile = attachmentUtil.getConvertedFile(Long.valueOf(fileId));
                 if (convertedFile.exists()) {
@@ -203,47 +175,5 @@ public class CallbackServiceImpl extends DefaultCallbackService {
                 return null;
             }
         });
-    }
-
-    private void saveAttachmentChanges(final Long attachmentId, final String history, final String changesUrl)
-            throws Exception {
-        Attachment attachment = attachmentManager.getAttachment(attachmentId);
-
-        if (history != null && !history.isEmpty() && changesUrl != null && !changesUrl.isEmpty()) {
-            InputStream changesStream = new ByteArrayInputStream(history.getBytes(StandardCharsets.UTF_8));
-            Attachment changes =
-                    new Attachment("onlyoffice-changes.json", "application/json", changesStream.available(), "");
-            changes.setContainer(attachment.getContainer());
-            changes.setHidden(true);
-
-            String innerChangesUrl = urlManager.replaceToInnerDocumentServerUrl(changesUrl);
-            requestManager.executeGetRequest(innerChangesUrl, new RequestManager.Callback<Void>() {
-                @Override
-                public Void doWork(final Object response) throws Exception {
-                    byte[] bytes = IOUtils.toByteArray(((HttpEntity) response).getContent());
-                    InputStream streamDiff = new ByteArrayInputStream(bytes);
-
-                    Attachment diff = new Attachment("onlyoffice-diff.zip", "application/zip", bytes.length, "");
-                    diff.setContainer(attachment.getContainer());
-                    diff.setHidden(true);
-
-                    attachment.addAttachment(changes);
-                    attachment.addAttachment(diff);
-
-                    AttachmentDao attDao = attachmentManager.getAttachmentDao();
-                    Object result = transactionTemplate.execute(new TransactionCallback() {
-                        @Override
-                        public Object doInTransaction() {
-                            attDao.saveNewAttachment(changes, changesStream);
-                            attDao.saveNewAttachment(diff, streamDiff);
-                            attDao.updateAttachment(attachment);
-                            return null;
-                        }
-                    });
-
-                    return null;
-                }
-            });
-        }
     }
 }

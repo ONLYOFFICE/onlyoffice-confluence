@@ -130,14 +130,6 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         return getConfluenceBaseUrl(true) + "/plugins/servlet/onlyoffice/test";
     }
 
-    public String getAttachmentDiffUri(final Long attachmentId) {
-        String hash = jwtManager.createHash(Long.toString(attachmentId));
-        String diffAttachmentUrl =
-                getConfluenceBaseUrl(true) + HISTORY_SERVLET + "?type=diff&vkey=" + HtmlUtil.urlEncode(hash);
-
-        return diffAttachmentUrl;
-    }
-
     public String getHistoryInfoUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String historyInfoUri =

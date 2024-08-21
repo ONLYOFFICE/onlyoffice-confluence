@@ -152,25 +152,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         });
     }
 
-    public void removeAttachmentChanges(final Long attachmentId) {
-        Attachment changes = getAttachmentChanges(attachmentId);
-        Attachment diff = getAttachmentDiff(attachmentId);
-
-        AttachmentDao attDao = attachmentManager.getAttachmentDao();
-        Object result = transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction() {
-                if (changes != null) {
-                    attDao.removeAttachmentFromServer(changes);
-                }
-                if (diff != null) {
-                    attDao.removeAttachmentFromServer(diff);
-                }
-                return null;
-            }
-        });
-    }
-
     public InputStream getAttachmentData(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachmentManager.getAttachmentData(attachment);
@@ -257,22 +238,6 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     public int getVersion(final Long attachmentId) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
         return attachment.getVersion();
-    }
-
-    public Attachment getAttachmentChanges(final Long attachmentId) {
-        Attachment attachment = attachmentManager.getAttachment(attachmentId);
-        if (attachment != null) {
-            return attachment.getAttachmentNamed("onlyoffice-changes.json");
-        }
-        return null;
-    }
-
-    public Attachment getAttachmentDiff(final Long attachmentId) {
-        Attachment attachment = attachmentManager.getAttachment(attachmentId);
-        if (attachment != null) {
-            return attachment.getAttachmentNamed("onlyoffice-diff.zip");
-        }
-        return null;
     }
 
     public String getAttachmentPageTitle(final Long attachmentId) {

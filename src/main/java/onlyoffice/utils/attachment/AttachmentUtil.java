@@ -45,8 +45,6 @@ public interface AttachmentUtil extends Serializable {
 
     void updateAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user);
 
-    void removeAttachmentChanges(Long attachmentId);
-
     InputStream getAttachmentData(Long attachmentId);
 
     String getMediaType(Long attachmentId);
@@ -68,10 +66,6 @@ public interface AttachmentUtil extends Serializable {
     List<Attachment> getAllVersions(Long attachmentId);
 
     int getVersion(Long attachmentId);
-
-    Attachment getAttachmentChanges(Long attachmentId);
-
-    Attachment getAttachmentDiff(Long attachmentId);
 
     String getAttachmentPageTitle(Long attachmentId);
 
