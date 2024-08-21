@@ -18,7 +18,7 @@
 
 package onlyoffice.managers.auth;
 
-import com.atlassian.confluence.util.GeneralUtil;
+import com.atlassian.confluence.util.HtmlUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +48,7 @@ public class AuthContextImpl implements AuthContext {
         StringBuilder stringBuilder = new StringBuilder(request.getContextPath());
         String fullUrl = stringBuilder.append("/login.action?permissionViolation=true&os_destination=")
                 .append("plugins%2Fservlet%2Fonlyoffice%2Fdoceditor").append("?")
-                .append(GeneralUtil.urlEncode(request.getQueryString())).toString();
+                .append(HtmlUtil.urlEncode(request.getQueryString())).toString();
         return fullUrl;
     }
 }
