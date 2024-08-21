@@ -27,8 +27,6 @@ import com.onlyoffice.manager.settings.SettingsManager;
 import com.onlyoffice.model.convertservice.ConvertRequest;
 import com.onlyoffice.model.convertservice.ConvertResponse;
 import com.onlyoffice.model.documenteditor.Callback;
-import com.onlyoffice.model.documenteditor.callback.Action;
-import com.onlyoffice.model.documenteditor.callback.action.Type;
 import com.onlyoffice.service.documenteditor.callback.DefaultCallbackService;
 import com.onlyoffice.service.convert.ConvertService;
 import onlyoffice.sdk.manager.document.DocumentManager;
@@ -38,15 +36,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
-import java.util.List;
 
 public class CallbackServiceImpl extends DefaultCallbackService {
     private final AttachmentUtil attachmentUtil;
     private final ConvertService convertService;
     private final RequestManager requestManager;
-    private final SettingsManager settingsManager;
     private final UrlManager urlManager;
     private final DocumentManager documentManager;
 
@@ -55,34 +50,11 @@ public class CallbackServiceImpl extends DefaultCallbackService {
                                final SettingsManager settingsManager, final UrlManager urlManager,
                                final DocumentManager documentManager) {
         super(jwtManager, settingsManager);
-        this.settingsManager = settingsManager;
         this.attachmentUtil = attachmentUtil;
         this.convertService = convertService;
         this.requestManager = requestManager;
         this.urlManager = urlManager;
         this.documentManager = documentManager;
-    }
-
-    public void handlerEditing(final Callback callback, final String fileId) throws Exception {
-        if (callback.getActions() != null) {
-            List<Action> actions = callback.getActions();
-            if (actions.size() > 0) {
-                Action action = actions.get(0);
-                if (action.getType().equals(Type.CONNECTED)) {
-                    ConfluenceUser user = AuthenticatedUserThreadLocal.get();
-
-                    if (user == null || !attachmentUtil.checkAccess(Long.valueOf(fileId), user, true)) {
-                        throw new SecurityException("Access denied. User " + user
-                                + " don't have the appropriate permissions to edit this document.");
-                    }
-
-                    if (attachmentUtil.getCollaborativeEditingKey(Long.valueOf(fileId)) == null) {
-                        String key = callback.getKey();
-                        attachmentUtil.setCollaborativeEditingKey(Long.valueOf(fileId), key);
-                    }
-                }
-            }
-        }
     }
 
     public void handlerSave(final Callback callback, final String fileId) throws Exception {
@@ -91,60 +63,14 @@ public class CallbackServiceImpl extends DefaultCallbackService {
             String fileType = callback.getFiletype();
             String downloadUrl = callback.getUrl();
 
-            Boolean forceSaveVersion =
-                    attachmentUtil.getPropertyAsBoolean(Long.valueOf(fileId), "onlyoffice-force-save");
-
-            attachmentUtil.setCollaborativeEditingKey(Long.valueOf(fileId), null);
-
-            if (forceSaveVersion) {
-                saveAttachmentFromUrl(Long.valueOf(fileId), downloadUrl, fileType, user, false);
-                attachmentUtil.removeProperty(Long.valueOf(fileId), "onlyoffice-force-save");
-
-                File convertedFile = attachmentUtil.getConvertedFile(Long.valueOf(fileId));
-                if (convertedFile.exists()) {
-                    convertedFile.delete();
-                }
-            } else {
-                saveAttachmentFromUrl(Long.valueOf(fileId), downloadUrl, fileType, user, true);
-            }
-        } else {
-            throw new SecurityException("Try save without access: " + user);
-        }
-    }
-
-    public void handlerForcesave(final Callback callback, final String fileId) throws Exception {
-        ConfluenceUser user = AuthenticatedUserThreadLocal.get();
-        if (user != null && attachmentUtil.checkAccess(Long.valueOf(fileId), user, true)) {
-            if (settingsManager.getSettingBoolean("customization.forcesave", false)) {
-                String fileType = callback.getFiletype();
-                String downloadUrl = callback.getUrl();
-
-                Boolean forceSaveVersion =
-                        attachmentUtil.getPropertyAsBoolean(Long.valueOf(fileId), "onlyoffice-force-save");
-
-                if (forceSaveVersion) {
-                    saveAttachmentFromUrl(Long.valueOf(fileId), downloadUrl, fileType, user, false);
-                } else {
-                    String key = attachmentUtil.getCollaborativeEditingKey(Long.valueOf(fileId));
-                    attachmentUtil.setCollaborativeEditingKey(Long.valueOf(fileId), null);
-
-                    saveAttachmentFromUrl(Long.valueOf(fileId), downloadUrl, fileType, user, true);
-                    attachmentUtil.setCollaborativeEditingKey(Long.valueOf(fileId), key);
-                    attachmentUtil.setProperty(Long.valueOf(fileId), "onlyoffice-force-save", "true");
-                }
-
-                File convertedFile = attachmentUtil.getConvertedFile(Long.valueOf(fileId));
-                if (convertedFile.exists()) {
-                    convertedFile.delete();
-                }
-            }
+            saveAttachmentFromUrl(Long.valueOf(fileId), downloadUrl, fileType, user);
         } else {
             throw new SecurityException("Try save without access: " + user);
         }
     }
 
     private void saveAttachmentFromUrl(final Long attachmentId, final String downloadUrl, final String fileType,
-                                       final ConfluenceUser user, final boolean newVersion) throws Exception {
+                                       final ConfluenceUser user) throws Exception {
         String documentName = documentManager.getDocumentName(String.valueOf(attachmentId));
         String extension = documentManager.getExtension(documentName);
         String url = urlManager.replaceToInnerDocumentServerUrl(downloadUrl);
@@ -166,11 +92,7 @@ public class CallbackServiceImpl extends DefaultCallbackService {
                 byte[] bytes = IOUtils.toByteArray(((HttpEntity) response).getContent());
                 InputStream inputStream = new ByteArrayInputStream(bytes);
 
-                if (newVersion) {
-                    attachmentUtil.saveAttachmentAsNewVersion(attachmentId, inputStream, bytes.length, user);
-                } else {
-                    attachmentUtil.updateAttachment(attachmentId, inputStream, bytes.length, user);
-                }
+                attachmentUtil.saveAttachmentAsNewVersion(attachmentId, inputStream, bytes.length, user);
 
                 return null;
             }

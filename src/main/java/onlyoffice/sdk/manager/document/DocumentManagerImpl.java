@@ -52,11 +52,9 @@ public class DocumentManagerImpl extends DefaultDocumentManager implements Docum
     @Override
     public String getDocumentKey(final String fileId, final boolean embedded) {
         Long attachmentId = Long.parseLong(fileId);
-        String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
-        if (key == null) {
-            String hashCode = attachmentUtil.getHashCode(attachmentId);
-            key = generateRevisionId(hashCode);
-        }
+
+        String hashCode = attachmentUtil.getHashCode(attachmentId);
+        String key = generateRevisionId(hashCode);
 
         return embedded ? key + "_embedded" : key;
     }

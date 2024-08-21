@@ -33,6 +33,10 @@ public class SettingsManagerImpl extends DefaultSettingsManager {
 
     @Override
     public String getSetting(final String name) {
+        if (name.equals("customization.forcesave")) {
+            return null;
+        }
+
         return (String) pluginSettings.get(SETTINGS_PREFIX + name);
     }
 
