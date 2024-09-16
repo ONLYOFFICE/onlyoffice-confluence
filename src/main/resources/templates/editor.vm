@@ -165,9 +165,21 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
             var dialog = $("#insert-image-dialog");
 
-            dialog.find(".file-list").on("DOMNodeInserted", function(event) {
-                var fileExt = event.srcElement.dataset.fileName.split(".").pop();
-                if (!fileTypes.includes(fileExt)) $(event.srcElement).remove();
+            var waitLoading = function (dialog, callback) {
+                if (!dialog.find(".loading-message").first().hasClass('hidden')) {
+                    setTimeout(function() {
+                        waitLoading(dialog, callback);
+                    }, 100);
+                } else {
+                    callback();
+                }
+            };
+
+            waitLoading(dialog, function() {
+                dialog.find(".attached-file").map(function (index, element) {
+                    var fileExt = element.dataset.fileName.split(".").pop();
+                    if (!fileTypes.includes(fileExt)) $(element).remove();
+                });
             });
         };
 
