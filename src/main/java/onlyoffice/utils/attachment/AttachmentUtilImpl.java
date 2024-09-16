@@ -22,12 +22,10 @@ import com.atlassian.confluence.core.ContentEntityManager;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
-import com.atlassian.confluence.pages.PageManager;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.spring.container.ContainerManager;
 import com.atlassian.user.User;
 import org.apache.logging.log4j.LogManager;
@@ -43,14 +41,9 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     private final Logger log = LogManager.getLogger("onlyoffice.utils.attachment.AttachmentUtil");
 
     private final AttachmentManager attachmentManager;
-    private final TransactionTemplate transactionTemplate;
-    private final PageManager pageManager;
 
-    public AttachmentUtilImpl(final AttachmentManager attachmentManager, final TransactionTemplate transactionTemplate,
-                              final PageManager pageManager) {
+    public AttachmentUtilImpl(final AttachmentManager attachmentManager) {
         this.attachmentManager = attachmentManager;
-        this.transactionTemplate = transactionTemplate;
-        this.pageManager = pageManager;
     }
 
     public Attachment getAttachment(final Long attachmentId) {
@@ -207,13 +200,9 @@ public class AttachmentUtilImpl implements AttachmentUtil {
     }
 
     public ContentEntityObject getContainer(final Long containerId) {
-        ContentEntityObject container = pageManager.getPage(containerId);
-
-        if (container == null) {
-            container = pageManager.getBlogPost(containerId);
-        }
-
-        return container;
+        ContentEntityManager contentEntityManager =
+                (ContentEntityManager) ContainerManager.getComponent("contentEntityManager");
+        return contentEntityManager.getById(containerId);
     }
 
     public String getCorrectName(final String fileName, final String fileExt, final Long pageID) {
