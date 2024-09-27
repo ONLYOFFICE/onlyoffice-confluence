@@ -30,7 +30,6 @@ import java.util.Map;
 
 public class IsOfficeFileAttachment implements Condition {
     private boolean forEdit;
-    private boolean form;
     private DocumentManager documentManager;
     private AttachmentUtil attachmentUtil;
 
@@ -41,12 +40,8 @@ public class IsOfficeFileAttachment implements Condition {
 
     public void init(final Map<String, String> params) throws PluginParseException {
         forEdit = false;
-        form = false;
         if (params != null && !params.isEmpty() && params.get("forEdit") != null) {
             forEdit = !params.get("forEdit").isEmpty();
-        }
-        if (params != null && !params.isEmpty() && params.get("form") != null) {
-            form = !params.get("form").isEmpty();
         }
     }
 
@@ -65,20 +60,12 @@ public class IsOfficeFileAttachment implements Condition {
         String fileName = attachment.getFileName();
 
         if (forEdit) {
-            if (form) {
-                if (accessEdit && documentManager.isFillable(fileName)) {
-                    return true;
-                }
-            } else {
-                if (accessEdit && documentManager.isEditable(fileName) && !documentManager.isFillable(fileName)) {
-                    return true;
-                }
+            if (accessEdit && documentManager.isEditable(fileName)) {
+                return true;
             }
         } else {
             if (accessView
-                    && documentManager.isViewable(fileName)
-                    && !(accessEdit && documentManager.isEditable(fileName))
-                    && !(accessEdit && documentManager.isFillable(fileName))
+                    && documentManager.isViewable(fileName) && !(accessEdit && documentManager.isEditable(fileName))
             ) {
                 return true;
             }
