@@ -64,7 +64,7 @@ public class IsOfficeFileConvertAttachment implements Condition {
             return false;
         }
 
-        if ((form && !ext.equals("docxf")) || (!form && ext.equals("docxf"))) {
+        if (form && !ext.equals("docxf")) {
             return false;
         }
 

@@ -45,6 +45,7 @@ define('cp/component/onlyoffice-button', [
             }));
 
             var title;
+            var mode;
 
             if (xhr.status == 200) {
                 var response = JSON.parse(xhr.responseText);
@@ -53,8 +54,6 @@ define('cp/component/onlyoffice-button', [
                     title = AJS.I18n.getText('onlyoffice.editor.editlink');
                 } else if (response.access == "view") {
                     title = AJS.I18n.getText('onlyoffice.editor.viewlink');
-                } else if (response.access == "fillform") {
-                    title = AJS.I18n.getText('onlyoffice.editor.fillFormlink');
                 }
             }
 
@@ -62,7 +61,8 @@ define('cp/component/onlyoffice-button', [
                 this.$el.html(templateStore.get('controlOnlyofficeButton')({
                     contextPath: AJS.contextPath(),
                     attachmentId: attachmentId,
-                    title: title
+                    title: title,
+                    mode: mode
                 }));
                 if ($.fn.tooltip) {
                     this.$('a').tooltip({gravity: 'n'});

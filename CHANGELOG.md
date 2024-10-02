@@ -1,5 +1,10 @@
 # Change Log
 
+##
+## Added
+- creating pdf form
+- button go to edit in editor
+- pdf favicon
 
 ## 5.0.2
 ## Changed
