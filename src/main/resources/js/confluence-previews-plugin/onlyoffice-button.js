@@ -54,9 +54,6 @@ define('cp/component/onlyoffice-button', [
                     title = AJS.I18n.getText('onlyoffice.editor.editlink');
                 } else if (response.access == "view") {
                     title = AJS.I18n.getText('onlyoffice.editor.viewlink');
-                } else if (response.access == "fillForms") {
-                    title = AJS.I18n.getText('onlyoffice.editor.fillFormlink');
-                    mode = "fillForms";
                 }
             }
 

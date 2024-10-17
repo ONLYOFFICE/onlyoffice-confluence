@@ -2,6 +2,7 @@
 
 ##
 ## Added
+- compatible with Confluence 8.9.7
 - creating pdf form
 - button go to edit in editor
 - pdf favicon
