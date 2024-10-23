@@ -1,5 +1,11 @@
 # Change Log
 
+## 5.1.0
+## Added
+- compatible with Confluence 8.9.7
+- creating pdf form
+- button go to edit in editor
+- pdf favicon
 
 ## 5.0.2
 ## Changed

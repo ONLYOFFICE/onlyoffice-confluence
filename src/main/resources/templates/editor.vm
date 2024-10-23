@@ -165,9 +165,21 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
             var dialog = $("#insert-image-dialog");
 
-            dialog.find(".file-list").on("DOMNodeInserted", function(event) {
-                var fileExt = event.srcElement.dataset.fileName.split(".").pop();
-                if (!fileTypes.includes(fileExt)) $(event.srcElement).remove();
+            var waitLoading = function (dialog, callback) {
+                if (!dialog.find(".loading-message").first().hasClass('hidden')) {
+                    setTimeout(function() {
+                        waitLoading(dialog, callback);
+                    }, 100);
+                } else {
+                    callback();
+                }
+            };
+
+            waitLoading(dialog, function() {
+                dialog.find(".attached-file").map(function (index, element) {
+                    var fileExt = element.dataset.fileName.split(".").pop();
+                    if (!fileTypes.includes(fileExt)) $(element).remove();
+                });
             });
         };
 
@@ -197,6 +209,16 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     '</div>'
                 );
             };
+
+            var waitLoading = function (dialog, callback) {
+                if (dialog.find(".tree").first().hasClass('loading')) {
+                    setTimeout(function() {
+                        waitLoading(dialog, callback)
+                    }, 100);
+                } else {
+                    callback();
+                }
+            }
 
             var moveHandler = function () {
                 $("#move-page-dialog").find("#move-errors").remove();
@@ -273,7 +295,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             AJS.Confluence.MovePageDialog(paramsDialog);
             var dialog = $("#move-page-dialog");
 
-            dialog.find(".tree").on("DOMNodeInserted", function() {
+            waitLoading(dialog, function() {
                 if (dialog.find("form.aui").length != 0 && dialog.find("#file-name-input").length == 0) {
                     dialog.find("form.aui").prepend($(
                         '<div class="field-group">' +
@@ -363,6 +385,10 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             }
         }
 
+        var onRequestEditRights = function() {
+            location.href = location.href.replace(RegExp("&mode=\\w+\&?", "i"), "");
+        }
+
         var connectEditor = function () {
             if (typeof DocsAPI === "undefined") {
                 alert("$i18n.getText('onlyoffice.editor.message.docs-api-undefined')");
@@ -387,7 +413,8 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     "onRequestMailMergeRecipients": onRequestMailMergeRecipients,
                     "onMakeActionLink": onMakeActionLink,
                     "onRequestReferenceData": onRequestReferenceData,
-                    "onRequestUsers": onRequestUsers
+                    "onRequestUsers": onRequestUsers,
+                    "onRequestEditRights": onRequestEditRights
                 },
             };
 

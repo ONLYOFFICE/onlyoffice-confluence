@@ -73,8 +73,8 @@
     background-image: url(new-pptx.svg);
 }
 
-#inline-dialog-filecreate .icon-onlyoffice-new-docxf{
-    background-image: url(new-docxf.svg);
+#inline-dialog-filecreate .icon-onlyoffice-new-pdf{
+    background-image: url(new-pdf.svg);
 }
 
 #inline-dialog-filecreate .filename{

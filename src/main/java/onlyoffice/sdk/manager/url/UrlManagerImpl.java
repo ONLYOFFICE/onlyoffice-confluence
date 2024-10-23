@@ -118,11 +118,6 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         if (attachmentUtil.checkAccessCreate(user, pageId)) {
             String fileName = documentManager.getDocumentName(fileId);
             String extension = documentManager.getExtension(fileName);
-            DocumentType documentType = documentManager.getDocumentType(fileName);
-
-            if (!extension.equals("docxf")) {
-                extension = documentManager.getDefaultExtension(documentType);
-            }
 
             return getConfluenceBaseUrl(false) + DOC_EDITOR_SERVLET + "?pageId=" + pageId + "&fileExt=" + extension;
         } else {

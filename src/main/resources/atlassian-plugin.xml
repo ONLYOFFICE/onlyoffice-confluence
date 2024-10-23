@@ -20,7 +20,7 @@
     <resource type="download" name="images/preview-placeholder-word.svg" key="images" location="images/preview-placeholder-word.svg"/>
     <resource type="download" name="images/preview-placeholder-cell.svg" key="images" location="images/preview-placeholder-cell.svg"/>
     <resource type="download" name="images/preview-placeholder-slide.svg" key="images" location="images/preview-placeholder-slide.svg"/>
-    <resource type="download" name="images/preview-placeholder-form.svg" key="images" location="images/preview-placeholder-form.svg"/>
+    <resource type="download" name="images/preview-placeholder-pdf.svg" key="images" location="images/preview-placeholder-pdf.svg"/>
 
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for the main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
@@ -70,7 +70,7 @@
         <resource type="download" name="new-docx.svg" location="images/new-docx.svg"/>
         <resource type="download" name="new-xlsx.svg" location="images/new-xlsx.svg"/>
         <resource type="download" name="new-pptx.svg" location="images/new-pptx.svg"/>
-        <resource type="download" name="new-docxf.svg" location="images/new-docxf.svg"/>
+        <resource type="download" name="new-pdf.svg" location="images/new-pdf.svg"/>
         <resource type="download" name="confirm.svg" location="images/confirm.svg"/>
         <resource type="download" name="16.svg" location="images/16.svg"/>
         <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
@@ -103,6 +103,7 @@
         <resource type="download" name="word.ico" location="images/word.ico"/>
         <resource type="download" name="cell.ico" location="images/cell.ico"/>
         <resource type="download" name="slide.ico" location="images/slide.ico"/>
+        <resource type="download" name="pdf.ico" location="images/pdf.ico"/>
     </web-resource>
 
     <web-resource key="macro-browser-smart-fields" name="Macro Browser Smart Fields">
@@ -146,21 +147,11 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
-    <web-item key="onlyoffice-docform" name="Link for the attachment fill form" section="system.attachment" weight="9">
-        <condition class="onlyoffice.conditions.IsOfficeFileAttachment">
-            <param name="forEdit">true</param>
-            <param name="form">true</param>
-        </condition>
-        <description>The link and the text for it which is used to open the .oform document to fill in the fields in the form.</description>
-        <label key="onlyoffice.editor.fillFormlink"/>
-        <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
-        <styleClass>onlyoffice-doceditor</styleClass>
-    </web-item>
     <web-item key="onlyoffice-docviewer" name="Link for viewing the attachment" section="system.attachment" weight="10">
         <condition class="onlyoffice.conditions.IsOfficeFileAttachment"/>
         <description>Link and text for this link used to open the document which is available for preview only.</description>
         <label key="onlyoffice.editor.viewlink"/>
-        <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id&mode=view]]></link>
+        <link><![CDATA[/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
     <web-item key="onlyoffice-docconvert" name="Link for converting the attachment" section="system.attachment" weight="11">
@@ -170,13 +161,13 @@
         <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
-    <web-item key="onlyoffice-doc-create-form" name="Link for create oform from docxf" section="system.attachment" weight="11">
+    <web-item key="onlyoffice-doc-create-form" name="Link for create pdf from docxf" section="system.attachment" weight="11">
         <condition class="onlyoffice.conditions.IsOfficeFileConvertAttachment">
             <param name="form">true</param>
         </condition>
         <description>The link and the text for it which is used to convert the docx to oform</description>
         <label key="onlyoffice.form.create.link"/>
-        <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id]]></link>
+        <link><![CDATA[/plugins/servlet/onlyoffice/convert?attachmentId=$attachment.id&createFrom=true]]></link>
         <styleClass>onlyoffice-doceditor</styleClass>
     </web-item>
     <web-item key="onlyoffice-download-as" name="Link to download as attachment" section="system.attachment" weight="35">

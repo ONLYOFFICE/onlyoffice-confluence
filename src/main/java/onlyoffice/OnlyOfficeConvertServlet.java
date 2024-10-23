@@ -30,6 +30,7 @@ import com.onlyoffice.model.common.CommonResponse;
 import com.onlyoffice.model.common.Format;
 import com.onlyoffice.model.convertservice.ConvertRequest;
 import com.onlyoffice.model.convertservice.ConvertResponse;
+import com.onlyoffice.model.convertservice.convertrequest.PDF;
 import com.onlyoffice.service.convert.ConvertService;
 import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.sdk.manager.document.DocumentManager;
@@ -84,6 +85,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         }
         String pageIdString = request.getParameter("pageId");
         String newTitle = request.getParameter("newTitle");
+        Boolean createForm = Boolean.valueOf(request.getParameter("createForm"));
 
         String attachmentIdString = request.getParameter("attachmentId");
         Long attachmentId = Long.parseLong(attachmentIdString);
@@ -106,8 +108,8 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         if (docx != null
                 && extension.equals(docx.getName())
                 && docx.getConvert() != null
-                && docx.getConvert().contains("docxf")) {
-            newFileExtension = "docxf";
+                && docx.getConvert().contains("pdf")) {
+            newFileExtension = "pdf";
         }
 
         String title = fileName.substring(0, fileName.lastIndexOf("."));
@@ -127,6 +129,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         contextMap.put("attachmentId", attachmentIdString);
         contextMap.put("oldName", fileName);
         contextMap.put("newName", newName);
+        contextMap.put("createForm", createForm);
         writer.write(getTemplate(contextMap));
     }
 
@@ -142,10 +145,10 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         }
 
         String attachmentIdString = request.getParameter("attachmentId");
-        ConfluenceUser user = null;
-        String errorMessage = null;
-        JSONObject json = null;
+        Boolean createForm = Boolean.valueOf(request.getParameter("createForm"));
 
+        ConfluenceUser user = null;
+        JSONObject json = null;
 
         Long attachmentId = Long.parseLong(attachmentIdString);
         log.info("attachmentId " + attachmentId);
@@ -183,8 +186,8 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         if (docx != null
                 && extension.equals(docx.getName())
                 && docx.getConvert() != null
-                && docx.getConvert().contains("docxf")) {
-            convertToExt = "docxf";
+                && docx.getConvert().contains("pdf")) {
+            convertToExt = "pdf";
         }
 
         if (!attachmentUtil.checkAccess(attachmentId, user, false)
@@ -209,6 +212,10 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                     .outputtype(convertToExt)
                     .region(region)
                     .build();
+
+            if (convertToExt.equals("pdf") && createForm) {
+                convertRequest.setPdf(new PDF(true));
+            }
 
             ConvertResponse convertResponse = convertService.processConvert(convertRequest,
                     String.valueOf(attachmentId));
