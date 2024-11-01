@@ -6,6 +6,7 @@
 
 ## Changed
 - forcesave is no longer supported
+- history highlighting is no longer supported
 
 ## 5.1.0
 ## Added
