@@ -1,6 +1,6 @@
 $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onlyoffice-confluence-plugin-resources-editor")
-#requireResourcesForContext("viewattachments")
-#requireResourcesForContext("editor")
+$webResourceManager.requireResourcesForContext("viewattachments")
+$webResourceManager.requireResourcesForContext("editor")
 
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -31,8 +31,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
 
     <title>${docTitle} - ONLYOFFICE</title>
 
-    #standardHeader()
-
     <link rel="shortcut icon" href="${favicon}">
     <link rel="icon" type="image/x-icon" href="${favicon}">
     <meta name="ajs-space-name" content="${spaceName}">
@@ -43,6 +41,7 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     <meta name="ajs-original-parent-page" content="${pageTitle}">
     <meta name="ajs-from-page-title" content="${pageTitle}">
     <meta name="ajs-is-blog-post" content="${isBlogPost}">
+    <meta name="decorator" content="atl.popup" />
 </head>
 
 <body>

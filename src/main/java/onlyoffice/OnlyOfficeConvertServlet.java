@@ -21,10 +21,10 @@ package onlyoffice;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
+import com.atlassian.confluence.plugin.services.VelocityHelperService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.onlyoffice.manager.request.RequestManager;
 import com.onlyoffice.model.common.CommonResponse;
 import com.onlyoffice.model.common.Format;
@@ -37,8 +37,8 @@ import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -56,6 +56,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
 
+    private final VelocityHelperService velocityHelperService;
     private final LocaleManager localeManager;
     private final AttachmentManager attachmentManager;
     private final AttachmentUtil attachmentUtil;
@@ -64,10 +65,12 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final DocumentManager documentManager;
     private final RequestManager requestManager;
 
-    public OnlyOfficeConvertServlet(final LocaleManager localeManager, final AttachmentManager attachmentManager,
+    public OnlyOfficeConvertServlet(final VelocityHelperService velocityHelperService,
+                                    final LocaleManager localeManager, final AttachmentManager attachmentManager,
                                     final AttachmentUtil attachmentUtil, final ConvertService convertService,
                                     final AuthContext authContext, final DocumentManager documentManager,
                                     final RequestManager requestManager) {
+        this.velocityHelperService = velocityHelperService;
         this.localeManager = localeManager;
         this.attachmentManager = attachmentManager;
         this.attachmentUtil = attachmentUtil;
@@ -134,7 +137,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     }
 
     private String getTemplate(final Map<String, Object> map) throws UnsupportedEncodingException {
-        return VelocityUtils.getRenderedTemplate("templates/convert.vm", map);
+        return velocityHelperService.getRenderedTemplate("templates/convert.vm", map);
     }
 
     @Override
@@ -257,7 +260,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
                 copy.setMediaType(documentManager.getMimeType(newName));
 
                 attachmentManager.saveAttachment(copy, null, inputStream);
-                attachmentUtil.setCollaborativeEditingKey(copy.getLatestVersionId(), null);
+//                attachmentUtil.setCollaborativeEditingKey(copy.getLatestVersionId(), null);
 
                 return copy.getLatestVersionId();
             }

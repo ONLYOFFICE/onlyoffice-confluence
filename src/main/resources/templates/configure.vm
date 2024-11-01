@@ -87,15 +87,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
             </div>
 
             <div class="field-group">
-                <label>$i18n.getText('onlyoffice.configuration.force-save.label')</label>
-                <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="forceSave" #if($!settings.get('customization.forcesave') == "true") checked="checked" #end />
-                    <label for="forceSave">$i18n.getText('onlyoffice.configuration.force-save.enable')</label>
-                </div>
-                <div class="description">$i18n.getText('onlyoffice.configuration.force-save.description')</div>
-            </div>
-
-            <div class="field-group">
                 <label>$i18n.getText('onlyoffice.configuration.interface.label')</label>
                 <div class="checkbox">
                     <input type="checkbox" class="checkbox" id="chat" #if($!settings.get('customization.chat') == "true") checked="checked" #end />

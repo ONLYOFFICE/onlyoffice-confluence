@@ -26,7 +26,6 @@ import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.confluence.user.actions.ProfilePictureInfo;
 import com.atlassian.sal.api.user.UserKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.onlyoffice.manager.request.RequestManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import com.onlyoffice.manager.security.JwtManager;
@@ -40,8 +39,8 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -188,7 +187,6 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
             JSONArray attachments = bodyJson.getJSONArray("attachments");
 
             List<Object> responseJson = new ArrayList<>();
-            Gson gson = new Gson();
 
             for (int i = 0; i < attachments.length(); i++) {
                 Long attachmentId = attachments.getLong(i);
@@ -214,7 +212,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
 
             response.setContentType("application/json");
             PrintWriter writer = response.getWriter();
-            writer.write(gson.toJson(responseJson));
+            writer.write(objectMapper.writeValueAsString(responseJson));
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }

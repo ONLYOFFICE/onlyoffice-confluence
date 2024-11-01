@@ -73,7 +73,6 @@
         <resource type="download" name="new-pdf.svg" location="images/new-pdf.svg"/>
         <resource type="download" name="confirm.svg" location="images/confirm.svg"/>
         <resource type="download" name="16.svg" location="images/16.svg"/>
-        <condition class="onlyoffice.conditions.IsOfficePageAttachments"/>
         <context>page</context>
         <context>blogpost</context>
     </web-resource>
@@ -232,7 +231,7 @@
     <component-import key="transactionTemplate" interface="com.atlassian.sal.api.transaction.TransactionTemplate"/>
     <component-import key="bootstrapManager" interface="com.atlassian.confluence.setup.BootstrapManager"/>
     <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
-    <component-import key="webResourceUrlProvider" interface="com.atlassian.plugin.webresource.WebResourceUrlProvider"/>
+    <component-import key="webResourceUrlProvider" interface="com.atlassian.webresource.api.WebResourceUrlProvider"/>
     <component-import key="formatSettingsManager" interface="com.atlassian.confluence.core.FormatSettingsManager"/>
     <component-import key="sysInfoService" interface="com.atlassian.confluence.status.service.SystemInformationService"/>
     <component-import key="velocityHelperService" interface="com.atlassian.confluence.plugin.services.VelocityHelperService"/>

@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>onlyoffice</groupId>
     <artifactId>onlyoffice-confluence-plugin</artifactId>
-    <version>5.1.0</version>
+    <version>6.1.0</version>
 
     <organization>
         <name>Ascensio System SIA</name>
@@ -165,8 +165,8 @@
     </pluginRepositories>
 
     <properties>
-        <confluence.version>8.0.1</confluence.version>
-        <confluence.data.version>8.0.1</confluence.data.version>
+        <confluence.version>9.0.2</confluence.version>
+        <confluence.data.version>9.0.2</confluence.data.version>
         <amps.version>8.10.0</amps.version>
         <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>

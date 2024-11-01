@@ -20,10 +20,10 @@ package onlyoffice;
 
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.BlogPost;
+import com.atlassian.confluence.plugin.services.VelocityHelperService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.util.velocity.VelocityUtils;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -41,8 +41,8 @@ import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.sdk.manager.security.JwtManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -70,13 +70,15 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
     private final ConfigService configService;
     private final SettingsManager settingsManager;
     private final JwtManager jwtManager;
+    private final VelocityHelperService velocityHelperService;
 
     private final LocaleManager localeManager;
 
     public OnlyOfficeEditorServlet(final I18nResolver i18n, final UrlManager urlManager, final AuthContext authContext,
                                    final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
                                    final ConfigService configService, final SettingsManager settingsManager,
-                                   final JwtManager jwtManager, final LocaleManager localeManager) {
+                                   final JwtManager jwtManager, final LocaleManager localeManager,
+                                   final VelocityHelperService velocityHelperService) {
         this.i18n = i18n;
         this.urlManager = urlManager;
         this.authContext = authContext;
@@ -86,6 +88,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
         this.settingsManager = settingsManager;
         this.jwtManager = jwtManager;
         this.localeManager = localeManager;
+        this.velocityHelperService = velocityHelperService;
     }
 
     @Override
@@ -222,7 +225,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             response.setContentType("text/html;charset=UTF-8");
             PrintWriter writer = response.getWriter();
-            writer.write(VelocityUtils.getRenderedTemplate("templates/editor.vm", context));
+            writer.write(velocityHelperService.getRenderedTemplate("templates/editor.vm", context));
 
         } catch (Exception e) {
             throw new ServletException(e.getMessage(), e);

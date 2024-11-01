@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.UnrestrictedAccess;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.UserAccessor;
@@ -30,10 +31,9 @@ import onlyoffice.sdk.manager.security.JwtManager;
 import com.onlyoffice.service.documenteditor.callback.CallbackService;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -63,6 +63,7 @@ public class OnlyOfficeSaveFileServlet extends HttpServlet {
     }
 
     @Override
+    @UnrestrictedAccess
     public void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/plain; charset=utf-8");

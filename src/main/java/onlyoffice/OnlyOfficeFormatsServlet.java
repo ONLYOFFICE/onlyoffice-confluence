@@ -18,11 +18,11 @@
 
 package onlyoffice;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.model.common.Format;
 import onlyoffice.sdk.manager.document.DocumentManager;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +37,8 @@ public class OnlyOfficeFormatsServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFormatsServlet");
 
     private final DocumentManager documentManager;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public OnlyOfficeFormatsServlet(final DocumentManager documentManager) {
         this.documentManager = documentManager;
@@ -53,10 +55,8 @@ public class OnlyOfficeFormatsServlet extends HttpServlet {
             }
         }
 
-        Gson gson = new Gson();
-
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
-        writer.write(gson.toJson(result));
+        writer.write(objectMapper.writeValueAsString(result));
     }
 }

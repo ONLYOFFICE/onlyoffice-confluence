@@ -23,7 +23,6 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.user.User;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -43,35 +42,15 @@ public interface AttachmentUtil extends Serializable {
     void saveAttachmentAsNewVersion(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
             throws IOException, IllegalArgumentException;
 
-    void updateAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user);
-
-    void removeAttachmentChanges(Long attachmentId);
-
     InputStream getAttachmentData(Long attachmentId);
 
     String getMediaType(Long attachmentId);
 
     String getHashCode(Long attachmentId);
 
-    String getCollaborativeEditingKey(Long attachmentId);
-
-    void setCollaborativeEditingKey(Long attachmentId, String key);
-
-    String getProperty(Long attachmentId, String name);
-
-    boolean getPropertyAsBoolean(Long attachmentId, String name);
-
-    void setProperty(Long attachmentId, String name, String value);
-
-    void removeProperty(Long attachmentId, String name);
-
     List<Attachment> getAllVersions(Long attachmentId);
 
     int getVersion(Long attachmentId);
-
-    Attachment getAttachmentChanges(Long attachmentId);
-
-    Attachment getAttachmentDiff(Long attachmentId);
 
     String getAttachmentPageTitle(Long attachmentId);
 
@@ -83,8 +62,6 @@ public interface AttachmentUtil extends Serializable {
 
     Attachment createNewAttachment(String title, String mimeType, InputStream file, int size, Long pageId,
                                    ConfluenceUser user) throws IOException;
-
-    File getConvertedFile(Long attachmentId);
 
     ContentEntityObject getContainer(Long containerId);
 

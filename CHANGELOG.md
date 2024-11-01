@@ -1,5 +1,13 @@
 # Change Log
 
+## 6.1.0
+## Added
+- compatible with Confluence 9.*
+
+## Changed
+- forcesave is no longer supported
+- history highlighting is no longer supported
+
 ## 5.1.0
 ## Added
 - compatible with Confluence 8.9.7
