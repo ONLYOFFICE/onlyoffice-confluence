@@ -1,6 +1,6 @@
 # Change Log
 
-##
+## 6.1.0
 ## Added
 - compatible with Confluence 9.*
 
