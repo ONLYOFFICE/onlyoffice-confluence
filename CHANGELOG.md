@@ -1,5 +1,9 @@
 # Change Log
 
+## Changed
+- fixed issue with opening editor, opening a history, the download as action and the button to open the editor in
+preview for an anonymous user
+
 ## 6.1.0
 ## Added
 - compatible with Confluence 9.*
