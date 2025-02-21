@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.plugin.services.VelocityHelperService;
@@ -58,6 +59,7 @@ import java.util.Map;
 
 import static onlyoffice.sdk.manager.url.UrlManagerImpl.DOC_EDITOR_SERVLET;
 
+@AnonymousSiteAccess
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
     private final long serialVersionUID = 1L;
