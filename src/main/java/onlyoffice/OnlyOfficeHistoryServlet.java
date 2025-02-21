@@ -18,7 +18,7 @@
 
 package onlyoffice;
 
-import com.atlassian.annotations.security.UnrestrictedAccess;
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.core.DateFormatter;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AnonymousSiteAccess
 public class OnlyOfficeHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
@@ -85,7 +86,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     }
 
     @Override
-    @UnrestrictedAccess
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         String type = request.getParameter("type");
@@ -109,10 +109,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentHistoryInfo(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
-        if (!authContext.checkUserAuthorization(request, response)) {
-            return;
-        }
-
         String vkey = request.getParameter("vkey");
         String attachmentIdString = jwtManager.readHash(vkey);
 
@@ -167,10 +163,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
-        if (!authContext.checkUserAuthorization(request, response)) {
-            return;
-        }
-
         String vkey = request.getParameter("vkey");
         String attachmentIdString = jwtManager.readHash(vkey);
         String versionString = request.getParameter("version");
