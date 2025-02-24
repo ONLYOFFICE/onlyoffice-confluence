@@ -20,6 +20,8 @@ package onlyoffice.sdk.manager.security;
 
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.onlyoffice.manager.security.DefaultJwtManager;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.log4j.LogManager;
@@ -44,7 +46,11 @@ public class JwtManagerImpl extends DefaultJwtManager implements JwtManager {
 
 
     public String createInternalToken(final Map<String, ?> payloadMap) {
-        return super.createToken(payloadMap, getPluginSecret());
+        Algorithm algorithm = Algorithm.HMAC256(getPluginSecret());
+
+        return JWT.create()
+                .withPayload(payloadMap)
+                .sign(algorithm);
     }
 
     public String verifyInternalToken(final String token) {
