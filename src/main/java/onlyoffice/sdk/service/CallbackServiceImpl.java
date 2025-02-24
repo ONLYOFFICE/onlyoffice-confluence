@@ -42,7 +42,7 @@ import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntity;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
