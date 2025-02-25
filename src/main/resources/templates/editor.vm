@@ -41,7 +41,7 @@ $webResourceManager.requireResourcesForContext("editor")
     <meta name="ajs-original-parent-page" content="${pageTitle}">
     <meta name="ajs-from-page-title" content="${pageTitle}">
     <meta name="ajs-is-blog-post" content="${isBlogPost}">
-    <meta name="decorator" content="atl.popup" />
+    <meta name="decorator" content="main" />
 </head>
 
 <body>
