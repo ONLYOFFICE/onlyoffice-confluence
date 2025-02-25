@@ -12,6 +12,7 @@
     - default token lifetime is 5 
 - fixed issue with opening editor, opening a history, the download as action and the button to open the editor in
 preview for an anonymous user
+- fixed ui for dark theme
 
 ## 6.1.0
 ## Added
