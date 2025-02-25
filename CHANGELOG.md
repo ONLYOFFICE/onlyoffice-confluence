@@ -11,6 +11,7 @@
     - address of the convert service, /converter instead /ConvertService.ashx
     - apache httpclient 5
     - default token lifetime is 5 minutes
+- compatible with Confluence 8.9.8
 
 ## 5.1.0
 ## Added
