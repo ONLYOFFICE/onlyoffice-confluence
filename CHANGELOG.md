@@ -1,5 +1,6 @@
 # Change Log
 
+## 5.2.0
 ## Changed
 - com.onlyoffice:documentserver-sdk-java:1.4.0
     - support hwp, hwpx, pages, numbers, key formats
