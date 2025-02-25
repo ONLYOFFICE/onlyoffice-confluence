@@ -14,6 +14,7 @@
 - fixed issue with opening editor, opening a history, the download as action and the button to open the editor in
 preview for an anonymous user
 - fixed ui for dark theme
+- compatible with Confluence 9.3.1
 
 ## 6.1.0
 ## Added
