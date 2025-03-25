@@ -38,7 +38,7 @@ import java.io.PrintWriter;
 
 @AnonymousSiteAccess
 public class OnlyofficeButton extends HttpServlet {
-    private AttachmentManager attachmentManager;
+    private final AttachmentManager attachmentManager;
     private final ParsingUtil parsingUtil;
     private final AttachmentUtil attachmentUtil;
     private final DocumentManager documentManager;
@@ -70,9 +70,7 @@ public class OnlyofficeButton extends HttpServlet {
             String fileName = attachment.getFileName();
             String access = null;
 
-            if (accessEdit && documentManager.isFillable(fileName)) {
-                access = "fillForms";
-            } else if (accessEdit && documentManager.isEditable(fileName)) {
+            if (accessEdit && documentManager.isEditable(fileName)) {
                 access = "edit";
             } else if (accessView && documentManager.isViewable(fileName)
                     && !(accessEdit

@@ -179,7 +179,7 @@
     </web-item>
 
     <!--ONLYOFFICE SDK-->
-    <component name="ONLYOFFICE Request Manager" key="onlyoffice-sdk-request-manager" class="com.onlyoffice.manager.request.DefaultRequestManager" public="true">
+    <component name="ONLYOFFICE Request Manager" key="onlyoffice-sdk-request-manager" class="onlyoffice.sdk.manager.request.RequestManagerImpl" public="true">
         <interface>com.onlyoffice.manager.request.RequestManager</interface>
     </component>
     <component name="ONLYOFFICE JWT Manager" key="onlyoffice-sdk-jwt-manager" class="onlyoffice.sdk.manager.security.JwtManagerImpl" public="true">

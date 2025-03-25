@@ -10,7 +10,7 @@
     - demo server address changed
     - address of the convert service, /converter instead /ConvertService.ashx
     - apache httpclient 5
-    - default token lifetime is 5 
+    - default token lifetime is 5 minutes
 - fixed issue with opening editor, opening a history, the download as action and the button to open the editor in
 preview for an anonymous user
 - fixed ui for dark theme
