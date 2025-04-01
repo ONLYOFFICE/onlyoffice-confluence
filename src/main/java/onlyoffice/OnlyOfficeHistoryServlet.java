@@ -18,7 +18,7 @@
 
 package onlyoffice;
 
-import com.atlassian.annotations.security.UnrestrictedAccess;
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.core.DateFormatter;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -27,6 +27,7 @@ import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.sal.api.message.I18nResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.model.common.User;
 import com.onlyoffice.model.documenteditor.HistoryData;
@@ -34,7 +35,6 @@ import com.onlyoffice.model.documenteditor.history.Version;
 import onlyoffice.sdk.manager.security.JwtManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import onlyoffice.sdk.manager.url.UrlManager;
-import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.logging.log4j.LogManager;
@@ -52,14 +52,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AnonymousSiteAccess
 public class OnlyOfficeHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
 
+    private final I18nResolver i18n;
     private final LocaleManager localeManager;
     private final FormatSettingsManager formatSettingsManager;
     private final UserAccessor userAccessor;
-    private final AuthContext authContext;
     private final DocumentManager documentManager;
     private final AttachmentUtil attachmentUtil;
     private final UrlManager urlManager;
@@ -68,15 +69,15 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public OnlyOfficeHistoryServlet(final LocaleManager localeManager,
+    public OnlyOfficeHistoryServlet(final I18nResolver i18n, final LocaleManager localeManager,
                                     final FormatSettingsManager formatSettingsManager, final UserAccessor userAccessor,
-                                    final AuthContext authContext, final DocumentManager documentManager,
-                                    final AttachmentUtil attachmentUtil, final UrlManager urlManager,
-                                    final SettingsManager settingsManager, final JwtManager jwtManager) {
+                                    final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
+                                    final UrlManager urlManager, final SettingsManager settingsManager,
+                                    final JwtManager jwtManager) {
+        this.i18n = i18n;
         this.localeManager = localeManager;
         this.formatSettingsManager = formatSettingsManager;
         this.userAccessor = userAccessor;
-        this.authContext = authContext;
         this.documentManager = documentManager;
         this.attachmentUtil = attachmentUtil;
         this.urlManager = urlManager;
@@ -85,7 +86,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
     }
 
     @Override
-    @UnrestrictedAccess
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         String type = request.getParameter("type");
@@ -109,10 +109,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentHistoryInfo(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
-        if (!authContext.checkUserAuthorization(request, response)) {
-            return;
-        }
-
         String vkey = request.getParameter("vkey");
         String attachmentIdString = jwtManager.readHash(vkey);
 
@@ -137,13 +133,22 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
             Collections.reverse(attachments);
             List<Version> history = new ArrayList<>();
             for (Attachment attachment : attachments) {
+                ConfluenceUser creator = attachment.getCreator();
+                String creatorId = null;
+                String creatorName = i18n.getText("anonymous.name");
+
+                if (creator != null) {
+                    creatorId = creator.getKey().getStringValue();
+                    creatorName = creator.getFullName();
+                }
+
                 Version version = Version.builder()
                         .version(String.valueOf(attachment.getVersion()))
                         .key(documentManager.getDocumentKey(String.valueOf(attachment.getId()), false))
                         .created(dateFormatter.formatDateTime(attachment.getCreationDate()))
                         .user(User.builder()
-                                .id(attachment.getCreator().getKey().getStringValue())
-                                .name(attachment.getCreator().getFullName())
+                                .id(creatorId)
+                                .name(creatorName)
                                 .build()
                         )
                         .build();
@@ -167,10 +172,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
     private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
-        if (!authContext.checkUserAuthorization(request, response)) {
-            return;
-        }
-
         String vkey = request.getParameter("vkey");
         String attachmentIdString = jwtManager.readHash(vkey);
         String versionString = request.getParameter("version");

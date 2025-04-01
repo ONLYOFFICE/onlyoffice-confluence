@@ -18,6 +18,7 @@
 
 package onlyoffice.action;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+@AnonymousSiteAccess
 public class DownloadAsAction extends ConfluenceActionSupport {
 
     private final Logger log = LogManager.getLogger("onlyoffice.action.DownloadAsAction");

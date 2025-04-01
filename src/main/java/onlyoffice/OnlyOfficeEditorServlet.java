@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.BlogPost;
 import com.atlassian.confluence.plugin.services.VelocityHelperService;
@@ -58,6 +59,7 @@ import java.util.Map;
 
 import static onlyoffice.sdk.manager.url.UrlManagerImpl.DOC_EDITOR_SERVLET;
 
+@AnonymousSiteAccess
 public class OnlyOfficeEditorServlet extends HttpServlet {
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
     private final long serialVersionUID = 1L;
@@ -160,7 +162,6 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
 
             Map<String, Object> context = MacroUtils.defaultVelocityContext();
-            context.put("docserviceApiUrl", urlManager.getDocumentServerApiUrl());
             context.put("docTitle", documentManager.getDocumentName(String.valueOf(attachmentId)));
             context.put("favicon", urlManager.getFaviconUrl(documentType));
             context.put("pageId", pageId);
@@ -203,8 +204,10 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
                 }
 
                 ObjectMapper mapper = createObjectMapper();
+                String shardKey = config.getDocument().getKey();
 
                 context.put("request", request);
+                context.put("docserviceApiUrl", urlManager.getDocumentServerApiUrl(shardKey));
                 context.put("configAsHtml", mapper.writeValueAsString(config));
                 context.put("historyInfoUriAsHtml", urlManager.getHistoryInfoUri(attachmentId));
                 context.put("historyDataUriAsHtml", urlManager.getHistoryDataUri(attachmentId));

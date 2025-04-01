@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.model.common.Format;
 import onlyoffice.sdk.manager.document.DocumentManager;
@@ -32,6 +33,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+@AnonymousSiteAccess
 public class OnlyOfficeFormatsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeFormatsServlet");

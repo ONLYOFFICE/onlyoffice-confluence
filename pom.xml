@@ -7,15 +7,15 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>onlyoffice</groupId>
     <artifactId>onlyoffice-confluence-plugin</artifactId>
-    <version>6.1.0</version>
+    <version>6.2.0</version>
 
     <organization>
         <name>Ascensio System SIA</name>
         <url>https://www.onlyoffice.com</url>
     </organization>
 
-    <name>Confluence ONLYOFFICE integration app</name>
-    <description>Confluence ONLYOFFICE integration app allows you to work on all kinds of office documents within Confluence using ONLYOFFICE Online Editors with the enhanced formatting toolset. View, create and co-edit the documents in real-time.</description>
+    <name>ONLYOFFICE app for Confluence </name>
+    <description>ONLYOFFICE app for Confluence allows you to work on all kinds of office documents within Confluence using ONLYOFFICE Online Editors with the enhanced formatting toolset. View, create and co-edit the documents in real-time.</description>
     <packaging>atlassian-plugin</packaging>
 
     <dependencies>
@@ -60,13 +60,13 @@
         <dependency>
             <groupId>com.onlyoffice</groupId>
             <artifactId>docs-integration-sdk</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.14</version>
-            <scope>provided</scope>
+            <version>1.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

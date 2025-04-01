@@ -1,4 +1,4 @@
-# Confluence ONLYOFFICE integration app
+# ONLYOFFICE app for Confluence
 
 This app enables users to edit office documents from [Confluence](https://www.atlassian.com/software/confluence/) using ONLYOFFICE Docs packaged as Document Server - [Community or Enterprise Edition](#onlyoffice-docs-editions).
 
@@ -13,31 +13,27 @@ The app allows to:
 Supported formats:
 
 **For viewing:**
-* **WORD:** DJVU, DOC, DOCM, DOCX, DOCXF, DOT, DOTM, DOTX, EPUB, FB2, FODT, HTM, HTML, MHT, ODT, OFORM, OTT, OXPS, PDF, RTF, TXT, XML, XPS
-* **CELL:** CSV, FODS, ODS, OTS, XLS, XLSM, XLSX, XLT, XLTM, XLTX
-* **SLIDE:** FODP, ODP, OTP, POT, POTM, POTX, PPS, PPSM, PPSX, PPT, PPTM, PPTX
+* **WORD**: DOC, DOCM, DOCX, DOT, DOTM, DOTX, EPUB, FB2, FODT, HTM, HTML, HWP, HWPX, MHT, MHTML, ODT, OTT, PAGES, RTF, STW, SXW, TXT, WPS, WPT, XML
+* **CELL**: CSV, ET, ETT, FODS, NUMBERS, ODS, OTS, SXC, XLS, XLSB, XLSM, XLSX, XLT, XLTM, XLTX
+* **SLIDE**: DPS, DPT, FODP, KEY, ODP, OTP, POT, POTM, POTX, PPS, PPSM, PPSX, PPT, PPTM, PPTX, SXI
+* **PDF**: DJVU, DOCXF, OFORM, OXPS, PDF, XPS
 
 **For editing:**
-
-* **WORD:** DOCM, DOCX, DOCXF, DOTM, DOTX, HTM, XML
-* **CELL:** XLSM, XLSX, XLTM, XLTX
-* **SLIDE:** POTM, POTX, PPSM, PPSX, PPTM, PPTX
+* **WORD**: DOCM, DOCX, DOTM, DOTX
+* **CELL**: XLSM, XLSX, XLTM, XLTX
+* **SLIDE**: POTM, POTX, PPSM, PPSX, PPTM, PPTX
+* **PDF**: PDF
 
 **For editing with possible loss of information:**
-
-* **WORD:** EPUB, FB2, HTML, ODT, OTT, RTF, TXT
-* **CELL:** CSV, ODS, OTS
-* **SLIDE:** ODP, OTP
-
-**For filling:**
-
-* **WORD:** OFORM
+* **WORD**: EPUB, FB2, HTML, ODT, OTT, RTF, TXT
+* **CELL**: CSV, ODS, OTS
+* **SLIDE**: ODP, OTP
 
 **For converting to Office Open XML formats:**
-
-* **WORD:** DOC, DOCM, DOCXF, DOT, DOTM, DOTX, EPUB, FB2, FODT, HTM, HTML, MHT, ODT, OTT, OXPS, PDF, RTF, XML, XPS
-* **CELL:** FODS, ODS, OTS, XLS, XLSM, XLT, XLTM, XLTX
-* **SLIDE:** FODP, ODP, OTP, POT, POTM, POTX, PPS, PPSM, PPSX, PPT, PPTM
+* **WORD**: DOC, DOCM, DOCX, DOT, DOTM, DOTX, EPUB, FB2, FODT, HTM, HTML, HWP, HWPX, MHT, MHT, MHTML, ODT, OTT, PAGES, RTF, STW, SXW, TXT, WPS, WPT, XML
+* **CELL**: CSV, ET, ETT, FODS, NUMBERS, ODS, OTS, SXC, XLS, XLSB, XLSM, XLSX, XLT, XLTM, XLTX
+* **SLIDE**: DPS, DPT, FODP, KEY, ODP, OTP, POT, POTM, POTX, PPS, PPSM, PPSX, PPT, PPTM, PPTX, SXI
+* **PDF**: DOCXF, OXPS, PDF, XPS
 
 ## Installing ONLYOFFICE Docs
 
@@ -51,7 +47,7 @@ To install Enterprise Edition, follow instructions [here](https://helpcenter.onl
 
 Community Edition vs Enterprise Edition comparison can be found [here](#onlyoffice-docs-editions).
 
-## Installing Confluence ONLYOFFICE integration app
+## Installing ONLYOFFICE app for Confluence
 
 Upload the compiled ***target/onlyoffice-confluence-plugin.jar*** to Confluence on the `Manage add-ons` page.
 
@@ -64,7 +60,7 @@ You could also install the app from Confluence administration panel:
 3. Locate **ONLYOFFICE Connector for Confluence** using search.
 4. Click **Install** to download and install the app.
 
-## Configuring Confluence ONLYOFFICE integration app
+## Configuring ONLYOFFICE app for Confluence
 
 Find the uploaded ***ONLYOFFICE Confluence connector*** on the `Manage add-ons` page. Click `Configure` and enter the name of the server with the ONLYOFFICE Document Server installed:
 ```
@@ -74,7 +70,7 @@ Starting from version 7.2, JWT is enabled by default and the secret key is gener
 Specify your own **Secret key** on the Confluence administration page. 
 In the ONLYOFFICE Docs [config file](https://api.onlyoffice.com/editors/signature/), specify the same secret key and enable the validation.
 
-## Compiling Confluence ONLYOFFICE integration app
+## Compiling ONLYOFFICE app for Confluence
 
 You will need:
 
@@ -94,7 +90,7 @@ You will need:
 
 ## How it works
 
-The ONLYOFFICE integration follows the API documented here https://api.onlyoffice.com/editors/basic:
+The ONLYOFFICE app follows the API documented here https://api.onlyoffice.com/editors/basic:
 
 * User navigates to a Confluence attachments and selects the `Edit in ONLYOFFICE` action.
 * Confluence makes a request to OnlyOfficeEditorServlet (URL of the form: `/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id`).

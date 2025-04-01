@@ -37,6 +37,7 @@
         <resource type="download" name="settings.js" location="js/settings.js"/>
         <resource type="download" name="banner.css" location="css/banner/banner.css"/>
         <resource type="download" name="background.svg" location="images/banner/background.svg"/>
+        <resource type="download" name="logo-dark.svg" location="images/banner/logo-dark.svg"/>
         <resource type="download" name="logo.svg" location="images/banner/logo.svg"/>
         <resource type="download" name="configure.css" location="css/configure.css"/>
         <resource type="download" name="icon_view.svg" location="images/icon_view.svg"/>
@@ -178,7 +179,7 @@
     </web-item>
 
     <!--ONLYOFFICE SDK-->
-    <component name="ONLYOFFICE Request Manager" key="onlyoffice-sdk-request-manager" class="com.onlyoffice.manager.request.DefaultRequestManager" public="true">
+    <component name="ONLYOFFICE Request Manager" key="onlyoffice-sdk-request-manager" class="onlyoffice.sdk.manager.request.RequestManagerImpl" public="true">
         <interface>com.onlyoffice.manager.request.RequestManager</interface>
     </component>
     <component name="ONLYOFFICE JWT Manager" key="onlyoffice-sdk-jwt-manager" class="onlyoffice.sdk.manager.security.JwtManagerImpl" public="true">

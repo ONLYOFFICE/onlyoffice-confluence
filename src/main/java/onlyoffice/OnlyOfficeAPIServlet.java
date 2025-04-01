@@ -18,7 +18,10 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.pages.Attachment;
+import com.atlassian.confluence.security.Permission;
+import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.status.service.SystemInformationService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
@@ -38,7 +41,7 @@ import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -58,6 +61,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AnonymousSiteAccess
 public class OnlyOfficeAPIServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
@@ -71,6 +75,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
     private final RequestManager requestManager;
+    private final PermissionManager permissionManager;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -78,7 +83,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                                 final SettingsManager settingsManager, final JwtManager jwtManager,
                                 final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
                                 final ParsingUtil parsingUtil, final UrlManager urlManager,
-                                final RequestManager requestManager) {
+                                final RequestManager requestManager, final PermissionManager permissionManager) {
         this.sysInfoService = sysInfoService;
         this.userAccessor = userAccessor;
         this.settingsManager = settingsManager;
@@ -88,6 +93,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
         this.requestManager = requestManager;
+        this.permissionManager = permissionManager;
     }
 
     @Override
@@ -294,7 +300,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private void usersInfo(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
         ConfluenceUser currentUser = AuthenticatedUserThreadLocal.get();
 
-        if (currentUser == null) {
+        if (!permissionManager.hasPermission(currentUser, Permission.VIEW, PermissionManager.TARGET_PEOPLE_DIRECTORY)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -316,6 +322,10 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         List<User> users = new ArrayList<>();
 
         for (String userKeyString : usersInfoRequest.getIds()) {
+            if (userKeyString == null || userKeyString.isEmpty()) {
+                continue;
+            }
+
             UserKey userKey = new UserKey(userKeyString);
             ConfluenceUser confluenceUser = userAccessor.getUserByKey(userKey);
 

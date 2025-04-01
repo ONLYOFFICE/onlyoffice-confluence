@@ -18,6 +18,7 @@
 
 package onlyoffice.conditions.confluence.previews.plugin;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -35,8 +36,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
+@AnonymousSiteAccess
 public class OnlyofficeButton extends HttpServlet {
-    private AttachmentManager attachmentManager;
+    private final AttachmentManager attachmentManager;
     private final ParsingUtil parsingUtil;
     private final AttachmentUtil attachmentUtil;
     private final DocumentManager documentManager;
@@ -68,9 +70,7 @@ public class OnlyofficeButton extends HttpServlet {
             String fileName = attachment.getFileName();
             String access = null;
 
-            if (accessEdit && documentManager.isFillable(fileName)) {
-                access = "fillForms";
-            } else if (accessEdit && documentManager.isEditable(fileName)) {
+            if (accessEdit && documentManager.isEditable(fileName)) {
                 access = "edit";
             } else if (accessView && documentManager.isViewable(fileName)
                     && !(accessEdit

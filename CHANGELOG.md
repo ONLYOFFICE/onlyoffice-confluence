@@ -1,5 +1,21 @@
 # Change Log
 
+## 6.2.0
+## Changed
+- com.onlyoffice:documentserver-sdk-java:1.4.0
+    - support hwp, hwpx, pages, numbers, key formats
+    - fi, he, no, sl, sq-AL empty file templates
+    - shardkey parameter
+    - the list of image formats available for insertion into the editor has been expanded (tiff)
+    - demo server address changed
+    - address of the convert service, /converter instead /ConvertService.ashx
+    - apache httpclient 5
+    - default token lifetime is 5 minutes
+- fixed issue with opening editor, opening a history, the download as action and the button to open the editor in
+preview for an anonymous user
+- fixed ui for dark theme
+- compatible with Confluence 9.3.2
+
 ## 6.1.0
 ## Added
 - compatible with Confluence 9.*
