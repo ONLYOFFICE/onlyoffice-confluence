@@ -179,8 +179,8 @@
     </web-item>
 
     <!--ONLYOFFICE SDK-->
-    <component name="ONLYOFFICE Request Manager" key="onlyoffice-sdk-request-manager" class="onlyoffice.sdk.manager.request.RequestManagerImpl" public="true">
-        <interface>com.onlyoffice.manager.request.RequestManager</interface>
+    <component name="ONLYOFFICE Document Server Client" key="onlyoffice-sdk-document-server-client" class="com.onlyoffice.client.ApacheHttpclientDocumentServerClient" public="true">
+        <interface>com.onlyoffice.client.DocumentServerClient</interface>
     </component>
     <component name="ONLYOFFICE JWT Manager" key="onlyoffice-sdk-jwt-manager" class="onlyoffice.sdk.manager.security.JwtManagerImpl" public="true">
         <interface>onlyoffice.sdk.manager.security.JwtManager</interface>
@@ -198,7 +198,7 @@
     <component name="ONLYOFFICE Config Service" key="onlyoffice-sdk-config-service" class="onlyoffice.sdk.service.ConfigServiceImpl" public="true">
         <interface>com.onlyoffice.service.documenteditor.config.ConfigService</interface>
     </component>
-    <component name="ONLYOFFICE Convert Service" key="onlyoffice-sdk-convert-service" class="com.onlyoffice.service.convert.DefaultConvertService" public="true">
+    <component name="ONLYOFFICE Convert Service" key="onlyoffice-sdk-convert-service" class="com.onlyoffice.service.convert.DefaultConvertServiceV2" public="true">
         <interface>com.onlyoffice.service.convert.ConvertService</interface>
     </component>
     <component name="ONLYOFFICE Validation Settings Service" key="onlyoffice-sdk-validation-settings-service" class="onlyoffice.sdk.service.SettingsValidationServiceImpl" public="true">

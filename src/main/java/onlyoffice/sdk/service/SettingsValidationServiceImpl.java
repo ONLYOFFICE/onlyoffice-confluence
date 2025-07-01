@@ -19,28 +19,27 @@
 package onlyoffice.sdk.service;
 
 import com.atlassian.sal.api.message.I18nResolver;
-import com.onlyoffice.manager.request.RequestManager;
-import com.onlyoffice.manager.settings.SettingsManager;
+import com.onlyoffice.client.DocumentServerClient;
 import com.onlyoffice.manager.url.UrlManager;
 import com.onlyoffice.model.common.CommonResponse;
 import com.onlyoffice.model.settings.validation.ValidationResult;
 import com.onlyoffice.model.settings.validation.status.Status;
-import com.onlyoffice.service.settings.DefaultSettingsValidationService;
+import com.onlyoffice.service.settings.DefaultSettingsValidationServiceV2;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SettingsValidationServiceImpl extends DefaultSettingsValidationService
+public class SettingsValidationServiceImpl extends DefaultSettingsValidationServiceV2
         implements SettingsValidationService {
     private final Logger log = LogManager.getLogger("onlyoffice.ValidationSettingsServiceImpl");
 
     private final I18nResolver i18n;
 
-    public SettingsValidationServiceImpl(final I18nResolver i18n, final RequestManager requestManager,
-                                         final UrlManager urlManager, final SettingsManager settingsManager) {
-        super(requestManager, urlManager, settingsManager);
+    public SettingsValidationServiceImpl(final I18nResolver i18n, final DocumentServerClient documentServerClient,
+                                         final UrlManager urlManager) {
+        super(documentServerClient, urlManager);
         this.i18n = i18n;
     }
 
@@ -85,7 +84,7 @@ public class SettingsValidationServiceImpl extends DefaultSettingsValidationServ
         try {
             result.put(
                     "convertService",
-                    checkConvertService()
+                    checkConvertService(null)
             );
         } catch (Exception e) {
             log.error(e.getMessage(), e);

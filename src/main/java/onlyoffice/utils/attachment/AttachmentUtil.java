@@ -40,10 +40,9 @@ public interface AttachmentUtil extends Serializable {
 
     boolean checkAccessCreate(User user, Long pageId);
 
-    void saveAttachmentAsNewVersion(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
-            throws IOException, IllegalArgumentException;
+    void saveAttachmentAsNewVersion(Long attachmentId, File file, ConfluenceUser user) throws IOException;
 
-    void updateAttachment(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user);
+    void updateAttachment(Long attachmentId, File file, ConfluenceUser user);
 
     void removeAttachmentChanges(Long attachmentId);
 
@@ -82,6 +81,9 @@ public interface AttachmentUtil extends Serializable {
     String getAttachmentSpaceKey(Long attachmentId);
 
     Attachment createNewAttachment(String title, String mimeType, InputStream file, int size, Long pageId,
+                                   ConfluenceUser user) throws IOException;
+
+    Attachment createNewAttachment(String title, String mimeType, File file, Long pageId,
                                    ConfluenceUser user) throws IOException;
 
     File getConvertedFile(Long attachmentId);
