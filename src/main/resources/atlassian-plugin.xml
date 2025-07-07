@@ -104,6 +104,7 @@
         <resource type="download" name="cell.ico" location="images/cell.ico"/>
         <resource type="download" name="slide.ico" location="images/slide.ico"/>
         <resource type="download" name="pdf.ico" location="images/pdf.ico"/>
+        <resource type="download" name="diagram.ico" location="images/diagram.ico"/>
     </web-resource>
 
     <web-resource key="macro-browser-smart-fields" name="Macro Browser Smart Fields">
