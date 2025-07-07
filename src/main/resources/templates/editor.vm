@@ -57,6 +57,7 @@ $webResourceManager.requireResourcesForContext("editor")
 
     <script type="text/javascript" src="${docserviceApiUrl}"></script>
     <script type="text/javascript" language="javascript">
+        document.querySelectorAll("link[rel~='icon'][href$='favicon.ico']").forEach(el => el.remove());
 
         var docEditor;
         var defaultPanelComponent = new Array();

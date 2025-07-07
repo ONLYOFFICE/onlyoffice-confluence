@@ -31,8 +31,10 @@ import com.atlassian.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -102,17 +104,16 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return access;
     }
 
-    public void saveAttachmentAsNewVersion(final Long attachmentId, final InputStream attachmentData, final int size,
-                                           final ConfluenceUser user)
-            throws IOException, IllegalArgumentException {
+    public void saveAttachmentAsNewVersion(final Long attachmentId, final File file, final ConfluenceUser user)
+            throws IOException {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         Attachment oldAttachment = attachment.copy();
-        attachment.setFileSize(size);
+        attachment.setFileSize(file.length());
 
         AuthenticatedUserThreadLocal.set(user);
 
-        attachmentManager.saveAttachment(attachment, oldAttachment, attachmentData);
+        attachmentManager.saveAttachment(attachment, oldAttachment, Files.newInputStream(file.toPath()));
     }
 
     public InputStream getAttachmentData(final Long attachmentId) {
@@ -193,6 +194,31 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         attachment.setContainer(container);
 
         attachmentManager.saveAttachment(attachment, null, file);
+
+        container.addAttachment(attachment);
+
+        return attachment;
+    }
+
+    public Attachment createNewAttachment(final String fileName, final String mimeType, final File file,
+                                          final Long pageId, final ConfluenceUser user)
+            throws IOException {
+        Date date = Calendar.getInstance().getTime();
+        ContentEntityObject container = getContainer(pageId);
+
+        Attachment attachment = new Attachment(
+                fileName,
+                mimeType,
+                file.length(),
+                ""
+        );
+
+        attachment.setCreator(user);
+        attachment.setCreationDate(date);
+        attachment.setLastModificationDate(date);
+        attachment.setContainer(container);
+
+        attachmentManager.saveAttachment(attachment, null, Files.newInputStream(file.toPath()));
 
         container.addAttachment(attachment);
 

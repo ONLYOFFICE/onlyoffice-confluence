@@ -20,7 +20,7 @@ package onlyoffice.sdk.service;
 
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.onlyoffice.manager.request.RequestManager;
+import com.onlyoffice.client.DocumentServerClient;
 import com.onlyoffice.manager.security.JwtManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 
@@ -32,27 +32,25 @@ import com.onlyoffice.service.convert.ConvertService;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.commons.io.IOUtils;
-import org.apache.hc.core5.http.HttpEntity;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class CallbackServiceImpl extends DefaultCallbackService {
     private final AttachmentUtil attachmentUtil;
     private final ConvertService convertService;
-    private final RequestManager requestManager;
+    private final DocumentServerClient documentServerClient;
     private final UrlManager urlManager;
     private final DocumentManager documentManager;
 
     public CallbackServiceImpl(final JwtManager jwtManager, final AttachmentUtil attachmentUtil,
-                               final ConvertService convertService, final RequestManager requestManager,
+                               final ConvertService convertService, final DocumentServerClient documentServerClient,
                                final SettingsManager settingsManager, final UrlManager urlManager,
                                final DocumentManager documentManager) {
         super(jwtManager, settingsManager);
         this.attachmentUtil = attachmentUtil;
         this.convertService = convertService;
-        this.requestManager = requestManager;
+        this.documentServerClient = documentServerClient;
         this.urlManager = urlManager;
         this.documentManager = documentManager;
     }
@@ -86,16 +84,20 @@ public class CallbackServiceImpl extends DefaultCallbackService {
             url = convertResponse.getFileUrl();
         }
 
-        requestManager.executeGetRequest(url, new RequestManager.Callback<Void>() {
-            @Override
-            public Void doWork(final Object response) throws Exception {
-                byte[] bytes = IOUtils.toByteArray(((HttpEntity) response).getContent());
-                InputStream inputStream = new ByteArrayInputStream(bytes);
+        Path tempFile = null;
+        try {
+            tempFile = Files.createTempFile(null, null);
 
-                attachmentUtil.saveAttachmentAsNewVersion(attachmentId, inputStream, bytes.length, user);
+            documentServerClient.getFile(
+                    url,
+                    Files.newOutputStream(tempFile)
+            );
 
-                return null;
+            attachmentUtil.saveAttachmentAsNewVersion(attachmentId, tempFile.toFile(), user);
+        } finally {
+            if (tempFile != null) {
+                Files.deleteIfExists(tempFile);
             }
-        });
+        }
     }
 }

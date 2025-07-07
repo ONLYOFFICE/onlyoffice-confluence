@@ -68,7 +68,7 @@ http://documentserver/
 ```
 Starting from version 7.2, JWT is enabled by default and the secret key is generated automatically to restrict the access to ONLYOFFICE Docs and for security reasons and data integrity. 
 Specify your own **Secret key** on the Confluence administration page. 
-In the ONLYOFFICE Docs [config file](https://api.onlyoffice.com/editors/signature/), specify the same secret key and enable the validation.
+In the ONLYOFFICE Docs [config file](https://api.onlyoffice.com/docs/docs-api/additional-api/signature/), specify the same secret key and enable the validation.
 
 ## Compiling ONLYOFFICE app for Confluence
 
@@ -90,7 +90,7 @@ You will need:
 
 ## How it works
 
-The ONLYOFFICE app follows the API documented here https://api.onlyoffice.com/editors/basic:
+The ONLYOFFICE app follows the API documented [here](https://api.onlyoffice.com/docs/docs-api/get-started/basic-concepts/):
 
 * User navigates to a Confluence attachments and selects the `Edit in ONLYOFFICE` action.
 * Confluence makes a request to OnlyOfficeEditorServlet (URL of the form: `/plugins/servlet/onlyoffice/doceditor?attachmentId=$attachment.id`).

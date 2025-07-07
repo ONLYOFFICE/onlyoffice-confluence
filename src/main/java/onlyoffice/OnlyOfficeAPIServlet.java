@@ -29,7 +29,7 @@ import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.confluence.user.actions.ProfilePictureInfo;
 import com.atlassian.sal.api.user.UserKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onlyoffice.manager.request.RequestManager;
+import com.onlyoffice.client.DocumentServerClient;
 import com.onlyoffice.manager.settings.SettingsManager;
 import com.onlyoffice.manager.security.JwtManager;
 import com.onlyoffice.model.common.User;
@@ -41,7 +41,6 @@ import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -51,10 +50,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -74,7 +74,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
     private final AttachmentUtil attachmentUtil;
     private final ParsingUtil parsingUtil;
     private final UrlManager urlManager;
-    private final RequestManager requestManager;
+    private final DocumentServerClient documentServerClient;
     private final PermissionManager permissionManager;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -83,7 +83,8 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                                 final SettingsManager settingsManager, final JwtManager jwtManager,
                                 final DocumentManager documentManager, final AttachmentUtil attachmentUtil,
                                 final ParsingUtil parsingUtil, final UrlManager urlManager,
-                                final RequestManager requestManager, final PermissionManager permissionManager) {
+                                final DocumentServerClient documentServerClient,
+                                final PermissionManager permissionManager) {
         this.sysInfoService = sysInfoService;
         this.userAccessor = userAccessor;
         this.settingsManager = settingsManager;
@@ -92,7 +93,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
         this.attachmentUtil = attachmentUtil;
         this.parsingUtil = parsingUtil;
         this.urlManager = urlManager;
-        this.requestManager = requestManager;
+        this.documentServerClient = documentServerClient;
         this.permissionManager = permissionManager;
     }
 
@@ -154,23 +155,24 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
                 return;
             }
 
-            downloadUrl = urlManager.replaceToInnerDocumentServerUrl(downloadUrl);
+            Path tempFile = null;
+            try {
+                tempFile = Files.createTempFile(null, null);
 
-            requestManager.executeGetRequest(downloadUrl, new RequestManager.Callback<Void>() {
-                @Override
-                public Void doWork(final Object response) throws Exception {
-                    byte[] bytes = IOUtils.toByteArray(((HttpEntity) response).getContent());
-                    InputStream inputStream = new ByteArrayInputStream(bytes);
+                documentServerClient.getFile(
+                        downloadUrl,
+                        Files.newOutputStream(tempFile)
+                );
 
-                    log.info("size = " + bytes.length);
+                String fileName = attachmentUtil.getCorrectName(title, ext, pageId);
+                String mimeType = documentManager.getMimeType(fileName);
 
-                    String fileName = attachmentUtil.getCorrectName(title, ext, pageId);
-                    String mimeType = documentManager.getMimeType(fileName);
-
-                    attachmentUtil.createNewAttachment(fileName, mimeType, inputStream, bytes.length, pageId, user);
-                    return null;
+                attachmentUtil.createNewAttachment(fileName, mimeType, tempFile.toFile(), pageId, user);
+            } finally {
+                if (tempFile != null) {
+                    Files.deleteIfExists(tempFile);
                 }
-            });
+            }
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
