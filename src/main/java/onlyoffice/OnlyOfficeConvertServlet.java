@@ -257,7 +257,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
 
             copy.setContainer(attachmentUtil.getContainer(pageId));
             copy.setFileName(newName);
-            copy.setFileSize(bytes.length);
+            copy.setFileSize(tempFile.toFile().length());
             copy.setMediaType(documentManager.getMimeType(newName));
 
             attachmentManager.saveAttachment(copy, null, Files.newInputStream(tempFile));
