@@ -21,6 +21,7 @@
     <resource type="download" name="images/preview-placeholder-cell.svg" key="images" location="images/preview-placeholder-cell.svg"/>
     <resource type="download" name="images/preview-placeholder-slide.svg" key="images" location="images/preview-placeholder-slide.svg"/>
     <resource type="download" name="images/preview-placeholder-pdf.svg" key="images" location="images/preview-placeholder-pdf.svg"/>
+    <resource type="download" name="images/preview-placeholder-diagram.svg" key="images" location="images/preview-placeholder-diagram.svg"/>
 
     <web-resource key="onlyoffice-confluence-plugin-resources" name="Web Resources container for the main page">
         <resource type="download" name="onlyoffice-main.js" location="js/onlyoffice-main.js"/>
