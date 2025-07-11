@@ -44,6 +44,7 @@
                     "feedback": $("#feedback").is(":checked"),
                     "help": $("#helpMenu").is(":checked"),
                     "toolbarNoTabs": $("#toolbarNoTabs").is(":checked"),
+                    "macros": $("#macros").is(":checked"),
                     "review": {
                         "reviewDisplay": $("input[name='reviewDisplay']:checked").attr("id").replace("reviewDisplay_", "")
                     },
