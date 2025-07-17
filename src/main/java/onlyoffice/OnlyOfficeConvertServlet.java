@@ -25,7 +25,7 @@ import com.atlassian.confluence.plugin.services.VelocityHelperService;
 import com.atlassian.confluence.renderer.radeox.macros.MacroUtils;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.onlyoffice.manager.request.RequestManager;
+import com.onlyoffice.client.DocumentServerClient;
 import com.onlyoffice.model.common.CommonResponse;
 import com.onlyoffice.model.common.Format;
 import com.onlyoffice.model.convertservice.ConvertRequest;
@@ -35,8 +35,6 @@ import com.onlyoffice.service.convert.ConvertService;
 import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.commons.io.IOUtils;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -45,11 +43,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 public class OnlyOfficeConvertServlet extends HttpServlet {
@@ -63,13 +61,13 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
     private final ConvertService convertService;
     private final AuthContext authContext;
     private final DocumentManager documentManager;
-    private final RequestManager requestManager;
+    private final DocumentServerClient documentServerClient;
 
     public OnlyOfficeConvertServlet(final VelocityHelperService velocityHelperService,
                                     final LocaleManager localeManager, final AttachmentManager attachmentManager,
                                     final AttachmentUtil attachmentUtil, final ConvertService convertService,
                                     final AuthContext authContext, final DocumentManager documentManager,
-                                    final RequestManager requestManager) {
+                                    final DocumentServerClient documentServerClient) {
         this.velocityHelperService = velocityHelperService;
         this.localeManager = localeManager;
         this.attachmentManager = attachmentManager;
@@ -77,7 +75,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         this.convertService = convertService;
         this.authContext = authContext;
         this.documentManager = documentManager;
-        this.requestManager = requestManager;
+        this.documentServerClient = documentServerClient;
     }
 
     @Override
@@ -246,25 +244,31 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
             throws Exception {
         log.info("downloadUri = " + fileUrl);
 
-        return requestManager.executeGetRequest(fileUrl, new RequestManager.Callback<Long>() {
-            @Override
-            public Long doWork(final Object response) throws Exception {
-                byte[] bytes = IOUtils.toByteArray(((HttpEntity) response).getContent());
-                InputStream inputStream = new ByteArrayInputStream(bytes);
+        Path tempFile = null;
+        try {
+            tempFile = Files.createTempFile(null, null);
 
-                Attachment copy = attachment.copyLatestVersion();
+            documentServerClient.getFile(
+                    fileUrl,
+                    Files.newOutputStream(tempFile)
+            );
 
-                copy.setContainer(attachmentUtil.getContainer(pageId));
-                copy.setFileName(newName);
-                copy.setFileSize(bytes.length);
-                copy.setMediaType(documentManager.getMimeType(newName));
+            Attachment copy = attachment.copyLatestVersion();
 
-                attachmentManager.saveAttachment(copy, null, inputStream);
-//                attachmentUtil.setCollaborativeEditingKey(copy.getLatestVersionId(), null);
+            copy.setContainer(attachmentUtil.getContainer(pageId));
+            copy.setFileName(newName);
+            copy.setFileSize(tempFile.toFile().length());
+            copy.setMediaType(documentManager.getMimeType(newName));
 
-                return copy.getLatestVersionId();
+            attachmentManager.saveAttachment(copy, null, Files.newInputStream(tempFile));
+//            attachmentUtil.setCollaborativeEditingKey(copy.getLatestVersionId(), null);
+
+            return copy.getLatestVersionId();
+        } finally {
+            if (tempFile != null) {
+                Files.deleteIfExists(tempFile);
             }
-        });
+        }
     }
 
 }

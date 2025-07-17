@@ -23,6 +23,7 @@ import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.user.User;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -39,8 +40,7 @@ public interface AttachmentUtil extends Serializable {
 
     boolean checkAccessCreate(User user, Long pageId);
 
-    void saveAttachmentAsNewVersion(Long attachmentId, InputStream attachmentData, int size, ConfluenceUser user)
-            throws IOException, IllegalArgumentException;
+    void saveAttachmentAsNewVersion(Long attachmentId, File file, ConfluenceUser user) throws IOException;
 
     InputStream getAttachmentData(Long attachmentId);
 
@@ -62,6 +62,9 @@ public interface AttachmentUtil extends Serializable {
 
     Attachment createNewAttachment(String title, String mimeType, InputStream file, int size, Long pageId,
                                    ConfluenceUser user) throws IOException;
+
+    Attachment createNewAttachment(String fileName, String mimeType, File file, Long pageId, ConfluenceUser user)
+            throws IOException;
 
     ContentEntityObject getContainer(Long containerId);
 

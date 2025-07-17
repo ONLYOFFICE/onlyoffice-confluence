@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>onlyoffice</groupId>
     <artifactId>onlyoffice-confluence-plugin</artifactId>
-    <version>6.2.0</version>
+    <version>6.3.0</version>
 
     <organization>
         <name>Ascensio System SIA</name>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>com.onlyoffice</groupId>
             <artifactId>docs-integration-sdk</artifactId>
-            <version>1.4.0</version>
+            <version>1.6.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

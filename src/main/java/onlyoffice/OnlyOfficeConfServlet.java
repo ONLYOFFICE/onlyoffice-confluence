@@ -120,6 +120,10 @@ public class OnlyOfficeConfServlet extends HttpServlet {
                 settings.put("customization.chat", "true");
             }
 
+            if (settings.get("customization.macros") == null || settings.get("customization.macros").isEmpty()) {
+                settings.put("customization.macros", "true");
+            }
+
             contextMap.put("settings", settings);
         } catch (IntrospectionException e) {
             throw new RuntimeException(e);
