@@ -1,0 +1,49 @@
+---
+- - :approve
+  - atlassian-profiling
+  - :who:
+    :why: BSD License in repository
+    :versions: []
+    :when: 2025-11-05 07:01:14.070025500 Z
+- - :approve
+  - com.springsource.net.jcip.annotations
+  - :who:
+    :why: Public License
+    :versions: []
+    :when: 2025-11-05 07:04:02.799262700 Z
+- - :approve
+  - servlet-api
+  - :who:
+    :why: CDDL + GPLv2 with classpath exception
+    :versions: []
+    :when: 2025-11-05 07:10:53.687868200 Z
+- - :approve
+  - serializer
+  - :who:
+    :why: Apache
+    :versions: []
+    :when: 2025-11-05 07:12:02.073512400 Z
+- - :approve
+  - propertyset
+  - :who:
+    :why: OpenSymphony Software License
+    :versions: []
+    :when: 2025-11-05 07:15:37.286823200 Z
+- - :approve
+  - p6spy
+  - :who:
+    :why: Apache 2.0
+    :versions: []
+    :when: 2025-11-05 07:16:33.364644000 Z
+- - :approve
+  - osuser
+  - :who:
+    :why: unlicensed
+    :versions: []
+    :when: 2025-11-05 07:18:48.089727400 Z
+- - :approve
+  - javax.servlet-api
+  - :who:
+    :why: CDDL + GPLv2 with classpath exception
+    :versions: []
+    :when: 2025-11-05 07:26:03.256838900 Z
