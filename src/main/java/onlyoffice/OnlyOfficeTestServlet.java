@@ -20,14 +20,14 @@ package onlyoffice;
 
 import com.atlassian.annotations.security.UnrestrictedAccess;
 import com.onlyoffice.manager.settings.SettingsManager;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import onlyoffice.sdk.manager.security.JwtManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class OnlyOfficeTestServlet extends HttpServlet {

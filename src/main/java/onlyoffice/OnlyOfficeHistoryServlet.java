@@ -25,13 +25,17 @@ import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
+import com.atlassian.confluence.user.UserPreferences;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.model.common.User;
 import com.onlyoffice.model.documenteditor.HistoryData;
 import com.onlyoffice.model.documenteditor.history.Version;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import onlyoffice.sdk.manager.security.JwtManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import onlyoffice.sdk.manager.url.UrlManager;
@@ -40,10 +44,6 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -127,8 +127,12 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
         List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
         if (attachments != null) {
-            ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
-            DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
+            UserPreferences preferences = userAccessor.getUserPreferences(user);
+            DateFormatter dateFormatter = new DateFormatter(
+                    preferences.getTimeZone(),
+                    formatSettingsManager,
+                    localeManager
+            );
 
             Collections.reverse(attachments);
             List<Version> history = new ArrayList<>();

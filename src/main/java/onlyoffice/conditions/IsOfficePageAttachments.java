@@ -23,9 +23,9 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.core.filters.ServletContextThreadLocal;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
+import jakarta.servlet.http.HttpServletRequest;
 import onlyoffice.utils.attachment.AttachmentUtil;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
