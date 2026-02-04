@@ -47,3 +47,261 @@
     :why: CDDL + GPLv2 with classpath exception
     :versions: []
     :when: 2025-11-05 07:26:03.256838900 Z
+- - :approve
+  - activation
+  - :who:
+    :why: CDDL
+    :versions: []
+    :when: 2025-11-05 07:26:03.256838900 Z
+- - :approve
+  - atlassian-flushable-gzipoutputstream
+  - :who:
+    :why: Apache 2.0
+    :versions: []
+    :when: 2025-11-05 07:26:03.256838900 Z
+- - :approve
+  - atlassian-image-consumer
+  - :who:
+    :why: LGPL
+    :versions: []
+    :when: 2025-11-05 07:26:03.256838900 Z
+- - :approve
+  - atlassian-spring-interceptor-adapter-spi
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - c3p0
+  - :who:
+    :why: Eclipse Public License, Version 1.0, GNU Lesser General Public License, Version 2.1
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - commons-digester
+  - :who:
+    :why: Apache 2.0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - commons-jrcs
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - dom4j
+  - :who:
+    :why: BSD 3-clause
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - hibernate-hikaricp
+  - :who:
+    :why: Apache 2.0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - icu4j
+  - :who:
+    :why: Unicode/ICU License
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - isorelax
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jai_codec
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jai_core
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jakarta-regexp
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - javassist
+  - :who:
+    :why: Apache 2.0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - javax.persistence-api
+  - :who:
+    :why: EPL 1.0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jaxen
+  - :who:
+    :why: BSD 2-clause
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jcip-annotations
+  - :who:
+    :why: Public
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jdom
+  - :who:
+    :why: Similar to Apache License but with the acknowledgment clause removed
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jdom2
+  - :who:
+    :why: Similar to Apache License but with the acknowledgment clause removed
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jgrapht-core
+  - :who:
+    :why: Eclipse Public License (EPL) 2.0, GNU Lesser General Public License Version 2.1, February 1999
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jgrapht-io
+  - :who:
+    :why: Eclipse Public License (EPL) 2.0, GNU Lesser General Public License Version 2.1, February 1999
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jsr311-api
+  - :who:
+    :why: CDDL 1.0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jstyleparser
+  - :who:
+    :why: LGPL 3.0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - jtds
+  - :who:
+    :why: LGPL
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - log4j
+  - :who:
+    :why: Apache 2.0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - mchange-commons-java
+  - :who:
+    :why: Eclipse Public License, Version 1.0, GNU Lesser General Public License, Version 2.1
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - modz-detector
+  - :who:
+    :why: Atlassian
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - msv
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - odmg
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - oro
+  - :who:
+    :why: Apache
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - oscache
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - oscore
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - package-scanner
+  - :who:
+    :why: Apache
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - radeox
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - reactive-streams
+  - :who:
+    :why: CC0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - relaxngDatatype
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - rome
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - runtime
+  - :who:
+    :why: EPL 1.0
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - saxpath
+  - :who:
+    :why: unknown
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - sitemesh
+  - :who:
+    :why: Apache 1.1
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :approve
+  - stax-ex
+  - :who:
+    :why: Dual license consisting of the CDDL v1.1 and GPL v2
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
+- - :ignore
+  - lucene-upgrader
+  - :who:
+    :why: Error when load lucene-upgrader-1.0.jar
+    :versions: []
+    :when: 2026-02-04 12:14:33.266238600 Z
