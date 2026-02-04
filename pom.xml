@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>onlyoffice</groupId>
     <artifactId>onlyoffice-confluence-plugin</artifactId>
-    <version>6.3.0</version>
+    <version>6.3.1-SNAPSHOT</version>
 
     <organization>
         <name>Ascensio System SIA</name>
