@@ -1,6 +1,6 @@
 # Change Log
 
-##
+## 7.4.0
 ## Added
 - compatible with Confluence v10.*
 
