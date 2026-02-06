@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>onlyoffice</groupId>
     <artifactId>onlyoffice-confluence-plugin</artifactId>
-    <version>6.4.0</version>
+    <version>7.4.0</version>
 
     <organization>
         <name>Ascensio System SIA</name>
@@ -32,9 +32,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -171,8 +171,8 @@
     </pluginRepositories>
 
     <properties>
-        <confluence.version>9.0.2</confluence.version>
-        <confluence.data.version>9.0.2</confluence.data.version>
+        <confluence.version>10.0.3</confluence.version>
+        <confluence.data.version>10.0.3</confluence.data.version>
         <amps.version>8.10.0</amps.version>
         <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>

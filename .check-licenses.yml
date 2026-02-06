@@ -47,3 +47,16 @@
     :why: CDDL + GPLv2 with classpath exception
     :versions: []
     :when: 2025-11-05 07:26:03.256838900 Z
+- - :approve
+  - avalon-framework
+  - :who:
+    :why: Apache License
+    :versions:
+      - 4.1.3
+    :when: 2025-12-15 13:38:34.539065300 Z
+- - :approve
+  - logkit
+  - :who:
+    :why: The Unlicense
+    :versions: []
+    :when: 2025-12-16 06:30:11.645204800 Z

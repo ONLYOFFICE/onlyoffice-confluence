@@ -279,7 +279,7 @@
         <description>The ONLYOFFICE Test.</description>
         <url-pattern>/onlyoffice/test</url-pattern>
     </servlet>
-    <xwork key="onlyoffice-confluence-plugin-actions" name="ONLYOFFICE Actions">
+    <struts key="onlyoffice-confluence-plugin-actions" name="ONLYOFFICE Actions">
         <default-interceptor-ref name="validatingStack"/>
         <package name="onlyoffice-confluence-plugin" extends="default" namespace="/plugins/onlyoffice-confluence-plugin">
             <action name="onlyoffice-download-as-view" class="onlyoffice.action.DownloadAsAction" method="doDefault">
@@ -295,5 +295,5 @@
                 <result name="cancel" type="json"/>
             </action>
         </package>
-    </xwork>
+    </struts>
 </atlassian-plugin>

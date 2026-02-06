@@ -1,8 +1,10 @@
 # Change Log
 
-## 6.4.0
+## 7.4.0
+## Added
+- compatible with Confluence v10.*
+
 ## Changed
-- compatible with Confluence 9.5.4
 - updated com.onlyoffice:docs-integration-sdk to v1.7.1, see [ONLYOFFICE/docs-integration-sdk-java v1.7.0](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.7.0)
 and see [ONLYOFFICE/docs-integration-sdk-java v1.7.1](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.7.1)
 - fixed bug link generation when the document server or product URL contains a context path

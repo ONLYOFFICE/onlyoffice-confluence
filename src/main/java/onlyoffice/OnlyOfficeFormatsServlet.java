@@ -21,13 +21,13 @@ package onlyoffice;
 import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.model.common.Format;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;

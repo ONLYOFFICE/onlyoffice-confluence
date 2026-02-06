@@ -21,7 +21,6 @@ package onlyoffice.utils.attachment;
 import com.atlassian.confluence.core.ContentEntityObject;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.user.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,11 +33,11 @@ public interface AttachmentUtil extends Serializable {
 
     Attachment getAttachmentByName(String fileName, Long pageId);
 
-    boolean checkAccess(Long attachmentId, User user, boolean forEdit);
+    boolean checkAccess(Long attachmentId, ConfluenceUser user, boolean forEdit);
 
-    boolean checkAccess(Attachment attachment, User user, boolean forEdit);
+    boolean checkAccess(Attachment attachment, ConfluenceUser user, boolean forEdit);
 
-    boolean checkAccessCreate(User user, Long pageId);
+    boolean checkAccessCreate(ConfluenceUser user, Long pageId);
 
     void saveAttachmentAsNewVersion(Long attachmentId, File file, ConfluenceUser user) throws IOException;
 

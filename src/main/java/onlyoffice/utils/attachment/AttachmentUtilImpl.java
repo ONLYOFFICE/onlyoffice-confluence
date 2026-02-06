@@ -27,7 +27,6 @@ import com.atlassian.confluence.security.PermissionManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.spring.container.ContainerManager;
-import com.atlassian.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,13 +71,13 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         return null;
     }
 
-    public boolean checkAccess(final Long attachmentId, final User user, final boolean forEdit) {
+    public boolean checkAccess(final Long attachmentId, final ConfluenceUser user, final boolean forEdit) {
         Attachment attachment = attachmentManager.getAttachment(attachmentId);
 
         return checkAccess(attachment, user, forEdit);
     }
 
-    public boolean checkAccess(final Attachment attachment, final User user, final boolean forEdit) {
+    public boolean checkAccess(final Attachment attachment, final ConfluenceUser user, final boolean forEdit) {
         PermissionManager permissionManager = (PermissionManager) ContainerManager.getComponent("permissionManager");
 
         if (forEdit) {
@@ -91,7 +90,7 @@ public class AttachmentUtilImpl implements AttachmentUtil {
         }
     }
 
-    public boolean checkAccessCreate(final User user, final Long pageId) {
+    public boolean checkAccessCreate(final ConfluenceUser user, final Long pageId) {
         if (user == null) {
             return false;
         }

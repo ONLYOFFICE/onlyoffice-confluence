@@ -23,14 +23,14 @@ import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.core.filters.ServletContextThreadLocal;
-import com.atlassian.xwork.HttpMethod;
-import com.atlassian.xwork.ParameterSafe;
-import com.atlassian.xwork.PermittedMethods;
+import com.atlassian.struts.httpmethod.HttpMethod;
+import com.atlassian.struts.httpmethod.PermittedMethods;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.model.common.CommonResponse;
 import com.onlyoffice.model.convertservice.ConvertRequest;
 import com.onlyoffice.model.convertservice.ConvertResponse;
 import com.onlyoffice.service.convert.ConvertService;
+import jakarta.servlet.http.HttpServletResponse;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
@@ -38,8 +38,8 @@ import com.atlassian.confluence.user.ConfluenceUser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.struts2.interceptor.parameter.StrutsParameter;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -167,17 +167,17 @@ public class DownloadAsAction extends ConfluenceActionSupport {
         return "none";
     }
 
-    @ParameterSafe
+    @StrutsParameter
     public void setAttachmentId(final String attachmentId) {
         this.attachmentId = attachmentId;
     }
 
-    @ParameterSafe
+    @StrutsParameter
     public void setFileName(final String fileName) {
         this.fileName = fileName;
     }
 
-    @ParameterSafe
+    @StrutsParameter
     public void setTargetFileType(final String targetFileType) {
         this.targetFileType = targetFileType;
     }
