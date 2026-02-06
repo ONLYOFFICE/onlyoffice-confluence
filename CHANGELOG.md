@@ -1,6 +1,6 @@
 # Change Log
 
-##
+## 6.4.0
 ## Changed
 - compatible with Confluence 9.5.4
 - updated com.onlyoffice:docs-integration-sdk to v1.7.1, see [ONLYOFFICE/docs-integration-sdk-java v1.7.0](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.7.0)
