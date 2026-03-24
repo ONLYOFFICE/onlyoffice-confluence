@@ -8,7 +8,7 @@ This app allows users to create, view, and edit office documents directly within
   </a>
 </p>
 
-## Features ✨ 
+## Features ✨
 
 The app allows to:
 
@@ -44,7 +44,7 @@ The app allows to:
 
 ## Installing ONLYOFFICE Docs
 
-Ensure ONLYOFFICE Docs is running and accessible to both Confluence and users’ browsers. The server must also be able to POST updates back to Confluence.
+Ensure ONLYOFFICE Docs is running and accessible to both Confluence and users' browsers. The server must also be able to POST updates back to Confluence.
 
 ### 🖥️ Self-Hosted Version
 
@@ -55,7 +55,7 @@ Community Edition vs Enterprise Edition comparison can be found [here](#onlyoffi
 
 ### ☁️ Cloud
 
-Use **ONLYOFFICE Docs Cloud** if you prefer not to maintain your own server — no installation or configuration required.  
+Use **ONLYOFFICE Docs Cloud** if you prefer not to maintain your own server — no installation or configuration required.
 
 👉 [Get started here](https://www.onlyoffice.com/docs-registration)
 
@@ -91,15 +91,15 @@ You will need:
 
 Get a submodule:
 
-  ```bash
-  git submodule update --init --recursive
-  ```
+```bash
+git submodule update --init --recursive
+```
 
 Compile package:
 
-  ```bash
-  atlas-package
-  ```
+```bash
+atlas-package
+```
 
 ## How it works
 
@@ -121,7 +121,7 @@ The ONLYOFFICE app follows the API documented [here](https://api.onlyoffice.com/
 * After 10 seconds of inactivity, ONLYOFFICE Document Server sends a POST to the `callback` URL letting Confluence know that the clients have finished editing the document and closed it.
 * Confluence downloads the new version of the document, replacing the old one.
 
-## ONLYOFFICE Docs editions 
+## ONLYOFFICE Docs editions
 
 ONLYOFFICE offers different versions of its online document editors that can be deployed on your own servers.
 
