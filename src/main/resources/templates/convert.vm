@@ -44,7 +44,7 @@ $webResourceManager.requireResource("com.atlassian.auiplugin:aui-progress-indica
                 </div>
             </div>
             <div class="dialog-button-panel">
-                <button disabled="" class="aui-button aui-button-primary">ОК</button>
+                <button disabled="" class="aui-button aui-button-primary">OK</button>
             </div>
         </div>
     </div>
