@@ -94,7 +94,7 @@ public class ConfigServiceImpl extends DefaultConfigService {
                 getSettingsManager().getSettingBoolean("customization.macros", true)
         );
 
-        customization.setToolbarNoTabs(false);
+        customization.setToolbarNoTabs(null);
 
         return customization;
     }
