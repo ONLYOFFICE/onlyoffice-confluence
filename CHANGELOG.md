@@ -1,6 +1,9 @@
 # Change Log
 
 ##
+## Added
+- compatible with Confluence v10.2.13
+
 ## Changed
 - delete setting toolbarNoTabs
 
