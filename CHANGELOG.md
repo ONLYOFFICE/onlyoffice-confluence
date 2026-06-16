@@ -1,5 +1,9 @@
 # Change Log
 
+##
+## Changed
+- delete setting toolbarNoTabs
+
 ## 6.4.0
 ## Changed
 - compatible with Confluence 9.5.4
