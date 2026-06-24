@@ -104,10 +104,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
                     <input type="checkbox" class="checkbox" id="helpMenu" #if($!settings.get('customization.help') == "true") checked="checked" #end />
                     <label for="helpMenu">$i18n.getText('onlyoffice.configuration.interface.helpMenu')</label>
                 </div>
-                <div class="checkbox">
-                    <input type="checkbox" class="checkbox" id="toolbarNoTabs" #if($!settings.get('customization.toolbarNoTabs') == "true") checked="checked" #end />
-                    <label for="toolbarNoTabs">$i18n.getText('onlyoffice.configuration.interface.toolbarNoTabs')</label>
-                </div>
                 <div class="description">$i18n.getText('onlyoffice.configuration.interface.description')</div>
             </div>
 

@@ -1,5 +1,12 @@
 # Change Log
 
+## 7.4.2
+## Added
+- compatible with Confluence v10.2.13
+
+## Changed
+- delete setting toolbarNoTabs
+
 ## 7.4.1
 ## Added
 - compatible with Confluence v10.2.6
