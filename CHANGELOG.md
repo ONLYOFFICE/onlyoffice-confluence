@@ -1,26 +1,24 @@
 # Change Log
 
-##
+## 6.4.1
 ## Changed
 - delete setting toolbarNoTabs
 
-## 6.4.0
+## 5.4.0
 ## Changed
-- compatible with Confluence 9.5.4
 - updated com.onlyoffice:docs-integration-sdk to v1.7.1, see [ONLYOFFICE/docs-integration-sdk-java v1.7.0](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.7.0)
 and see [ONLYOFFICE/docs-integration-sdk-java v1.7.1](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.7.1)
 - fixed bug link generation when the document server or product URL contains a context path
 
-## 6.3.0
+## 5.3.0
 ## Added
 - setting Run document macros
 
 ## Changed
-- compatible with Confluence 9.5.2
 - updated list supported formats, see [ONLYOFFICE/document-formats v3.0.0](https://github.com/ONLYOFFICE/document-formats/releases/tag/v3.0.0)
 - fix CVE-2025-27820
 
-## 6.2.0
+## 5.2.0
 ## Changed
 - com.onlyoffice:documentserver-sdk-java:1.4.0
     - support hwp, hwpx, pages, numbers, key formats
@@ -31,18 +29,7 @@ and see [ONLYOFFICE/docs-integration-sdk-java v1.7.1](https://github.com/ONLYOFF
     - address of the convert service, /converter instead /ConvertService.ashx
     - apache httpclient 5
     - default token lifetime is 5 minutes
-- fixed issue with opening editor, opening a history, the download as action and the button to open the editor in
-preview for an anonymous user
-- fixed ui for dark theme
-- compatible with Confluence 9.3.2
-
-## 6.1.0
-## Added
-- compatible with Confluence 9.*
-
-## Changed
-- forcesave is no longer supported
-- history highlighting is no longer supported
+- compatible with Confluence 8.9.8
 
 ## 5.1.0
 ## Added
