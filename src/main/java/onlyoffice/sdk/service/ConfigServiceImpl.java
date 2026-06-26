@@ -31,8 +31,8 @@ import com.onlyoffice.model.documenteditor.config.editorconfig.Customization;
 import com.onlyoffice.service.documenteditor.config.DefaultConfigService;
 import com.onlyoffice.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ConfigServiceImpl extends DefaultConfigService {
 

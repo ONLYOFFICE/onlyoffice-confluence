@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.core.DateFormatter;
 import com.atlassian.confluence.core.FormatSettingsManager;
 import com.atlassian.confluence.languages.LocaleManager;
@@ -28,42 +29,33 @@ import com.atlassian.confluence.user.ConfluenceUserPreferences;
 import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.onlyoffice.model.common.User;
 import com.onlyoffice.model.documenteditor.HistoryData;
-import com.onlyoffice.model.documenteditor.callback.History;
 import com.onlyoffice.model.documenteditor.history.Version;
-import com.onlyoffice.model.documenteditor.historydata.Previous;
 import onlyoffice.sdk.manager.security.JwtManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AnonymousSiteAccess
 public class OnlyOfficeHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
-    private static final int BUFFER_SIZE = 10240;
 
     private final I18nResolver i18n;
     private final LocaleManager localeManager;
@@ -99,9 +91,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         String type = request.getParameter("type");
         if (type != null) {
             switch (type.toLowerCase()) {
-                case "diff":
-                    getAttachmentDiff(request, response);
-                    break;
                 case "info":
                     getAttachmentHistoryInfo(request, response);
                     break;
@@ -111,55 +100,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                 default:
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                     return;
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-    }
-
-    private void getAttachmentDiff(final HttpServletRequest request, final HttpServletResponse response)
-            throws IOException {
-        if (settingsManager.isSecurityEnabled()) {
-            String securityHeader = settingsManager.getSecurityHeader();
-            String bodySecurityHeader = request.getHeader(securityHeader);
-            String authorizationPrefix = settingsManager.getSecurityPrefix();
-            String token = (bodySecurityHeader != null && bodySecurityHeader.startsWith(authorizationPrefix))
-                    ? bodySecurityHeader.substring(authorizationPrefix.length()) : bodySecurityHeader;
-
-            if (token == null || token == "") {
-                throw new SecurityException("Expected JWT");
-            }
-
-            try {
-                String payload = jwtManager.verify(token);
-            } catch (Exception e) {
-                throw new SecurityException("JWT verification failed!");
-            }
-        }
-
-        String vkey = request.getParameter("vkey");
-        String attachmentIdString = jwtManager.readHash(vkey);
-
-        if (attachmentIdString.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
-        Long attachmentId = Long.parseLong(attachmentIdString);
-        Attachment diff = attachmentUtil.getAttachmentDiff(attachmentId);
-
-        if (diff != null) {
-            InputStream inputStream = attachmentUtil.getAttachmentData(diff.getId());
-
-            response.setContentType(diff.getMediaType());
-            response.setContentLength(inputStream.available());
-
-            byte[] buffer = new byte[BUFFER_SIZE];
-
-            OutputStream output = response.getOutputStream();
-            for (int length = 0; (length = inputStream.read(buffer)) > 0;) {
-                output.write(buffer, 0, length);
             }
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -189,9 +129,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
         if (attachments != null) {
             ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
             DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
-            Gson gson = new Gson();
 
-            Attachment prevVersion = null;
             Collections.reverse(attachments);
             List<Version> history = new ArrayList<>();
             for (Attachment attachment : attachments) {
@@ -215,23 +153,6 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                         )
                         .build();
 
-                Attachment changesAttachment = attachmentUtil.getAttachmentChanges(attachment.getId());
-                if (changesAttachment != null) {
-                    if (prevVersion != null && (attachment.getVersion() - prevVersion.getVersion()) == 1) {
-                        InputStream changesSteam = attachmentUtil.getAttachmentData(changesAttachment.getId());
-                        History changes = objectMapper.readValue(changesSteam, History.class);
-                        List<Object> historyChanges = changes.getChanges();
-
-                        historyChanges = formatChanges(historyChanges, user);
-
-                        changes.setChanges(historyChanges);
-                        version.setServerVersion(changes.getServerVersion());
-                        version.setChanges(changes.getChanges());
-                    } else {
-                        attachmentUtil.removeAttachmentChanges(attachment.getId());
-                    }
-                }
-                prevVersion = attachment;
                 history.add(version);
             }
 
@@ -242,33 +163,11 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
             response.setContentType("application/json");
             PrintWriter writer = response.getWriter();
-            writer.write(gson.toJson(historyInfo));
+            writer.write(objectMapper.writeValueAsString(historyInfo));
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-    }
-
-    private List<Object> formatChanges(final List<Object> changes, final ConfluenceUser user) {
-        ConfluenceUserPreferences preferences = userAccessor.getConfluenceUserPreferences(user);
-        DateFormatter dateFormatter = preferences.getDateFormatter(formatSettingsManager, localeManager);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        List<Object> formatedChanges = new ArrayList<>();
-
-        for (Object changesEntity : changes) {
-            try {
-                Map<String, Object> changesEntityMap = objectMapper.convertValue(changesEntity, Map.class);
-
-                Date created = dateFormat.parse((String) changesEntityMap.get("created"));
-                changesEntityMap.put("created", dateFormatter.formatDateTime(created));
-
-                formatedChanges.add(objectMapper.convertValue(changesEntityMap, Object.class));
-            } catch (ParseException e) {
-                log.error(e);
-            }
-        }
-
-        return formatedChanges;
     }
 
     private void getAttachmentHistoryData(final HttpServletRequest request, final HttpServletResponse response)
@@ -294,10 +193,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
         List<Attachment> attachments = attachmentUtil.getAllVersions(attachmentId);
         if (attachments != null) {
-            Gson gson = new Gson();
             HistoryData historyData = null;
 
-            Attachment prevVersion = null;
             Collections.reverse(attachments);
             for (Attachment attachment : attachments) {
                 if (attachment.getVersion() == version) {
@@ -307,28 +204,8 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
                             .url(urlManager.getFileUrl(String.valueOf(attachment.getId())))
                             .fileType(attachment.getFileExtension())
                             .build();
-
-                    Attachment diff = attachmentUtil.getAttachmentDiff(attachment.getId());
-                    if (prevVersion != null && diff != null) {
-                        boolean adjacentVersions = (attachment.getVersion() - prevVersion.getVersion()) == 1;
-                        if (adjacentVersions) {
-                            historyData.setChangesUrl(urlManager.getAttachmentDiffUri(attachment.getId()));
-                            historyData.setPrevious(Previous.builder()
-                                            .key(
-                                                    documentManager.getDocumentKey(
-                                                            String.valueOf(prevVersion.getId()),
-                                                            false
-                                                    )
-                                            )
-                                            .url(urlManager.getFileUrl(String.valueOf(prevVersion.getId())))
-                                            .fileType(prevVersion.getFileExtension())
-                                            .build()
-                            );
-                        }
-                    }
                     break;
                 }
-                prevVersion = attachment;
             }
 
             if (historyData != null) {
@@ -342,7 +219,7 @@ public class OnlyOfficeHistoryServlet extends HttpServlet {
 
                 response.setContentType("application/json");
                 PrintWriter writer = response.getWriter();
-                writer.write(gson.toJson(historyData));
+                writer.write(objectMapper.writeValueAsString(historyData));
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;

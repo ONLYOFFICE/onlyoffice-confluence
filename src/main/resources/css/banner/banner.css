@@ -26,6 +26,11 @@
     margin: 30px 0 0;
 }
 
+html[data-color-mode="dark"] .onlyoffice-docs-cloud-banner-main {
+    background-color: unset;
+    border: 1px solid #303539;
+}
+
 .onlyoffice-docs-cloud-banner-section {
   padding: 0 15px;
 }
@@ -34,4 +39,8 @@
     background-image: url(logo.svg);
     width: 82px;
     height: 79px;
+}
+
+html[data-color-mode="dark"] .onlyoffice-docs-cloud-banner-image {
+    background-image: url(logo-dark.svg);
 }

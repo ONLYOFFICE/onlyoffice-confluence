@@ -88,7 +88,7 @@ AJS.toInit(function ($) {
                     window.open(AJS.contextPath() + "/plugins/servlet/onlyoffice/convert?attachmentId="
                     + a.selectItems[0].attributes.id
                     +"&pageId=" + AJS.params.pageId
-                    + "&newTitle=" +  $("#view-input-pdf").attr("value")
+                    + "&newTitle=" +  $("#view-input-pdf").val()
                     + "&createForm=true"
                     )
                     setTimeout(function () { document.location.reload(); }, 1000);

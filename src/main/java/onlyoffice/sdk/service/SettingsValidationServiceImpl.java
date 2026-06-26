@@ -25,8 +25,8 @@ import com.onlyoffice.model.common.CommonResponse;
 import com.onlyoffice.model.settings.validation.ValidationResult;
 import com.onlyoffice.model.settings.validation.status.Status;
 import com.onlyoffice.service.settings.DefaultSettingsValidationServiceV2;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -26,8 +26,8 @@ import com.atlassian.spring.container.ContainerManager;
 import com.onlyoffice.manager.document.DefaultDocumentManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,11 +52,9 @@ public class DocumentManagerImpl extends DefaultDocumentManager implements Docum
     @Override
     public String getDocumentKey(final String fileId, final boolean embedded) {
         Long attachmentId = Long.parseLong(fileId);
-        String key = attachmentUtil.getCollaborativeEditingKey(attachmentId);
-        if (key == null) {
-            String hashCode = attachmentUtil.getHashCode(attachmentId);
-            key = generateRevisionId(hashCode);
-        }
+
+        String hashCode = attachmentUtil.getHashCode(attachmentId);
+        String key = generateRevisionId(hashCode);
 
         return embedded ? key + "_embedded" : key;
     }

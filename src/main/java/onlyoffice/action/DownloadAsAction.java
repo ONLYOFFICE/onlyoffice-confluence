@@ -18,6 +18,7 @@
 
 package onlyoffice.action;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.core.ConfluenceActionSupport;
 import com.atlassian.confluence.languages.LocaleManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
@@ -35,14 +36,15 @@ import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import com.atlassian.confluence.user.ConfluenceUser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+@AnonymousSiteAccess
 public class DownloadAsAction extends ConfluenceActionSupport {
 
     private final Logger log = LogManager.getLogger("onlyoffice.action.DownloadAsAction");

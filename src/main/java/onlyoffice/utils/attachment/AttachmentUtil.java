@@ -42,35 +42,15 @@ public interface AttachmentUtil extends Serializable {
 
     void saveAttachmentAsNewVersion(Long attachmentId, File file, ConfluenceUser user) throws IOException;
 
-    void updateAttachment(Long attachmentId, File file, ConfluenceUser user);
-
-    void removeAttachmentChanges(Long attachmentId);
-
     InputStream getAttachmentData(Long attachmentId);
 
     String getMediaType(Long attachmentId);
 
     String getHashCode(Long attachmentId);
 
-    String getCollaborativeEditingKey(Long attachmentId);
-
-    void setCollaborativeEditingKey(Long attachmentId, String key);
-
-    String getProperty(Long attachmentId, String name);
-
-    boolean getPropertyAsBoolean(Long attachmentId, String name);
-
-    void setProperty(Long attachmentId, String name, String value);
-
-    void removeProperty(Long attachmentId, String name);
-
     List<Attachment> getAllVersions(Long attachmentId);
 
     int getVersion(Long attachmentId);
-
-    Attachment getAttachmentChanges(Long attachmentId);
-
-    Attachment getAttachmentDiff(Long attachmentId);
 
     String getAttachmentPageTitle(Long attachmentId);
 
@@ -83,10 +63,8 @@ public interface AttachmentUtil extends Serializable {
     Attachment createNewAttachment(String title, String mimeType, InputStream file, int size, Long pageId,
                                    ConfluenceUser user) throws IOException;
 
-    Attachment createNewAttachment(String title, String mimeType, File file, Long pageId,
-                                   ConfluenceUser user) throws IOException;
-
-    File getConvertedFile(Long attachmentId);
+    Attachment createNewAttachment(String fileName, String mimeType, File file, Long pageId, ConfluenceUser user)
+            throws IOException;
 
     ContentEntityObject getContainer(Long containerId);
 

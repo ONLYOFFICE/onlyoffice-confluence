@@ -50,11 +50,13 @@
 }
 
 #inline-dialog-filecreate .menuitem:hover{
-    background: #EBECF0;
+    background: var(--aui-item-focus-bg);
+    color: var(--aui-item-focus-text, inherit);
 }
 
 #inline-dialog-filecreate .active{
-    background: #EBECF0;
+    background: var(--aui-item-focus-bg);
+    color: var(--aui-item-focus-text, inherit);
 }
 
 #inline-dialog-filecreate .icon{
@@ -87,7 +89,7 @@
     padding-left: 4px;
     padding-top: 2.5px;
     text-align: unset;
-    color: #344563;
+    color: var(--confluence-color-scheme-menuItemTextColor, var(--ds-text));
 }
 
 #inline-dialog-filecreate .hidden{
@@ -121,7 +123,8 @@
     font-size: 14px;
 }
 
-#inline-dialog-filecreate .icon-confirm:hover{
-    background-color: #FFFFFF;
+#inline-dialog-filecreate .icon-confirm:hover {
+    background-color: var(--aui-item-focus-bg);
+    color: var(--aui-item-focus-text, inherit);
     border-radius: 3px;
 }

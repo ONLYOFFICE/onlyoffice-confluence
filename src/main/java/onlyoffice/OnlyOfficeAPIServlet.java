@@ -18,6 +18,7 @@
 
 package onlyoffice;
 
+import com.atlassian.annotations.security.AnonymousSiteAccess;
 import com.atlassian.confluence.pages.Attachment;
 import com.atlassian.confluence.security.Permission;
 import com.atlassian.confluence.security.PermissionManager;
@@ -28,7 +29,6 @@ import com.atlassian.confluence.user.UserAccessor;
 import com.atlassian.confluence.user.actions.ProfilePictureInfo;
 import com.atlassian.sal.api.user.UserKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.onlyoffice.client.DocumentServerClient;
 import com.onlyoffice.manager.settings.SettingsManager;
 import com.onlyoffice.manager.security.JwtManager;
@@ -41,8 +41,8 @@ import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -61,6 +61,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AnonymousSiteAccess
 public class OnlyOfficeAPIServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
@@ -194,7 +195,6 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
             JSONArray attachments = bodyJson.getJSONArray("attachments");
 
             List<Object> responseJson = new ArrayList<>();
-            Gson gson = new Gson();
 
             for (int i = 0; i < attachments.length(); i++) {
                 Long attachmentId = attachments.getLong(i);
@@ -220,7 +220,7 @@ public class OnlyOfficeAPIServlet extends HttpServlet {
 
             response.setContentType("application/json");
             PrintWriter writer = response.getWriter();
-            writer.write(gson.toJson(responseJson));
+            writer.write(objectMapper.writeValueAsString(responseJson));
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }

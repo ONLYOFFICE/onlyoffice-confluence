@@ -34,3 +34,30 @@ div {
     pointer-events: none;
     cursor: default;
 }
+
+#header {
+    display: none;
+}
+
+#main {
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#main-header {
+    display: none;
+}
+
+#content {
+    height: 100%;
+}
+
+#footer {
+    display: none;
+}
+
+#header-precursor {
+    display: none;
+}
+

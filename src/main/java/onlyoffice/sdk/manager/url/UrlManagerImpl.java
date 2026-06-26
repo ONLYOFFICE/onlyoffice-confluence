@@ -23,10 +23,10 @@ import com.atlassian.confluence.pages.AttachmentManager;
 import com.atlassian.confluence.setup.settings.SettingsManager;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
-import com.atlassian.confluence.util.GeneralUtil;
-import com.atlassian.plugin.webresource.UrlMode;
-import com.atlassian.plugin.webresource.WebResourceUrlProvider;
+import com.atlassian.confluence.util.HtmlUtil;
 import com.atlassian.spring.container.ContainerManager;
+import com.atlassian.webresource.api.UrlMode;
+import com.atlassian.webresource.api.WebResourceUrlProvider;
 import com.onlyoffice.manager.document.DocumentManager;
 import com.onlyoffice.manager.url.DefaultUrlManager;
 import com.onlyoffice.model.documenteditor.config.document.DocumentType;
@@ -130,18 +130,10 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
         return getConfluenceBaseUrl(true) + "/plugins/servlet/onlyoffice/test";
     }
 
-    public String getAttachmentDiffUri(final Long attachmentId) {
-        String hash = jwtManager.createHash(Long.toString(attachmentId));
-        String diffAttachmentUrl =
-                getConfluenceBaseUrl(true) + HISTORY_SERVLET + "?type=diff&vkey=" + GeneralUtil.urlEncode(hash);
-
-        return diffAttachmentUrl;
-    }
-
     public String getHistoryInfoUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String historyInfoUri =
-                getConfluenceBaseUrl(false) + HISTORY_SERVLET + "?type=info&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(false) + HISTORY_SERVLET + "?type=info&vkey=" + HtmlUtil.urlEncode(hash);
 
         return historyInfoUri;
     }
@@ -149,7 +141,7 @@ public class UrlManagerImpl extends DefaultUrlManager implements UrlManager {
     public String getHistoryDataUri(final Long attachmentId) {
         String hash = jwtManager.createHash(Long.toString(attachmentId));
         String historyDataUri =
-                getConfluenceBaseUrl(false) + HISTORY_SERVLET + "?type=data&vkey=" + GeneralUtil.urlEncode(hash);
+                getConfluenceBaseUrl(false) + HISTORY_SERVLET + "?type=data&vkey=" + HtmlUtil.urlEncode(hash);
 
         return historyDataUri;
     }
