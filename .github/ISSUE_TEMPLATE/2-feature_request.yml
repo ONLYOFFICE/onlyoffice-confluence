@@ -19,7 +19,7 @@ body:
     id: problem
     attributes:
       label: What problem are you trying to solve?
-      placeholder: "Example: Teams need to co-edit attached files in view mode without opening edit mode."
+      placeholder: "Describe your proposed solution. If you're unsure how it should be implemented, describe the desired outcome instead."
     validations:
       required: true
   - type: textarea

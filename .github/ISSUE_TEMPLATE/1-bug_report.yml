@@ -42,7 +42,7 @@ body:
     id: issue_summary
     attributes:
       label: What happened?
-      placeholder: "Describe the issue and when it occurs."
+      placeholder: "Describe the problem in detail and when it occurs."
     validations:
       required: true
   - type: textarea
@@ -59,14 +59,28 @@ body:
     id: expected
     attributes:
       label: Expected behavior
-      placeholder: "What did you expect to happen?"
+      placeholder: "Describe the expected result after completing the steps above."
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        - OS: Windows 11 / macOS 14.5 / Ubuntu 24.04
+        - Browser: Chrome 126 / Firefox 128 / Safari 17.5
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
       label: Logs (optional)
-      placeholder: "Paste relevant logs or stack traces."
+      placeholder: |
+        Attach:
+        - integration logs;
+        - ONLYOFFICE Docs logs;
+        - browser console;
+        - network trace (optional).
       render: shell
   - type: textarea
     id: screenshots
