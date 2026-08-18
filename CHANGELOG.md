@@ -5,6 +5,7 @@
 - updated com.onlyoffice:docs-integration-sdk to v1.10.0, see [ONLYOFFICE/docs-integration-sdk-java v1.8.0](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.8.0),
   [ONLYOFFICE/docs-integration-sdk-java v1.9.0](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.9.0),
   [ONLYOFFICE/docs-integration-sdk-java v1.10.0](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.10.0)
+- compatible with Confluence v10.2.15
 
 ## 7.4.2
 ## Added
