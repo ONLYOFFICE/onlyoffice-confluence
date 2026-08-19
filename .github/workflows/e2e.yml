@@ -9,6 +9,8 @@ on:
       documentserver_image:
         description: 'Document Server image'
         default: 'onlyoffice/documentserver:latest'
+  push:
+    branches: [master]
   pull_request:
     branches: [master, develop]
 
