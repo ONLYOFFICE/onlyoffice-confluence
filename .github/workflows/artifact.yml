@@ -26,7 +26,6 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           cwd=$(pwd)
-          git submodule update --init --recursive
           sudo sh -c 'echo "deb https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" >>/etc/apt/sources.list'
           wget https://packages.atlassian.com/api/gpg/key/public
           sudo apt-key add public
