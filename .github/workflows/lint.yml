@@ -4,8 +4,20 @@ on:
   workflow_dispatch:
   push:
     branches: [master, develop]
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/**'
+      - '.check-licenses.yml'
   pull_request:
     branches: [master, develop]
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/**'
+      - '.check-licenses.yml'
 
 jobs:
   lint:

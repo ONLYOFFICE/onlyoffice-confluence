@@ -5,6 +5,12 @@ on:
   pull_request:
     types: [opened, reopened]
     branches: [master]
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/**'
+      - '.check-licenses.yml'
   
 jobs:
   artifact:

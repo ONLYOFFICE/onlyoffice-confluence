@@ -11,8 +11,20 @@ on:
         default: 'onlyoffice/documentserver:latest'
   push:
     branches: [master]
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/**'
+      - '.check-licenses.yml'
   pull_request:
     branches: [master, develop]
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/**'
+      - '.check-licenses.yml'
 
 permissions:
   contents: read
