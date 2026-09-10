@@ -80,7 +80,7 @@ jobs:
           atlas-package
 
       - name: Upload plugin
-        uses: actions/upload-artifact@v7
+        uses: christopherHX/gitea-upload-artifact@v4
         with:
           name: plugin
           path: target/onlyoffice-confluence-plugin-*.jar
