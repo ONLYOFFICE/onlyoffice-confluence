@@ -4,8 +4,16 @@ on:
   workflow_dispatch:
   push:
     branches: [master, develop]
+    paths-ignore:
+      - '**/*.md'
+      - '.gitignore'
+      - '.github/**'
   pull_request:
     branches: [master, develop]
+    paths-ignore:
+      - '**/*.md'
+      - '.gitignore'
+      - '.github/**'
 
 jobs:
   licences:

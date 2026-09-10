@@ -8,6 +8,8 @@ on:
       - '**/AUTHORS.md'
       - '**/LICENSE'
       - '**/README.md'
+      - '.gitignore'
+      - '.check-licenses.yml'
 
 jobs:
   create-tag:

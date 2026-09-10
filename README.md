@@ -89,12 +89,6 @@ You will need:
 * 1.8.X of the Oracle Java SE Development Kit 8
 * Atlassian Plugin SDK
 
-Get a submodule:
-
-```bash
-git submodule update --init --recursive
-```
-
 Compile package:
 
 ```bash
