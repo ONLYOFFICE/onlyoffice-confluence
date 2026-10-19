@@ -180,6 +180,8 @@
         <styleClass>onlyoffice-download-as-action</styleClass>
     </web-item>
 
+    <csp key="onlyoffice-csp" name="ONLYOFFICE Content Security Policy" class="onlyoffice.csp.OnlyOfficeCspFragment"/>
+
     <!-- Components and host service imports are declared in META-INF/spring/plugin-context.xml -->
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">

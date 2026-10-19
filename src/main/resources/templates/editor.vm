@@ -55,8 +55,8 @@ $webResourceManager.requireResourcesForContext("editor")
         <span style="display:none;" id="editorConfig" aria-hidden="true">$configAsHtml</span>
     </div>
 
-    <script type="text/javascript" src="${docserviceApiUrl}"></script>
-    <script type="text/javascript" language="javascript">
+    <script nonce="$!{cspNonce}" type="text/javascript" src="${docserviceApiUrl}"></script>
+    <script nonce="$!{cspNonce}" type="text/javascript" language="javascript">
         document.querySelectorAll("link[rel~='icon'][href$='favicon.ico']").forEach(el => el.remove());
 
         var docEditor;

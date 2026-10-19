@@ -96,6 +96,7 @@ public class OnlyOfficeConvertServlet extends HttpServlet {
         PrintWriter writer = response.getWriter();
 
         Map<String, Object> contextMap = MacroUtils.defaultVelocityContext();
+        contextMap.put("cspNonce", request.getAttribute("cspNonceId"));
         Long pageId = attachment.getContainer().getId();
         String fileName = attachment.getFileName();
         String newFileExtension = documentManager.getDefaultConvertExtension(fileName);

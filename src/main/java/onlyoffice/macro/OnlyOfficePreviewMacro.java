@@ -35,6 +35,7 @@ import com.atlassian.confluence.plugin.services.VelocityHelperService;
 import com.atlassian.confluence.user.AuthenticatedUserThreadLocal;
 import com.atlassian.confluence.user.ConfluenceUser;
 import com.atlassian.confluence.util.HtmlUtil;
+import com.atlassian.core.filters.ServletContextThreadLocal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlyoffice.manager.document.DocumentManager;
 import com.onlyoffice.manager.url.UrlManager;
@@ -48,6 +49,8 @@ import onlyoffice.utils.attachment.AttachmentUtil;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.apache.commons.lang3.StringUtils;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
 
@@ -139,6 +142,11 @@ public class OnlyOfficePreviewMacro implements Macro, EditorImagePlaceholder, Re
             context.put("attachmentId", attachment.getId());
             context.put("action", action);
             context.put("docServiceApiUrl", urlManager.getDocumentServerApiUrl());
+
+            HttpServletRequest request = ServletContextThreadLocal.getRequest();
+            if (request != null) {
+                context.put("cspNonce", request.getAttribute("cspNonceId"));
+            }
             context.put("configAsHtml", mapper.writeValueAsString(config));
 
             return this.velocityHelperService.getRenderedTemplate("templates/preview.vm", context);

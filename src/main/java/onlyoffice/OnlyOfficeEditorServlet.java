@@ -169,6 +169,7 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             context.put("spaceKey", attachmentUtil.getAttachmentSpaceKey(attachmentId));
             context.put("spaceName", attachmentUtil.getAttachmentSpaceName(attachmentId));
             context.put("isBlogPost", String.valueOf(attachmentUtil.getContainer(pageId) instanceof BlogPost));
+            context.put("cspNonce", request.getAttribute("cspNonceId"));
 
             if (documentType != null) {
                 JSONObject actionData = null;
