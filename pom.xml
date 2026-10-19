@@ -113,6 +113,20 @@
                     <productDataVersion>${confluence.data.version}</productDataVersion>
                     <enableQuickReload>false</enableQuickReload>
                     <extractDependencies>false</extractDependencies>
+                    <instructions>
+                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
+                        <Bundle-SymbolicName>${atlassian.plugin.key}</Bundle-SymbolicName>
+                        <Spring-Context>*</Spring-Context>
+                        <Export-Package></Export-Package>
+                        <Import-Package>
+                            org.eclipse.gemini.blueprint.*;resolution:="optional",
+                            org.springframework.osgi.*;resolution:="optional",
+                            com.atlassian.*,
+                            jakarta.servlet.*,
+                            org.slf4j.*,
+                            *;resolution:="optional"
+                        </Import-Package>
+                    </instructions>
                 </configuration>
             </plugin>
 

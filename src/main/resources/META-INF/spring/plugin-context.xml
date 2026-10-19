@@ -1,10 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:atlassian-scanner="http://www.atlassian.com/schema/atlassian-scanner/2"
+    xmlns:osgi="http://www.eclipse.org/gemini/blueprint/schema/blueprint"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-        http://www.atlassian.com/schema/atlassian-scanner/2
-        http://www.atlassian.com/schema/atlassian-scanner/2/atlassian-scanner.xsd">
-    <atlassian-scanner:scan-indexes/>
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.eclipse.org/gemini/blueprint/schema/blueprint
+        http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd"
+    default-autowire="constructor">
+
+    <!-- Host (Confluence / SAL) services -->
+    <osgi:reference id="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
+    <osgi:reference id="localeManager" interface="com.atlassian.confluence.languages.LocaleManager"/>
+    <osgi:reference id="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
+    <osgi:reference id="settingsManager" interface="com.atlassian.confluence.setup.settings.SettingsManager"/>
+    <osgi:reference id="attachmentManager" interface="com.atlassian.confluence.pages.AttachmentManager"/>
+    <osgi:reference id="pageManager" interface="com.atlassian.confluence.pages.PageManager"/>
+    <osgi:reference id="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+    <osgi:reference id="webResourceUrlProvider" interface="com.atlassian.webresource.api.WebResourceUrlProvider"/>
+    <osgi:reference id="formatSettingsManager" interface="com.atlassian.confluence.core.FormatSettingsManager"/>
+    <osgi:reference id="sysInfoService" interface="com.atlassian.confluence.status.service.SystemInformationService"/>
+    <osgi:reference id="velocityHelperService"
+        interface="com.atlassian.confluence.plugin.services.VelocityHelperService"/>
+
+    <!-- ONLYOFFICE SDK -->
+    <bean id="onlyoffice-sdk-document-server-client" class="com.onlyoffice.client.ApacheHttpclientDocumentServerClient">
+        <constructor-arg ref="onlyoffice-sdk-settings-manager"/>
+        <constructor-arg ref="onlyoffice-sdk-url-manager"/>
+    </bean>
+    <bean id="onlyoffice-sdk-jwt-manager" class="onlyoffice.sdk.manager.security.JwtManagerImpl"/>
+    <bean id="onlyoffice-sdk-url-manager" class="onlyoffice.sdk.manager.url.UrlManagerImpl"/>
+    <bean id="onlyoffice-sdk-document-manager" class="onlyoffice.sdk.manager.document.DocumentManagerImpl"/>
+    <bean id="onlyoffice-sdk-settings-manager" class="onlyoffice.sdk.manager.settings.SettingsManagerImpl"/>
+    <bean id="onlyoffice-sdk-config-service" class="onlyoffice.sdk.service.ConfigServiceImpl"/>
+    <bean id="onlyoffice-sdk-convert-service" class="com.onlyoffice.service.convert.DefaultConvertServiceV2"/>
+    <bean id="onlyoffice-sdk-validation-settings-service" class="onlyoffice.sdk.service.SettingsValidationServiceImpl"/>
+    <bean id="onlyoffice-sdk-callback-service" class="onlyoffice.sdk.service.CallbackServiceImpl"/>
+
+    <!-- Plugin components -->
+    <bean id="onlyoffice-auth-context" class="onlyoffice.managers.auth.AuthContextImpl"/>
+    <bean id="onlyoffice-attachment-util" class="onlyoffice.utils.attachment.AttachmentUtilImpl"/>
+    <bean id="onlyoffice-parsing-util" class="onlyoffice.utils.parsing.ParsingUtilImpl"/>
+    <bean id="onlyoffice-content-resolver" class="onlyoffice.macro.components.DefaultContentResolver"/>
 </beans>

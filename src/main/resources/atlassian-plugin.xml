@@ -180,64 +180,7 @@
         <styleClass>onlyoffice-download-as-action</styleClass>
     </web-item>
 
-    <!--ONLYOFFICE SDK-->
-    <component name="ONLYOFFICE Document Server Client" key="onlyoffice-sdk-document-server-client" class="com.onlyoffice.client.ApacheHttpclientDocumentServerClient" public="true">
-        <interface>com.onlyoffice.client.DocumentServerClient</interface>
-    </component>
-    <component name="ONLYOFFICE JWT Manager" key="onlyoffice-sdk-jwt-manager" class="onlyoffice.sdk.manager.security.JwtManagerImpl" public="true">
-        <interface>onlyoffice.sdk.manager.security.JwtManager</interface>
-    </component>
-    <component name="ONLYOFFICE URL Manager" key="onlyoffice-sdk-url-manager" class="onlyoffice.sdk.manager.url.UrlManagerImpl" public="true">
-        <interface>onlyoffice.sdk.manager.url.UrlManager</interface>
-    </component>
-    <component name="ONLYOFFICE Document Manager" key="onlyoffice-sdk-document-manager" class="onlyoffice.sdk.manager.document.DocumentManagerImpl" public="true">
-        <interface>onlyoffice.sdk.manager.document.DocumentManager</interface>
-    </component>
-    <component name="ONLYOFFICE Settings Manager" key="onlyoffice-sdk-settings-manager" class="onlyoffice.sdk.manager.settings.SettingsManagerImpl" public="true">
-        <interface>com.onlyoffice.manager.settings.SettingsManager</interface>
-    </component>
-
-    <component name="ONLYOFFICE Config Service" key="onlyoffice-sdk-config-service" class="onlyoffice.sdk.service.ConfigServiceImpl" public="true">
-        <interface>com.onlyoffice.service.documenteditor.config.ConfigService</interface>
-    </component>
-    <component name="ONLYOFFICE Convert Service" key="onlyoffice-sdk-convert-service" class="com.onlyoffice.service.convert.DefaultConvertServiceV2" public="true">
-        <interface>com.onlyoffice.service.convert.ConvertService</interface>
-    </component>
-    <component name="ONLYOFFICE Validation Settings Service" key="onlyoffice-sdk-validation-settings-service" class="onlyoffice.sdk.service.SettingsValidationServiceImpl" public="true">
-        <interface>onlyoffice.sdk.service.SettingsValidationService</interface>
-    </component>
-    <component name="ONLYOFFICE Callback Service" key="onlyoffice-sdk-callback-service" class="onlyoffice.sdk.service.CallbackServiceImpl" public="true">
-        <interface>com.onlyoffice.service.documenteditor.callback.CallbackService</interface>
-    </component>
-    <!--ONLYOFFICE SDK-->
-
-    <component name="Auth Context" key="onlyoffice-auth-context" class="onlyoffice.managers.auth.AuthContextImpl" public="true">
-        <interface>onlyoffice.managers.auth.AuthContext</interface>
-    </component>
-    <component name="Attachment Util" key="onlyoffice-attachment-util" class="onlyoffice.utils.attachment.AttachmentUtilImpl" public="true">
-        <interface>onlyoffice.utils.attachment.AttachmentUtil</interface>
-    </component>
-    <component name="Parsing Util" key="onlyoffice-parsing-util" class="onlyoffice.utils.parsing.ParsingUtilImpl" public="true">
-        <interface>onlyoffice.utils.parsing.ParsingUtil</interface>
-    </component>
-    <component name="Content Resolver" key="onlyoffice-content-resolver" class="onlyoffice.macro.components.DefaultContentResolver" public="true">
-        <interface>onlyoffice.macro.components.ContentResolver</interface>
-    </component>
-
-    <component-import key="applicationConfiguration" interface="com.atlassian.config.ApplicationConfiguration"/>
-    <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
-    <component-import key="localeManager" interface="com.atlassian.confluence.languages.LocaleManager"/>
-    <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
-    <component-import key="settingsManager" interface="com.atlassian.confluence.setup.settings.SettingsManager"/>
-    <component-import key="attachmentManager" interface="com.atlassian.confluence.pages.AttachmentManager"/>
-    <component-import key="pageManager" interface="com.atlassian.confluence.pages.PageManager"/>
-    <component-import key="transactionTemplate" interface="com.atlassian.sal.api.transaction.TransactionTemplate"/>
-    <component-import key="bootstrapManager" interface="com.atlassian.confluence.setup.BootstrapManager"/>
-    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
-    <component-import key="webResourceUrlProvider" interface="com.atlassian.webresource.api.WebResourceUrlProvider"/>
-    <component-import key="formatSettingsManager" interface="com.atlassian.confluence.core.FormatSettingsManager"/>
-    <component-import key="sysInfoService" interface="com.atlassian.confluence.status.service.SystemInformationService"/>
-    <component-import key="velocityHelperService" interface="com.atlassian.confluence.plugin.services.VelocityHelperService"/>
+    <!-- Components and host service imports are declared in META-INF/spring/plugin-context.xml -->
 
     <servlet key="OnlyOfficeDocEditor" class="onlyoffice.OnlyOfficeEditorServlet" name="Document Editor">
         <description>A full-featured editor for the most known formats of text documents, spreadsheets and presentations that can open these types of documents for editing or preview.</description>
