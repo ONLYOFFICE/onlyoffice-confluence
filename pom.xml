@@ -71,6 +71,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -123,6 +124,7 @@
                             org.springframework.osgi.*;resolution:="optional",
                             com.atlassian.*,
                             jakarta.servlet.*,
+                            com.fasterxml.jackson.annotation,
                             org.slf4j.*,
                             *;resolution:="optional"
                         </Import-Package>
@@ -210,9 +212,9 @@
     </pluginRepositories>
 
     <properties>
-        <confluence.version>10.0.3</confluence.version>
-        <confluence.data.version>10.0.3</confluence.data.version>
-        <amps.version>8.10.0</amps.version>
+        <confluence.version>11.0.0</confluence.version>
+        <confluence.data.version>11.0.0</confluence.data.version>
+        <amps.version>9.13.2</amps.version>
         <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

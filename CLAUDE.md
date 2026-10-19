@@ -11,7 +11,9 @@ Confluence-specific implementations of SDK interfaces.
 
 ## Commands
 
-Requires the Atlassian Plugin SDK on PATH (`atlas-*` wrappers); CI uses Temurin JDK 21 even though bytecode targets 8.
+Requires the Atlassian Plugin SDK on PATH (`atlas-*` wrappers) and JDK 25: Confluence 11 and its APIs are compiled
+for Java 25, so building with an older JDK fails with "class file has wrong version 69.0". CI uses Temurin JDK 25
+even though bytecode targets 8.
 
 ```bash
 atlas-package                # build target/onlyoffice-confluence-plugin-<version>.jar (runs checkstyle in validate)
