@@ -41,8 +41,8 @@ import com.onlyoffice.manager.settings.SettingsManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -55,7 +55,7 @@ import java.util.Map;
 @AnonymousSiteAccess
 public class OnlyOfficeHistoryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.OnlyOfficeHistoryServlet");
 
     private final I18nResolver i18n;
     private final LocaleManager localeManager;

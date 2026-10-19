@@ -24,8 +24,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.onlyoffice.manager.security.DefaultJwtManager;
 import org.apache.hc.client5.http.utils.Hex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Random;
 
 public class JwtManagerImpl extends DefaultJwtManager implements JwtManager {
-    private final Logger log = LogManager.getLogger("onlyoffice.sdk.manager.security.JwtManagerImpl");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.sdk.manager.security.JwtManagerImpl");
     private static final int PLUGIN_SECRET_LENGTH = 32;
     private static final String FILES_CONFLUENCE_SECRET = "Vskoproizvolny Salt par Chivreski";
     private final PluginSettings pluginSettings;
@@ -64,7 +64,7 @@ public class JwtManagerImpl extends DefaultJwtManager implements JwtManager {
             String base64 = Base64.getEncoder().encodeToString(payload.getBytes("UTF-8"));
             return base64;
         } catch (Exception ex) {
-            log.error(ex);
+            log.error(ex.getMessage(), ex);
         }
         return "";
     }
@@ -80,7 +80,7 @@ public class JwtManagerImpl extends DefaultJwtManager implements JwtManager {
                 return payloadParts[1];
             }
         } catch (Exception ex) {
-            log.error(ex);
+            log.error(ex.getMessage(), ex);
         }
         return "";
     }
@@ -93,7 +93,7 @@ public class JwtManagerImpl extends DefaultJwtManager implements JwtManager {
 
             return hex;
         } catch (Exception ex) {
-            log.error(ex);
+            log.error(ex.getMessage(), ex);
         }
         return "";
     }

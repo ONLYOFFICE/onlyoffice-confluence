@@ -36,8 +36,8 @@ import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.sdk.service.SettingsValidationService;
 import onlyoffice.utils.parsing.ParsingUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
@@ -48,7 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OnlyOfficeConfServlet extends HttpServlet {
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConfServlet");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.OnlyOfficeConfServlet");
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final long serialVersionUID = 1L;

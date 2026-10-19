@@ -26,13 +26,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import onlyoffice.sdk.manager.security.JwtManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 
 public class OnlyOfficeTestServlet extends HttpServlet {
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeTestServlet");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.OnlyOfficeTestServlet");
     private static final long serialVersionUID = 1L;
 
     private final JwtManager jwtManager;

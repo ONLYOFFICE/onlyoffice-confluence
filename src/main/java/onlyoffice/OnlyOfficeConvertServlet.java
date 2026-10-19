@@ -39,8 +39,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import onlyoffice.managers.auth.AuthContext;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ import java.util.Map;
 
 public class OnlyOfficeConvertServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeConvertServlet");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.OnlyOfficeConvertServlet");
 
     private final VelocityHelperService velocityHelperService;
     private final LocaleManager localeManager;

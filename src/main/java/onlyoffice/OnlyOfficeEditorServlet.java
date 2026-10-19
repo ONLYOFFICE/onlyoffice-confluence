@@ -46,8 +46,8 @@ import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.sdk.manager.security.JwtManager;
 import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -61,7 +61,7 @@ import static onlyoffice.sdk.manager.url.UrlManagerImpl.DOC_EDITOR_SERVLET;
 
 @AnonymousSiteAccess
 public class OnlyOfficeEditorServlet extends HttpServlet {
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeEditorServlet");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.OnlyOfficeEditorServlet");
     private final long serialVersionUID = 1L;
 
     private final I18nResolver i18n;

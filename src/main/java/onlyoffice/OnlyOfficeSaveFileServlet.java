@@ -35,8 +35,8 @@ import onlyoffice.sdk.manager.security.JwtManager;
 import com.onlyoffice.service.documenteditor.callback.CallbackService;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +44,7 @@ import java.io.PrintWriter;
 
 public class OnlyOfficeSaveFileServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
     private final SettingsManager settingsManager;
     private final JwtManager jwtManager;

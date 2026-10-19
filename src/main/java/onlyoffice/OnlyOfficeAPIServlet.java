@@ -45,8 +45,8 @@ import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import onlyoffice.utils.parsing.ParsingUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -64,7 +64,7 @@ import java.util.Map;
 @AnonymousSiteAccess
 public class OnlyOfficeAPIServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeAPIServlet");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.OnlyOfficeAPIServlet");
 
     private final SystemInformationService sysInfoService;
     private final UserAccessor userAccessor;
