@@ -167,6 +167,18 @@
             <id>atlassian-public</id>
             <url>https://maven.atlassian.com/repository/public</url>
         </repository>
+        <!-- Prebuilt unreleased docs-integration-sdk (https://github.com/ONLYOFFICE/docs-integration-sdk-java) -->
+        <repository>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>project-local</id>
+            <url>file://${project.basedir}/repo</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
