@@ -20,6 +20,7 @@ package onlyoffice;
 
 import com.atlassian.annotations.security.UnrestrictedAccess;
 import com.onlyoffice.manager.settings.SettingsManager;
+import com.onlyoffice.model.security.JwtOperation;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,7 +59,7 @@ public class OnlyOfficeTestServlet extends HttpServlet {
             }
 
             try {
-                String payload = jwtManager.verify(token);
+                String payload = jwtManager.verify(token, JwtOperation.DOWNLOAD);
             } catch (Exception e) {
                 throw new SecurityException("JWT verification failed!");
             }
