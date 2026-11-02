@@ -3,6 +3,7 @@
 ## [Unreleased]
 ## Changed
 - updated com.onlyoffice:docs-integration-sdk to v1.10.2, see [ONLYOFFICE/docs-integration-sdk-java v1.10.2](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.10.2)
+- check the operation claim of the Document Server JWT in file download requests
 
 ## 6.5.0
 ## Changed
