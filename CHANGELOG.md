@@ -4,9 +4,9 @@
 ## Added
 - compatible with Confluence v11.*
 
-## [Unreleased]
+## 7.6.0
 ## Changed
-- updated com.onlyoffice:docs-integration-sdk to v1.10.2, see [ONLYOFFICE/docs-integration-sdk-java v1.10.2](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.10.2)
+- updated com.onlyoffice:docs-integration-sdk to v1.11.0, see [ONLYOFFICE/docs-integration-sdk-java v1.11.0](https://github.com/ONLYOFFICE/docs-integration-sdk-java/releases/tag/v1.11.0)
 - check the operation claim of the Document Server JWT in file download requests
 - compatible with Confluence v10.2.19
 
