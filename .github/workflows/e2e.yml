@@ -71,9 +71,9 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           cwd=$(pwd)
-          sudo sh -c 'echo "deb https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" >>/etc/apt/sources.list'
-          wget https://packages.atlassian.com/api/gpg/key/public
-          sudo apt-key add public
+          sudo install -d -m 0755 /etc/apt/keyrings
+          curl -fsSL https://packages.atlassian.com/api/gpg/key/public | sudo tee /etc/apt/keyrings/atlassian-sdk.asc > /dev/null
+          echo "deb [signed-by=/etc/apt/keyrings/atlassian-sdk.asc] https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" | sudo tee /etc/apt/sources.list.d/atlassian-sdk.list > /dev/null
           sudo apt-get update -y
           sudo apt-get install atlassian-plugin-sdk -y
           atlas-version
