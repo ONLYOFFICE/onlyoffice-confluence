@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## 8.6.0
 ## Added
 - compatible with Confluence v11.*
 
