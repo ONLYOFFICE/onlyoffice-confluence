@@ -45,7 +45,11 @@ public class AuthContextImpl implements AuthContext {
     }
 
     public String getLoginUrl(final HttpServletRequest request) throws IOException {
-        String destination = "plugins/servlet/onlyoffice/doceditor";
+        String destination = request.getRequestURI().substring(request.getContextPath().length());
+        if (destination.startsWith("/")) {
+            destination = destination.substring(1);
+        }
+
         String queryString = request.getQueryString();
 
         if (queryString != null && !queryString.isEmpty()) {
