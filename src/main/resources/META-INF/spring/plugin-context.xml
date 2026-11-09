@@ -16,6 +16,8 @@
     <osgi:reference id="attachmentManager" interface="com.atlassian.confluence.pages.AttachmentManager"/>
     <osgi:reference id="pageManager" interface="com.atlassian.confluence.pages.PageManager"/>
     <osgi:reference id="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+    <osgi:reference id="userAccessor" interface="com.atlassian.confluence.user.UserAccessor"/>
+    <osgi:reference id="permissionManager" interface="com.atlassian.confluence.security.PermissionManager"/>
     <osgi:reference id="webResourceUrlProvider" interface="com.atlassian.webresource.api.WebResourceUrlProvider"/>
     <osgi:reference id="formatSettingsManager" interface="com.atlassian.confluence.core.FormatSettingsManager"/>
     <osgi:reference id="sysInfoService" interface="com.atlassian.confluence.status.service.SystemInformationService"/>
