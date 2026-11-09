@@ -112,7 +112,8 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             if (pageId != null && !pageId.equals("")) {
 
                 if (!attachmentUtil.checkAccessCreate(user, Long.parseLong(pageId))) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                    response.sendRedirect(request.getContextPath() + "/pages/viewpageattachments.action?pageId="
+                            + URLEncoder.encode(pageId, "UTF-8"));
                     return;
                 }
 
