@@ -147,15 +147,16 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         try {
             Long attachmentId = Long.parseLong(attachmentIdString);
-            Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
             Attachment attachment = attachmentUtil.getAttachment(attachmentId);
-            String fileName = documentManager.getDocumentName(String.valueOf(attachmentId));
-            DocumentType documentType = documentManager.getDocumentType(fileName);
 
             if (attachment == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
+
+            Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
+            String fileName = documentManager.getDocumentName(String.valueOf(attachmentId));
+            DocumentType documentType = documentManager.getDocumentType(fileName);
 
             if (!attachmentUtil.checkAccess(attachmentId, user, false)) {
                 if (user == null) {
