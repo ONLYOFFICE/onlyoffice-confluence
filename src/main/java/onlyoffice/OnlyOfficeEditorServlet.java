@@ -157,7 +157,12 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
             }
 
             if (!attachmentUtil.checkAccess(attachmentId, user, false)) {
-                response.sendRedirect(authContext.getLoginUrl(request));
+                if (user == null) {
+                    response.sendRedirect(authContext.getLoginUrl(request));
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/pages/viewpageattachments.action?pageId="
+                            + pageId);
+                }
                 return;
             }
 
