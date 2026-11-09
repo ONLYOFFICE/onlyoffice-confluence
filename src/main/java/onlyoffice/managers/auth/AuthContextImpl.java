@@ -45,10 +45,18 @@ public class AuthContextImpl implements AuthContext {
     }
 
     public String getLoginUrl(final HttpServletRequest request) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder(request.getContextPath());
-        String fullUrl = stringBuilder.append("/login.action?permissionViolation=true&os_destination=")
-                .append("plugins%2Fservlet%2Fonlyoffice%2Fdoceditor").append("?")
-                .append(HtmlUtil.urlEncode(request.getQueryString())).toString();
-        return fullUrl;
+        String destination = request.getRequestURI().substring(request.getContextPath().length());
+        if (destination.startsWith("/")) {
+            destination = destination.substring(1);
+        }
+
+        String queryString = request.getQueryString();
+
+        if (queryString != null && !queryString.isEmpty()) {
+            destination += "?" + queryString;
+        }
+
+        return request.getContextPath() + "/login.action?permissionViolation=true&os_destination="
+                + HtmlUtil.urlEncode(destination);
     }
 }

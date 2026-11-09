@@ -108,56 +108,77 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
             String fileName = request.getParameter("fileName");
             String fileExt = request.getParameter("fileExt");
-            String pageId = request.getParameter("pageId");
-            if (pageId != null && !pageId.equals("")) {
+            Long pageId = parseId(request.getParameter("pageId"));
 
-                if (!attachmentUtil.checkAccessCreate(user, Long.parseLong(pageId))) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
-                    return;
-                }
-
-                String extension = fileExt == null
-                        || !fileExt.equals("xlsx")
-                        && !fileExt.equals("pptx")
-                        && !fileExt.equals("pdf")
-                        ? "docx" : fileExt.trim();
-
-                String name = fileName == null || fileName.equals("")
-                        ? i18n.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
-
-                name = attachmentUtil.getCorrectName(name, extension, Long.parseLong(pageId));
-                String mimeType = documentManager.getMimeType(name);
-                InputStream newBlankFile = documentManager.getNewBlankFile(extension, localeManager.getLocale(user));
-
-                Attachment attachment = attachmentUtil.createNewAttachment(
-                        name,
-                        mimeType,
-                        newBlankFile,
-                        newBlankFile.available(),
-                        Long.parseLong(pageId),
-                        user
-                );
-
-                response.sendRedirect(request.getContextPath() + DOC_EDITOR_SERVLET + "?attachmentId="
-                        + URLEncoder.encode(String.valueOf(attachment.getId()), "UTF-8"));
+            if (pageId == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
+
+            if (attachmentUtil.getContainer(pageId) == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            if (!attachmentUtil.checkAccessCreate(user, pageId)) {
+                response.sendRedirect(request.getContextPath() + "/pages/viewpageattachments.action?pageId="
+                        + pageId);
+                return;
+            }
+
+            String extension = fileExt == null
+                    || !fileExt.equals("xlsx")
+                    && !fileExt.equals("pptx")
+                    && !fileExt.equals("pdf")
+                    ? "docx" : fileExt.trim();
+
+            String name = fileName == null || fileName.equals("")
+                    ? i18n.getText("onlyoffice.editor.dialog.filecreate." + extension) : fileName;
+
+            name = attachmentUtil.getCorrectName(name, extension, pageId);
+            String mimeType = documentManager.getMimeType(name);
+            InputStream newBlankFile = documentManager.getNewBlankFile(extension, localeManager.getLocale(user));
+
+            Attachment attachment = attachmentUtil.createNewAttachment(
+                    name,
+                    mimeType,
+                    newBlankFile,
+                    newBlankFile.available(),
+                    pageId,
+                    user
+            );
+
+            response.sendRedirect(request.getContextPath() + DOC_EDITOR_SERVLET + "?attachmentId="
+                    + URLEncoder.encode(String.valueOf(attachment.getId()), "UTF-8"));
+            return;
+        }
+
+        Long attachmentId = parseId(attachmentIdString);
+
+        if (attachmentId == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
 
         try {
-            Long attachmentId = Long.parseLong(attachmentIdString);
-            Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
             Attachment attachment = attachmentUtil.getAttachment(attachmentId);
-            String fileName = documentManager.getDocumentName(String.valueOf(attachmentId));
-            DocumentType documentType = documentManager.getDocumentType(fileName);
 
             if (attachment == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
 
+            Long pageId = attachmentUtil.getAttachmentPageId(attachmentId);
+            String fileName = documentManager.getDocumentName(String.valueOf(attachmentId));
+            DocumentType documentType = documentManager.getDocumentType(fileName);
+
             if (!attachmentUtil.checkAccess(attachmentId, user, false)) {
-                response.sendRedirect(authContext.getLoginUrl(request));
+                if (user == null) {
+                    response.sendRedirect(authContext.getLoginUrl(request));
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/pages/viewpageattachments.action?pageId="
+                            + pageId);
+                }
                 return;
             }
 
@@ -233,6 +254,18 @@ public class OnlyOfficeEditorServlet extends HttpServlet {
 
         } catch (Exception e) {
             throw new ServletException(e.getMessage(), e);
+        }
+    }
+
+    private Long parseId(final String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return Long.parseLong(value.trim());
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
