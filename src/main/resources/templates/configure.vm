@@ -26,7 +26,6 @@ $webResourceManager.requireResource("onlyoffice.onlyoffice-confluence-plugin:onl
     </head>
     <body>
         <div id="onlyofficeMsg"></div>
-        <div id="pathApiUrl" hidden>${pathApiUrl}</div>
         <form id="onlyofficeConf" class="aui long-label">
             <h3>$i18n.getText('onlyoffice.configuration.section.server')</h3>
             <div class="field-group">
