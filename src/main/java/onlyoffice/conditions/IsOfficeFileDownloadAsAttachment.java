@@ -25,8 +25,6 @@ import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
 import onlyoffice.sdk.manager.document.DocumentManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -39,7 +37,6 @@ public class IsOfficeFileDownloadAsAttachment implements Condition {
         this.attachmentUtil = attachmentUtil;
         this.documentManager = documentManager;
     }
-    private final Logger log = LogManager.getLogger("onlyoffice.OnlyOfficeSaveFileServlet");
 
     @Override
     public void init(final Map<String, String> map) throws PluginParseException {
