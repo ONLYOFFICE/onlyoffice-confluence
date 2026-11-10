@@ -41,7 +41,15 @@ jobs:
           cd ./target
           mv ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar $cwd
       - name: Upload Artifact
+        if: ${{ github.server_url == 'https://github.com' }}
         uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}
+          path: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar
+
+      - name: Upload Artifact
+        if: ${{ github.server_url != 'https://github.com' }}
+        uses: christopherHX/gitea-upload-artifact@v4
         with:
           name: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}
           path: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar
