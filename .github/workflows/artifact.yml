@@ -17,14 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Get Info 
         run: |
           echo "version=$(awk '/<version>/,/<\/version>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<version>\(.*\)</version>.*:\1:p')" >> $GITHUB_OUTPUT
           echo "artifact=$(awk '/<artifactId>/,/<\/artifactId>/' pom.xml | head -n 1 | sed 's/^[[:space:]]*//g' | sed -n 's:.*<artifactId>\(.*\)</artifactId>.*:\1:p')" >> $GITHUB_OUTPUT
         id: info
       - name: Install Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -41,7 +41,15 @@ jobs:
           cd ./target
           mv ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar $cwd
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        if: ${{ github.server_url == 'https://github.com' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}
+          path: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar
+
+      - name: Upload Artifact
+        if: ${{ github.server_url != 'https://github.com' }}
+        uses: christopherHX/gitea-upload-artifact@v4
         with:
           name: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}
           path: ${{ steps.info.outputs.artifact }}-${{ steps.info.outputs.version }}.jar
