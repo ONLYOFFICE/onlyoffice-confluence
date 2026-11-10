@@ -26,9 +26,9 @@ jobs:
           cd ${{ github.workspace }}
           cwd=$(pwd)
           curl -fsSL -o /tmp/atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/plugins/atlassian-plugin-sdk-tgz
-          sudo mkdir -p /opt/atlassian-plugin-sdk
-          sudo tar -xzf /tmp/atlassian-plugin-sdk.tar.gz -C /opt/atlassian-plugin-sdk --strip-components=1
-          export PATH="/opt/atlassian-plugin-sdk/bin:$PATH"
+          mkdir -p "$HOME/atlassian-plugin-sdk"
+          tar -xzf /tmp/atlassian-plugin-sdk.tar.gz -C "$HOME/atlassian-plugin-sdk" --strip-components=1
+          export PATH="$HOME/atlassian-plugin-sdk/bin:$PATH"
           atlas-version
           atlas-package
           cd ./target
