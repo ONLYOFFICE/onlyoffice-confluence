@@ -1,4 +1,4 @@
-name: Artifact
+  name: Artifact
 
 on:
   workflow_dispatch:
@@ -32,11 +32,10 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           cwd=$(pwd)
-          sudo install -d -m 0755 /etc/apt/keyrings
-          curl -fsSL https://packages.atlassian.com/api/gpg/key/public | sudo tee /etc/apt/keyrings/atlassian-sdk.asc > /dev/null
-          echo "deb [signed-by=/etc/apt/keyrings/atlassian-sdk.asc] https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" | sudo tee /etc/apt/sources.list.d/atlassian-sdk.list > /dev/null
-          sudo apt-get update -y
-          sudo apt-get install atlassian-plugin-sdk -y
+          curl -fsSL -o /tmp/atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/plugins/atlassian-plugin-sdk-tgz
+          sdk_dir=$(tar -tzf /tmp/atlassian-plugin-sdk.tar.gz | head -n 1 | cut -d/ -f1)
+          sudo tar -xzf /tmp/atlassian-plugin-sdk.tar.gz -C /opt
+          export PATH="/opt/${sdk_dir}/bin:$PATH"
           atlas-version
           atlas-package
           cd ./target
