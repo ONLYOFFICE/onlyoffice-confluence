@@ -11,7 +11,9 @@ Confluence-specific implementations of SDK interfaces.
 
 ## Commands
 
-Requires the Atlassian Plugin SDK on PATH (`atlas-*` wrappers); CI uses Temurin JDK 21 even though bytecode targets 8.
+Requires the Atlassian Plugin SDK on PATH (`atlas-*` wrappers) and JDK 25: Confluence 11 and its APIs are compiled
+for Java 25, so building with an older JDK fails with "class file has wrong version 69.0". CI uses Temurin JDK 25
+even though bytecode targets 8.
 
 ```bash
 atlas-package                # build target/onlyoffice-confluence-plugin-<version>.jar (runs checkstyle in validate)
@@ -44,11 +46,17 @@ Every `.java`/`.vm` file carries the Apache-2.0 Ascensio System SIA header — c
 
 ### Wiring
 
-`src/main/resources/atlassian-plugin.xml` is the single source of truth for the plugin: it declares every servlet,
-`<component>` (constructor-injected Spring beans), `<component-import>` (host Confluence/SAL services),
-`web-resource` bundle, `web-item` menu entry with its `Condition` class, the macro, and the XWork action.
-`META-INF/spring/plugin-context.xml` only enables the Atlassian scanner. **Any new class that needs injection or any
-new URL must be registered there** — there is no annotation-based auto-registration.
+The plugin is a transformerless OSGi bundle (Confluence 11 refuses plugins that need transformation): the
+`confluence-maven-plugin` `<instructions>` in `pom.xml` set `Atlassian-Plugin-Key`, `Bundle-SymbolicName` and
+`Import-Package`. `<component>`/`<component-import>` must **not** be used in `atlassian-plugin.xml`.
+
+- `src/main/resources/atlassian-plugin.xml` declares modules: every servlet, `web-resource` bundle, `web-item` menu
+  entry with its `Condition` class, the macro, and the XWork action. **Any new URL must be registered there.**
+- `META-INF/spring/plugin-context.xml` declares the beans (`default-autowire="constructor"`) and the host
+  Confluence/SAL services as `osgi:reference`. **Any new injectable class or newly used host service must be added
+  there** — there is no annotation-based auto-registration (Spring Scanner is not used). bnd computes
+  `Import-Package` from bytecode only, so an `osgi:reference` whose interface is not used in Java code fails at
+  startup with `ClassNotFoundException`; drop unused references or import the package explicitly in `pom.xml`.
 
 ### SDK integration layer (`onlyoffice.sdk.*`)
 

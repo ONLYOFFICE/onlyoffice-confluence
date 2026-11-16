@@ -125,54 +125,15 @@
             }
         };
 
-        var testDocServiceApi = function () {
-            var testApiResult = function () {
-                var result = typeof DocsAPI != "undefined";
-
-                if (result) {
-                    updateConfig();
-                } else {
-                    AJS.messages.error(
-                        msgBox,
-                        {
-                            body: AJS.I18n.getText("onlyoffice.server.common.error.api-js")
-                        }
-                    );
-
-                    updateConfig();
-                }
-            };
-
-            if (window.location.protocol == "https:" && $("#apiUrlField").val().startsWith("http:")) {
-               AJS.messages.error(
-                   msgBox,
-                   {
-                       body: AJS.I18n.getText("onlyoffice.server.common.error.mixed-content")
-                   }
-               );
+        var checkMixedContent = function () {
+            if (window.location.protocol == "https:" && $("#apiUrlField").val().trim().startsWith("http:")) {
+                AJS.messages.error(
+                    msgBox,
+                    {
+                        body: AJS.I18n.getText("onlyoffice.server.common.error.mixed-content")
+                    }
+                );
             }
-
-            delete DocsAPI;
-
-            $("#scriptDocServiceAddress").remove();
-
-            var js = document.createElement("script");
-            js.setAttribute("type", "text/javascript");
-            js.setAttribute("id", "scriptDocServiceAddress");
-            document.getElementsByTagName("head")[0].appendChild(js);
-
-            var scriptAddress = $("#scriptDocServiceAddress");
-
-            scriptAddress.on("load", testApiResult).on("error", testApiResult);
-
-            var docServiceUrlApi = $("#apiUrlField").val().trim();
-
-            if (docServiceUrlApi.endsWith("/")) {
-                docServiceUrlApi = docServiceUrlApi.slice(0, -1);
-            }
-            docServiceUrlApi += $("#pathApiUrl").html();
-
-            scriptAddress.attr("src", docServiceUrlApi);
         };
 
         $("#onlyofficeConf").submit(function(e) {
@@ -182,11 +143,11 @@
             submitBtn.attr("disabled", true);
             $("#admin-body-content .aui-message").remove();
 
-            if ($("#onlyofficeDemo").is(":checked") && !$("#onlyofficeDemo").prop("disabled")) {
-                updateConfig();
-            } else {
-                testDocServiceApi();
+            if (!$("#onlyofficeDemo").is(":checked") || $("#onlyofficeDemo").prop("disabled")) {
+                checkMixedContent();
             }
+
+            updateConfig();
         });
 
         $("#onlyofficeConf").on("click", ".view-control", function() {

@@ -36,8 +36,8 @@ import onlyoffice.sdk.manager.url.UrlManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
 import com.atlassian.confluence.user.ConfluenceUser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.apache.struts2.interceptor.parameter.StrutsParameter;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ import java.util.List;
 @AnonymousSiteAccess
 public class DownloadAsAction extends ConfluenceActionSupport {
 
-    private final Logger log = LogManager.getLogger("onlyoffice.action.DownloadAsAction");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.action.DownloadAsAction");
 
     private AttachmentUtil attachmentUtil;
     private ConvertService convertService;

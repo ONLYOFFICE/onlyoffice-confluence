@@ -26,8 +26,8 @@ import com.atlassian.spring.container.ContainerManager;
 import com.onlyoffice.manager.document.DefaultDocumentManager;
 import com.onlyoffice.manager.settings.SettingsManager;
 import onlyoffice.utils.attachment.AttachmentUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class DocumentManagerImpl extends DefaultDocumentManager implements DocumentManager {
-    private final Logger log = LogManager.getLogger("onlyoffice.sdk.manager.document.DocumentManagerImpl");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.sdk.manager.document.DocumentManagerImpl");
     private static final int MAX_KEY_LENGTH = 20;
 
     private final AttachmentUtil attachmentUtil;

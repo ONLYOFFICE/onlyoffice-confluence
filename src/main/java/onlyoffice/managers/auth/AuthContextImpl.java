@@ -21,14 +21,14 @@ package onlyoffice.managers.auth;
 import com.atlassian.confluence.util.HtmlUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.security.Principal;
 
 public class AuthContextImpl implements AuthContext {
-    private final Logger log = LogManager.getLogger("onlyoffice.managers.auth.AuthContext");
+    private final Logger log = LoggerFactory.getLogger("onlyoffice.managers.auth.AuthContext");
 
     public boolean checkUserAuthorization(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
@@ -45,10 +45,18 @@ public class AuthContextImpl implements AuthContext {
     }
 
     public String getLoginUrl(final HttpServletRequest request) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder(request.getContextPath());
-        String fullUrl = stringBuilder.append("/login.action?permissionViolation=true&os_destination=")
-                .append("plugins%2Fservlet%2Fonlyoffice%2Fdoceditor").append("?")
-                .append(HtmlUtil.urlEncode(request.getQueryString())).toString();
-        return fullUrl;
+        String destination = request.getRequestURI().substring(request.getContextPath().length());
+        if (destination.startsWith("/")) {
+            destination = destination.substring(1);
+        }
+
+        String queryString = request.getQueryString();
+
+        if (queryString != null && !queryString.isEmpty()) {
+            destination += "?" + queryString;
+        }
+
+        return request.getContextPath() + "/login.action?permissionViolation=true&os_destination="
+                + HtmlUtil.urlEncode(destination);
     }
 }

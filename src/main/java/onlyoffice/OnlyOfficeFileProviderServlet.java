@@ -25,6 +25,7 @@ import com.atlassian.sal.api.user.UserKey;
 import com.atlassian.spring.container.ContainerManager;
 
 import com.onlyoffice.manager.settings.SettingsManager;
+import com.onlyoffice.model.security.JwtOperation;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -68,7 +69,7 @@ public class OnlyOfficeFileProviderServlet extends HttpServlet {
             }
 
             try {
-                String payload = jwtManager.verify(token);
+                String payload = jwtManager.verify(token, JwtOperation.DOWNLOAD);
             } catch (Exception e) {
                 throw new SecurityException("JWT verification failed!");
             }

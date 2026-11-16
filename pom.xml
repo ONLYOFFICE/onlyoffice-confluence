@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>onlyoffice</groupId>
     <artifactId>onlyoffice-confluence-plugin</artifactId>
-    <version>7.5.0</version>
+    <version>8.6.0</version>
 
     <organization>
         <name>Ascensio System SIA</name>
@@ -23,7 +23,14 @@
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
-                <version>5.6.4</version>
+                <version>5.6.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>2.21.8</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -48,6 +55,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.security</groupId>
+            <artifactId>atlassian-secure-api</artifactId>
+            <version>8.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20231013</version>
@@ -56,27 +69,24 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.18.10</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.18.10</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.18.10</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-properties</artifactId>
-            <version>2.18.9</version>
         </dependency>
         <dependency>
             <groupId>com.onlyoffice</groupId>
             <artifactId>docs-integration-sdk</artifactId>
-            <version>1.10.1</version>
+            <version>1.11.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -110,6 +120,21 @@
                     <productDataVersion>${confluence.data.version}</productDataVersion>
                     <enableQuickReload>false</enableQuickReload>
                     <extractDependencies>false</extractDependencies>
+                    <instructions>
+                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
+                        <Bundle-SymbolicName>${atlassian.plugin.key}</Bundle-SymbolicName>
+                        <Spring-Context>*</Spring-Context>
+                        <Export-Package></Export-Package>
+                        <Import-Package>
+                            org.eclipse.gemini.blueprint.*;resolution:="optional",
+                            org.springframework.osgi.*;resolution:="optional",
+                            com.atlassian.*,
+                            jakarta.servlet.*,
+                            com.fasterxml.jackson.annotation,
+                            org.slf4j.*,
+                            *;resolution:="optional"
+                        </Import-Package>
+                    </instructions>
                 </configuration>
             </plugin>
 
@@ -181,9 +206,9 @@
     </pluginRepositories>
 
     <properties>
-        <confluence.version>10.0.3</confluence.version>
-        <confluence.data.version>10.0.3</confluence.data.version>
-        <amps.version>8.10.0</amps.version>
+        <confluence.version>11.0.0</confluence.version>
+        <confluence.data.version>11.0.0</confluence.data.version>
+        <amps.version>9.13.2</amps.version>
         <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
